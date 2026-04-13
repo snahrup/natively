@@ -1,0 +1,14 @@
+flowchart LR
+    A[Manual pasted artifacts] --> E[MeetingImportService]
+    B[Cluely-derived artifacts] --> E
+    C[Teams transcript and recap artifacts] --> E
+    D[Future recordings and synced files] --> E
+
+    E --> F[Normalize into meeting model]
+    F --> G[Persist in SQLite]
+    G --> H[Index into RAG and retrieval]
+    H --> I[Prep packets]
+    H --> J[Meeting coach]
+    H --> K[Reactive chat]
+    G --> L[Context Hub imported history]
+    G --> M[Launcher context overview]

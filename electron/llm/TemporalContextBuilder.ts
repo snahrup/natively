@@ -9,7 +9,7 @@ export interface AssistantResponse {
 }
 
 export interface ContextItem {
-    role: 'interviewer' | 'user' | 'assistant';
+    role: 'external' | 'user' | 'assistant';
     text: string;
     timestamp: number;
 }
@@ -17,7 +17,7 @@ export interface ContextItem {
 export interface TemporalContext {
     recentTranscript: string;           // Formatted transcript window
     previousResponses: string[];        // Assistant's recent answers (for anti-repetition)
-    roleContext: 'responding_to_interviewer' | 'responding_to_user' | 'general';
+    roleContext: 'responding_to_context' | 'responding_to_user' | 'general';
     toneSignals: ToneSignal[];          // Extracted tone indicators
     hasRecentResponses: boolean;        // Quick check if we have history
 }
@@ -95,7 +95,7 @@ function extractToneSignals(responses: AssistantResponse[]): ToneSignal[] {
  */
 function detectRoleContext(
     contextItems: ContextItem[]
-): 'responding_to_interviewer' | 'responding_to_user' | 'general' {
+): 'responding_to_context' | 'responding_to_user' | 'general' {
     // Look at the last few items to determine context
     const recent = contextItems.slice(-5);
 
@@ -103,8 +103,8 @@ function detectRoleContext(
 
     // Find the last non-assistant speaker
     for (let i = recent.length - 1; i >= 0; i--) {
-        if (recent[i].role === 'interviewer') {
-            return 'responding_to_interviewer';
+        if (recent[i].role === 'external') {
+            return 'responding_to_context';
         }
         if (recent[i].role === 'user') {
             return 'responding_to_user';
@@ -135,13 +135,12 @@ function formatPreviousResponses(responses: AssistantResponse[], maxResponses: n
 
 /**
  * Format context items into transcript string
- * INTERVIEWER turns are weighted more heavily for better intent detection
+ * External-speaker turns are weighted more heavily for better intent detection
  */
 function formatTranscript(items: ContextItem[]): string {
     return items.map(item => {
-        if (item.role === 'interviewer') {
-            // Weight interviewer turns more strongly - they define intent
-            return `[INTERVIEWER – IMPORTANT]: ${item.text}`;
+        if (item.role === 'external') {
+            return `[CONTEXT - PRIORITY]: ${item.text}`;
         } else if (item.role === 'user') {
             return `[ME]: ${item.text}`;
         } else {
@@ -201,8 +200,8 @@ export function formatTemporalContextForPrompt(ctx: TemporalContext): string {
 
     // Add role context
     if (ctx.roleContext !== 'general') {
-        const roleDesc = ctx.roleContext === 'responding_to_interviewer'
-            ? 'You are responding to the interviewer\'s question.'
+        const roleDesc = ctx.roleContext === 'responding_to_context'
+            ? 'You are responding to the active conversation context.'
             : 'You are helping the user formulate their response.';
         parts.push(`<role_context>${roleDesc}</role_context>`);
     }

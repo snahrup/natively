@@ -64,6 +64,8 @@ export function detectProviderType(modelName: string): ModelProviderType {
     const lower = modelName.toLowerCase();
     // Ollama / local model patterns
     if (
+        lower.startsWith('codex-') ||
+        lower.startsWith('claude-max') ||
         lower.startsWith('ollama:') ||
         lower.includes('llama') ||
         lower.includes('mistral') ||

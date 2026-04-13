@@ -6,7 +6,6 @@ import {
     RefreshCw, Trash2, Check, ExternalLink, Volume2, Globe, Brain, Cpu, Calendar, Star, CreditCard, X, Pencil, Lightbulb,
     SlidersHorizontal, PointerOff, ArrowRight
 } from 'lucide-react';
-import { SiOpenai, SiGoogle } from 'react-icons/si';
 import { useShortcuts } from '../../hooks/useShortcuts';
 import { useResolvedTheme } from '../../hooks/useResolvedTheme';
 import nativelyIcon from '../icon.png';
@@ -16,11 +15,11 @@ import nativelyIcon from '../icon.png';
 // ----------------------
 
 const MOCK_BUTTONS = [
-    { icon: Pencil,        label: 'What to answer?',   kbd: '⌘1', color: 'blue'    },
-    { icon: MessageSquare, label: 'Clarify',            kbd: '⌘2', color: 'indigo'  },
-    { icon: RefreshCw,     label: 'Recap',              kbd: '⌘7', color: 'amber'   },
-    { icon: HelpCircle,    label: 'Follow Up Question', kbd: '⌘4', color: 'teal'    },
-    { icon: Zap,           label: 'Answer',             kbd: '⌘5', color: 'emerald' },
+    { icon: Pencil,        label: 'Draft Reply',        kbd: '⌘1', color: 'blue'    },
+    { icon: MessageSquare, label: 'Clarify Context',    kbd: '⌘2', color: 'indigo'  },
+    { icon: RefreshCw,     label: 'Summarize',          kbd: '⌘7', color: 'amber'   },
+    { icon: HelpCircle,    label: 'Suggest Follow-Up',  kbd: '⌘4', color: 'teal'    },
+    { icon: Zap,           label: 'Voice Ask',          kbd: '⌘5', color: 'emerald' },
 ] as const;
 
 const colorMap: Record<string, string> = {
@@ -90,14 +89,14 @@ const MockAppInterface = () => {
                         <div className="flex justify-start">
                             <div className="max-w-[85%] px-4 py-3 text-[14px] leading-relaxed font-normal text-text-primary">
                                 <div className="flex items-center gap-1.5 mb-1 text-[10px] font-medium uppercase tracking-wider text-text-secondary opacity-70">
-                                    Interviewer
+                                    Context
                                 </div>
                                 <span className="text-text-secondary italic">So how would you optimize the current algorithm?</span>
                             </div>
                         </div>
                         <div className="flex justify-end">
                             <div className="max-w-[72.25%] px-[13.6px] py-[10.2px] text-[14px] leading-relaxed whitespace-pre-wrap bg-blue-500/10 border border-blue-500/20 text-blue-500 rounded-[20px] rounded-tr-[4px] shadow-sm font-medium">
-                                <span className="font-semibold text-emerald-500 block mb-1 text-[12px]">🎯 Answer</span>
+                                <span className="font-semibold text-emerald-500 block mb-1 text-[12px]">🎯 Draft Reply</span>
                                 A good approach would be to use a hash map to cache intermediate results and reduce time complexity to O(N).
                             </div>
                         </div>
@@ -140,7 +139,7 @@ const MockAppInterface = () => {
                         <div className="flex items-center justify-between mt-3 px-0.5">
                             <div className="flex items-center gap-1.5">
                                 <button className="flex items-center gap-2 px-3 py-1.5 border border-border-subtle rounded-lg bg-bg-item-surface text-text-primary text-xs font-medium w-[140px] shadow-sm">
-                                    <span className="truncate min-w-0 flex-1 text-left">Gemini 3.1 Flash</span>
+                                    <span className="truncate min-w-0 flex-1 text-left">Claude Sonnet</span>
                                     <ChevronDown size={14} className="shrink-0 opacity-70" />
                                 </button>
                                 <div className="h-3 w-px bg-border-subtle mx-1" />
@@ -179,7 +178,7 @@ const MockMeetingInterfaceAnim = () => {
             {/* Header */}
             <div className="px-6 pt-5 pb-0 shrink-0">
                 <div className="text-xs text-text-tertiary font-medium mb-0.5">Today · 47 min</div>
-                <h1 className="text-xl font-bold text-text-primary tracking-tight">System Design Interview</h1>
+                <h1 className="text-xl font-bold text-text-primary tracking-tight">System Design Session</h1>
             </div>
 
             {/* Tabs row */}
@@ -374,7 +373,7 @@ const MockSearchPillAnim = () => {
                                  </div>
                                  <div className="flex-1 min-w-0">
                                      <div className="text-[13px] text-text-primary truncate">
-                                         System Design Interview
+                                         System Design Session
                                      </div>
                                      <div className="text-[11px] text-text-tertiary">
                                          Jan 12
@@ -543,8 +542,8 @@ const MockFastModeAnim = () => {
                     <Zap className="w-8 h-8 text-white" />
                 </motion.div>
                 <div className="text-center">
-                    <div className="font-bold text-lg text-text-primary">Fast Mode Enabled</div>
-                    <div className="text-xs text-text-secondary mt-1">Routing via Groq LPU (Response &lt; 0.5s)</div>
+                    <div className="font-bold text-lg text-text-primary">Higher Reasoning Enabled</div>
+                    <div className="text-xs text-text-secondary mt-1">Use model selection and reasoning depth for harder prompts</div>
                 </div>
             </div>
             
@@ -813,7 +812,7 @@ const SetupGuide = () => {
         },
         {
             title: 'Connect an AI Model',
-            desc: 'Open Settings → AI Providers and choose a built-in model, or add a Groq or OpenRouter key.',
+            desc: 'Open Settings → Meeting AI, confirm the local Claude/Codex sessions are available, then choose a model from the launcher.',
         },
         {
             title: "You're all set.",
@@ -879,6 +878,7 @@ const SetupGuide = () => {
 export const HelpSettings: React.FC<{ onNavigate?: (tab: string) => void }> = ({ onNavigate }) => {
     const { shortcuts } = useShortcuts();
     const isLight = useResolvedTheme() === 'light';
+    const isMacPlatform = typeof navigator !== 'undefined' && /Mac/i.test(navigator.platform);
     
     // Kbd class applying theme variables natively
     const kbdClass = `px-1.5 py-0.5 rounded text-[10px] font-mono border inline-block bg-bg-item-surface border-border-subtle text-text-secondary shadow-sm`;
@@ -891,7 +891,7 @@ export const HelpSettings: React.FC<{ onNavigate?: (tab: string) => void }> = ({
                     Help & Setup Guide
                 </h2>
                 <p className={`text-sm text-text-secondary mt-3 max-w-2xl`}>
-                    Learn how to deeply configure Natively. Everything from providing the right API scopes to executing conversational interviews seamlessly is covered below.
+                    Learn how to deeply configure Natively. Everything from provider setup to seamless live conversation support is covered below.
                 </p>
             </div>
 
@@ -942,24 +942,26 @@ export const HelpSettings: React.FC<{ onNavigate?: (tab: string) => void }> = ({
                                 </p>
                             </div>
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                <div className={`p-4 rounded-xl border bg-bg-item-surface border-border-subtle space-y-2`}>
-                                    <h5 className={`font-semibold text-[13px] text-text-primary flex items-center gap-2`}>
-                                        <Monitor size={14} className="text-accent-primary" /> ScreenCaptureKit (SCK)
-                                    </h5>
-                                    <p className="text-[11px] opacity-90 leading-relaxed text-text-secondary">
-                                        The recommended backend for macOS 13.0+. Uses Apple's modern, highly optimized internal framework for 0-latency loopback speaker capture securely.
-                                    </p>
+                            {isMacPlatform && (
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                    <div className={`p-4 rounded-xl border bg-bg-item-surface border-border-subtle space-y-2`}>
+                                        <h5 className={`font-semibold text-[13px] text-text-primary flex items-center gap-2`}>
+                                            <Monitor size={14} className="text-accent-primary" /> ScreenCaptureKit
+                                        </h5>
+                                        <p className="text-[11px] opacity-90 leading-relaxed text-text-secondary">
+                                            Optional macOS capture backend for environments where the default audio path is unstable.
+                                        </p>
+                                    </div>
+                                    <div className={`p-4 rounded-xl border bg-bg-item-surface border-border-subtle space-y-2`}>
+                                        <h5 className={`font-semibold text-[13px] text-text-primary flex items-center gap-2`}>
+                                            <Volume2 size={14} className="text-orange-500" /> Default Audio Path
+                                        </h5>
+                                        <p className="text-[11px] opacity-90 leading-relaxed text-text-secondary">
+                                            Primary capture route for everyday use. Switch to the alternate backend only if you see repeat capture failures on macOS.
+                                        </p>
+                                    </div>
                                 </div>
-                                <div className={`p-4 rounded-xl border bg-bg-item-surface border-border-subtle space-y-2`}>
-                                    <h5 className={`font-semibold text-[13px] text-text-primary flex items-center gap-2`}>
-                                        <Volume2 size={14} className="text-orange-500" /> CoreAudio (Legacy)
-                                    </h5>
-                                    <p className="text-[11px] opacity-90 leading-relaxed text-text-secondary">
-                                        Fallback engine for older hardware. Relies on internal device aggregation to trap output audio. Only use this if SCK repeatedly drops speaker packets.
-                                    </p>
-                                </div>
-                            </div>
+                            )}
                             
                             <div className={`p-4 rounded-xl border bg-bg-item-surface border-border-subtle space-y-2`}>
                                 <h5 className={`font-semibold text-[13px] text-text-primary flex items-center gap-2`}>
@@ -1045,7 +1047,7 @@ export const HelpSettings: React.FC<{ onNavigate?: (tab: string) => void }> = ({
                                     <button onClick={() => { (window as any).electronAPI?.openExternal('https://platform.openai.com/api-keys') }} className="text-accent-primary hover:underline text-[10px] flex items-center gap-1"><ExternalLink size={10} /> Link</button>
                                 </h5>
                                 <p className="text-xs opacity-90 leading-relaxed text-text-secondary">
-                                    Uses standard OpenAI keys (<span className={kbdClass}>sk-</span>). Remember: this Audio key is isolated from your AI Generation key under "AI Providers".
+                                    Uses standard OpenAI keys (<span className={kbdClass}>sk-</span>). This audio key is separate from the CLI-backed chat model routing.
                                 </p>
                             </div>
 
@@ -1093,53 +1095,29 @@ export const HelpSettings: React.FC<{ onNavigate?: (tab: string) => void }> = ({
                     </div>
                 </AccordionSection>
 
-                <AccordionSection title="3. AI Providers & Prompt Engine" icon={<Key className="w-4 h-4" />}>
+                <AccordionSection title="3. CLI Model Routing" icon={<Key className="w-4 h-4" />}>
                      <div className="space-y-4">
-                        <p className="text-sm">Natively uses Large Language Models (LLMs) to reason about your screen and audio context. You can configure cloud providers, local models, or fully custom endpoints.</p>
+                        <p className="text-sm">Natively routes text generation through local CLI-backed subscriptions only. Claude runs through the local <span className={kbdClass}>claude</span> command, and ChatGPT runs through the local <span className={kbdClass}>codex</span> command.</p>
 
                         <div className="space-y-3 pt-2">
-                             <h4 className="font-bold text-lg text-text-primary border-b border-border-subtle pb-2">1. Standard Cloud Providers</h4>
+                             <h4 className="font-bold text-lg text-text-primary border-b border-border-subtle pb-2">1. Supported Local Sessions</h4>
                              
                              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                                  <div className="p-3 rounded-xl border bg-bg-item-surface border-border-subtle hover:border-border-muted transition-colors">
                                      <h5 className="font-semibold text-sm text-text-primary flex justify-between items-center mb-1">
-                                         <span className="flex items-center gap-2">
-                                            <img src="https://groq.com/favicon.svg" alt="Groq" className="w-4 h-4 object-contain" /> Groq
-                                         </span>
-                                         <button onClick={() => { (window as any).electronAPI?.openExternal('https://console.groq.com/keys') }} className="text-accent-primary hover:underline text-[10px] flex items-center gap-1"><ExternalLink size={10} /> Get Key</button>
+                                         <span>Claude CLI</span>
+                                         <span className="text-[10px] text-text-tertiary">Local session</span>
                                      </h5>
-                                     <p className="text-[11px] opacity-80 mb-2">Ultra-fast inference using LPU hardware. Default model: <strong>llama-3.3-70b-versatile</strong>.</p>
-                                     <span className={kbdClass}>gsk_...</span>
+                                     <p className="text-[11px] opacity-80 mb-2">Uses your logged-in local Claude Code session. Supported models: <strong>claude-sonnet-4-6</strong> and <strong>claude-opus-4-6</strong>.</p>
+                                     <span className={kbdClass}>claude</span>
                                  </div>
                                  <div className="p-3 rounded-xl border bg-bg-item-surface border-border-subtle hover:border-border-muted transition-colors">
                                      <h5 className="font-semibold text-sm text-text-primary flex justify-between items-center mb-1">
-                                         <span className="flex items-center gap-2">
-                                             <SiOpenai className={`w-3.5 h-3.5 ${isLight ? 'text-black' : 'text-white'}`} /> OpenAI
-                                         </span>
-                                         <button onClick={() => { (window as any).electronAPI?.openExternal('https://platform.openai.com/api-keys') }} className="text-accent-primary hover:underline text-[10px] flex items-center gap-1"><ExternalLink size={10} /> Get Key</button>
+                                         <span>Codex CLI</span>
+                                         <span className="text-[10px] text-text-tertiary">Local session</span>
                                      </h5>
-                                     <p className="text-[11px] opacity-80 mb-2">Industry standard pipeline. Default models: <strong>gpt-5.4-mini</strong> & <strong>gpt-5.4</strong>.</p>
-                                     <span className={kbdClass}>sk-proj-...</span>
-                                 </div>
-                                 <div className="p-3 rounded-xl border bg-bg-item-surface border-border-subtle hover:border-border-muted transition-colors">
-                                     <h5 className="font-semibold text-sm text-text-primary flex justify-between items-center mb-1">
-                                         <span className="flex items-center gap-2">
-                                            <img src="https://cdn.simpleicons.org/anthropic/000000" style={{filter: isLight ? '' : 'invert(1)'}} alt="Anthropic" className="w-4 h-4 object-contain" /> Anthropic
-                                         </span>
-                                         <button onClick={() => { (window as any).electronAPI?.openExternal('https://console.anthropic.com/settings/keys') }} className="text-accent-primary hover:underline text-[10px] flex items-center gap-1"><ExternalLink size={10} /> Get Key</button>
-                                     </h5>
-                                     <p className="text-[11px] opacity-80 mb-2">Superior coding baseline parameters. Default: <strong>claude-4.6-sonnet</strong>.</p>
-                                     <span className={kbdClass}>sk-ant-...</span>
-                                 </div>
-                                 <div className="p-3 rounded-xl border bg-bg-item-surface border-border-subtle hover:border-border-muted transition-colors">
-                                     <h5 className="font-semibold text-sm text-text-primary flex justify-between items-center mb-1">
-                                         <span className="flex items-center gap-2">
-                                            <SiGoogle className="w-3.5 h-3.5 text-blue-500" /> Google Gemini
-                                         </span>
-                                         <button onClick={() => { (window as any).electronAPI?.openExternal('https://aistudio.google.com/app/apikey') }} className="text-accent-primary hover:underline text-[10px] flex items-center gap-1"><ExternalLink size={10} /> Get Key</button>
-                                     </h5>
-                                     <p className="text-[11px] opacity-80 mb-2">Immense contextual window. Default model: <strong>gemini-3.1-pro</strong>.</p>
-                                     <span className={kbdClass}>AIzaSy...</span>
+                                     <p className="text-[11px] opacity-80 mb-2">Uses your logged-in local Codex session. Supported models include <strong>gpt-5.4</strong>, <strong>gpt-5.4-mini</strong>, and Codex variants.</p>
+                                     <span className={kbdClass}>codex</span>
                                  </div>
                              </div>
 
@@ -1148,55 +1126,43 @@ export const HelpSettings: React.FC<{ onNavigate?: (tab: string) => void }> = ({
                                      <Zap className="w-4 h-4 text-accent-primary" />
                                  </div>
                                  <p className="text-[11px] text-text-secondary leading-relaxed mt-0.5">
-                                     <strong className="text-text-primary font-bold">Autonomous Registry Sync:</strong> Natively utilizes a 14-day background sync clock (<span className="font-mono bg-bg-elevated border border-border-muted px-1.5 py-0.5 rounded text-[10px] text-text-primary shadow-[inset_0_-1px_0_rgba(0,0,0,0.1)]">v2/api/models</span>) to silently poll upstream APIs. If Anthropic or OpenAI drops a new flagship architecture (e.g. GPT-5), your app dynamically absorbs it into the UI dropdown automatically.
+                                     <strong className="text-text-primary font-bold">No API-key model routing:</strong> Legacy Gemini, Groq, OpenAI, Anthropic API-key text paths and custom text-provider endpoints were removed. Text generation now stays on the local CLI subscriptions.
                                  </p>
                              </div>
                              
                              <div className="p-4 mt-2 rounded-xl border border-border-subtle bg-bg-item-surface">
                                  <h5 className="font-semibold text-[13px] text-text-primary mb-1">Configuring the Active Model Engine</h5>
                                  <p className="text-[11px] text-text-secondary leading-relaxed">
-                                     Inside the Launcher UI (above the start button), you can hot-swap your <strong>Active Model</strong>. This dictation is extremely important—it determines the active core reasoning engine. If set to <strong>claude-3-5-sonnet</strong>, the intelligence agent uses Anthropic infrastructure exclusively for screen analysis. Switch to <strong>llama3:8b</strong> beneath it, and the architecture instantly reverts to generating responses via your offline GPU pipeline.
+                                     Inside the Launcher UI, you can hot-swap your <strong>Active Model</strong>. Choose a Claude model to route through <span className={kbdClass}>claude</span>, or choose a ChatGPT model to route through <span className={kbdClass}>codex</span>. Reasoning depth is controlled separately via the reasoning setting.
                                  </p>
                              </div>
                         </div>
 
                         <div className="space-y-3 pt-4">
-                             <h4 className="font-bold text-lg text-text-primary border-b border-border-subtle pb-2">2. Local Models (Ollama)</h4>
+                             <h4 className="font-bold text-lg text-text-primary border-b border-border-subtle pb-2">2. Session Setup</h4>
                              <div className="p-4 rounded-xl border bg-bg-item-surface border-border-subtle space-y-3">
                                  <p className="text-xs opacity-90 leading-relaxed text-text-secondary">
-                                     You can run Natively completely offline with 100% data privacy using Ollama. Natively automatically scans <span className={kbdClass}>http://localhost:11434</span> for active models.
+                                     Before using the model selector, make sure the local CLI tools are installed and logged in on this machine.
                                  </p>
                                  <ol className="list-decimal pl-4 text-xs space-y-2 opacity-90 text-text-secondary">
-                                     <li>Download Ollama locally via <button onClick={() => { (window as any).electronAPI?.openExternal('https://ollama.com/download') }} className="text-accent-primary hover:underline inline-flex items-center gap-1 font-medium">ollama.com <ExternalLink size={10} /></button></li>
-                                     <li>
-                                        Open Terminal and run our recommended 8B parameter instruction model: 
-                                        <div className="mt-1 bg-bg-input p-2 rounded border border-border-subtle font-mono text-[11px]">ollama run llama3:8b</div>
-                                     </li>
-                                     <li>Alternatively, for faster generation without GPU, use Microsoft's smaller model:
-                                        <div className="mt-1 bg-bg-input p-2 rounded border border-border-subtle font-mono text-[11px]">ollama run phi3</div>
-                                     </li>
-                                     <li>Return to Natively's AI Providers overlay, and you will see your Local models ready for usage.</li>
+                                     <li>Install Claude Code and Codex CLI locally if they are not already available.</li>
+                                     <li>Run <span className={kbdClass}>claude</span> once and complete the local login flow.</li>
+                                     <li>Run <span className={kbdClass}>codex</span> once and complete the local login flow.</li>
+                                     <li>Return to Natively and choose a model from the launcher selector.</li>
                                  </ol>
                              </div>
                         </div>
 
                         <div className="space-y-3 pt-4">
-                             <h4 className="font-bold text-lg text-text-primary border-b border-border-subtle pb-2">3. Custom Providers</h4>
+                             <h4 className="font-bold text-lg text-text-primary border-b border-border-subtle pb-2">3. Removed Legacy Routes</h4>
                              <div className="p-4 rounded-xl border bg-bg-item-surface border-border-subtle space-y-3">
                                  <p className="text-xs opacity-90 leading-relaxed text-text-secondary">
-                                     Use Custom Providers to hook up any standard external LLM router (like OpenRouter, LMStudio, or proprietary company endpoints). Create a new provider using a cURL command template.
+                                     API-key text providers, provider model discovery, fast-mode Groq routing, Ollama text routing, and custom cURL text endpoints are no longer supported in this build.
                                  </p>
-                                 <div className="bg-bg-input p-3 rounded-lg border border-border-subtle space-y-2">
-                                     <div className="text-[11px] font-mono text-text-secondary">
-                                         <div className="text-purple-400">curl</div> <span className="text-blue-400">https://openrouter.ai/api/v1/chat/completions</span> \
-                                         <br/>  -H <span className="text-green-400">"Authorization: Bearer YOUR_KEY"</span> \
-                                         <br/> ...
-                                     </div>
-                                 </div>
                                  <div className="flex items-start gap-2 mt-2">
                                      <div className="w-5 h-5 rounded bg-orange-500/20 text-orange-500 flex items-center justify-center shrink-0 mt-0.5"><Zap size={10} /></div>
                                      <div className="text-xs text-text-secondary leading-relaxed">
-                                         <strong>Crucial: The Response Path.</strong> You must inform Natively how to parse the JSON text back. Deeply nested outputs must define the exact path array. For OpenAI/OpenRouter compliant endpoints, this is strictly: <span className={kbdClass}>choices[0].message.content</span>.
+                                         <strong>Current contract:</strong> local Claude subscription via <span className={kbdClass}>claude</span> and local ChatGPT subscription via <span className={kbdClass}>codex</span>. No text-model API keys are used.
                                      </div>
                                  </div>
                              </div>
@@ -1223,15 +1189,15 @@ export const HelpSettings: React.FC<{ onNavigate?: (tab: string) => void }> = ({
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
                             {([
-                                { Icon: Pencil,        color: 'blue',   title: 'What to Answer?',  badge: null,           bc: '',                                                          kbd: ['⌘','1'],        desc: 'Reads the active transcript and screen, then streams a precise response to read aloud.' },
-                                { Icon: Lightbulb,     color: 'violet', title: 'Brainstorm',        badge: 'Interview ON',  bc: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30',  kbd: ['⌘','3'],        desc: 'Recap becomes Brainstorm when Interview Mode is ON — deep multi-step strategies.' },
-                                { Icon: HelpCircle,    color: 'teal',   title: 'Follow Up',         badge: null,           bc: '',                                                          kbd: ['⌘','4'],        desc: 'Suggests the next logical question to keep conversation flowing gracefully.' },
-                                { Icon: Zap,           color: 'emerald',title: 'Answer Now',        badge: null,           bc: '',                                                          kbd: ['⌘','5'],        desc: 'Records your mic + screen context and fires an immediate AI query.' },
-                                { Icon: MessageSquare, color: 'indigo', title: 'Clarify',           badge: null,           bc: '',                                                          kbd: ['⌘','2'],        desc: 'Generates sharp probing questions from latent audio when a topic is unclear.' },
-                                { Icon: RefreshCw,     color: 'amber',  title: 'Recap',             badge: 'Interview OFF', bc: 'bg-red-500/10 text-red-400 border-red-500/30',              kbd: ['⌘','3'],        desc: 'Condenses the last 5 minutes into bullet points when you lose the thread.' },
-                                { Icon: Sparkles,      color: 'sky',    title: 'Code Hint',         badge: null,           bc: '',                                                          kbd: ['⌘','6'],        desc: 'Reads your screen and nudges you toward the correct code implementation.' },
-                                { Icon: Monitor,       color: 'rose',   title: 'Screenshot & Ask',  badge: null,           bc: '',                                                          kbd: ['⌘','⇧','H'],    desc: 'Forces a full-screen capture and immediately processes it through the LLM.' },
-                                { Icon: EyeOff,        color: 'slate',  title: 'Stealth Execute',   badge: null,           bc: '',                                                          kbd: ['⌘','↵'],        desc: 'Processes context in the background without ever revealing the interface.' },
+                                { Icon: Pencil,        color: 'blue',   title: 'Draft Reply',       badge: null,           bc: '',                                                          kbd: ['⌘','1'],        desc: 'Builds a concise response you can say or send immediately based on the current context.' },
+                                { Icon: Lightbulb,     color: 'violet', title: 'Explore Options',   badge: 'Deep Mode ON',  bc: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30',  kbd: ['⌘','3'],        desc: 'When Deep Thinking is on, the summarize action becomes a deeper option-exploration pass.' },
+                                { Icon: HelpCircle,    color: 'teal',   title: 'Suggest Follow-Up', badge: null,           bc: '',                                                          kbd: ['⌘','4'],        desc: 'Suggests the most useful next question, follow-up, or prompt to keep momentum.' },
+                                { Icon: Zap,           color: 'emerald',title: 'Voice Ask',         badge: null,           bc: '',                                                          kbd: ['⌘','5'],        desc: 'Records your mic plus current context and fires an immediate live query.' },
+                                { Icon: MessageSquare, color: 'indigo', title: 'Clarify Context',   badge: null,           bc: '',                                                          kbd: ['⌘','2'],        desc: 'Generates sharp clarifying prompts when the topic, ask, or speaker intent is ambiguous.' },
+                                { Icon: RefreshCw,     color: 'amber',  title: 'Summarize',         badge: 'Deep Mode OFF', bc: 'bg-red-500/10 text-red-400 border-red-500/30',              kbd: ['⌘','3'],        desc: 'Condenses the recent context into a compact summary when you need to get reoriented fast.' },
+                                { Icon: Sparkles,      color: 'sky',    title: 'Technical Assist',  badge: null,           bc: '',                                                          kbd: ['⌘','6'],        desc: 'Reads visible technical context and nudges you toward the correct implementation or explanation.' },
+                                { Icon: Monitor,       color: 'rose',   title: 'Capture & Ask',     badge: null,           bc: '',                                                          kbd: ['⌘','⇧','H'],    desc: 'Captures the screen and immediately runs it through the context and model pipeline.' },
+                                { Icon: EyeOff,        color: 'slate',  title: 'Background Analyze',badge: null,           bc: '',                                                          kbd: ['⌘','↵'],        desc: 'Processes context in the background without forcing the interface open.' },
                             ] as Array<{ Icon: React.ElementType; color: 'blue'|'violet'|'teal'|'emerald'|'indigo'|'amber'|'sky'|'rose'|'slate'; title: string; badge: string|null; bc: string; kbd: string[]; desc: string }>).map(({ Icon, color, title, badge, bc, kbd, desc }) => {
                                 const isWindows = typeof navigator !== 'undefined' && /Win/i.test(navigator.platform);
                                 const resolvedKbd = kbd.map(k => k === '⌘' ? (isWindows ? 'Ctrl' : '⌘') : k);
@@ -1258,7 +1224,7 @@ export const HelpSettings: React.FC<{ onNavigate?: (tab: string) => void }> = ({
                                             <span className="text-[12px] font-bold text-text-primary tracking-tight leading-none truncate">{title}</span>
                                         </div>
 
-                                        {/* Line 2 — Interview mode badge */}
+                                        {/* Line 2 — mode badge */}
                                         <div className="flex items-center">
                                             {badge ? (
                                                 <span className={`text-[9px] font-black uppercase tracking-wider px-1.5 py-[2px] border rounded leading-none ${bc}`}>{badge}</span>
@@ -1471,7 +1437,7 @@ export const HelpSettings: React.FC<{ onNavigate?: (tab: string) => void }> = ({
                                     </h4>
                                     <ul className="text-[11px] text-text-secondary space-y-1 list-disc pl-4">
                                         <li><strong>Zero Context Prep:</strong> Model inherits your coding stack, experience, etc.</li>
-                                        <li><strong>Resume Parsing:</strong> Upload your PDF Resume for local extraction.</li>
+                                        <li><strong>Profile Ingestion:</strong> Upload a PDF background file for local extraction.</li>
                                         <li><strong>Global Toggle:</strong> Enable <span className="text-amber-500 font-semibold">Profile Mode</span> via the Star button.</li>
                                     </ul>
                                 </div>
@@ -1485,7 +1451,7 @@ export const HelpSettings: React.FC<{ onNavigate?: (tab: string) => void }> = ({
                                     </p>
                                     <ol className="text-[11px] text-text-secondary space-y-1 list-decimal pl-4 mb-0">
                                         <li>Get a License at <button onClick={() => { (window as any).electronAPI?.openExternal('https://natively.software/') }} className="text-accent-primary hover:underline font-semibold">natively.software</button></li>
-                                        <li>Drop your Resume PDF in the UI to activate injection.</li>
+                                        <li>Drop your background PDF in the UI to activate injection.</li>
                                     </ol>
                                 </div>
                             </div>
@@ -1502,7 +1468,7 @@ export const HelpSettings: React.FC<{ onNavigate?: (tab: string) => void }> = ({
                                     <Calendar size={14} /> What is Calendar Intelligence?
                                 </h4>
                                 <p className="text-[11px] text-text-secondary leading-relaxed mb-0">
-                                    By connecting your Google Calendar directly to Natively, the AI automatically gains context on your upcoming meetings, syncs the event data, and reads attendee lists to hyper-personalize your interactions.
+                                    By connecting your calendar to Natively, the app automatically gains context on your upcoming meetings, syncs the event data, and reads attendee lists to personalize your interactions.
                                 </p>
                             </div>
                             
@@ -1511,7 +1477,7 @@ export const HelpSettings: React.FC<{ onNavigate?: (tab: string) => void }> = ({
                                     <h4 className="font-semibold text-sm mb-2 text-text-primary">How to Set it Up</h4>
                                     <ul className="text-[11px] text-text-secondary space-y-1 list-disc pl-4">
                                         <li>Navigate to the <strong>Calendar</strong> tab in settings.</li>
-                                        <li>Click <strong>Connect Google Calendar</strong> and authenticate securely.</li>
+                                        <li>Click <strong>Connect Calendar</strong>. Outlook Desktop is used automatically when it is available, and Google remains optional.</li>
                                         <li>Natively will quietly background-sync your schedule.</li>
                                     </ul>
                                 </div>
@@ -1526,18 +1492,18 @@ export const HelpSettings: React.FC<{ onNavigate?: (tab: string) => void }> = ({
 
                         <div className="border-t border-border-subtle my-5"></div>
 
-                        {/* Fast Mode */}
+                        {/* Reasoning Controls */}
                         <div className="space-y-4">
                              <h4 className="font-bold text-sm text-text-primary flex items-center gap-2">
-                                 <Zap className="w-4 h-4 text-orange-500" /> Fast Mode (Hardware LPU)
+                                 <Zap className="w-4 h-4 text-orange-500" /> Reasoning Controls
                              </h4>
                              <MockFastModeAnim />
                              <div className="p-4 rounded-xl border bg-orange-500/10 border-orange-500/20">
                                  <h4 className="font-semibold text-sm mb-2 text-orange-500 flex items-center gap-2">
-                                     <Zap className="w-4 h-4" /> How Fast Mode Works
+                                     <Zap className="w-4 h-4" /> How Speed Control Works
                                  </h4>
                                  <p className="text-xs text-orange-400/80 m-0">
-                                     Fast Mode activates highly efficient models (like Llama 3 8B) layered over Groq hardware LPUs instead of GPUs. This brings latency down from 2-3 seconds to less than 500ms. To enable Fast Mode, navigate to Settings &gt; General Settings popup overlay, and click the Lightning Icon.
+                                     Older fast-mode routing was removed with the API-key provider stack. Use the model selector and reasoning controls to balance speed against depth.
                                  </p>
                              </div>
                         </div>

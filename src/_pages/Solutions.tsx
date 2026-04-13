@@ -1,4 +1,4 @@
-// Solutions.tsx — Rolling Interview Script / Teleprompter UI
+// Solutions.tsx — Rolling Response Script / Teleprompter UI
 import React, { useState, useEffect, useRef } from "react"
 import { useQuery, useQueryClient } from "react-query"
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter"
@@ -71,7 +71,7 @@ const ComplexityRow: React.FC<{ time: string; space: string }> = ({ time, space 
 const ScriptLoader: React.FC = () => (
   <div className="space-y-4 py-2">
     <p className="text-[13px] text-center bg-gradient-to-r from-violet-300 via-white to-violet-300 bg-clip-text text-transparent animate-pulse font-medium">
-      ✍️ Drafting your interview script…
+      ✍️ Drafting your response script…
     </p>
     {[1, 2, 3, 4].map(i => (
       <div key={i} className="rounded-xl border border-white/10 overflow-hidden opacity-40" style={{ animation: `pulse 1.5s ease-in-out ${i * 0.15}s infinite` }}>
@@ -207,7 +207,7 @@ const Solutions: React.FC<SolutionsProps> = ({ setView }) => {
       // Error
       window.electronAPI.onSolutionError((error: string) => {
         setIsGenerating(false)
-        showToast("Generation Failed", "Couldn't generate the interview script. Try again.", "error")
+        showToast("Generation Failed", "Couldn't generate the response script. Try again.", "error")
         console.error("Solution error:", error)
         const cached = queryClient.getQueryData<Solution>(["solution"])
         if (!cached) setView("queue")

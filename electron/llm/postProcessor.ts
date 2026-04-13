@@ -32,7 +32,7 @@ const PREFIXES = [
 ];
 
 /**
- * Clamp response to strict interview copilot constraints
+ * Clamp response to strict live-coaching constraints
  * @param text - Raw LLM response
  * @param maxSentences - Maximum sentences allowed (default 3)
  * @param maxWords - Maximum words allowed (default 60)

@@ -7,6 +7,7 @@ import path from "node:path"
 const isEnvDev = process.env.NODE_ENV === "development"
 const isPackaged = app.isPackaged;
 const inAppBundle = process.execPath.includes('.app/') || process.execPath.includes('.app\\');
+const devServerUrl = process.env.VITE_DEV_SERVER_URL || "http://127.0.0.1:5180";
 
 console.log(`[WindowHelper] isEnvDev: ${isEnvDev}, isPackaged: ${isPackaged}, inAppBundle: ${inAppBundle}`);
 
@@ -14,7 +15,7 @@ console.log(`[WindowHelper] isEnvDev: ${isEnvDev}, isPackaged: ${isPackaged}, in
 const isDev = isEnvDev && !isPackaged;
 
 const startUrl = isDev
-  ? "http://localhost:5180"
+  ? devServerUrl
   : `file://${path.join(__dirname, "../../dist/index.html")}`
 
 export class WindowHelper {
@@ -31,6 +32,7 @@ export class WindowHelper {
   private appState: AppState
   private contentProtection: boolean = false
   private opacityTimeout: NodeJS.Timeout | null = null
+  private launcherVisibilityFallback: NodeJS.Timeout | null = null
 
   // Constants
   private static readonly OVERLAY_DEFAULT_WIDTH = 600;
@@ -212,6 +214,23 @@ export class WindowHelper {
 
     this.launcherWindow.setContentProtection(this.contentProtection)
 
+    this.launcherWindow.webContents.on('did-finish-load', () => {
+      console.log('[WindowHelper] Launcher did-finish-load')
+      if (this.launcherVisibilityFallback) {
+        clearTimeout(this.launcherVisibilityFallback)
+        this.launcherVisibilityFallback = null
+      }
+    })
+
+    this.launcherWindow.webContents.on('did-fail-load', (event, errorCode, errorDescription) => {
+      console.error(`[WindowHelper] Failed to load URL: ${errorCode} ${errorDescription}`)
+      this.launcherWindow?.showInactive()
+      if (this.launcherVisibilityFallback) {
+        clearTimeout(this.launcherVisibilityFallback)
+        this.launcherVisibilityFallback = null
+      }
+    })
+
     this.launcherWindow.loadURL(`${startUrl}?window=launcher`)
       .then(() => console.log('[WindowHelper] loadURL success'))
       .catch((e) => { console.error("[WindowHelper] Failed to load URL:", e) })
@@ -274,9 +293,17 @@ export class WindowHelper {
 
     // --- 3. Startup Sequence ---
     this.launcherWindow.once('ready-to-show', () => {
+      console.log('[WindowHelper] Launcher ready-to-show')
       this.switchToLauncher()
       this.isWindowVisible = true
     })
+
+    this.launcherVisibilityFallback = setTimeout(() => {
+      if (this.launcherWindow && !this.launcherWindow.isDestroyed() && !this.launcherWindow.isVisible()) {
+        console.log('[WindowHelper] Forcing launcher visibility fallback')
+        this.switchToLauncher(true)
+      }
+    }, 3000)
 
     this.setupWindowListeners()
   }

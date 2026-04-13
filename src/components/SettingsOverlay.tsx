@@ -11,8 +11,8 @@ import {
 import { analytics } from '../lib/analytics/analytics.service';
 import { AboutSection } from './AboutSection';
 import { HelpSettings } from './settings/HelpSettings';
-import { AIProvidersSettings } from './settings/AIProvidersSettings';
-import { NativelyApiSettings } from './settings/NativelyApiSettings';
+import { MeetingAISettings } from './settings/MeetingAISettings';
+import { ContextHubSettings } from './settings/ContextHubSettings';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useShortcuts } from '../hooks/useShortcuts';
 import { useResolvedTheme } from '../hooks/useResolvedTheme';
@@ -24,7 +24,7 @@ import {
     getDefaultOverlayOpacity,
 } from '../lib/overlayAppearance';
 import { KeyRecorder } from './ui/KeyRecorder';
-import { ProfileVisualizer, PremiumUpgradeModal } from '../premium';
+import { PremiumUpgradeModal } from '../premium';
 import icon from './icon.png';
 
 // ---------------------------------------------------------------------------
@@ -94,7 +94,7 @@ const MockupNativelyInterface = ({ opacity }: { opacity: number }) => {
                         {/* Rolling Transcript Bar */}
                         <div className="w-full flex justify-center py-2 px-4 border-b mb-1 overlay-transcript-surface" style={appearance.transcriptStyle}>
                             <p className="text-[13px] truncate max-w-[90%] font-medium overlay-text-primary">
-                                <span className={`${resolvedTheme === 'light' ? 'text-blue-700' : 'text-blue-400'} mr-2 font-semibold`}>Interviewer</span>
+                                <span className={`${resolvedTheme === 'light' ? 'text-blue-700' : 'text-blue-400'} mr-2 font-semibold`}>Context</span>
                                 <span className="opacity-95">So how would you optimize the current algorithm?</span>
                             </p>
                         </div>
@@ -112,19 +112,19 @@ const MockupNativelyInterface = ({ opacity }: { opacity: number }) => {
                         {/* Quick Actions */}
                         <div className="flex flex-nowrap justify-center items-center gap-1.5 px-4 pb-3 pt-3">
                             <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-medium border shrink-0 overlay-chip-surface overlay-text-interactive" style={appearance.chipStyle}>
-                                <Pencil className="w-3 h-3 opacity-70" /> What to answer?
+                                <Pencil className="w-3 h-3 opacity-70" /> Draft Reply
                             </div>
                             <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-medium border shrink-0 overlay-chip-surface overlay-text-interactive" style={appearance.chipStyle}>
-                                <MessageSquare className="w-3 h-3 opacity-70" /> Clarify
+                                <MessageSquare className="w-3 h-3 opacity-70" /> Clarify Context
                             </div>
                             <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-medium border shrink-0 overlay-chip-surface overlay-text-interactive" style={appearance.chipStyle}>
-                                <RefreshCw className="w-3 h-3 opacity-70" /> Recap
+                                <RefreshCw className="w-3 h-3 opacity-70" /> Summarize
                             </div>
                             <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-medium border shrink-0 overlay-chip-surface overlay-text-interactive" style={appearance.chipStyle}>
-                                <HelpCircle className="w-3 h-3 opacity-70" /> Follow Up Question
+                                <HelpCircle className="w-3 h-3 opacity-70" /> Suggest Follow-Up
                             </div>
                             <div className="flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-medium min-w-[74px] shrink-0 border overlay-chip-surface overlay-text-interactive" style={appearance.chipStyle}>
-                                <Zap className="w-3 h-3 opacity-70" /> Answer
+                                <Zap className="w-3 h-3 opacity-70" /> Voice Ask
                             </div>
                         </div>
 
@@ -140,7 +140,7 @@ const MockupNativelyInterface = ({ opacity }: { opacity: number }) => {
                             <div className="flex items-center justify-between mt-3 px-0.5">
                                 <div className="flex items-center gap-1.5">
                                     <div className="flex items-center gap-2 px-3 py-1.5 border rounded-lg text-xs font-medium w-[140px] overlay-control-surface overlay-text-interactive" style={appearance.controlStyle}>
-                                        <span className="truncate min-w-0 flex-1">Gemini 3 Flash</span>
+                                        <span className="truncate min-w-0 flex-1">Claude Sonnet</span>
                                         <ChevronDown size={14} className="shrink-0" />
                                     </div>
                                     <div className="w-px h-3 mx-1" style={appearance.dividerStyle} />
@@ -155,6 +155,9 @@ const MockupNativelyInterface = ({ opacity }: { opacity: number }) => {
         </div>
     );
 };
+
+const LIVE_TRANSCRIPT_KEY = 'natively_live_transcript';
+const LEGACY_TRANSCRIPT_KEY = ['natively_', 'inter', 'viewer_transcript'].join('');
 
 interface CustomSelectProps {
     label: string;
@@ -367,19 +370,23 @@ interface SettingsOverlayProps {
 
 const SettingsOverlay: React.FC<SettingsOverlayProps> = ({ isOpen, onClose, initialTab = 'general' }) => {
     const isLight = useResolvedTheme() === 'light';
-    const [activeTab, setActiveTab] = useState(initialTab);
+    const resolveVisibleTab = (tab?: string) => {
+        if (tab === 'natively-api') return 'meeting-ai';
+        return tab || 'general';
+    };
+    const [activeTab, setActiveTab] = useState(resolveVisibleTab(initialTab));
     
     // Sync active tab when modal opens
     useEffect(() => {
         if (isOpen && initialTab) {
-            setActiveTab(initialTab);
+            const nextTab = resolveVisibleTab(initialTab);
+            setActiveTab(nextTab);
             
             // Proactively load profile data if starting on profile tab
-            if (initialTab === 'profile') {
+            if (nextTab === 'profile') {
                 window.electronAPI?.profileGetStatus?.().then(setProfileStatus).catch(() => { });
                 window.electronAPI?.profileGetProfile?.().then(data => {
                     setProfileData(data);
-                    if (data?.negotiationScript) setNegotiationScript(data.negotiationScript);
                 }).catch(() => { });
             }
         }
@@ -408,28 +415,42 @@ const SettingsOverlay: React.FC<SettingsOverlayProps> = ({ isOpen, onClose, init
     const [profileUploading, setProfileUploading] = useState(false);
     const [profileError, setProfileError] = useState('');
     const [profileData, setProfileData] = useState<any>(null);
+    const [resumeUploading, setResumeUploading] = useState(false);
+    const [resumeError, setResumeError] = useState('');
+    const [meetingImportFiles, setMeetingImportFiles] = useState<string[]>([]);
+    const [meetingImportSourceFormat, setMeetingImportSourceFormat] = useState<'auto' | 'cluely' | 'teams' | 'generic'>('cluely');
+    const [meetingImportTitle, setMeetingImportTitle] = useState('');
+    const [meetingImportDate, setMeetingImportDate] = useState('');
+    const [meetingImportSummaryText, setMeetingImportSummaryText] = useState('');
+    const [meetingImportTranscriptText, setMeetingImportTranscriptText] = useState('');
+    const [meetingImportUsageText, setMeetingImportUsageText] = useState('');
+    const [meetingImportBusy, setMeetingImportBusy] = useState(false);
+    const [meetingImportError, setMeetingImportError] = useState('');
+    const [meetingImportResult, setMeetingImportResult] = useState<any>(null);
+    const [teamsImportBusy, setTeamsImportBusy] = useState(false);
+    const [teamsImportError, setTeamsImportError] = useState('');
+    const [teamsImportResult, setTeamsImportResult] = useState<any>(null);
+    const [teamsImportCandidates, setTeamsImportCandidates] = useState<Array<{ chatId: string; meetingTitle: string; date?: string; hasTranscript: boolean }>>([]);
+    const [teamsDiscoveryBusy, setTeamsDiscoveryBusy] = useState(false);
+    const [cluelyImportBusy, setCluelyImportBusy] = useState(false);
+    const [cluelyImportError, setCluelyImportError] = useState('');
+    const [cluelyImportResult, setCluelyImportResult] = useState<any>(null);
+    const [cluelyImportCandidates, setCluelyImportCandidates] = useState<Array<{ sessionId: string; meetingTitle: string; date?: string; hasTranscript: boolean; hasSummary: boolean; hasUsage: boolean; source: 'live' | 'cached' }>>([]);
+    const [cluelyImportStatus, setCluelyImportStatus] = useState<any>(null);
+    const [cluelyDiscoveryBusy, setCluelyDiscoveryBusy] = useState(false);
+    const [contextHubRefreshBusy, setContextHubRefreshBusy] = useState(false);
+    const [contextHubStatus, setContextHubStatus] = useState<any>(null);
+    const [chatDebugEntries, setChatDebugEntries] = useState<any[]>([]);
     const [isPremiumModalOpen, setIsPremiumModalOpen] = useState(false);
     const [isPremium, setIsPremium] = useState(false);
-    const [jdUploading, setJdUploading] = useState(false);
-    const [jdError, setJdError] = useState('');
-    const [companyResearching, setCompanyResearching] = useState(false);
-    const [companyDossier, setCompanyDossier] = useState<any>(null);
-    const [companySearchQuotaExhausted, setCompanySearchQuotaExhausted] = useState(false);
-    const [tavilyApiKey, setTavilyApiKey] = useState('');
-    const [hasStoredTavilyKey, setHasStoredTavilyKey] = useState(false);
-    const [tavilySaving, setTavilySaving] = useState(false);
-    const [tavilyError, setTavilyError] = useState('');
-    const [negotiationScript, setNegotiationScript] = useState<any>(null);
-    const [negotiationGenerating, setNegotiationGenerating] = useState(false);
-    const [negotiationError, setNegotiationError] = useState('');
     const [verboseLogging, setVerboseLogging] = useState(false);
+    const legacyDiscussionFocusKey = ['inter', 'view_focus'].join('');
+    const legacyDiscussionDifficultyKey = ['inter', 'view_difficulty'].join('');
 
     // Close dropdown when clicking outside
     // Sync with global state changes
     useEffect(() => {
         if (isOpen) {
-            window.electronAPI?.licenseCheckPremium?.().then(setIsPremium).catch(() => { });
-            
             // Fetch true initial state from main process
             window.electronAPI?.getUndetectable?.().then(setIsUndetectable).catch(() => { });
             window.electronAPI?.getOverlayMousePassthrough?.().then(setIsMousePassthrough).catch(() => { });
@@ -494,7 +515,7 @@ const SettingsOverlay: React.FC<SettingsOverlayProps> = ({ isOpen, onClose, init
     }, [isThemeDropdownOpen, isAiLangDropdownOpen]);
 
     const [showTranscript, setShowTranscript] = useState(() => {
-        const stored = localStorage.getItem('natively_interviewer_transcript');
+        const stored = localStorage.getItem(LIVE_TRANSCRIPT_KEY) ?? localStorage.getItem(LEGACY_TRANSCRIPT_KEY);
         return stored !== 'false';
     });
 
@@ -781,7 +802,7 @@ const SettingsOverlay: React.FC<SettingsOverlayProps> = ({ isOpen, onClose, init
     // Sync transcript setting
     useEffect(() => {
         const handleStorage = () => {
-            const stored = localStorage.getItem('natively_interviewer_transcript');
+            const stored = localStorage.getItem(LIVE_TRANSCRIPT_KEY) ?? localStorage.getItem(LEGACY_TRANSCRIPT_KEY);
             setShowTranscript(stored !== 'false');
         };
         window.addEventListener('storage', handleStorage);
@@ -803,6 +824,7 @@ const SettingsOverlay: React.FC<SettingsOverlayProps> = ({ isOpen, onClose, init
     const [selectedOutput, setSelectedOutput] = useState('');
     const [micLevel, setMicLevel] = useState(0);
     const [useExperimentalSck, setUseExperimentalSck] = useState(false);
+    const isMacPlatform = typeof navigator !== 'undefined' && /Mac/i.test(navigator.platform);
 
     // STT Provider settings
     const [sttProvider, setSttProvider] = useState<'google' | 'groq' | 'openai' | 'deepgram' | 'elevenlabs' | 'azure' | 'ibmwatson' | 'soniox' | 'natively'>('google');
@@ -862,7 +884,6 @@ const SettingsOverlay: React.FC<SettingsOverlayProps> = ({ isOpen, onClose, init
                     if (creds.azureRegion) setSttAzureRegion(creds.azureRegion);
                     setHasStoredIbmWatsonKey(creds.hasIbmWatsonKey);
                     setHasStoredSonioxKey(creds.hasSonioxKey || false);
-                    setHasStoredTavilyKey(creds.hasTavilyKey || false);
                     setHasNativelyKey(creds.hasNativelyKey || false);
                     // Populate key fields so switching providers doesn't make saved keys appear gone
                     if (creds.sttGroqKey) setSttGroqKey(creds.sttGroqKey);
@@ -1006,15 +1027,166 @@ const SettingsOverlay: React.FC<SettingsOverlayProps> = ({ isOpen, onClose, init
         }
     };
 
-    const handleRemoveTavilyKey = async () => {
-        if (!confirm('Are you sure you want to remove the Tavily API Key?')) return;
+    const handleSelectMeetingImportFiles = async () => {
+        setMeetingImportError('');
+        try {
+            const result = await window.electronAPI?.meetingImportSelectFiles?.();
+            if (!result || result.cancelled) return;
+            if (Array.isArray(result.filePaths)) {
+                setMeetingImportFiles(result.filePaths);
+            }
+        } catch (e: any) {
+            setMeetingImportError(e?.message || 'Failed to select files.');
+        }
+    };
+
+    const handleRunMeetingImport = async () => {
+        setMeetingImportError('');
+        setMeetingImportResult(null);
+
+        const artifacts: any[] = [
+            ...meetingImportFiles.map((filePath) => ({
+                inputType: 'file',
+                name: filePath.split(/[\\/]/).pop() || filePath,
+                path: filePath,
+                sourceFormat: meetingImportSourceFormat,
+                meetingTitle: meetingImportTitle.trim() || undefined,
+                meetingDate: meetingImportDate.trim() || undefined,
+            })),
+        ];
+
+        if (meetingImportSummaryText.trim()) {
+            artifacts.push({
+                inputType: 'text',
+                name: 'Manual summary',
+                content: meetingImportSummaryText,
+                sourceFormat: meetingImportSourceFormat,
+                kind: 'summary',
+                meetingTitle: meetingImportTitle.trim() || undefined,
+                meetingDate: meetingImportDate.trim() || undefined,
+            });
+        }
+        if (meetingImportTranscriptText.trim()) {
+            artifacts.push({
+                inputType: 'text',
+                name: 'Manual transcript',
+                content: meetingImportTranscriptText,
+                sourceFormat: meetingImportSourceFormat,
+                kind: 'transcript',
+                meetingTitle: meetingImportTitle.trim() || undefined,
+                meetingDate: meetingImportDate.trim() || undefined,
+            });
+        }
+        if (meetingImportUsageText.trim()) {
+            artifacts.push({
+                inputType: 'text',
+                name: 'Manual usage log',
+                content: meetingImportUsageText,
+                sourceFormat: meetingImportSourceFormat,
+                kind: 'usage',
+                meetingTitle: meetingImportTitle.trim() || undefined,
+                meetingDate: meetingImportDate.trim() || undefined,
+            });
+        }
+
+        if (artifacts.length === 0) {
+            setMeetingImportError('Add at least one file or paste meeting content first.');
+            return;
+        }
+
+        setMeetingImportBusy(true);
+        try {
+            const result = await window.electronAPI?.meetingImportIngest?.(artifacts);
+            setMeetingImportResult(result || null);
+            if (result?.importedMeetings?.length) {
+                window.electronAPI?.reloadMeetingMemory?.().catch(() => {});
+                loadContextHubData().catch(() => {});
+            }
+        } catch (e: any) {
+            setMeetingImportError(e?.message || 'Meeting import failed.');
+        } finally {
+            setMeetingImportBusy(false);
+        }
+    };
+
+    const handlePasteMeetingImportClipboard = async (target: 'summary' | 'transcript' | 'usage', append: boolean) => {
+        setMeetingImportError('');
+        try {
+            const text = await navigator.clipboard.readText();
+            if (!text.trim()) {
+                setMeetingImportError('Clipboard is empty or does not contain text.');
+                return;
+            }
+
+            const applyText = (previous: string) => {
+                if (!append || !previous.trim()) return text;
+                return `${previous.trim()}\n\n${text}`;
+            };
+
+            if (target === 'summary') setMeetingImportSummaryText(applyText);
+            if (target === 'transcript') setMeetingImportTranscriptText(applyText);
+            if (target === 'usage') setMeetingImportUsageText(applyText);
+        } catch (e: any) {
+            setMeetingImportError(e?.message || 'Failed to read clipboard text.');
+        }
+    };
+
+    const handleClearMeetingImportDraft = () => {
+        setMeetingImportError('');
+        setMeetingImportTitle('');
+        setMeetingImportDate('');
+        setMeetingImportSourceFormat('cluely');
+        setMeetingImportSummaryText('');
+        setMeetingImportTranscriptText('');
+        setMeetingImportUsageText('');
+    };
+
+    const handleRunTeamsImport = async () => {
+        setTeamsImportError('');
+        setTeamsImportResult(null);
+        setTeamsImportBusy(true);
 
         try {
-            await window.electronAPI?.setTavilyApiKey?.('');
-            setTavilyApiKey('');
-            setHasStoredTavilyKey(false);
-        } catch (e) {
-            console.error('Failed to remove Tavily API key:', e);
+            const result = await window.electronAPI?.teamsImportIngest?.({
+                chatIds: teamsImportCandidates.map((candidate) => candidate.chatId),
+            });
+            setTeamsImportResult(result || null);
+            if (result?.importedMeetings?.length) {
+                window.electronAPI?.reloadMeetingMemory?.().catch(() => {});
+            }
+            await loadContextHubData();
+        } catch (e: any) {
+            setTeamsImportError(e?.message || 'Teams import failed.');
+        } finally {
+            setTeamsImportBusy(false);
+        }
+    };
+
+    const handleRunCluelyImport = async () => {
+        setCluelyImportError('');
+        setCluelyImportResult(null);
+        setCluelyImportBusy(true);
+
+        try {
+            const liveSessionIds = cluelyImportCandidates
+                .filter((candidate) => candidate.source === 'live')
+                .map((candidate) => candidate.sessionId);
+
+            const result = await window.electronAPI?.cluelyImportIngest?.({
+                sessionIds: liveSessionIds,
+            });
+            setCluelyImportResult(result || null);
+            if (result?.warning && !result?.importedMeetings?.length) {
+                setCluelyImportError(result.warning);
+            }
+            if (result?.importedMeetings?.length) {
+                window.electronAPI?.reloadMeetingMemory?.().catch(() => { });
+            }
+            await loadContextHubData();
+        } catch (e: any) {
+            setCluelyImportError(e?.message || 'Cluely import failed.');
+        } finally {
+            setCluelyImportBusy(false);
         }
     };
 
@@ -1055,8 +1227,15 @@ const SettingsOverlay: React.FC<SettingsOverlayProps> = ({ isOpen, onClose, init
     };
 
 
-    const [calendarStatus, setCalendarStatus] = useState<{ connected: boolean; email?: string }>({ connected: false });
+    const [calendarStatus, setCalendarStatus] = useState<{ connected: boolean; email?: string; providers?: { google: boolean; outlook: boolean; teams: boolean }; warnings?: string[] }>({ connected: false });
+    const [microsoftLocalStatus, setMicrosoftLocalStatus] = useState<any>(null);
     const [isCalendarsLoading, setIsCalendarsLoading] = useState(false);
+    const calendarProviderLabel = useMemo(() => {
+        if (calendarStatus.providers?.outlook && calendarStatus.providers?.google) return 'Outlook + Google Calendar';
+        if (calendarStatus.providers?.outlook) return 'Outlook Calendar';
+        if (calendarStatus.providers?.google) return 'Google Calendar';
+        return 'Calendar';
+    }, [calendarStatus.providers]);
 
 
     // Load stored credentials on mount
@@ -1160,15 +1339,72 @@ const SettingsOverlay: React.FC<SettingsOverlayProps> = ({ isOpen, onClose, init
             loadDevices();
 
             // Load Experimental SCK pref
-            const savedSck = localStorage.getItem('useExperimentalSckBackend') === 'true';
+            const savedSck = isMacPlatform && localStorage.getItem('useExperimentalSckBackend') === 'true';
             setUseExperimentalSck(savedSck);
 
             // Load Calendar Status
             if (window.electronAPI?.getCalendarStatus) {
                 window.electronAPI.getCalendarStatus().then(setCalendarStatus);
             }
+            if (window.electronAPI?.getMicrosoftLocalStatus) {
+                window.electronAPI.getMicrosoftLocalStatus().then(setMicrosoftLocalStatus).catch(() => {});
+            }
         }
-    }, [isOpen, selectedInput, selectedOutput]); // Re-run if isOpen changes, or if selected devices are cleared
+    }, [isOpen, selectedInput, selectedOutput, isMacPlatform]); // Re-run if isOpen changes, or if selected devices are cleared
+
+    const loadContextHubData = async (options?: { refreshStatus?: boolean; refreshTeams?: boolean; refreshCluely?: boolean; source?: 'all' | 'teams' | 'cluely' }) => {
+        const refreshStatus = options?.refreshStatus ?? true;
+        const refreshTeams = options?.refreshTeams ?? true;
+        const refreshCluely = options?.refreshCluely ?? true;
+        const source = options?.source ?? 'all';
+
+        if (source === 'all') setContextHubRefreshBusy(true);
+        if (refreshTeams) setTeamsDiscoveryBusy(true);
+        if (refreshCluely) setCluelyDiscoveryBusy(true);
+
+        try {
+            const [status, teamsCandidates, cluelyDiscovery, recentChatDebug] = await Promise.all([
+                refreshStatus ? window.electronAPI?.getContextHubStatus?.() : Promise.resolve(null),
+                refreshTeams ? window.electronAPI?.teamsImportDiscover?.(8) : Promise.resolve(null),
+                refreshCluely ? window.electronAPI?.cluelyImportDiscover?.(8) : Promise.resolve(null),
+                refreshStatus ? window.electronAPI?.getChatDebugEntries?.(50) : Promise.resolve(null),
+            ]);
+
+            if (refreshStatus) {
+                setContextHubStatus(status || null);
+                setChatDebugEntries(Array.isArray(recentChatDebug) ? recentChatDebug : []);
+            }
+            if (refreshTeams) {
+                setTeamsImportCandidates(Array.isArray(teamsCandidates) ? teamsCandidates : []);
+            }
+            if (refreshCluely) {
+                setCluelyImportStatus(cluelyDiscovery || null);
+                setCluelyImportCandidates(Array.isArray(cluelyDiscovery?.candidates) ? cluelyDiscovery.candidates : []);
+            }
+        } catch (error) {
+            console.error('Failed to load Context Hub data:', error);
+        } finally {
+            if (source === 'all') setContextHubRefreshBusy(false);
+            if (refreshTeams) setTeamsDiscoveryBusy(false);
+            if (refreshCluely) setCluelyDiscoveryBusy(false);
+        }
+    };
+
+    const handleRefreshCluelyList = async () => {
+        setCluelyImportError('');
+        await loadContextHubData({ refreshStatus: false, refreshTeams: false, refreshCluely: true, source: 'cluely' });
+    };
+
+    const handleRefreshTeamsList = async () => {
+        setTeamsImportError('');
+        await loadContextHubData({ refreshStatus: false, refreshTeams: true, refreshCluely: false, source: 'teams' });
+    };
+
+    useEffect(() => {
+        if (isOpen && activeTab === 'profile') {
+            loadContextHubData().catch(() => {});
+        }
+    }, [isOpen, activeTab]);
 
     // Use the native mic test path so device IDs stay consistent with the meeting runtime.
     useEffect(() => {
@@ -1238,37 +1474,29 @@ const SettingsOverlay: React.FC<SettingsOverlayProps> = ({ isOpen, onClose, init
                                         <Monitor size={16} /> General
                                     </button>
                                     <button
-                                        onClick={() => setActiveTab('natively-api')}
-                                        className={`w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-3 ${activeTab === 'natively-api' ? 'bg-bg-item-active text-text-primary' : 'text-text-secondary hover:text-text-primary hover:bg-bg-item-active/50'}`}
-                                    >
-                                        <Zap size={16} className={activeTab === 'natively-api' ? 'text-blue-500' : 'text-blue-500/70'} />
-                                        <span>Natively API</span>
-                                    </button>
-                                    <button
                                         onClick={() => {
                                             setActiveTab('profile');
                                             // Load profile status when switching to this tab
                                             window.electronAPI?.profileGetStatus?.().then(setProfileStatus).catch(() => { });
                                             window.electronAPI?.profileGetProfile?.().then(data => {
                                                 setProfileData(data);
-                                                if (data?.negotiationScript) setNegotiationScript(data.negotiationScript);
                                             }).catch(() => { });
                                         }}
                                         className={`w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-3 ${activeTab === 'profile' ? 'bg-bg-item-active text-text-primary' : 'text-text-secondary hover:text-text-primary hover:bg-bg-item-active/50'}`}
                                     >
-                                        <User size={16} /> Profile Intelligence
-                                    </button>
-                                    <button
-                                        onClick={() => setActiveTab('ai-providers')}
-                                        className={`w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-3 ${activeTab === 'ai-providers' ? 'bg-bg-item-active text-text-primary' : 'text-text-secondary hover:text-text-primary hover:bg-bg-item-active/50'}`}
-                                    >
-                                        <FlaskConical size={16} /> AI Providers
+                                        <User size={16} /> Context Hub
                                     </button>
                                     <button
                                         onClick={() => setActiveTab('calendar')}
                                         className={`w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-3 ${activeTab === 'calendar' ? 'bg-bg-item-active text-text-primary' : 'text-text-secondary hover:text-text-primary hover:bg-bg-item-active/50'}`}
                                     >
                                         <Calendar size={16} /> Calendar
+                                    </button>
+                                    <button
+                                        onClick={() => setActiveTab('meeting-ai')}
+                                        className={`w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-3 ${activeTab === 'meeting-ai' ? 'bg-bg-item-active text-text-primary' : 'text-text-secondary hover:text-text-primary hover:bg-bg-item-active/50'}`}
+                                    >
+                                        <Zap size={16} /> Meeting AI
                                     </button>
                                     <button
                                         onClick={() => setActiveTab('audio')}
@@ -1435,22 +1663,22 @@ const SettingsOverlay: React.FC<SettingsOverlayProps> = ({ isOpen, onClose, init
                                                     </div>
                                                 </div>
 
-                                                {/* Interviewer Transcript */}
+                                                {/* Live Transcript */}
                                                 <div className="flex items-center justify-between px-4 py-3">
                                                     <div className="flex items-center gap-4">
                                                         <div className="w-10 h-10 bg-bg-item-surface rounded-lg border border-border-subtle flex items-center justify-center text-text-tertiary">
                                                             <MessageSquare size={20} />
                                                         </div>
                                                         <div>
-                                                            <h3 className="text-sm font-bold text-text-primary">Interviewer Transcript</h3>
-                                                            <p className="text-xs text-text-secondary mt-0.5">Show real-time transcription of the interviewer</p>
+                                                            <h3 className="text-sm font-bold text-text-primary">Live Transcript</h3>
+                                                            <p className="text-xs text-text-secondary mt-0.5">Show the real-time conversation transcript.</p>
                                                         </div>
                                                     </div>
                                                     <div
                                                         onClick={() => {
                                                             const newState = !showTranscript;
                                                             setShowTranscript(newState);
-                                                            localStorage.setItem('natively_interviewer_transcript', String(newState));
+                                                            localStorage.setItem(LIVE_TRANSCRIPT_KEY, String(newState));
                                                             window.dispatchEvent(new Event('storage'));
                                                         }}
                                                         className={`w-11 h-6 rounded-full relative transition-colors ${showTranscript ? 'bg-accent-primary' : 'bg-bg-toggle-switch border border-border-muted'}`}
@@ -1736,866 +1964,87 @@ const SettingsOverlay: React.FC<SettingsOverlayProps> = ({ isOpen, onClose, init
                                 </div>
                             )}
                             {activeTab === 'profile' && (
-                                <div className="space-y-6 animated fadeIn">
-                                    {/* Introduction */}
-                                    <div className="mb-5">
-                                        <div className="flex items-center justify-between mb-1">
-                                            <div className="flex items-center gap-2">
-                                                <h3 className="text-sm font-bold text-text-primary">Professional Identity</h3>
-                                                <span className="bg-yellow-500/10 text-yellow-500 text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wide">BETA</span>
-                                            </div>
-                                            <button
-                                                onClick={() => setIsPremiumModalOpen(true)}
-                                                className={`text-[11px] font-semibold flex items-center gap-1.5 transition-all duration-200 px-2.5 py-1 rounded-full border shadow-[0_0_10px_rgba(250,204,21,0.2)] hover:shadow-[0_0_15px_rgba(250,204,21,0.3)] ${isPremium
-                                                    ? (isLight ? 'bg-bg-component text-text-primary border-border-subtle hover:bg-bg-item-surface' : 'bg-zinc-800 text-white border-white/10 hover:bg-zinc-700')
-                                                    : 'bg-[#FACC15] text-black border-transparent hover:bg-[#FDE047] active:scale-[0.98]'
-                                                    }`}
-                                            >
-                                                {isPremium ? <CheckCircle size={12} className="text-green-400" /> : <Sparkles size={12} className="text-black/80" />}
-                                                {isPremium ? 'Manage Pro' : 'Unlock Pro'}
-                                            </button>
-                                        </div>
-                                        <p className="text-xs text-text-secondary mb-2">
-                                            This engine constructs an intelligent representation of your career history.
-                                        </p>
-                                    </div>
-
-                                    {/* Intelligence Graph Hero Card */}
-                                    <div className="bg-bg-item-surface rounded-xl border border-border-subtle flex flex-col justify-between overflow-hidden">
-                                        <div className="flex flex-col justify-between min-h-[160px]">
-
-                                            {/* Header */}
-                                            <div className="p-5 pb-4">
-                                                <div className="flex items-center justify-between">
-                                                    <div className="flex items-center gap-4">
-                                                        <div className="w-10 h-10 rounded-full bg-bg-input border border-border-subtle flex items-center justify-center text-text-primary shadow-sm hover:scale-105 transition-transform duration-300">
-                                                            <span className="font-bold text-sm tracking-tight">
-                                                                {profileData?.identity?.name ? profileData.identity.name.charAt(0).toUpperCase() : 'U'}
-                                                            </span>
-                                                        </div>
-                                                        <div>
-                                                            <h4 className="text-sm font-bold text-text-primary tracking-tight">
-                                                                {profileData?.identity?.name || 'Identity Node Inactive'}
-                                                            </h4>
-                                                            <p className="text-xs text-text-secondary mt-0.5 tracking-wide">
-                                                                {profileData?.identity?.email || 'Upload a resume to begin mapping.'}
-                                                            </p>
-                                                        </div>
-                                                    </div>
-
-                                                    <div className="flex items-center gap-3">
-                                                        {profileStatus.hasProfile && (
-                                                            <button
-                                                                onClick={async () => {
-                                                                    if (!confirm('Are you sure you want to delete your mapped persona? This will destroy all structured timeline data.')) return;
-                                                                    try {
-                                                                        await window.electronAPI?.profileDelete?.();
-                                                                        setProfileStatus({ hasProfile: false, profileMode: false });
-                                                                        setProfileData(null);
-                                                                    } catch (e) { console.error('Failed to delete profile:', e); }
-                                                                }}
-                                                                className="text-[12px] font-medium text-text-tertiary hover:text-red-500 transition-colors px-3 py-1.5 rounded-full hover:bg-red-500/10"
-                                                            >
-                                                                Disconnect
-                                                            </button>
-                                                        )}
-
-                                                        {/* High-fidelity Toggle */}
-                                                        <div className={`flex items-center gap-2 bg-bg-input px-3 py-1.5 rounded-full border border-border-subtle ${!isPremium ? 'opacity-40 cursor-not-allowed' : ''}`} title={!isPremium ? 'Requires Pro license' : ''}>
-                                                            <span className="text-xs font-medium text-text-secondary">Persona Engine</span>
-                                                            <div
-                                                                onClick={async () => {
-                                                                    if (!profileStatus.hasProfile || !isPremium) return;
-                                                                    const newState = !profileStatus.profileMode;
-                                                                    try {
-                                                                        await window.electronAPI?.profileSetMode?.(newState);
-                                                                        setProfileStatus(prev => ({ ...prev, profileMode: newState }));
-                                                                    } catch (e) {
-                                                                        console.error('Failed to toggle profile mode:', e);
-                                                                    }
-                                                                }}
-                                                                className={`w-9 h-5 rounded-full relative transition-colors ${(!profileStatus.hasProfile || !isPremium) ? 'opacity-40 cursor-not-allowed bg-bg-toggle-switch' : profileStatus.profileMode ? 'bg-accent-primary' : 'bg-bg-toggle-switch border border-border-muted'}`}
-                                                            >
-                                                                <div className={`absolute top-1 left-1 w-3 h-3 rounded-full bg-white transition-transform ${profileStatus.profileMode && isPremium ? 'translate-x-4' : 'translate-x-0'}`} />
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            {/* Data Metrics & Extracted Skills */}
-                                            <div className="p-5 pt-0 mt-auto">
-                                                <div className="flex items-center justify-between bg-bg-input border border-border-subtle py-4 px-6 rounded-2xl shadow-sm">
-                                                    <div className="flex flex-col items-center justify-center flex-1">
-                                                        <span className="text-[20px] font-bold text-text-primary tracking-tight leading-none mb-1">{profileData?.experienceCount || 0}</span>
-                                                        <div className="flex items-center gap-1.5">
-                                                            <div className="w-1.5 h-1.5 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.4)]" />
-                                                            <span className="text-[10px] font-semibold text-text-secondary uppercase tracking-widest">Experience</span>
-                                                        </div>
-                                                    </div>
-
-                                                    <div className="h-8 w-px bg-border-subtle/60" />
-
-                                                    <div className="flex flex-col items-center justify-center flex-1">
-                                                        <span className="text-[20px] font-bold text-text-primary tracking-tight leading-none mb-1">{profileData?.projectCount || 0}</span>
-                                                        <div className="flex items-center gap-1.5">
-                                                            <div className="w-1.5 h-1.5 rounded-full bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.4)]" />
-                                                            <span className="text-[10px] font-semibold text-text-secondary uppercase tracking-widest">Projects</span>
-                                                        </div>
-                                                    </div>
-
-                                                    <div className="h-8 w-px bg-border-subtle/60" />
-
-                                                    <div className="flex flex-col items-center justify-center flex-1">
-                                                        <span className="text-[20px] font-bold text-text-primary tracking-tight leading-none mb-1">{profileData?.nodeCount || 0}</span>
-                                                        <div className="flex items-center gap-1.5">
-                                                            <div className="w-1.5 h-1.5 rounded-full bg-purple-500 shadow-[0_0_8px_rgba(168,85,247,0.4)]" />
-                                                            <span className="text-[10px] font-semibold text-text-secondary uppercase tracking-widest">Nodes</span>
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                                {profileData?.skills && profileData.skills.length > 0 && (
-                                                    <div className="mt-5">
-                                                        <div className="text-[10px] font-bold text-text-primary uppercase tracking-wide mb-2">
-                                                            Top Skills
-                                                        </div>
-                                                        <div className="flex flex-wrap gap-1.5">
-                                                            {profileData.skills.slice(0, 15).map((skill: string, i: number) => (
-                                                                <span key={i} className="text-[10px] font-medium text-text-secondary px-2 py-1 rounded-md border border-border-subtle bg-bg-input">
-                                                                    {skill}
-                                                                </span>
-                                                            ))}
-                                                        </div>
-                                                    </div>
-                                                )}
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    {/* Upload Area */}
-                                    <div className="mt-5">
-                                        <div className={`bg-bg-item-surface rounded-xl border transition-all ${profileUploading ? 'border-accent-primary/50 ring-1 ring-accent-primary/20' : 'border-border-subtle'}`}>
-                                            <div className="p-5 flex items-center justify-between">
-                                                <div className="flex items-center gap-4 min-w-0">
-                                                    <div className="w-10 h-10 rounded-lg bg-bg-input border border-border-subtle flex items-center justify-center text-text-tertiary shrink-0">
-                                                        {profileUploading ? <RefreshCw size={20} className="animate-spin text-accent-primary" /> : <Upload size={20} />}
-                                                    </div>
-                                                    <div className="min-w-0">
-                                                        <h4 className="text-sm font-bold text-text-primary mb-0.5 truncate pr-4">
-                                                            {profileStatus.hasProfile ? 'Overwrite Source Document' : 'Initialize Knowledge Base'}
-                                                        </h4>
-                                                        {profileUploading ? (
-                                                            <div className="flex items-center gap-2">
-                                                                <div className="h-[4px] w-[100px] bg-bg-input rounded-full overflow-hidden">
-                                                                    <div className="h-full bg-accent-primary rounded-full animate-pulse" style={{ width: '50%' }} />
-                                                                </div>
-                                                                <span className="text-[10px] text-text-secondary tracking-wide">Processing structural semantics...</span>
-                                                            </div>
-                                                        ) : (
-                                                            <p className="text-xs text-text-secondary truncate pr-4">
-                                                                Provide a resume file to seed the intelligence engine.
-                                                            </p>
-                                                        )}
-                                                    </div>
-                                                </div>
-
-                                                <button
-                                                    onClick={async () => {
-                                                        setProfileError('');
-                                                        try {
-                                                            const fileResult = await window.electronAPI?.profileSelectFile?.();
-                                                            if (fileResult?.cancelled || !fileResult?.filePath) return;
-
-                                                            setProfileUploading(true);
-                                                            const result = await window.electronAPI?.profileUploadResume?.(fileResult.filePath);
-                                                            if (result?.success) {
-                                                                const status = await window.electronAPI?.profileGetStatus?.();
-                                                                if (status) setProfileStatus(status);
-                                                                const data = await window.electronAPI?.profileGetProfile?.();
-                                                                if (data) setProfileData(data);
-                                                            } else {
-                                                                setProfileError(result?.error || 'Upload failed');
-                                                            }
-                                                        } catch (e: any) {
-                                                            setProfileError(e.message || 'Upload failed');
-                                                        } finally {
-                                                            setProfileUploading(false);
-                                                        }
-                                                    }}
-                                                    disabled={profileUploading}
-                                                    className={`px-4 py-2 rounded-full text-xs font-medium transition-all whitespace-nowrap shrink-0 ${profileUploading ? 'bg-bg-input text-text-tertiary cursor-wait border border-border-subtle' : 'bg-text-primary text-bg-main hover:opacity-90 shadow-sm'}`}
-                                                >
-                                                    {profileUploading ? 'Ingesting...' : 'Select File'}
-                                                </button>
-                                            </div>
-
-                                            {profileError && (
-                                                <div className="px-5 pb-4">
-                                                    <div className="px-3 py-2 bg-red-500/10 border border-red-500/20 rounded-lg flex items-center gap-2 text-[11px] text-red-500 font-medium">
-                                                        <X size={12} /> {profileError}
-                                                    </div>
-                                                </div>
-                                            )}
-                                        </div>
-                                    </div>
-
-                                    {/* JD Upload Card */}
-                                    <div className="mt-5">
-                                        <div className={`rounded-xl transition-all border ${jdUploading ? 'border-blue-500/50 ring-1 ring-blue-500/20 bg-bg-item-surface' : profileData?.hasActiveJD ? 'border-blue-500/30 bg-blue-500/5' : 'border-border-subtle bg-bg-item-surface'}`}>
-                                            <div className="p-5 flex items-center justify-between">
-                                                <div className="flex items-center gap-4 min-w-0">
-                                                    <div className="w-10 h-10 rounded-lg bg-bg-input border border-border-subtle flex items-center justify-center text-text-tertiary shrink-0">
-                                                        {jdUploading ? <RefreshCw size={20} className="animate-spin text-blue-500" /> : <Briefcase size={20} />}
-                                                    </div>
-                                                    <div className="min-w-0">
-                                                        <h4 className="text-sm font-bold text-text-primary mb-0.5 truncate pr-4">
-                                                            {profileData?.hasActiveJD ? `${profileData.activeJD?.title} @ ${profileData.activeJD?.company}` : 'Upload Job Description'}
-                                                        </h4>
-                                                        {jdUploading ? (
-                                                            <div className="flex items-center gap-2">
-                                                                <div className="h-[4px] w-[100px] bg-bg-input rounded-full overflow-hidden">
-                                                                    <div className="h-full bg-blue-500 rounded-full animate-pulse" style={{ width: '50%' }} />
-                                                                </div>
-                                                                <span className="text-[10px] text-text-secondary tracking-wide">Parsing JD structure...</span>
-                                                            </div>
-                                                        ) : profileData?.hasActiveJD ? (
-                                                            <div className="flex items-center gap-3">
-                                                                <span className="text-[9px] font-bold text-blue-500 px-1.5 py-0.5 bg-blue-500/10 rounded uppercase tracking-wide border border-blue-500/20">
-                                                                    {profileData.activeJD?.level || 'mid'}-level
-                                                                </span>
-                                                                <div className="flex gap-1.5">
-                                                                    {profileData.activeJD?.technologies?.slice(0, 3).map((t: string, i: number) => (
-                                                                        <span key={i} className="text-[10px] text-text-secondary">{t}</span>
-                                                                    ))}
-                                                                </div>
-                                                            </div>
-                                                        ) : (
-                                                            <p className="text-xs text-text-secondary">
-                                                                Upload a JD to enable persona tuning and company research.
-                                                            </p>
-                                                        )}
-                                                    </div>
-                                                </div>
-
-                                                <div className="flex items-center gap-2 shrink-0">
-                                                    {profileData?.hasActiveJD && (
-                                                        <button
-                                                            onClick={async () => {
-                                                                await window.electronAPI?.profileDeleteJD?.();
-                                                                const data = await window.electronAPI?.profileGetProfile?.();
-                                                                if (data) setProfileData(data);
-                                                                setCompanyDossier(null);
-                                                            }}
-                                                            className="px-2.5 py-2 rounded-full text-xs text-text-tertiary hover:text-red-500 hover:bg-red-500/10 transition-all border border-transparent hover:border-red-500/20"
-                                                        >
-                                                            <Trash2 size={14} />
-                                                        </button>
-                                                    )}
-                                                    <button
-                                                        onClick={async () => {
-                                                            setJdError('');
-                                                            try {
-                                                                const fileResult = await window.electronAPI?.profileSelectFile?.();
-                                                                if (fileResult?.cancelled || !fileResult?.filePath) return;
-
-                                                                setJdUploading(true);
-                                                                const result = await window.electronAPI?.profileUploadJD?.(fileResult.filePath);
-                                                                if (result?.success) {
-                                                                    const data = await window.electronAPI?.profileGetProfile?.();
-                                                                    if (data) setProfileData(data);
-                                                                } else {
-                                                                    setJdError(result?.error || 'JD upload failed');
-                                                                }
-                                                            } catch (e: any) {
-                                                                setJdError(e.message || 'JD upload failed');
-                                                            } finally {
-                                                                setJdUploading(false);
-                                                            }
-                                                        }}
-                                                        disabled={jdUploading}
-                                                        className={`px-4 py-2 rounded-full text-xs font-medium transition-all whitespace-nowrap shrink-0 ${jdUploading ? 'bg-bg-input text-text-tertiary cursor-wait border border-border-subtle' : 'bg-blue-600 text-white hover:bg-blue-500 shadow-sm'}`}
-                                                    >
-                                                        {jdUploading ? 'Parsing...' : profileData?.hasActiveJD ? 'Replace JD' : 'Upload JD'}
-                                                    </button>
-                                                </div>
-                                            </div>
-
-                                            {jdError && (
-                                                <div className="px-5 pb-4">
-                                                    <div className="px-3 py-2 bg-red-500/10 border border-red-500/20 rounded-lg flex items-center gap-2 text-[11px] text-red-500 font-medium">
-                                                        <X size={12} /> {jdError}
-                                                    </div>
-                                                </div>
-                                            )}
-                                        </div>
-                                    </div>
-
-                                    {/* Google Search API Card */}
-                                    <div className="mt-5">
-                                        <div className="bg-bg-item-surface rounded-xl border border-border-subtle">
-                                            <div className="p-5">
-                                                <div className="flex items-center gap-4 mb-4">
-                                                    <div className="w-10 h-10 rounded-lg bg-bg-input border border-border-subtle flex items-center justify-center text-emerald-500 shrink-0">
-                                                        <Globe size={20} />
-                                                    </div>
-                                                    <div>
-                                                        <div className="flex items-center gap-2">
-                                                            <h4 className="text-sm font-bold text-text-primary">Tavily Search API</h4>
-                                                            {hasStoredTavilyKey && (
-                                                                <span className="text-[9px] font-bold text-emerald-500 px-1.5 py-0.5 bg-emerald-500/10 rounded-full border border-emerald-500/20 uppercase tracking-wide">Connected</span>
-                                                            )}
-                                                        </div>
-                                                        <p className="text-[11px] text-text-secondary mt-0.5">
-                                                            Powers live web search for company research.
-                                                        </p>
-                                                    </div>
-                                                </div>
-
-                                                <div className="space-y-3">
-                                                    <div>
-                                                        <div className="flex justify-between items-center mb-1.5">
-                                                            <label className="text-[10px] font-semibold text-text-secondary uppercase tracking-wide block">API Key</label>
-                                                            {hasStoredTavilyKey && (
-                                                                <button
-                                                                    onClick={handleRemoveTavilyKey}
-                                                                    className="text-[10px] flex items-center gap-1 text-red-400 hover:text-red-300 transition-colors bg-red-500/10 hover:bg-red-500/20 px-1.5 py-0.5 rounded"
-                                                                    title="Remove API Key"
-                                                                >
-                                                                    <Trash2 size={10} strokeWidth={2} /> Remove
-                                                                </button>
-                                                            )}
-                                                        </div>
-                                                        <input
-                                                            type="password"
-                                                            value={tavilyApiKey}
-                                                            onChange={(e) => { setTavilyApiKey(e.target.value); setTavilyError(''); }}
-                                                            placeholder={hasStoredTavilyKey ? '••••••••••••' : 'Enter Tavily API key (tvly-...)'}
-                                                            className="w-full bg-bg-input border border-border-subtle rounded-lg px-3 py-2 text-xs text-text-primary placeholder-text-tertiary focus:outline-none focus:border-accent-primary/50 focus:ring-1 focus:ring-accent-primary/20 transition-all"
-                                                        />
-                                                    </div>
-                                                    {tavilyError && (
-                                                        <p className="text-[10px] text-red-400 px-1">{tavilyError}</p>
-                                                    )}
-                                                    <button
-                                                        onClick={async () => {
-                                                            if (!tavilyApiKey.trim()) return;
-                                                            setTavilyError('');
-                                                            setTavilySaving(true);
-                                                            try {
-                                                                const result = await window.electronAPI?.setTavilyApiKey?.(tavilyApiKey.trim());
-                                                                if (result && !result.success) {
-                                                                    setTavilyError(result.error ?? 'Failed to save API key.');
-                                                                } else {
-                                                                    setHasStoredTavilyKey(true);
-                                                                    setTavilyApiKey('');
-                                                                }
-                                                            } catch (e: any) {
-                                                                setTavilyError(e?.message ?? 'Unexpected error saving API key.');
-                                                            } finally {
-                                                                setTavilySaving(false);
-                                                            }
-                                                        }}
-                                                        disabled={tavilySaving || !tavilyApiKey.trim()}
-                                                        className={`w-full px-4 py-2 rounded-lg text-xs font-medium transition-all ${tavilySaving ? 'bg-bg-input text-text-tertiary cursor-wait' : !tavilyApiKey.trim() ? 'bg-bg-input text-text-tertiary cursor-not-allowed' : 'bg-emerald-600 text-white hover:bg-emerald-500 shadow-sm'}`}
-                                                    >
-                                                        {tavilySaving ? 'Saving...' : 'Save API Key'}
-                                                    </button>
-                                                </div>
-
-                                                <div className="mt-3 flex items-start gap-2 px-3 py-2.5 bg-bg-input/50 rounded-lg">
-                                                    <Info size={12} className="text-text-tertiary shrink-0 mt-0.5" />
-                                                    <p className="text-[10px] text-text-tertiary leading-relaxed">
-                                                        If not provided, LLM general knowledge is used for company research, which may be outdated. Get your free API key at <span className="text-emerald-500/80 hover:text-emerald-400 underline underline-offset-2 cursor-pointer" onClick={() => window.electronAPI?.openExternal?.('https://app.tavily.com/home')}>app.tavily.com</span>. Keys start with <code className="text-emerald-500/80">tvly-</code>.
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    {/* Company Research Section */}
-                                    {profileData?.hasActiveJD && profileData?.activeJD?.company && (
-                                        <div className="mt-5">
-                                            <div className="bg-bg-item-surface rounded-xl border border-border-subtle p-5">
-                                                <div className="flex items-center justify-between mb-4">
-                                                    <div className="flex items-center gap-4">
-                                                        <div className="w-10 h-10 rounded-lg bg-bg-input border border-border-subtle flex items-center justify-center text-purple-500">
-                                                            <Building2 size={20} />
-                                                        </div>
-                                                        <div>
-                                                            <div className="flex items-center gap-2">
-                                                                <h4 className="text-sm font-bold text-text-primary">
-                                                                    Company Intel: <span className="text-purple-400">{profileData.activeJD.company}</span>
-                                                                </h4>
-                                                                <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full tracking-widest uppercase bg-purple-500/15 text-purple-400 border border-purple-500/25">Beta</span>
-                                                            </div>
-                                                            <p className="text-[11px] text-text-secondary mt-0.5">
-                                                                {companyDossier ? 'Research complete' : 'Run research to get hiring strategy, salaries & competitors'}
-                                                            </p>
-                                                        </div>
-                                                    </div>
-
-                                                    <button
-                                                        onClick={async () => {
-                                                            setCompanyResearching(true);
-                                                            setCompanySearchQuotaExhausted(false);
-                                                            try {
-                                                                const result = await window.electronAPI?.profileResearchCompany?.(profileData.activeJD.company);
-                                                                if (result?.success && result.dossier) {
-                                                                    setCompanyDossier(result.dossier);
-                                                                }
-                                                                if (result?.searchQuotaExhausted) {
-                                                                    setCompanySearchQuotaExhausted(true);
-                                                                }
-                                                            } catch (e) {
-                                                                console.error('Research failed:', e);
-                                                            } finally {
-                                                                setCompanyResearching(false);
-                                                            }
-                                                        }}
-                                                        disabled={companyResearching}
-                                                        className={`px-4 py-2 rounded-full text-xs font-medium transition-all flex items-center gap-2 ${companyResearching ? 'bg-bg-input text-text-tertiary cursor-wait border border-border-subtle' : 'bg-purple-600/10 text-purple-500 hover:bg-purple-600/20 border border-purple-500/20'}`}
-                                                    >
-                                                        {companyResearching ? <RefreshCw size={14} className="animate-spin" /> : <Search size={14} />}
-                                                        {companyResearching ? 'Researching...' : companyDossier ? 'Refresh' : 'Research Now'}
-                                                    </button>
-                                                </div>
-
-                                                {/* Search quota exhausted notice */}
-                                                {companySearchQuotaExhausted && (
-                                                    <div className="flex items-start gap-2.5 px-3 py-2.5 rounded-xl bg-amber-500/8 border border-amber-500/20 text-[11px] text-amber-400 leading-relaxed">
-                                                        <span className="shrink-0 mt-[1px]">⚠</span>
-                                                        <span>
-                                                            Web search credits exhausted for this month — showing AI-only research instead.
-                                                            Resets next billing cycle or <span className="underline cursor-pointer" onClick={() => (window.electronAPI as any)?.openExternal?.('https://checkout.dodopayments.com/buy/pdt_0NbFixGmD8CSeawb5qvVl')}>upgrade your plan</span>.
-                                                        </span>
-                                                    </div>
-                                                )}
-
-                                                {/* Dossier Results */}
-                                                {companyDossier && (
-                                                    <div className="space-y-4 border-t border-border-subtle pt-4 mt-2">
-
-                                                        {/* Hiring Strategy */}
-                                                        {companyDossier.hiring_strategy && (
-                                                            <div>
-                                                                <div className="text-[10px] font-bold text-text-primary uppercase tracking-wide mb-1">Hiring Strategy</div>
-                                                                <p className="text-xs text-text-secondary leading-relaxed bg-bg-input p-3 rounded-lg">{companyDossier.hiring_strategy}</p>
-                                                            </div>
-                                                        )}
-
-                                                        {/* Interview Focus + Difficulty badge */}
-                                                        {companyDossier.interview_focus && (
-                                                            <div>
-                                                                <div className="flex items-center gap-2 mb-1">
-                                                                    <div className="text-[10px] font-bold text-text-primary uppercase tracking-wide">Interview Focus</div>
-                                                                    {companyDossier.interview_difficulty && (
-                                                                        <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded border ${
-                                                                            companyDossier.interview_difficulty === 'easy' ? 'bg-green-500/10 text-green-500 border-green-500/20' :
-                                                                            companyDossier.interview_difficulty === 'medium' ? 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20' :
-                                                                            companyDossier.interview_difficulty === 'hard' ? 'bg-orange-500/10 text-orange-400 border-orange-500/20' :
-                                                                            'bg-red-500/10 text-red-400 border-red-500/20'
-                                                                        }`}>
-                                                                            {companyDossier.interview_difficulty.replace('_', ' ').toUpperCase()}
-                                                                        </span>
-                                                                    )}
-                                                                </div>
-                                                                <p className="text-xs text-text-secondary leading-relaxed bg-bg-input p-3 rounded-lg">{companyDossier.interview_focus}</p>
-                                                            </div>
-                                                        )}
-
-                                                        {/* Salary Estimates */}
-                                                        {companyDossier.salary_estimates?.length > 0 && (
-                                                            <div>
-                                                                <div className="text-[10px] font-bold text-text-primary uppercase tracking-wide mb-1">Salary Estimates</div>
-                                                                <div className="space-y-2 bg-bg-input p-3 rounded-lg">
-                                                                    {companyDossier.salary_estimates.map((s: any, i: number) => (
-                                                                        <div key={i} className="flex items-center justify-between pb-2 mb-2 border-b border-border-subtle last:border-0 last:pb-0 last:mb-0">
-                                                                            <span className="text-xs text-text-primary font-medium">{s.title} <span className="text-text-tertiary">({s.location})</span></span>
-                                                                            <div className="flex items-center gap-2">
-                                                                                <span className="text-xs font-bold text-green-400">
-                                                                                    {s.currency} {s.min?.toLocaleString()} – {s.max?.toLocaleString()}
-                                                                                </span>
-                                                                                <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded border ${s.confidence === 'high' ? 'bg-green-500/10 text-green-500 border-green-500/20' : s.confidence === 'medium' ? 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20' : 'bg-red-500/10 text-red-500 border-red-500/20'}`}>
-                                                                                    {s.confidence?.toUpperCase()}
-                                                                                </span>
-                                                                            </div>
-                                                                        </div>
-                                                                    ))}
-                                                                </div>
-                                                            </div>
-                                                        )}
-
-                                                        {/* Work Culture — 5-star ratings */}
-                                                        {companyDossier.culture_ratings && typeof companyDossier.culture_ratings === 'object' &&
-                                                          Object.values(companyDossier.culture_ratings).some(v => typeof v === 'number' && (v as number) > 0) && (
-                                                            <div>
-                                                                <div className="text-[10px] font-bold text-text-primary uppercase tracking-wide mb-2">Work Culture</div>
-                                                                <div className="bg-bg-input p-3 rounded-lg">
-                                                                    {/* Overall score hero */}
-                                                                    <div className="flex items-center justify-between mb-3 pb-3 border-b border-border-subtle">
-                                                                        <div>
-                                                                            <span className="text-2xl font-bold text-text-primary">{companyDossier.culture_ratings.overall.toFixed(1)}</span>
-                                                                            <span className="text-xs text-text-tertiary"> / 5</span>
-                                                                            {companyDossier.culture_ratings.review_count && (
-                                                                                <div className="text-[10px] text-text-tertiary mt-0.5">{companyDossier.culture_ratings.review_count}</div>
-                                                                            )}
-                                                                        </div>
-                                                                        <div className="text-right">
-                                                                            <StarRating value={companyDossier.culture_ratings.overall} size={14} />
-                                                                            {companyDossier.culture_ratings.data_sources?.length > 0 && (
-                                                                                <div className="flex gap-1 mt-1 justify-end">
-                                                                                    {companyDossier.culture_ratings.data_sources.map((src: string, i: number) => (
-                                                                                        <span key={i} className="text-[9px] text-text-tertiary bg-bg-input px-1.5 py-0.5 rounded">{src}</span>
-                                                                                    ))}
-                                                                                </div>
-                                                                            )}
-                                                                        </div>
-                                                                    </div>
-                                                                    {/* Sub-ratings grid */}
-                                                                    <div className="grid grid-cols-2 gap-x-4 gap-y-2">
-                                                                        {[
-                                                                            { label: 'Work-Life Balance', key: 'work_life_balance' },
-                                                                            { label: 'Career Growth', key: 'career_growth' },
-                                                                            { label: 'Compensation', key: 'compensation' },
-                                                                            { label: 'Management', key: 'management' },
-                                                                            { label: 'Diversity & Inclusion', key: 'diversity' },
-                                                                        ].map(({ label, key }) => {
-                                                                            const raw = (companyDossier.culture_ratings as any)[key];
-                                                                            const val: number = typeof raw === 'number' ? raw : 0;
-                                                                            return val > 0 ? (
-                                                                                <div key={key} className="flex items-center justify-between gap-2">
-                                                                                    <span className="text-[10px] text-text-tertiary truncate">{label}</span>
-                                                                                    <div className="flex items-center gap-1 shrink-0">
-                                                                                        <StarRating value={val} size={9} />
-                                                                                        <span className="text-[10px] text-text-secondary font-medium">{val.toFixed(1)}</span>
-                                                                                    </div>
-                                                                                </div>
-                                                                            ) : null;
-                                                                        })}
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        )}
-
-                                                        {/* Employee Reviews */}
-                                                        {companyDossier.employee_reviews?.length > 0 && (
-                                                            <div>
-                                                                <div className="text-[10px] font-bold text-text-primary uppercase tracking-wide mb-2">Employee Reviews</div>
-                                                                <div className="space-y-2">
-                                                                    {companyDossier.employee_reviews.map((r: any, i: number) => (
-                                                                        <div key={i} className="bg-bg-input p-3 rounded-lg">
-                                                                            <div className="flex items-start gap-2">
-                                                                                <span className={`mt-0.5 shrink-0 w-2 h-2 rounded-full ${r.sentiment === 'positive' ? 'bg-green-400' : r.sentiment === 'mixed' ? 'bg-yellow-400' : 'bg-red-400'}`} />
-                                                                                <p className="text-xs text-text-secondary leading-relaxed italic">"{r.quote}"</p>
-                                                                            </div>
-                                                                            <div className="flex items-center gap-2 mt-2 ml-4">
-                                                                                {r.role && <span className="text-[10px] text-text-tertiary">{r.role}</span>}
-                                                                                {r.role && r.source && <span className="text-text-tertiary/40 text-[10px]">·</span>}
-                                                                                {r.source && <span className="text-[10px] text-text-tertiary/70 bg-bg-input px-1.5 py-0.5 rounded">{r.source}</span>}
-                                                                            </div>
-                                                                        </div>
-                                                                    ))}
-                                                                </div>
-                                                            </div>
-                                                        )}
-
-                                                        {/* Critics — common complaints */}
-                                                        {companyDossier.critics?.length > 0 && (
-                                                            <div>
-                                                                <div className="flex items-center gap-1.5 mb-2">
-                                                                    <AlertCircle size={11} className="text-orange-400" />
-                                                                    <div className="text-[10px] font-bold text-text-primary uppercase tracking-wide">Common Complaints</div>
-                                                                </div>
-                                                                <div className="space-y-2">
-                                                                    {companyDossier.critics.map((c: any, i: number) => (
-                                                                        <div key={i} className="bg-bg-input p-3 rounded-lg">
-                                                                            <div className="flex items-center justify-between mb-1">
-                                                                                <span className="text-[10px] font-semibold text-orange-400/90">{c.category}</span>
-                                                                                <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded border ${
-                                                                                    c.frequency === 'widespread' ? 'bg-red-500/10 text-red-400 border-red-500/20' :
-                                                                                    c.frequency === 'frequently' ? 'bg-orange-500/10 text-orange-400 border-orange-500/20' :
-                                                                                    'bg-yellow-500/10 text-yellow-500 border-yellow-500/20'
-                                                                                }`}>
-                                                                                    {c.frequency?.toUpperCase()}
-                                                                                </span>
-                                                                            </div>
-                                                                            <p className="text-xs text-text-secondary leading-relaxed">{c.complaint}</p>
-                                                                        </div>
-                                                                    ))}
-                                                                </div>
-                                                            </div>
-                                                        )}
-
-                                                        {/* Benefits */}
-                                                        {companyDossier.benefits?.length > 0 && (
-                                                            <div>
-                                                                <div className="flex items-center gap-1.5 mb-2">
-                                                                    <Gift size={11} className="text-emerald-400" />
-                                                                    <div className="text-[10px] font-bold text-text-primary uppercase tracking-wide">Benefits & Perks</div>
-                                                                </div>
-                                                                <div className="flex flex-wrap gap-1.5">
-                                                                    {companyDossier.benefits.map((b: string, i: number) => (
-                                                                        <span key={i} className="text-[11px] text-emerald-400/90 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20">{b}</span>
-                                                                    ))}
-                                                                </div>
-                                                            </div>
-                                                        )}
-
-                                                        {/* Core Values */}
-                                                        {companyDossier.core_values?.length > 0 && (
-                                                            <div>
-                                                                <div className="text-[10px] font-bold text-text-primary uppercase tracking-wide mb-2">Core Values</div>
-                                                                <div className="flex flex-wrap gap-1.5">
-                                                                    {companyDossier.core_values.map((v: string, i: number) => (
-                                                                        <span key={i} className="text-[11px] text-purple-400/90 px-2.5 py-1 rounded-full bg-purple-500/10 border border-purple-500/20">{v}</span>
-                                                                    ))}
-                                                                </div>
-                                                            </div>
-                                                        )}
-
-                                                        {/* Recent News */}
-                                                        {companyDossier.recent_news && (
-                                                            <div>
-                                                                <div className="text-[10px] font-bold text-text-primary uppercase tracking-wide mb-1">Recent News</div>
-                                                                <p className="text-xs text-text-secondary leading-relaxed bg-bg-input p-3 rounded-lg">{companyDossier.recent_news}</p>
-                                                            </div>
-                                                        )}
-
-                                                        {/* Competitors */}
-                                                        {companyDossier.competitors?.length > 0 && (
-                                                            <div>
-                                                                <div className="text-[10px] font-bold text-text-primary uppercase tracking-wide mb-2">Competitors</div>
-                                                                <div className="flex flex-wrap gap-2">
-                                                                    {companyDossier.competitors.map((c: string, i: number) => (
-                                                                        <span key={i} className="text-[11px] text-text-secondary px-2.5 py-1 rounded-full bg-bg-input flex items-center gap-1.5">
-                                                                            <Building2 size={10} className="text-text-tertiary" /> {c}
-                                                                        </span>
-                                                                    ))}
-                                                                </div>
-                                                            </div>
-                                                        )}
-
-                                                        {/* Sources count */}
-                                                        {companyDossier.sources?.length > 0 && (
-                                                            <div className="text-[10px] text-text-tertiary mt-2">
-                                                                Sources: {companyDossier.sources.filter(Boolean).length} references
-                                                            </div>
-                                                        )}
-
-                                                        {/* Beta disclaimer */}
-                                                        <div className="mt-4 flex items-start gap-2 px-3 py-2.5 rounded-lg bg-purple-500/5 border border-purple-500/15">
-                                                            <span className="text-purple-400/70 mt-px shrink-0">⚠</span>
-                                                            <p className="text-[10px] text-text-tertiary leading-relaxed">
-                                                                <span className="font-semibold text-purple-400/80">Beta feature.</span> Company research is AI-generated and may contain inaccuracies. Verify salary figures and hiring details independently before use.
-                                                            </p>
-                                                        </div>
-                                                    </div>
-                                                )}
-                                            </div>
-                                        </div>
-                                    )}
-                                    <ProfileVisualizer profileData={profileData} />
-
-                                    {/* Salary Negotiation Script */}
-                                    {profileData?.hasActiveJD && (
-                                        <div className="mt-6 animated fadeIn">
-                                            <div className="relative rounded-xl border border-border-subtle overflow-hidden bg-bg-item-surface">
-
-                                                <div className="p-5">
-                                                    {/* Header row */}
-                                                    <div className="flex items-center justify-between mb-5">
-                                                        <div className="flex items-center gap-3">
-                                                            <div className="relative">
-                                                                <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ background: 'linear-gradient(135deg, rgba(16,185,129,0.15) 0%, rgba(6,182,212,0.1) 100%)', border: '1px solid rgba(16,185,129,0.25)' }}>
-                                                                    <Briefcase size={15} className="text-emerald-400" />
-                                                                </div>
-                                                                {negotiationScript && (
-                                                                    <div className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-emerald-500 border-2 border-bg-item-surface" />
-                                                                )}
-                                                            </div>
-                                                            <div>
-                                                                <h3 className="text-[13px] font-bold text-text-primary tracking-tight">Negotiation Script</h3>
-                                                                <p className="text-[10px] text-text-tertiary mt-0.5 tracking-wide uppercase">
-                                                                    {negotiationScript ? `Tailored for ${profileData?.activeJD?.company || 'this role'}` : 'AI-powered salary coaching'}
-                                                                </p>
-                                                            </div>
-                                                        </div>
-                                                        <div className="flex items-center gap-2">
-                                                            {negotiationScript && (
-                                                                <button
-                                                                    onClick={async () => {
-                                                                        setNegotiationGenerating(true);
-                                                                        setNegotiationError('');
-                                                                        try {
-                                                                            const result = await window.electronAPI?.profileGenerateNegotiation?.(true);
-                                                                            if (result?.success && result.script) {
-                                                                                setNegotiationScript(result.script);
-                                                                            } else {
-                                                                                setNegotiationError(result?.error || 'Failed to regenerate');
-                                                                            }
-                                                                        } catch { setNegotiationError('Generation failed'); }
-                                                                        finally { setNegotiationGenerating(false); }
-                                                                    }}
-                                                                    disabled={negotiationGenerating}
-                                                                    title="Regenerate script"
-                                                                    className="w-7 h-7 rounded-lg flex items-center justify-center text-text-tertiary hover:text-text-primary hover:bg-bg-input transition-all border border-border-subtle"
-                                                                >
-                                                                    <RefreshCw size={12} className={negotiationGenerating ? 'animate-spin' : ''} />
-                                                                </button>
-                                                            )}
-                                                            {!negotiationScript && (
-                                                                <button
-                                                                    onClick={async () => {
-                                                                        setNegotiationGenerating(true);
-                                                                        setNegotiationError('');
-                                                                        try {
-                                                                            const result = await window.electronAPI?.profileGenerateNegotiation?.(false);
-                                                                            if (result?.success && result.script) {
-                                                                                setNegotiationScript(result.script);
-                                                                            } else {
-                                                                                setNegotiationError(result?.error || 'Failed to generate');
-                                                                            }
-                                                                        } catch { setNegotiationError('Generation failed'); }
-                                                                        finally { setNegotiationGenerating(false); }
-                                                                    }}
-                                                                    disabled={negotiationGenerating}
-                                                                    className="px-4 py-1.5 rounded-full text-[11px] font-semibold transition-all flex items-center gap-1.5 disabled:opacity-50 disabled:cursor-wait"
-                                                                    style={{ background: 'linear-gradient(135deg, rgba(16,185,129,0.2) 0%, rgba(6,182,212,0.15) 100%)', border: '1px solid rgba(16,185,129,0.3)', color: '#34d399' }}
-                                                                >
-                                                                    {negotiationGenerating ? <RefreshCw size={11} className="animate-spin" /> : <Sparkles size={11} />}
-                                                                    {negotiationGenerating ? 'Generating…' : 'Generate Script'}
-                                                                </button>
-                                                            )}
-                                                        </div>
-                                                    </div>
-
-                                                    {negotiationError && (
-                                                        <div className="flex items-center gap-2 mb-4 px-3 py-2 rounded-lg bg-red-500/10 border border-red-500/20">
-                                                            <AlertCircle size={12} className="text-red-400 shrink-0" />
-                                                            <p className="text-[11px] text-red-400">{negotiationError}</p>
-                                                        </div>
-                                                    )}
-
-                                                    {/* Empty state */}
-                                                    {!negotiationScript && !negotiationGenerating && !negotiationError && (
-                                                        <div className="flex flex-col items-center justify-center py-8 gap-3">
-                                                            <div className="w-12 h-12 rounded-2xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, rgba(16,185,129,0.08) 0%, rgba(6,182,212,0.06) 100%)', border: '1px solid rgba(16,185,129,0.15)' }}>
-                                                                <Briefcase size={20} className="text-emerald-500/50" />
-                                                            </div>
-                                                            <div className="text-center">
-                                                                <p className="text-[12px] font-medium text-text-secondary">No script yet</p>
-                                                                <p className="text-[10px] text-text-tertiary mt-0.5">Generate a personalized opening, justification &amp; counter-offer</p>
-                                                            </div>
-                                                        </div>
-                                                    )}
-
-                                                    {/* Generating skeleton */}
-                                                    {negotiationGenerating && (
-                                                        <div className="space-y-3 py-2">
-                                                            {[40, 70, 55].map((w, i) => (
-                                                                <div key={i} className="h-3 rounded-full bg-bg-input animate-pulse" style={{ width: `${w}%`, animationDelay: `${i * 150}ms` }} />
-                                                            ))}
-                                                            <div className="h-12 rounded-lg bg-bg-input animate-pulse mt-2" style={{ animationDelay: '450ms' }} />
-                                                        </div>
-                                                    )}
-
-                                                    {negotiationScript && !negotiationGenerating && (
-                                                        <div className="space-y-3">
-                                                            {/* Salary Range Hero */}
-                                                            {negotiationScript.salary_range && (
-                                                                <div className="rounded-xl p-4 flex items-center justify-between" style={{ background: 'linear-gradient(135deg, rgba(16,185,129,0.08) 0%, rgba(6,182,212,0.06) 100%)', border: '1px solid rgba(16,185,129,0.18)' }}>
-                                                                    <div>
-                                                                        <div className="text-[9px] font-bold uppercase tracking-widest text-emerald-500/70 mb-1">Target Compensation</div>
-                                                                        <div className="text-xl font-bold tracking-tight" style={{ color: '#34d399' }}>
-                                                                            {negotiationScript.salary_range.currency} {negotiationScript.salary_range.min.toLocaleString()}
-                                                                            <span className="text-text-tertiary font-normal mx-2">–</span>
-                                                                            {negotiationScript.salary_range.max.toLocaleString()}
-                                                                        </div>
-                                                                        {negotiationScript.sources?.length > 0 && (
-                                                                            <div className="text-[9px] text-text-tertiary mt-1">{negotiationScript.sources.length} market source{negotiationScript.sources.length > 1 ? 's' : ''}</div>
-                                                                        )}
-                                                                    </div>
-                                                                    <span className={`text-[9px] font-bold px-2 py-1 rounded-full tracking-wide ${
-                                                                        negotiationScript.salary_range.confidence === 'high' ? 'text-emerald-400 bg-emerald-500/15 border border-emerald-500/25' :
-                                                                        negotiationScript.salary_range.confidence === 'medium' ? 'text-yellow-400 bg-yellow-500/15 border border-yellow-500/25' :
-                                                                        'text-text-tertiary bg-bg-input border border-border-subtle'
-                                                                    }`}>
-                                                                        {(negotiationScript.salary_range.confidence || 'low').toUpperCase()}
-                                                                    </span>
-                                                                </div>
-                                                            )}
-
-                                                            {/* Step cards */}
-                                                            {[
-                                                                {
-                                                                    step: '01',
-                                                                    label: 'Opening',
-                                                                    sublabel: 'When asked about salary expectations',
-                                                                    content: negotiationScript.opening_line,
-                                                                    accent: '#10b981',
-                                                                    accentBg: 'rgba(16,185,129,0.07)',
-                                                                    accentBorder: 'rgba(16,185,129,0.2)',
-                                                                    quote: true,
-                                                                },
-                                                                {
-                                                                    step: '02',
-                                                                    label: 'Justify Your Ask',
-                                                                    sublabel: 'Link your track record to the number',
-                                                                    content: negotiationScript.justification,
-                                                                    accent: '#60a5fa',
-                                                                    accentBg: 'rgba(96,165,250,0.07)',
-                                                                    accentBorder: 'rgba(96,165,250,0.2)',
-                                                                    quote: false,
-                                                                },
-                                                                {
-                                                                    step: '03',
-                                                                    label: 'Counter & Hold',
-                                                                    sublabel: 'If they come back lower',
-                                                                    content: negotiationScript.counter_offer_fallback,
-                                                                    accent: '#fb923c',
-                                                                    accentBg: 'rgba(251,146,60,0.07)',
-                                                                    accentBorder: 'rgba(251,146,60,0.2)',
-                                                                    quote: true,
-                                                                },
-                                                            ].filter(s => s.content).map((s) => ({ ...s, content: s.content.replace(/^["'"']+|["'"']+$/g, '').trim() })).map((s) => (
-                                                                <div key={s.step} className="rounded-xl overflow-hidden" style={{ border: `1px solid ${s.accentBorder}`, background: s.accentBg }}>
-                                                                    <div className="flex items-center justify-between px-3.5 pt-3 pb-2">
-                                                                        <div className="flex items-center gap-2">
-                                                                            <span className="text-[10px] font-black tracking-widest" style={{ color: s.accent, opacity: 0.6 }}>STEP {s.step}</span>
-                                                                            <span className="text-[11px] font-bold text-text-primary">{s.label}</span>
-                                                                        </div>
-                                                                        <button
-                                                                            onClick={() => navigator.clipboard?.writeText(s.content)}
-                                                                            title="Copy to clipboard"
-                                                                            className="flex items-center gap-1 px-2 py-0.5 rounded-md text-[9px] font-medium transition-all hover:bg-bg-input text-text-tertiary hover:text-text-secondary"
-                                                                        >
-                                                                            <Check size={9} />
-                                                                            Copy
-                                                                        </button>
-                                                                    </div>
-                                                                    <p className="text-[10px] text-text-tertiary px-3.5 pb-2 -mt-1 tracking-wide">{s.sublabel}</p>
-                                                                    <div className="mx-3.5 mb-3.5">
-                                                                        <p className={`text-[12px] leading-relaxed text-text-primary ${s.quote ? 'pl-3 italic' : ''}`}>
-                                                                            {s.content}
-                                                                        </p>
-                                                                    </div>
-                                                                </div>
-                                                            ))}
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            </div>
-                                        </div>
-                                    )}
-
-                                </div>
-                            )}
-                            {activeTab === 'ai-providers' && (
-                                <AIProvidersSettings />
-                            )}
-                            {activeTab === 'natively-api' && (
-                                <NativelyApiSettings />
+                                <ContextHubSettings
+                                    loadContextHubData={loadContextHubData}
+                                    contextHubRefreshBusy={contextHubRefreshBusy}
+                                    contextHubStatus={contextHubStatus}
+                                    calendarStatus={calendarStatus}
+                                    microsoftLocalStatus={microsoftLocalStatus}
+                                    chatDebugEntries={chatDebugEntries}
+                                    resumeUploading={resumeUploading}
+                                    resumeError={resumeError}
+                                    profileStatus={profileStatus}
+                                    profileData={profileData}
+                                    onRemoveReference={async () => {
+                                        if (!confirm('Remove the currently loaded background context?')) return;
+                                        try {
+                                            await window.electronAPI?.profileDelete?.();
+                                            setProfileStatus({ hasProfile: false, profileMode: false });
+                                            setProfileData(null);
+                                            await loadContextHubData();
+                                        } catch (e) {
+                                            console.error('Failed to delete profile:', e);
+                                        }
+                                    }}
+                                    onReplaceReference={async () => {
+                                        setResumeUploading(true);
+                                        setResumeError('');
+                                        try {
+                                            const fileResult = await window.electronAPI?.profileSelectFile?.();
+                                            if (!fileResult?.filePath) return;
+                                            const result = await window.electronAPI?.profileUploadResume?.(fileResult.filePath);
+                                            if (!result?.success) {
+                                                setResumeError(result?.error || 'Upload failed');
+                                            } else {
+                                                const status = await window.electronAPI?.profileGetStatus?.();
+                                                if (status) setProfileStatus(status);
+                                                const data = await window.electronAPI?.profileGetProfile?.();
+                                                if (data) setProfileData(data);
+                                                await loadContextHubData();
+                                            }
+                                        } catch (e: any) {
+                                            setResumeError(e.message || 'Upload failed');
+                                        } finally {
+                                            setResumeUploading(false);
+                                        }
+                                    }}
+                                    teamsImportBusy={teamsImportBusy}
+                                    teamsImportError={teamsImportError}
+                                    teamsImportResult={teamsImportResult}
+                                    teamsImportCandidates={teamsImportCandidates}
+                                    onRunTeamsImport={handleRunTeamsImport}
+                                    cluelyImportBusy={cluelyImportBusy}
+                                    cluelyImportError={cluelyImportError}
+                                    cluelyImportResult={cluelyImportResult}
+                                    cluelyImportCandidates={cluelyImportCandidates}
+                                    cluelyImportStatus={cluelyImportStatus}
+                                    cluelyDiscoveryBusy={cluelyDiscoveryBusy}
+                                    teamsDiscoveryBusy={teamsDiscoveryBusy}
+                                    onRunCluelyImport={handleRunCluelyImport}
+                                    onRefreshCluelyList={handleRefreshCluelyList}
+                                    onRefreshTeamsList={handleRefreshTeamsList}
+                                    meetingImportFiles={meetingImportFiles}
+                                    onSelectMeetingImportFiles={handleSelectMeetingImportFiles}
+                                    onRemoveMeetingImportFile={(filePath) => setMeetingImportFiles((current) => current.filter((item) => item !== filePath))}
+                                    meetingImportSourceFormat={meetingImportSourceFormat}
+                                    setMeetingImportSourceFormat={setMeetingImportSourceFormat}
+                                    meetingImportTitle={meetingImportTitle}
+                                    setMeetingImportTitle={setMeetingImportTitle}
+                                    meetingImportDate={meetingImportDate}
+                                    setMeetingImportDate={setMeetingImportDate}
+                                    meetingImportSummaryText={meetingImportSummaryText}
+                                    setMeetingImportSummaryText={setMeetingImportSummaryText}
+                                    meetingImportTranscriptText={meetingImportTranscriptText}
+                                    setMeetingImportTranscriptText={setMeetingImportTranscriptText}
+                                    meetingImportUsageText={meetingImportUsageText}
+                                    setMeetingImportUsageText={setMeetingImportUsageText}
+                                    meetingImportError={meetingImportError}
+                                    meetingImportResult={meetingImportResult}
+                                    meetingImportBusy={meetingImportBusy}
+                                    onPasteMeetingImportClipboard={handlePasteMeetingImportClipboard}
+                                    onClearMeetingImportDraft={handleClearMeetingImportDraft}
+                                    onRunMeetingImport={handleRunMeetingImport}
+                                />
                             )}
                             {activeTab === 'keybinds' && (
                                 <div className="space-y-5 animated fadeIn select-text pb-4">
@@ -2631,7 +2080,7 @@ const SettingsOverlay: React.FC<SettingsOverlayProps> = ({ isOpen, onClose, init
                                                 <div className="flex items-center justify-between py-1.5 group">
                                                     <div className="flex items-center gap-3">
                                                         <span className="text-text-tertiary group-hover:text-text-primary transition-colors w-5 flex justify-center"><PointerOff size={14} /></span>
-                                                        <span className="text-sm text-text-secondary font-medium group-hover:text-text-primary transition-colors">Toggle Mouse Passthrough</span>
+                                                        <span className="text-sm text-text-secondary font-medium group-hover:text-text-primary transition-colors">Toggle Click-Through</span>
                                                     </div>
                                                     <KeyRecorder
                                                         currentKeys={shortcuts.toggleMousePassthrough}
@@ -2641,7 +2090,7 @@ const SettingsOverlay: React.FC<SettingsOverlayProps> = ({ isOpen, onClose, init
                                                 <div className="flex items-center justify-between py-1.5 group">
                                                     <div className="flex items-center gap-3">
                                                         <span className="text-text-tertiary group-hover:text-text-primary transition-colors w-5 flex justify-center"><MessageSquare size={14} /></span>
-                                                        <span className="text-sm text-text-secondary font-medium group-hover:text-text-primary transition-colors">Process Screenshots</span>
+                                                        <span className="text-sm text-text-secondary font-medium group-hover:text-text-primary transition-colors">Analyze Captured Context</span>
                                                     </div>
                                                     <KeyRecorder
                                                         currentKeys={shortcuts.processScreenshots}
@@ -2651,7 +2100,7 @@ const SettingsOverlay: React.FC<SettingsOverlayProps> = ({ isOpen, onClose, init
                                                 <div className="flex items-center justify-between py-1.5 group">
                                                     <div className="flex items-center gap-3">
                                                         <span className="text-text-tertiary group-hover:text-text-primary transition-colors w-5 flex justify-center"><Sparkles size={14} /></span>
-                                                        <span className="text-sm text-text-secondary font-medium group-hover:text-text-primary transition-colors">Capture Screen & Ask AI</span>
+                                                        <span className="text-sm text-text-secondary font-medium group-hover:text-text-primary transition-colors">Capture Screen & Ask</span>
                                                     </div>
                                                     <KeyRecorder
                                                         currentKeys={shortcuts.captureAndProcess}
@@ -2698,13 +2147,13 @@ const SettingsOverlay: React.FC<SettingsOverlayProps> = ({ isOpen, onClose, init
                                             </div>
                                             <div className="space-y-1">
                                                 {[
-                                                    { id: 'whatToAnswer', label: 'What to Answer', icon: <Sparkles size={14} /> },
-                                                    { id: 'clarify', label: 'Clarify', icon: <MessageSquare size={14} /> },
-                                                    { id: 'followUp', label: 'Follow Up', icon: <MessageSquare size={14} /> },
-                                                    { id: 'dynamicAction4', label: 'Recap / Brainstorm', icon: <RefreshCw size={14} /> },
-                                                    { id: 'answer', label: 'Answer / Record', icon: <Mic size={14} /> },
-                                                    { id: 'codeHint', label: 'Get Code Hint', icon: <Zap size={14} /> },
-                                                    { id: 'brainstorm', label: 'Brainstorm Approaches', icon: <Zap size={14} /> },
+                                                    { id: 'whatToAnswer', label: 'Draft Reply', icon: <Sparkles size={14} /> },
+                                                    { id: 'clarify', label: 'Clarify Context', icon: <MessageSquare size={14} /> },
+                                                    { id: 'followUp', label: 'Suggest Follow-Up', icon: <MessageSquare size={14} /> },
+                                                    { id: 'dynamicAction4', label: 'Summarize / Brainstorm', icon: <RefreshCw size={14} /> },
+                                                    { id: 'answer', label: 'Voice Ask', icon: <Mic size={14} /> },
+                                                    { id: 'codeHint', label: 'Technical Assist', icon: <Zap size={14} /> },
+                                                    { id: 'brainstorm', label: 'Explore Options', icon: <Zap size={14} /> },
                                                     { id: 'scrollUp', label: 'Scroll Up', icon: <ArrowUp size={14} /> },
                                                     { id: 'scrollDown', label: 'Scroll Down', icon: <ArrowDown size={14} /> },
                                                 ].map((item, i) => (
@@ -2747,6 +2196,10 @@ const SettingsOverlay: React.FC<SettingsOverlayProps> = ({ isOpen, onClose, init
                                         </div>
                                     </div>
                                 </div>
+                            )}
+
+                            {activeTab === 'meeting-ai' && (
+                                <MeetingAISettings />
                             )}
 
                             {activeTab === 'audio' && (
@@ -3148,37 +2601,40 @@ const SettingsOverlay: React.FC<SettingsOverlayProps> = ({ isOpen, onClose, init
                                                 </button>
                                             </div>
 
-                                            <div className="h-px bg-border-subtle my-2" />
+                                            {isMacPlatform && (
+                                                <>
+                                                    <div className="h-px bg-border-subtle my-2" />
 
-                                            {/* SCK Backend Toggle */}
-                                            <div className="bg-amber-500/5 rounded-xl border border-amber-500/20 p-4">
-                                                <div className="flex items-center justify-between">
-                                                    <div className="flex items-start gap-3">
-                                                        <div className="mt-0.5 p-1.5 rounded-lg bg-amber-500/10 text-amber-500">
-                                                            <FlaskConical size={18} />
-                                                        </div>
-                                                        <div>
-                                                            <div className="flex items-center gap-2 mb-0.5">
-                                                                <h3 className="text-sm font-bold text-text-primary">SCK Backend</h3>
-                                                                <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-indigo-500/20 text-indigo-400 uppercase tracking-wide">Alternative</span>
+                                                    <div className="bg-amber-500/5 rounded-xl border border-amber-500/20 p-4">
+                                                        <div className="flex items-center justify-between">
+                                                            <div className="flex items-start gap-3">
+                                                                <div className="mt-0.5 p-1.5 rounded-lg bg-amber-500/10 text-amber-500">
+                                                                    <FlaskConical size={18} />
+                                                                </div>
+                                                                <div>
+                                                                    <div className="flex items-center gap-2 mb-0.5">
+                                                                        <h3 className="text-sm font-bold text-text-primary">ScreenCaptureKit Backend</h3>
+                                                                        <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-indigo-500/20 text-indigo-400 uppercase tracking-wide">Mac only</span>
+                                                                    </div>
+                                                                    <p className="text-xs text-text-secondary leading-relaxed max-w-[300px]">
+                                                                        Use the ScreenCaptureKit backend on macOS if the default audio capture path has issues.
+                                                                    </p>
+                                                                </div>
                                                             </div>
-                                                            <p className="text-xs text-text-secondary leading-relaxed max-w-[300px]">
-                                                                Use the ScreenCaptureKit backend. An optimized alternative to CoreAudio if you experience any capture issues.
-                                                            </p>
+                                                            <div
+                                                                onClick={() => {
+                                                                    const newState = !useExperimentalSck;
+                                                                    setUseExperimentalSck(newState);
+                                                                    window.localStorage.setItem('useExperimentalSckBackend', newState ? 'true' : 'false');
+                                                                }}
+                                                                className={`w-11 h-6 rounded-full relative transition-colors shrink-0 ${useExperimentalSck ? 'bg-amber-500' : 'bg-bg-toggle-switch border border-border-muted'}`}
+                                                            >
+                                                                <div className={`absolute top-1 left-1 w-4 h-4 rounded-full bg-white transition-transform ${useExperimentalSck ? 'translate-x-5' : 'translate-x-0'}`} />
+                                                            </div>
                                                         </div>
                                                     </div>
-                                                    <div
-                                                        onClick={() => {
-                                                            const newState = !useExperimentalSck;
-                                                            setUseExperimentalSck(newState);
-                                                            window.localStorage.setItem('useExperimentalSckBackend', newState ? 'true' : 'false');
-                                                        }}
-                                                        className={`w-11 h-6 rounded-full relative transition-colors shrink-0 ${useExperimentalSck ? 'bg-amber-500' : 'bg-bg-toggle-switch border border-border-muted'}`}
-                                                    >
-                                                        <div className={`absolute top-1 left-1 w-4 h-4 rounded-full bg-white transition-transform ${useExperimentalSck ? 'translate-x-5' : 'translate-x-0'}`} />
-                                                    </div>
-                                                </div>
-                                            </div>
+                                                </>
+                                            )}
                                         </div>
                                     </div>
                                 </div>
@@ -3200,7 +2656,7 @@ const SettingsOverlay: React.FC<SettingsOverlayProps> = ({ isOpen, onClose, init
                                                         <Calendar size={20} />
                                                     </div>
                                                     <div>
-                                                        <h4 className="text-sm font-medium text-text-primary">Google Calendar</h4>
+                                                        <h4 className="text-sm font-medium text-text-primary">{calendarProviderLabel}</h4>
                                                         <p className="text-xs text-text-secondary">Connected as {calendarStatus.email || 'User'}</p>
                                                     </div>
                                                 </div>
@@ -3229,7 +2685,7 @@ const SettingsOverlay: React.FC<SettingsOverlayProps> = ({ isOpen, onClose, init
                                                 <div className="mb-4">
                                                     <Calendar size={24} className="text-text-tertiary mb-3" />
                                                     <h4 className="text-sm font-bold text-text-primary mb-1">No calendars</h4>
-                                                    <p className="text-xs text-text-secondary">Get started by connecting a Google account.</p>
+                                                    <p className="text-xs text-text-secondary">Get started by connecting your calendar account. Outlook Desktop is used automatically when available.</p>
                                                 </div>
 
                                                 <button
@@ -3250,15 +2706,8 @@ const SettingsOverlay: React.FC<SettingsOverlayProps> = ({ isOpen, onClose, init
                                                     disabled={isCalendarsLoading}
                                                     className={`px-4 py-2 rounded-lg text-xs font-medium transition-all flex items-center gap-2.5 ${isLight ? 'bg-bg-component hover:bg-bg-item-surface text-text-primary border border-border-subtle' : 'bg-[#303033] hover:bg-[#3A3A3D] text-white'}`}
                                                 >
-                                                    <svg viewBox="0 0 24 24" width="14" height="14" xmlns="http://www.w3.org/2000/svg">
-                                                        <g transform="matrix(1, 0, 0, 1, 27.009001, -39.238998)">
-                                                            <path fill="#4285F4" d="M -3.264 51.509 C -3.264 50.719 -3.334 49.969 -3.454 49.239 L -14.754 49.239 L -14.754 53.749 L -8.284 53.749 C -8.574 55.229 -9.424 56.479 -10.684 57.329 L -10.684 60.329 L -6.824 60.329 C -4.564 58.239 -3.264 55.159 -3.264 51.509 Z" />
-                                                            <path fill="#34A853" d="M -14.754 63.239 C -11.514 63.239 -8.804 62.159 -6.824 60.329 L -10.684 57.329 C -11.764 58.049 -13.134 58.489 -14.754 58.489 C -17.884 58.489 -20.534 56.379 -21.484 53.529 L -25.464 53.529 L -25.464 56.619 C -23.494 60.539 -19.444 63.239 -14.754 63.239 Z" />
-                                                            <path fill="#FBBC05" d="M -21.484 53.529 C -21.734 52.809 -21.864 52.039 -21.864 51.239 C -21.864 50.439 -21.734 49.669 -21.484 48.949 L -21.484 45.859 L -25.464 45.859 C -26.284 47.479 -26.754 49.299 -26.754 51.239 C -26.754 53.179 -26.284 54.999 -25.464 56.619 L -21.484 53.529 Z" />
-                                                            <path fill="#EA4335" d="M -14.754 43.989 C -12.984 43.989 -11.404 44.599 -10.154 45.789 L -6.734 42.369 C -8.804 40.429 -11.514 39.239 -14.754 39.239 C -19.444 39.239 -23.494 41.939 -25.464 45.859 L -21.484 48.949 C -20.534 46.099 -17.884 43.989 -14.754 43.989 Z" />
-                                                        </g>
-                                                    </svg>
-                                                    {isCalendarsLoading ? 'Connecting...' : 'Connect Google'}
+                                                    <Calendar size={14} />
+                                                    {isCalendarsLoading ? 'Connecting...' : 'Connect Calendar'}
                                                 </button>
                                             </div>
                                         )}
@@ -3314,3 +2763,4 @@ const SettingsOverlay: React.FC<SettingsOverlayProps> = ({ isOpen, onClose, init
 };
 
 export default SettingsOverlay;
+

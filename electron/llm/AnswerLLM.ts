@@ -9,7 +9,7 @@ export class AnswerLLM {
     }
 
     /**
-     * Generate a spoken interview answer
+     * Generate a spoken live-response answer
      */
     async generate(question: string, context?: string): Promise<string> {
         try {

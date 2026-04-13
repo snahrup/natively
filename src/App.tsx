@@ -5,6 +5,7 @@ import NativelyInterface from "./components/NativelyInterface"
 import SettingsPopup from "./components/SettingsPopup" // Keeping for legacy/specific window support if needed
 import Launcher from "./components/Launcher"
 import ModelSelectorWindow from "./components/ModelSelectorWindow"
+import ChatLogViewerWindow from "./components/ChatLogViewerWindow"
 import SettingsOverlay from "./components/SettingsOverlay"
 import StartupSequence from "./components/StartupSequence"
 import { AnimatePresence, motion } from "framer-motion"
@@ -32,10 +33,11 @@ const App: React.FC = () => {
   const isLauncherWindow = new URLSearchParams(window.location.search).get('window') === 'launcher';
   const isOverlayWindow = new URLSearchParams(window.location.search).get('window') === 'overlay';
   const isModelSelectorWindow = new URLSearchParams(window.location.search).get('window') === 'model-selector';
+  const isChatLogViewerWindow = new URLSearchParams(window.location.search).get('window') === 'chat-log-viewer';
   const isCropperWindow = new URLSearchParams(window.location.search).get('window') === 'cropper';
 
   // Default to launcher if not specified (dev mode safety)
-  const isDefault = !isSettingsWindow && !isOverlayWindow && !isModelSelectorWindow && !isCropperWindow;
+  const isDefault = !isSettingsWindow && !isOverlayWindow && !isModelSelectorWindow && !isChatLogViewerWindow && !isCropperWindow;
 
   if (isCropperWindow) {
     const Cropper = React.lazy(() => import('./components/Cropper'));
@@ -222,7 +224,7 @@ const App: React.FC = () => {
       localStorage.setItem('natively_last_meeting_start', Date.now().toString());
       const inputDeviceId = localStorage.getItem('preferredInputDeviceId');
       let outputDeviceId = localStorage.getItem('preferredOutputDeviceId');
-      const useExperimentalSck = localStorage.getItem('useExperimentalSckBackend') === 'true';
+      const useExperimentalSck = /Mac/i.test(navigator.platform) && localStorage.getItem('useExperimentalSckBackend') === 'true';
 
       // Override output device ID to force SCK if experimental mode is enabled
       // Default to CoreAudio unless experimental is enabled
@@ -302,6 +304,21 @@ const App: React.FC = () => {
           <QueryClientProvider client={queryClient}>
             <ToastProvider>
               <ModelSelectorWindow />
+              <ToastViewport />
+            </ToastProvider>
+          </QueryClientProvider>
+        </div>
+      </ErrorBoundary>
+    );
+  }
+
+  if (isChatLogViewerWindow) {
+    return (
+      <ErrorBoundary context="ChatLogViewer">
+        <div className="h-full min-h-0 w-full overflow-hidden">
+          <QueryClientProvider client={queryClient}>
+            <ToastProvider>
+              <ChatLogViewerWindow />
               <ToastViewport />
             </ToastProvider>
           </QueryClientProvider>

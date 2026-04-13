@@ -5,6 +5,8 @@ import url from 'url';
 import fs from 'fs';
 import path from 'path';
 import { EventEmitter } from 'events';
+import { MicrosoftLocalManager } from './MicrosoftLocalManager';
+import type { OutlookCalendarEvent } from './MicrosoftLocalTypes';
 
 // Configuration
 // In a real app, these should be in environment variables or build configs
@@ -24,7 +26,16 @@ export interface CalendarEvent {
     startTime: string; // ISO
     endTime: string; // ISO
     link?: string;
-    source: 'google';
+    description?: string;
+    location?: string;
+    attendees?: Array<{
+        email: string;
+        displayName?: string;
+        organizer?: boolean;
+        optional?: boolean;
+        responseStatus?: string;
+    }>;
+    source: 'google' | 'outlook';
 }
 
 export class CalendarManager extends EventEmitter {
@@ -113,10 +124,25 @@ export class CalendarManager extends EventEmitter {
         this.emit('connection-changed', false);
     }
 
-    public getConnectionStatus(): { connected: boolean; email?: string, lastSync?: number } {
-        // We don't store email in tokens usually, but we could fetch it.
-        // For now, simpler boolean.
-        return { connected: this.isConnected };
+    public async getConnectionStatus(): Promise<{ connected: boolean; email?: string, lastSync?: number, providers?: { google: boolean; outlook: boolean; teams: boolean }, warnings?: string[] }> {
+        const microsoft = await MicrosoftLocalManager.getInstance().getStatus().catch((): null => null);
+        const warnings: string[] = [];
+        if (microsoft?.outlook?.outlookRunning && !microsoft.outlook.comAvailable) {
+            warnings.push(microsoft.outlook.lastError || 'Outlook is running but local COM access is unavailable.');
+        }
+        if (microsoft?.teams?.status === 'error' && microsoft.teams.error) {
+            warnings.push(microsoft.teams.error);
+        }
+        return {
+            connected: this.isConnected || Boolean(microsoft?.outlook?.comAvailable),
+            email: microsoft?.outlook?.userEmail,
+            providers: {
+                google: this.isConnected,
+                outlook: Boolean(microsoft?.outlook?.comAvailable),
+                teams: microsoft?.teams?.status === 'connected',
+            },
+            warnings,
+        };
     }
 
     private getAuthUrl(): string {
@@ -325,14 +351,25 @@ export class CalendarManager extends EventEmitter {
     // =========================================================================
 
     public async getUpcomingEvents(force: boolean = false): Promise<CalendarEvent[]> {
-        if (!this.isConnected || !this.accessToken) return [];
+        const googleEventsPromise = (async (): Promise<CalendarEvent[]> => {
+            if (!this.isConnected || !this.accessToken) return [];
+            if (this.expiryDate && Date.now() >= this.expiryDate - 60000) {
+                await this.refreshAccessToken();
+            }
+            return this.fetchEventsInternal();
+        })();
 
-        // Check expiry
-        if (this.expiryDate && Date.now() >= this.expiryDate - 60000) {
-            await this.refreshAccessToken();
-        }
+        const outlookEventsPromise = MicrosoftLocalManager.getInstance()
+            .getOutlookCalendarEvents(48)
+            .then((events) => events.map((event) => this.mapOutlookEvent(event)))
+            .catch((error) => {
+                console.warn('[CalendarManager] Outlook calendar fetch failed:', error);
+                return [] as CalendarEvent[];
+            });
 
-        const events = await this.fetchEventsInternal();
+        const [googleEvents, outlookEvents] = await Promise.all([googleEventsPromise, outlookEventsPromise]);
+        const events = [...googleEvents, ...outlookEvents]
+            .sort((left, right) => new Date(left.startTime).getTime() - new Date(right.startTime).getTime());
         this.scheduleReminders(events);
         return events;
     }
@@ -375,6 +412,19 @@ export class CalendarManager extends EventEmitter {
                     startTime: item.start.dateTime,
                     endTime: item.end.dateTime,
                     link: this.resolveMeetingLink(item),
+                    description: item.description,
+                    location: item.location?.displayName,
+                    attendees: Array.isArray(item.attendees)
+                        ? item.attendees
+                            .map((attendee: any) => ({
+                                email: attendee.email,
+                                displayName: attendee.displayName,
+                                organizer: attendee.organizer,
+                                optional: attendee.optional,
+                                responseStatus: attendee.responseStatus?.responseStatus,
+                            }))
+                            .filter((attendee: any) => attendee.email)
+                        : [],
                     source: 'google'
                 }));
 
@@ -419,5 +469,25 @@ export class CalendarManager extends EventEmitter {
     public async fetchUpcomingEvents() {
         // wrapper to just cache or trigger updates
         return this.getUpcomingEvents();
+    }
+
+    private mapOutlookEvent(event: OutlookCalendarEvent): CalendarEvent {
+        return {
+            id: event.entryId,
+            title: event.subject || '(No Title)',
+            startTime: event.start,
+            endTime: event.end,
+            description: event.body,
+            location: event.location,
+            attendees: Array.isArray(event.attendees)
+                ? event.attendees.map((attendee) => ({
+                    email: attendee.email,
+                    displayName: attendee.name,
+                    optional: attendee.type === 'optional',
+                    responseStatus: attendee.responseStatus,
+                }))
+                : [],
+            source: 'outlook',
+        };
     }
 }

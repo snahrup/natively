@@ -24,23 +24,22 @@ const FEATURES: FeatureSlide[] = [
         id: 'tailored_answers',
         headline: 'Upcoming features',
         subtitle: 'Answers, tailored to you',
-        bullets: ['Repo aware explanations', 'System design interview specialization'],
-        footer: 'Designed to work silently during live interviews.',
+        bullets: ['Repo-aware explanations', 'System design coaching'],
+        footer: 'Designed to work silently during live conversations.',
         type: 'premium',
     },
 
     {
         id: 'support_natively',
-        headline: 'Support development',
-        subtitle: 'Built openly and sustained by users',
+        headline: 'Local-first roadmap',
+        subtitle: 'Focused on useful features and fast iteration',
         bullets: [
-            'Development driven by real users',
+            'Development driven by real usage',
             'Faster iteration on features that matter',
 
         ],
-        type: 'support',
-        actionLabel: 'Contribute to development',
-        url: 'https://buymeacoffee.com/evinjohnn'
+        type: 'feature',
+        actionLabel: 'Mark interest',
     }
 ];
 

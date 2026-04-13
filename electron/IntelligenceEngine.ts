@@ -256,17 +256,17 @@ export class IntelligenceEngine extends EventEmitter {
             const contextItems = this.session.getContext(180);
 
             // Inject latest interim transcript if available
-            const lastInterim = this.session.getLastInterimInterviewer();
+            const lastInterim = this.session.getLastInterimExternal();
             if (lastInterim && lastInterim.text.trim().length > 0) {
                 const lastItem = contextItems[contextItems.length - 1];
                 const isDuplicate = lastItem &&
-                    lastItem.role === 'interviewer' &&
+                    lastItem.role === 'external' &&
                     (lastItem.text === lastInterim.text || Math.abs(lastItem.timestamp - lastInterim.timestamp) < 1000);
 
                 if (!isDuplicate) {
                     console.log(`[IntelligenceEngine] Injecting interim transcript: "${lastInterim.text.substring(0, 50)}..."`);
                     contextItems.push({
-                        role: 'interviewer',
+                        role: 'external',
                         text: lastInterim.text,
                         timestamp: lastInterim.timestamp
                     });
@@ -287,9 +287,9 @@ export class IntelligenceEngine extends EventEmitter {
                 180
             );
 
-            const lastInterviewerTurn = this.session.getLastInterviewerTurn();
+            const lastExternalTurn = this.session.getLastExternalTurn();
             const intentResult = await classifyIntent(
-                lastInterviewerTurn,
+                lastExternalTurn,
                 preparedTranscript,
                 this.session.getAssistantResponseHistory().length
             );
@@ -328,7 +328,7 @@ export class IntelligenceEngine extends EventEmitter {
 
             this.session.addAssistantMessage(fullAnswer);
 
-            this.session.pushUsage({
+            await this.session.pushUsage({
                 type: 'assist',
                 timestamp: Date.now(),
                 question: question || 'What to Answer',
@@ -409,7 +409,7 @@ export class IntelligenceEngine extends EventEmitter {
 
                 const displayQuestion = userRequest || intentMap[intent] || `Refining: ${intent}`;
 
-                this.session.pushUsage({
+                await this.session.pushUsage({
                     type: 'followup',
                     timestamp: Date.now(),
                     question: displayQuestion,
@@ -469,7 +469,7 @@ export class IntelligenceEngine extends EventEmitter {
             if (!streamAborted && fullSummary && this.currentGenerationId === generationId) {
                 this.emit('recap', fullSummary);
 
-                this.session.pushUsage({
+                await this.session.pushUsage({
                     type: 'chat',
                     timestamp: Date.now(),
                     question: 'Recap Meeting',
@@ -490,7 +490,7 @@ export class IntelligenceEngine extends EventEmitter {
 
     /**
      * MODE: Clarify
-     * Ask a clarifying question to the interviewer
+     * Ask a clarifying question to move the conversation forward
      */
     async runClarify(): Promise<string | null> {
         console.log('[IntelligenceEngine] runClarify called');
@@ -505,7 +505,7 @@ export class IntelligenceEngine extends EventEmitter {
 
             const rawContext = this.session.getFormattedContext(180);
             // If no transcript yet, use a generic prompt — the LLM will ask a scoping question
-            const context = rawContext || '[No transcript available yet. The candidate just joined the interview. Generate an opening clarifying question to understand the scope and constraints of the upcoming problem.]';
+            const context = rawContext || '[No transcript available yet. Generate an opening clarifying question that establishes the scope, constraints, or success criteria.]';
 
             const generationId = ++this.currentGenerationId;
             let fullClarification = "";
@@ -533,7 +533,7 @@ export class IntelligenceEngine extends EventEmitter {
                 this.emit('clarify', fullClarification);
                 this.session.addAssistantMessage(fullClarification);
 
-                this.session.pushUsage({
+                await this.session.pushUsage({
                     type: 'chat',
                     timestamp: Date.now(),
                     question: 'Clarify Question',
@@ -589,7 +589,7 @@ export class IntelligenceEngine extends EventEmitter {
 
             if (fullQuestions && this.currentGenerationId === generationId) {
                 this.emit('follow_up_questions_update', fullQuestions);
-                this.session.pushUsage({
+                await this.session.pushUsage({
                     type: 'followup_questions',
                     timestamp: Date.now(),
                     question: 'Generate Follow-up Questions',
@@ -629,7 +629,7 @@ export class IntelligenceEngine extends EventEmitter {
                 this.session.addAssistantMessage(answer);
                 this.emit('manual_answer_result', answer, question);
 
-                this.session.pushUsage({
+                await this.session.pushUsage({
                     type: 'chat',
                     timestamp: Date.now(),
                     question: question,
@@ -652,7 +652,7 @@ export class IntelligenceEngine extends EventEmitter {
      * Analyzes a screenshot of partially written code against the detected/provided question
      * and returns a short targeted hint. Question comes from (priority order):
      *   1. problemStatement passed in from ipcHandler (screenshot extraction — highest confidence)
-     *   2. session.detectedCodingQuestion (detected from interviewer transcript)
+     *   2. session.detectedCodingQuestion (detected from live conversation)
      *   3. transcriptContext (last N seconds of conversation — fallback for inference)
      */
     async runCodeHint(imagePaths?: string[], problemStatement?: string): Promise<string | null> {
@@ -706,7 +706,7 @@ export class IntelligenceEngine extends EventEmitter {
             }
 
             this.session.addAssistantMessage(fullHint);
-            this.session.pushUsage({
+            await this.session.pushUsage({
                 type: 'assist',
                 timestamp: Date.now(),
                 question: 'Code Hint',
@@ -784,7 +784,7 @@ export class IntelligenceEngine extends EventEmitter {
             }
 
             this.session.addAssistantMessage(fullResult);
-            this.session.pushUsage({
+            await this.session.pushUsage({
                 type: 'assist',
                 timestamp: Date.now(),
                 question: 'Brainstorm',

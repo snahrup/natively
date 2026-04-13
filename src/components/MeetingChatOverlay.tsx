@@ -407,7 +407,7 @@ ${contextString}`;
                         question,
                         undefined,
                         systemPrompt,
-                        { skipSystemPrompt: true, ignoreKnowledgeMode: true }
+                        { skipSystemPrompt: true, ignoreKnowledgeMode: true, surface: 'meeting_overlay' }
                     );
                 }
             } else {
@@ -459,7 +459,7 @@ ${contextString}`;
                     question,
                     undefined,
                     systemPrompt,
-                    { skipSystemPrompt: true, ignoreKnowledgeMode: true }
+                    { skipSystemPrompt: true, ignoreKnowledgeMode: true, surface: 'meeting_overlay' }
                 );
             }
 

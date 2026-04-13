@@ -1,0 +1,28 @@
+sequenceDiagram
+    participant User
+    participant Widget as Widget Chat UI
+    participant Planner as Agent Action Planner
+    participant Card as Inline Action Card
+    participant IPC as Electron IPC
+    participant Bridge as Local Microsoft Bridge
+    participant Outlook as Outlook Desktop
+    participant Teams as Teams Desktop
+
+    User->>Widget: Ask for email / Teams / calendar action
+    Widget->>Planner: classify and structure request
+    Planner-->>Widget: structured action proposal
+    Widget->>Card: render editable action card
+    User->>Card: review and confirm
+    Card->>IPC: invoke approved action
+    IPC->>Bridge: route to local bridge
+    alt Email
+        Bridge->>Outlook: create/send/reply
+        Outlook-->>Card: result
+    else Teams
+        Bridge->>Teams: send message
+        Teams-->>Card: result
+    else Calendar
+        Bridge->>Outlook: create event / invite
+        Outlook-->>Card: result
+    end
+    Card-->>User: success or error state

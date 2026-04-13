@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { ToggleLeft, ToggleRight, Search, Zap, Calendar, ArrowRight, ArrowLeft, MoreHorizontal, Globe, Clock, ChevronRight, Settings, RefreshCw, Eye, EyeOff, Ghost, Plus, Mail, Link as LinkIcon, ChevronDown, Trash2, Bell, Check, Download, DownloadCloud, CheckCircle, AlertCircle } from 'lucide-react';
+import { ToggleLeft, ToggleRight, Search, Zap, Calendar, ArrowRight, ArrowLeft, MoreHorizontal, Globe, Clock, ChevronRight, Settings, RefreshCw, Eye, EyeOff, Ghost, Plus, Mail, Link as LinkIcon, ChevronDown, Trash2, Bell, Check, Download, DownloadCloud, CheckCircle, AlertCircle, MessageSquare, Monitor, Activity } from 'lucide-react';
 import { generateMeetingPDF } from '../utils/pdfGenerator';
 import icon from "./icon.png";
-import mainui from "../UI_comp/mainui.png";
-import calender from "../UI_comp/calender.png";
 import ConnectCalendarButton from './ui/ConnectCalendarButton';
 import MeetingDetails from './MeetingDetails';
 import TopSearchPill from './TopSearchPill';
@@ -22,6 +20,12 @@ interface Meeting {
     date: string;
     duration: string;
     summary: string;
+    source?: 'manual' | 'calendar' | 'teams' | 'cluely' | 'imported';
+    importMetadata?: {
+        sourceFormat?: 'cluely' | 'teams' | 'generic';
+        importedAt?: string;
+        fidelity?: string;
+    };
     detailedSummary?: {
         actionItems: string[];
         keyPoints: string[];
@@ -40,6 +44,58 @@ interface Meeting {
     }>;
     active?: boolean; // UI state
     time?: string; // Optional for compatibility
+}
+
+interface UpcomingEvent {
+    id: string;
+    title: string;
+    startTime: string;
+    endTime: string;
+    link?: string;
+    description?: string;
+    location?: string;
+    attendees?: Array<{
+        email: string;
+        displayName?: string;
+    }>;
+    source: 'google' | 'outlook';
+}
+
+interface MeetingPrepPacket {
+    event: UpcomingEvent;
+    generatedAt: string;
+    timing: {
+        startsInMinutes: number;
+        durationMinutes: number;
+    };
+    sourceHealth: {
+        calendar: boolean;
+        memory: boolean;
+        backgroundContext: boolean;
+        roleBrief: boolean;
+        liveResearch: boolean;
+    };
+    summary: string;
+    contextBullets: string[];
+    profileSnapshot: string[];
+    relatedMeetings: Array<{
+        id: string;
+        title: string;
+        date: string;
+        summary: string;
+        matchScore: number;
+    }>;
+    memoryHighlights: Array<{
+        title: string;
+        excerpt: string;
+        source: string;
+        type: string;
+        date?: string;
+        score: number;
+    }>;
+    prepChecklist: string[];
+    openQuestions: string[];
+    openCommitments: string[];
 }
 
 interface LauncherProps {
@@ -76,17 +132,55 @@ const formatTime = (dateStr: string) => {
     return date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }).toLowerCase();
 };
 
+const formatFreshness = (dateStr?: string | null) => {
+    if (!dateStr) return 'No signal yet';
+    const value = new Date(dateStr);
+    if (Number.isNaN(value.getTime())) return 'No signal yet';
+
+    const diffMs = Date.now() - value.getTime();
+    const diffMinutes = Math.max(0, Math.round(diffMs / 60000));
+
+    if (diffMinutes < 1) return 'Just now';
+    if (diffMinutes < 60) return `${diffMinutes} min ago`;
+
+    const diffHours = Math.round(diffMinutes / 60);
+    if (diffHours < 24) return `${diffHours} hr ago`;
+
+    const diffDays = Math.round(diffHours / 24);
+    return `${diffDays} day${diffDays === 1 ? '' : 's'} ago`;
+};
+
+const getMeetingSourceBadge = (meeting: Meeting) => {
+    switch (meeting.source) {
+        case 'calendar':
+            return { label: 'Calendar', className: 'bg-blue-500/10 text-blue-400 border-blue-500/20' };
+        case 'teams':
+            return { label: 'Teams Import', className: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' };
+        case 'cluely':
+            return { label: 'Cluely Import', className: 'bg-amber-500/10 text-amber-400 border-amber-500/20' };
+        case 'imported':
+            return { label: 'Imported', className: 'bg-violet-500/10 text-violet-400 border-violet-500/20' };
+        default:
+            return { label: 'Natively', className: 'bg-bg-elevated text-text-secondary border-border-subtle' };
+    }
+};
+
 const Launcher: React.FC<LauncherProps> = ({ onStartMeeting, onOpenSettings, onPageChange, ollamaPullStatus = 'idle', ollamaPullPercent = 0, ollamaPullMessage = '' }) => {
     const [meetings, setMeetings] = useState<Meeting[]>([]);
     const [isDetectable, setIsDetectable] = useState(false);
     const [isMeetingActive, setIsMeetingActive] = useState(false);
     const [selectedMeeting, setSelectedMeeting] = useState<Meeting | null>(null);
-    const [upcomingEvents, setUpcomingEvents] = useState<any[]>([]);
+    const [upcomingEvents, setUpcomingEvents] = useState<UpcomingEvent[]>([]);
     const [isPrepared, setIsPrepared] = useState(false);
-    const [preparedEvent, setPreparedEvent] = useState<any>(null);
+    const [preparedEvent, setPreparedEvent] = useState<UpcomingEvent | null>(null);
+    const [preparedPacket, setPreparedPacket] = useState<MeetingPrepPacket | null>(null);
+    const [isPreparing, setIsPreparing] = useState(false);
+    const [prepareError, setPrepareError] = useState('');
     const [isCalendarConnected, setIsCalendarConnected] = useState(false);
     const [isRefreshing, setIsRefreshing] = useState(false);
     const [showNotification, setShowNotification] = useState(false);
+    const [contextHubOverview, setContextHubOverview] = useState<any>(null);
+    const [contextHubBusy, setContextHubBusy] = useState(false);
 
     // Global search state (for AI chat overlay)
     const [isGlobalChatOpen, setIsGlobalChatOpen] = useState(false);
@@ -104,6 +198,19 @@ const Launcher: React.FC<LauncherProps> = ({ onStartMeeting, onOpenSettings, onP
         }
     }
 
+    const fetchContextHubOverview = async () => {
+        if (!window.electronAPI?.getContextHubStatus) return;
+        try {
+            setContextHubBusy(true);
+            const status = await window.electronAPI.getContextHubStatus();
+            setContextHubOverview(status || null);
+        } catch (err) {
+            console.error("Failed to fetch context hub overview:", err);
+        } finally {
+            setContextHubBusy(false);
+        }
+    };
+
     const handleRefresh = async () => {
         setIsRefreshing(true);
         analytics.trackCommandExecuted('refresh_calendar');
@@ -113,6 +220,7 @@ const Launcher: React.FC<LauncherProps> = ({ onStartMeeting, onOpenSettings, onP
                 await window.electronAPI.calendarRefresh();
                 fetchEvents();
                 fetchMeetings();
+                fetchContextHubOverview().catch(() => { });
                 setTimeout(() => {
                     setShowNotification(false);
                 }, 3000);
@@ -125,6 +233,13 @@ const Launcher: React.FC<LauncherProps> = ({ onStartMeeting, onOpenSettings, onP
             // Ensure distinct feedback provided (min 500ms spin)
             setTimeout(() => setIsRefreshing(false), 500);
         }
+    };
+
+    const handleOpenChatLogViewer = () => {
+        analytics.trackCommandExecuted('open_chat_log_viewer');
+        window.electronAPI?.openChatLogViewer?.().catch((err) => {
+            console.error('Failed to open chat log viewer:', err);
+        });
     };
 
     // Keybinds
@@ -156,6 +271,7 @@ const Launcher: React.FC<LauncherProps> = ({ onStartMeeting, onOpenSettings, onP
 
         fetchMeetings();
         fetchEvents();
+        fetchContextHubOverview().catch(() => { });
 
         // Sync initial meeting active state — guarded so unmounted component isn't written to
         if (window.electronAPI?.getMeetingActive) {
@@ -176,10 +292,15 @@ const Launcher: React.FC<LauncherProps> = ({ onStartMeeting, onOpenSettings, onP
         const removeMeetingsListener = window.electronAPI.onMeetingsUpdated(() => {
             console.log("Received meetings-updated event");
             fetchMeetings();
+            fetchContextHubOverview().catch(() => { });
         });
 
         // Simple polling for events every minute
-        const interval = setInterval(fetchEvents, 60000);
+        const interval = setInterval(() => {
+            fetchEvents();
+            fetchMeetings();
+            fetchContextHubOverview().catch(() => { });
+        }, 60000);
 
         return () => {
             mounted = false;
@@ -223,9 +344,98 @@ const Launcher: React.FC<LauncherProps> = ({ onStartMeeting, onOpenSettings, onP
         return diff > -5 * 60000 && diff < 60 * 60000; // -5 min to +60 min
     });
 
-    const handlePrepare = (event: any) => {
-        setPreparedEvent(event);
-        setIsPrepared(true);
+    const indexedMeetingsPreview = meetings.slice(0, 6);
+    const contextCounts = {
+        meetings: contextHubOverview?.meetings?.total ?? meetings.length,
+        teams: contextHubOverview?.meetings?.teamsImports ?? meetings.filter((m) => m.source === 'teams').length,
+        cluely: contextHubOverview?.meetings?.cluelyImports ?? meetings.filter((m) => m.source === 'cluely').length,
+        imported: contextHubOverview?.meetings?.genericImports ?? meetings.filter((m) => m.source === 'imported').length,
+        liveSignals: ((contextHubOverview?.live?.ocrObservations || 0) + (contextHubOverview?.live?.liveTranscriptSegments || 0) + (contextHubOverview?.live?.chatTurns || 0)),
+    };
+    const lastIndexedAt = contextHubOverview?.meetings?.lastMeetingAt
+        ? new Date(contextHubOverview.meetings.lastMeetingAt).toLocaleString()
+        : 'No indexed meetings yet';
+    const lastObservedAt = contextHubOverview?.live?.lastObservedAt
+        ? new Date(contextHubOverview.live.lastObservedAt).toLocaleString()
+        : 'No live observations yet';
+    const sourceHealthCards = [
+        {
+            label: 'Outlook Desktop',
+            value: contextHubOverview?.localSources?.outlookConnected ? 'Connected' : 'Offline',
+            meta: `${contextHubOverview?.localSources?.upcomingEvents || 0} upcoming events • ${contextHubOverview?.localSources?.recentEmails || 0} recent emails`,
+            active: !!contextHubOverview?.localSources?.outlookConnected,
+            icon: Mail,
+        },
+        {
+            label: 'Teams Desktop',
+            value: contextHubOverview?.localSources?.teamsConnected ? 'Connected' : 'Offline',
+            meta: `${contextHubOverview?.localSources?.teamsChats || 0} visible chats`,
+            active: !!contextHubOverview?.localSources?.teamsConnected,
+            icon: MessageSquare,
+        },
+        {
+            label: 'Background Memory',
+            value: contextHubOverview?.profile?.loaded ? 'Loaded' : 'Not loaded',
+            meta: `${contextHubOverview?.profile?.nodeCount || 0} structured nodes`,
+            active: !!contextHubOverview?.profile?.loaded,
+            icon: Globe,
+        },
+        {
+            label: 'Semantica',
+            value: contextHubOverview?.semantica?.ready ? 'Ready' : 'Offline',
+            meta: `${contextHubOverview?.semantica?.meetingCount || 0} meetings • ${contextHubOverview?.semantica?.nodeCount || 0} nodes`,
+            active: !!contextHubOverview?.semantica?.ready,
+            icon: Activity,
+        },
+        {
+            label: 'Live Watch',
+            value: contextCounts.liveSignals > 0 ? 'Streaming' : 'Quiet',
+            meta: `${contextHubOverview?.live?.ocrObservations || 0} OCR • ${contextHubOverview?.live?.liveTranscriptSegments || 0} transcript • ${contextHubOverview?.live?.chatTurns || 0} chat turns`,
+            active: contextCounts.liveSignals > 0,
+            icon: Activity,
+        },
+    ];
+    const metricCards = [
+        {
+            label: 'Meetings Indexed',
+            value: contextCounts.meetings,
+            accent: 'from-sky-500/25 via-sky-400/10 to-transparent',
+            icon: Calendar,
+        },
+        {
+            label: 'Teams Imports',
+            value: contextCounts.teams,
+            accent: 'from-emerald-500/25 via-emerald-400/10 to-transparent',
+            icon: MessageSquare,
+        },
+        {
+            label: 'Cluely Imports',
+            value: contextCounts.cluely,
+            accent: 'from-amber-500/25 via-amber-400/10 to-transparent',
+            icon: Bell,
+        },
+        {
+            label: 'Other Imports',
+            value: contextCounts.imported,
+            accent: 'from-violet-500/25 via-violet-400/10 to-transparent',
+            icon: Monitor,
+        },
+    ];
+
+    const handlePrepare = async (event: UpcomingEvent) => {
+        setPrepareError('');
+        setIsPreparing(true);
+        try {
+            const packet = await window.electronAPI?.getMeetingPrepPacket?.(event.id);
+            setPreparedEvent(event);
+            setPreparedPacket(packet || null);
+            setIsPrepared(true);
+        } catch (error: any) {
+            console.error("Failed to build meeting prep packet", error);
+            setPrepareError(error?.message || 'Prep packet failed to load.');
+        } finally {
+            setIsPreparing(false);
+        }
     };
 
     const handleStartPreparedMeeting = async () => {
@@ -242,6 +452,7 @@ const Launcher: React.FC<LauncherProps> = ({ onStartMeeting, onOpenSettings, onP
                 audio: { inputDeviceId, outputDeviceId }
             });
             setIsPrepared(false);
+            setPreparedPacket(null);
         } catch (e) {
             console.error("Failed to start prepared meeting", e);
         }
@@ -527,7 +738,7 @@ const Launcher: React.FC<LauncherProps> = ({ onStartMeeting, onOpenSettings, onP
                                             </div>
                                         </div>
 
-                                        {/* Center: Ollama Pull Status Pill (flex-1 to center evenly) */}
+                                        {/* Center: legacy pull-status pill slot (flex-1 to center evenly) */}
                                         <div className="flex-1 flex justify-center mx-4">
                                             <AnimatePresence>
                                                 {ollamaPullStatus !== 'idle' && (
@@ -647,37 +858,81 @@ const Launcher: React.FC<LauncherProps> = ({ onStartMeeting, onOpenSettings, onP
                                     <div className="grid grid-cols-1 md:grid-cols-3 gap-3 h-[198px]">
                                         {/* PREPARED STATE CARD */}
                                         {isPrepared && preparedEvent ? (
-                                            <div className={`md:col-span-3 relative group rounded-xl overflow-hidden border border-emerald-500/30 ${isLight ? 'bg-bg-elevated' : 'bg-bg-secondary'} flex flex-col items-center justify-center p-6 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-emerald-900/40 ${isLight ? 'via-bg-elevated to-bg-elevated' : 'via-bg-secondary to-bg-secondary'}`}>
+                                            <div className={`md:col-span-3 relative group rounded-xl overflow-hidden border border-emerald-500/30 ${isLight ? 'bg-bg-elevated' : 'bg-bg-secondary'} p-5 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-emerald-900/40 ${isLight ? 'via-bg-elevated to-bg-elevated' : 'via-bg-secondary to-bg-secondary'}`}>
 
                                                 <div className="absolute top-4 right-4 text-emerald-400">
                                                     <Zap size={16} className="text-yellow-400" />
                                                 </div>
 
-                                                <div className="text-center max-w-lg z-10">
-                                                    <span className="inline-block px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 text-[10px] font-bold tracking-wider mb-4 border border-emerald-500/20">
-                                                        READY TO JOIN
-                                                    </span>
-                                                    <h2 className="text-2xl font-bold text-text-primary mb-2">{preparedEvent.title}</h2>
-                                                    <p className="text-xs text-text-secondary mb-6 flex items-center justify-center gap-2">
-                                                        <Calendar size={12} />
-                                                        {new Date(preparedEvent.startTime).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })} - {new Date(preparedEvent.endTime).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}
-                                                        {preparedEvent.link && " • Link Ready"}
-                                                    </p>
+                                                <div className="relative z-10 grid grid-cols-1 md:grid-cols-[1.2fr_0.8fr] gap-4 h-full">
+                                                    <div className="flex flex-col justify-between">
+                                                        <div>
+                                                            <span className="inline-block px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 text-[10px] font-bold tracking-wider mb-3 border border-emerald-500/20">
+                                                                READY TO JOIN
+                                                            </span>
+                                                            <h2 className="text-2xl font-bold text-text-primary mb-2">{preparedEvent.title}</h2>
+                                                            <p className="text-xs text-text-secondary mb-3 flex items-center gap-2 flex-wrap">
+                                                                <Calendar size={12} />
+                                                                {new Date(preparedEvent.startTime).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })} - {new Date(preparedEvent.endTime).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}
+                                                                {preparedEvent.link && " • Link Ready"}
+                                                                {preparedPacket && ` • ${preparedPacket.timing.durationMinutes} min`}
+                                                            </p>
+                                                            <p className="text-sm text-text-secondary leading-relaxed line-clamp-3">
+                                                                {preparedPacket?.summary || 'Prep packet is ready. Use the live coach for concise talk tracks and corrections once the meeting starts.'}
+                                                            </p>
+                                                        </div>
 
-                                                    <div className="flex items-center gap-3 justify-center">
-                                                        <button
-                                                            onClick={handleStartPreparedMeeting}
-                                                            className="bg-emerald-500 hover:bg-emerald-400 text-white px-8 py-3 rounded-xl text-sm font-semibold transition-all shadow-lg hover:shadow-emerald-500/25 active:scale-95 flex items-center gap-2"
-                                                        >
-                                                            Start Meeting
-                                                            <ArrowRight size={16} />
-                                                        </button>
-                                                        <button
-                                                            onClick={() => setIsPrepared(false)}
-                                                            className="px-4 py-3 rounded-xl text-xs font-medium text-text-tertiary hover:text-white transition-colors"
-                                                        >
-                                                            Cancel
-                                                        </button>
+                                                        <div className="flex items-center gap-3 mt-4">
+                                                            <button
+                                                                onClick={handleStartPreparedMeeting}
+                                                                className="bg-emerald-500 hover:bg-emerald-400 text-white px-8 py-3 rounded-xl text-sm font-semibold transition-all shadow-lg hover:shadow-emerald-500/25 active:scale-95 flex items-center gap-2"
+                                                            >
+                                                                Start Meeting
+                                                                <ArrowRight size={16} />
+                                                            </button>
+                                                            <button
+                                                                onClick={() => {
+                                                                    setIsPrepared(false);
+                                                                    setPreparedPacket(null);
+                                                                    setPrepareError('');
+                                                                }}
+                                                                className="px-4 py-3 rounded-xl text-xs font-medium text-text-tertiary hover:text-white transition-colors"
+                                                            >
+                                                                Close Prep
+                                                            </button>
+                                                        </div>
+                                                    </div>
+
+                                                    <div className={`rounded-xl border ${isLight ? 'bg-bg-item-surface/90 border-border-subtle' : 'bg-white/5 border-white/10'} p-4 flex flex-col`}>
+                                                        <div className="flex items-center justify-between mb-2">
+                                                            <span className="text-[10px] font-bold tracking-[0.18em] uppercase text-text-secondary">Prep Snapshot</span>
+                                                            {preparedPacket?.sourceHealth.memory ? (
+                                                                <span className="text-[10px] text-emerald-400 flex items-center gap-1"><CheckCircle size={12} /> Context loaded</span>
+                                                            ) : (
+                                                                <span className="text-[10px] text-amber-400 flex items-center gap-1"><AlertCircle size={12} /> Lightweight</span>
+                                                            )}
+                                                        </div>
+
+                                                        <div className="space-y-2 flex-1">
+                                                            {(preparedPacket?.contextBullets || []).slice(0, 3).map((bullet, index) => (
+                                                                <div key={`${bullet}-${index}`} className="text-xs text-text-secondary leading-relaxed">
+                                                                    <span className="text-emerald-400 mr-2">•</span>
+                                                                    {bullet}
+                                                                </div>
+                                                            ))}
+                                                            {preparedPacket?.contextBullets?.length === 0 && (
+                                                                <div className="text-xs text-text-secondary leading-relaxed">
+                                                                    No matched notes yet. This meeting will still start with calendar timing and live observation.
+                                                                </div>
+                                                            )}
+                                                        </div>
+
+                                                        {preparedPacket?.prepChecklist?.[0] && (
+                                                            <div className={`mt-3 rounded-lg ${isLight ? 'bg-emerald-500/6' : 'bg-emerald-500/10'} border border-emerald-500/15 px-3 py-2`}>
+                                                                <div className="text-[10px] font-semibold uppercase tracking-wide text-emerald-400 mb-1">Next Best Move</div>
+                                                                <div className="text-xs text-text-secondary leading-relaxed">{preparedPacket.prepChecklist[0]}</div>
+                                                            </div>
+                                                        )}
                                                     </div>
                                                 </div>
 
@@ -717,10 +972,11 @@ const Launcher: React.FC<LauncherProps> = ({ onStartMeeting, onOpenSettings, onP
                                                     <div className="p-4 bg-bg-elevated/50 border-t border-border-subtle flex items-center gap-3">
                                                         <button
                                                             onClick={() => handlePrepare(nextMeeting)}
-                                                            className={`flex-1 border px-4 py-2 rounded-lg text-xs font-medium transition-all flex items-center justify-center gap-2 ${isLight ? 'bg-bg-item-surface hover:bg-bg-item-active border-border-muted text-text-primary' : 'bg-white/10 hover:bg-white/20 border-white/10 text-white'}`}
+                                                            disabled={isPreparing}
+                                                            className={`flex-1 border px-4 py-2 rounded-lg text-xs font-medium transition-all flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-wait ${isLight ? 'bg-bg-item-surface hover:bg-bg-item-active border-border-muted text-text-primary' : 'bg-white/10 hover:bg-white/20 border-white/10 text-white'}`}
                                                         >
                                                             <Zap size={13} className="text-yellow-400" />
-                                                            Prepare
+                                                            {isPreparing ? 'Building prep...' : 'Prepare'}
                                                         </button>
                                                         <button
                                                             onClick={onStartMeeting}
@@ -729,6 +985,12 @@ const Launcher: React.FC<LauncherProps> = ({ onStartMeeting, onOpenSettings, onP
                                                             Start now
                                                         </button>
                                                     </div>
+
+                                                    {prepareError && (
+                                                        <div className="px-4 pb-4 text-[11px] text-amber-500">
+                                                            {prepareError}
+                                                        </div>
+                                                    )}
 
                                                     {/* Background Decoration */}
                                                     <div className="absolute top-0 right-0 w-[150px] h-[150px] bg-emerald-500/10 blur-[60px] pointer-events-none" />
@@ -743,32 +1005,42 @@ const Launcher: React.FC<LauncherProps> = ({ onStartMeeting, onOpenSettings, onP
 
 
                                         {/* Right Secondary Card */}
-                                        <div className="md:col-span-1 rounded-xl overflow-hidden bg-bg-elevated relative group flex flex-col items-center pt-6 text-center">
-                                            {/* Backdrop Image */}
-                                            <div className="absolute inset-0">
-                                                <img src={calender} alt="" className="w-full h-full object-cover opacity-100 transition-opacity duration-500 translate-x--1 translate-y-[1px] scale-105" />
+                                        <div className={`md:col-span-1 relative overflow-hidden rounded-[24px] border ${isLight ? 'bg-[linear-gradient(180deg,rgba(255,255,255,0.96),rgba(246,248,252,0.92))] border-black/8 shadow-[0_18px_48px_rgba(15,23,42,0.08)]' : 'bg-[linear-gradient(180deg,rgba(18,26,38,0.94),rgba(10,14,22,0.9))] border-white/10 shadow-[0_24px_60px_rgba(0,0,0,0.4)]'} p-5`}>
+                                            <div className="absolute inset-0 pointer-events-none">
+                                                <div className="absolute -right-8 top-0 h-28 w-28 rounded-full bg-sky-500/12 blur-3xl" />
+                                                <div className="absolute bottom-0 left-0 h-24 w-24 rounded-full bg-emerald-500/10 blur-3xl" />
                                             </div>
 
-                                            {/* Content Layer */}
-                                            <div className="relative z-10 w-full flex flex-col items-center h-full">
-                                                <h3 className="text-[19px] leading-tight mb-4">
-                                                    {isCalendarConnected ? (
-                                                        <>
-                                                            <span className="block font-semibold text-white">Calendar linked</span>
-                                                            <span className="block font-medium text-white/60 text-[0.95em]">Events synced</span>
-                                                        </>
-                                                    ) : (
-                                                        <>
-                                                            <span className="block font-semibold text-white">Link your calendar to</span>
-                                                            <span className="block font-medium text-white/60 text-[0.95em]">see upcoming events</span>
-                                                        </>
-                                                    )}
-                                                </h3>
+                                            <div className="relative z-10 flex h-full flex-col justify-between">
+                                                <div>
+                                                    <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.22em] text-sky-400">
+                                                        <Calendar size={12} />
+                                                        Calendar Signal
+                                                    </div>
+                                                    <h3 className="mt-4 text-xl font-semibold leading-tight text-text-primary">
+                                                        {isCalendarConnected ? 'Events are flowing into Natively' : 'Link your calendar for just-in-time prep'}
+                                                    </h3>
+                                                    <p className="mt-2 text-sm leading-relaxed text-text-secondary">
+                                                        {isCalendarConnected
+                                                            ? 'Upcoming events, timing windows, and meeting context are already feeding the launcher surfaces.'
+                                                            : 'Bring upcoming meetings into the launcher so prep packets, context recall, and trace review all stay in one place.'}
+                                                    </p>
+                                                </div>
 
-                                                <ConnectCalendarButton
-                                                    className="-translate-x-0.5"
-                                                    onConnect={() => setIsCalendarConnected(true)}
-                                                />
+                                                <div className="mt-5 flex items-end justify-between gap-3">
+                                                    <div className={`rounded-2xl border px-4 py-3 ${isLight ? 'bg-white/75 border-black/8' : 'bg-white/5 border-white/10'}`}>
+                                                        <div className="text-[10px] uppercase tracking-[0.18em] text-text-tertiary">Status</div>
+                                                        <div className="mt-1 inline-flex items-center gap-2 text-sm font-semibold text-text-primary">
+                                                            <span className={`h-2 w-2 rounded-full ${isCalendarConnected ? 'bg-emerald-400' : 'bg-amber-400'}`} />
+                                                            {isCalendarConnected ? 'Connected' : 'Waiting'}
+                                                        </div>
+                                                    </div>
+
+                                                    <ConnectCalendarButton
+                                                        className="-translate-x-0.5"
+                                                        onConnect={() => setIsCalendarConnected(true)}
+                                                    />
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -779,6 +1051,173 @@ const Launcher: React.FC<LauncherProps> = ({ onStartMeeting, onOpenSettings, onP
                             <main className="flex-1 overflow-y-auto custom-scrollbar bg-bg-primary">
                                 <section className="px-8 py-8 min-h-full">
                                     <div className="max-w-4xl mx-auto space-y-8">
+                                        <section className={`relative overflow-hidden rounded-[28px] border ${isLight ? 'bg-[linear-gradient(180deg,rgba(255,255,255,0.96),rgba(246,248,252,0.92))] border-black/8 shadow-[0_24px_80px_rgba(15,23,42,0.08)]' : 'bg-[linear-gradient(180deg,rgba(16,23,35,0.92),rgba(10,14,24,0.88))] border-white/10 shadow-[0_30px_90px_rgba(0,0,0,0.45)]'} p-5 md:p-6`}>
+                                            <div className="absolute inset-0 pointer-events-none">
+                                                <div className="absolute -top-16 left-1/3 h-40 w-40 rounded-full bg-sky-500/15 blur-3xl" />
+                                                <div className="absolute right-0 top-0 h-48 w-48 rounded-full bg-emerald-500/10 blur-3xl" />
+                                                <div className="absolute bottom-0 left-0 h-36 w-36 rounded-full bg-violet-500/10 blur-3xl" />
+                                            </div>
+
+                                            <div className="relative z-10 space-y-5">
+                                                <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+                                                    <div className="max-w-2xl">
+                                                        <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.22em] text-sky-400">
+                                                            <Activity size={12} />
+                                                            Context Engine
+                                                        </div>
+                                                        <h3 className="mt-3 text-2xl font-semibold tracking-tight text-text-primary">What Natively can actually use right now</h3>
+                                                        <p className="mt-2 max-w-xl text-sm leading-relaxed text-text-secondary">
+                                                            This surface shows the live state of your durable memory, local source connections, and the newest indexed meeting records available to recall, prep, and proactive guidance.
+                                                        </p>
+                                                    </div>
+
+                                                    <div className="flex items-center gap-3 self-start">
+                                                        <div className={`rounded-2xl border px-4 py-3 ${isLight ? 'bg-white/75 border-black/8' : 'bg-white/5 border-white/10'}`}>
+                                                            <div className="text-[10px] uppercase tracking-[0.18em] text-text-tertiary">Freshness</div>
+                                                            <div className="mt-1 text-sm font-semibold text-text-primary">{formatFreshness(contextHubOverview?.meetings?.lastMeetingAt || contextHubOverview?.live?.lastObservedAt)}</div>
+                                                            <div className="text-[11px] text-text-secondary">Last indexed or observed signal</div>
+                                                        </div>
+                                                        <button
+                                                            onClick={handleOpenChatLogViewer}
+                                                            className={`inline-flex h-11 items-center gap-2 rounded-2xl border px-4 text-sm font-medium transition-all ${isLight ? 'bg-white/80 border-black/8 text-text-primary hover:bg-white' : 'bg-white/5 border-white/10 text-text-primary hover:bg-white/10'}`}
+                                                            title="Open trace viewer"
+                                                        >
+                                                            <MessageSquare size={14} className="text-sky-400" />
+                                                            Trace Viewer
+                                                        </button>
+                                                        <button
+                                                            onClick={() => fetchContextHubOverview().catch(() => { })}
+                                                            className={`inline-flex h-11 items-center gap-2 rounded-2xl border px-4 text-sm font-medium transition-all ${isLight ? 'bg-white/75 border-black/8 text-text-primary hover:bg-white' : 'bg-white/5 border-white/10 text-text-primary hover:bg-white/10'}`}
+                                                            title="Refresh context overview"
+                                                        >
+                                                            <RefreshCw size={14} className={contextHubBusy ? 'animate-spin' : ''} />
+                                                            Refresh
+                                                        </button>
+                                                    </div>
+                                                </div>
+
+                                                <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+                                                    {metricCards.map((card) => {
+                                                        const Icon = card.icon;
+                                                        return (
+                                                            <div
+                                                                key={card.label}
+                                                                className={`group relative overflow-hidden rounded-[22px] border ${isLight ? 'bg-white/70 border-black/8' : 'bg-white/5 border-white/10'} px-4 py-4`}
+                                                            >
+                                                                <div className={`absolute inset-0 bg-gradient-to-br ${card.accent} opacity-70 transition-opacity duration-300 group-hover:opacity-100`} />
+                                                                <div className="relative z-10">
+                                                                    <div className="flex items-center justify-between">
+                                                                        <span className="text-[10px] uppercase tracking-[0.18em] text-text-tertiary">{card.label}</span>
+                                                                        <Icon size={15} className="text-text-secondary" />
+                                                                    </div>
+                                                                    <div className="mt-4 text-3xl font-semibold tracking-tight text-text-primary">{card.value}</div>
+                                                                </div>
+                                                            </div>
+                                                        );
+                                                    })}
+                                                </div>
+
+                                                <div className="grid grid-cols-1 gap-4 xl:grid-cols-[1.1fr_0.9fr]">
+                                                    <div className={`rounded-[24px] border ${isLight ? 'bg-white/70 border-black/8' : 'bg-white/5 border-white/10'} p-4`}>
+                                                        <div className="flex items-center justify-between gap-3">
+                                                            <div>
+                                                                <div className="text-[10px] uppercase tracking-[0.18em] text-text-tertiary">Source Health</div>
+                                                                <div className="mt-1 text-lg font-semibold text-text-primary">Local and persistent context status</div>
+                                                            </div>
+                                                            <div className="text-[11px] text-text-secondary">
+                                                                {contextHubOverview?.profile?.summary || 'No profile summary loaded yet'}
+                                                            </div>
+                                                        </div>
+
+                                                        <div className="mt-4 grid grid-cols-1 gap-3 md:grid-cols-2">
+                                                            {sourceHealthCards.map((item) => {
+                                                                const Icon = item.icon;
+                                                                return (
+                                                                    <div
+                                                                        key={item.label}
+                                                                        className={`rounded-[20px] border px-4 py-3 ${item.active ? (isLight ? 'bg-emerald-500/6 border-emerald-500/20' : 'bg-emerald-500/10 border-emerald-500/20') : (isLight ? 'bg-black/[0.025] border-black/8' : 'bg-black/10 border-white/8')}`}
+                                                                    >
+                                                                        <div className="flex items-start gap-3">
+                                                                            <div className={`mt-0.5 flex h-10 w-10 items-center justify-center rounded-2xl ${item.active ? 'bg-emerald-500/15 text-emerald-400' : 'bg-bg-item-surface text-text-tertiary'}`}>
+                                                                                <Icon size={16} />
+                                                                            </div>
+                                                                            <div className="min-w-0">
+                                                                                <div className="flex items-center gap-2">
+                                                                                    <span className="text-sm font-medium text-text-primary">{item.label}</span>
+                                                                                    <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${item.active ? 'bg-emerald-500/15 text-emerald-400' : 'bg-white/5 text-text-tertiary'}`}>
+                                                                                        {item.value}
+                                                                                    </span>
+                                                                                </div>
+                                                                                <div className="mt-1 text-[11px] leading-relaxed text-text-secondary">{item.meta}</div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                );
+                                                            })}
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="grid grid-cols-1 gap-4">
+                                                        <div className={`rounded-[24px] border ${isLight ? 'bg-white/70 border-black/8' : 'bg-white/5 border-white/10'} p-4`}>
+                                                            <div className="text-[10px] uppercase tracking-[0.18em] text-text-tertiary">Freshest Signals</div>
+                                                            <div className="mt-3 space-y-3">
+                                                                <div className={`rounded-2xl border px-4 py-3 ${isLight ? 'bg-black/[0.025] border-black/8' : 'bg-black/10 border-white/8'}`}>
+                                                                    <div className="flex items-center justify-between gap-3">
+                                                                        <span className="text-sm font-medium text-text-primary">Last meeting indexed</span>
+                                                                        <span className="text-[11px] font-medium text-sky-400">{formatFreshness(contextHubOverview?.meetings?.lastMeetingAt)}</span>
+                                                                    </div>
+                                                                    <div className="mt-1 text-[11px] text-text-secondary">{lastIndexedAt}</div>
+                                                                </div>
+                                                                <div className={`rounded-2xl border px-4 py-3 ${isLight ? 'bg-black/[0.025] border-black/8' : 'bg-black/10 border-white/8'}`}>
+                                                                    <div className="flex items-center justify-between gap-3">
+                                                                        <span className="text-sm font-medium text-text-primary">Last live observation</span>
+                                                                        <span className="text-[11px] font-medium text-emerald-400">{formatFreshness(contextHubOverview?.live?.lastObservedAt)}</span>
+                                                                    </div>
+                                                                    <div className="mt-1 text-[11px] text-text-secondary">{lastObservedAt}</div>
+                                                                </div>
+                                                                <div className={`rounded-2xl border px-4 py-3 ${isLight ? 'bg-black/[0.025] border-black/8' : 'bg-black/10 border-white/8'}`}>
+                                                                    <div className="text-sm font-medium text-text-primary">Reference footprint</div>
+                                                                    <div className="mt-1 text-[11px] text-text-secondary">
+                                                                        {`${contextHubOverview?.profile?.experienceCount || 0} experience records • ${contextHubOverview?.profile?.projectCount || 0} projects • ${contextHubOverview?.profile?.nodeCount || 0} total nodes`}
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                        <div className={`rounded-[24px] border ${isLight ? 'bg-white/70 border-black/8' : 'bg-white/5 border-white/10'} p-4`}>
+                                                            <div className="text-[10px] uppercase tracking-[0.18em] text-text-tertiary">Newest Indexed Meetings</div>
+                                                            <div className="mt-3 space-y-2">
+                                                                {indexedMeetingsPreview.length === 0 ? (
+                                                                    <div className={`rounded-2xl border px-4 py-6 text-sm text-text-secondary ${isLight ? 'bg-black/[0.025] border-black/8' : 'bg-black/10 border-white/8'}`}>
+                                                                        No meeting history is visible yet. As soon as a manual, Teams, Cluely, or native meeting is indexed, it will surface here.
+                                                                    </div>
+                                                                ) : (
+                                                                    indexedMeetingsPreview.map((meeting) => (
+                                                                        <button
+                                                                            key={`context-preview-${meeting.id}`}
+                                                                            onClick={() => handleOpenMeeting(meeting)}
+                                                                            className={`w-full rounded-[18px] border px-4 py-3 text-left transition-all ${isLight ? 'bg-black/[0.025] border-black/8 hover:bg-black/[0.04]' : 'bg-black/10 border-white/8 hover:bg-white/6'}`}
+                                                                        >
+                                                                            <div className="flex items-start justify-between gap-3">
+                                                                                <div className="min-w-0">
+                                                                                    <div className="truncate text-sm font-medium text-text-primary">{meeting.title}</div>
+                                                                                    <div className="mt-1 text-[11px] text-text-secondary">
+                                                                                        {new Date(meeting.date).toLocaleString()}
+                                                                                    </div>
+                                                                                </div>
+                                                                                <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium border ${getMeetingSourceBadge(meeting).className}`}>
+                                                                                    {getMeetingSourceBadge(meeting).label}
+                                                                                </span>
+                                                                            </div>
+                                                                        </button>
+                                                                    ))
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </section>
 
                                         {/* Iterating Date Groups */}
                                         {sortedGroups.map((label) => (
@@ -792,8 +1231,15 @@ const Launcher: React.FC<LauncherProps> = ({ onStartMeeting, onOpenSettings, onP
                                                             className="group relative flex items-center justify-between px-3 py-2 rounded-lg bg-transparent hover:bg-bg-elevated transition-colors"
                                                             onClick={() => handleOpenMeeting(m)}
                                                         >
-                                                            <div className={`font-medium text-[14px] max-w-[60%] truncate ${m.title === 'Processing...' ? 'text-blue-400 italic animate-pulse' : 'text-text-primary'}`}>
-                                                                {m.title}
+                                                            <div className="max-w-[60%] min-w-0">
+                                                                <div className={`font-medium text-[14px] truncate ${m.title === 'Processing...' ? 'text-blue-400 italic animate-pulse' : 'text-text-primary'}`}>
+                                                                    {m.title}
+                                                                </div>
+                                                                <div className="mt-1">
+                                                                    <span className={`inline-flex items-center px-1.5 py-0.5 rounded-full text-[9px] font-medium border ${getMeetingSourceBadge(m).className}`}>
+                                                                        {getMeetingSourceBadge(m).label}
+                                                                    </span>
+                                                                </div>
                                                             </div>
 
                                                             {/* Time & Duration Section */}

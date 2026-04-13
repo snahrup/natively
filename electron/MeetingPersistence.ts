@@ -6,6 +6,7 @@ import { SessionTracker, TranscriptSegment } from './SessionTracker';
 import { LLMHelper } from './LLMHelper';
 import { DatabaseManager, Meeting } from './db/DatabaseManager';
 import { GROQ_TITLE_PROMPT, GROQ_SUMMARY_JSON_PROMPT } from './llm';
+import { ContradictionDetector } from './services/ContradictionDetector';
 const crypto = require('crypto');
 
 export class MeetingPersistence {
@@ -179,6 +180,10 @@ export class MeetingPersistence {
 
             // Metadata was already snapshotted before session.reset() — nothing to clear here.
 
+            // Run contradiction detection in the background (fire-and-forget)
+            const fullTranscript = data.transcript.map(s => s.text ?? '').join('\n');
+            ContradictionDetector.getInstance().processTranscript(meetingId, title, fullTranscript).catch(() => {});
+
             // Notify Frontend to refresh list
             const wins = require('electron').BrowserWindow.getAllWindows();
             wins.forEach((w: any) => w.webContents.send('meetings-updated'));
@@ -211,7 +216,7 @@ export class MeetingPersistence {
                 console.log(`[MeetingPersistence] Recovering meeting ${m.id}...`);
 
                 const context = details.transcript?.map(t => {
-                    const label = t.speaker === 'interviewer' ? 'INTERVIEWER' :
+                    const label = t.speaker === 'external' ? 'CONTEXT' :
                         t.speaker === 'user' ? 'ME' : 'ASSISTANT';
                     return `[${label}]: ${t.text}`;
                 }).join('\n') || "";

@@ -112,12 +112,12 @@ export class IntelligenceManager extends EventEmitter {
         return this.session.getFormattedContext(lastSeconds);
     }
 
-    getLastInterviewerTurn(): string | null {
-        return this.session.getLastInterviewerTurn();
+    getLastExternalTurn(): string | null {
+        return this.session.getLastExternalTurn();
     }
 
-    logUsage(type: string, question: string, answer: string): void {
-        this.session.logUsage(type, question, answer);
+    async logUsage(type: string, question: string, answer: string): Promise<void> {
+        await this.session.logUsage(type, question, answer);
     }
 
     // ============================================

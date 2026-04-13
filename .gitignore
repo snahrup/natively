@@ -201,3 +201,15 @@ opencode.json
 # Temporary working files
 temp/
 planning/live-negotiation/temp/
+
+# Codebase Mapper (auto-generated)
+CODEBASE.md
+CODEBASE.html
+.codebase-map-dirty
+
+# OpenMemory - IDE/Assistant specific rules
+.windsurf\rules\openmemory.md
+
+# Semantica sidecar runtime
+sidecars/semantica-runtime/venv/
+sidecars/semantica-runtime/state/

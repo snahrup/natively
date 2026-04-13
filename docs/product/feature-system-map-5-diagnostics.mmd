@@ -1,0 +1,22 @@
+flowchart TD
+    A[User asks question or imports meeting] --> B[Visible product response]
+    B --> C{Looks correct?}
+
+    C -->|Yes| D[Continue using product]
+    C -->|No| E[Inspect logs and UI state]
+
+    E --> F[Chat timestamps and response timing]
+    E --> G[Context overview freshness]
+    E --> H[Imported meeting history]
+    E --> I[Terminal and Electron logs]
+    E --> J[Database state]
+
+    F --> K[Identify response issue]
+    G --> K
+    H --> K
+    I --> K
+    J --> K
+
+    K --> L[Fix provider, retrieval, import, or persistence path]
+    L --> M[Rebuild and relaunch]
+    M --> A

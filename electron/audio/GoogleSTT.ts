@@ -1,5 +1,6 @@
 import { SpeechClient } from '@google-cloud/speech';
 import { EventEmitter } from 'events';
+import * as fs from 'fs';
 import * as path from 'path';
 import { RECOGNITION_LANGUAGES, EnglishVariant } from '../config/languages';
 
@@ -35,18 +36,25 @@ export class GoogleSTT extends EventEmitter {
         // Note: In production, credentials are set by main.ts via process.env.GOOGLE_APPLICATION_CREDENTIALS
         // or passed explicitly to setCredentials(). We do not load .env files here to avoid ASAR path issues.
         const credentialsPath = process.env.GOOGLE_APPLICATION_CREDENTIALS;
+        const hasValidCredentialsPath = !!credentialsPath && fs.existsSync(credentialsPath);
         if (!credentialsPath) {
             console.error(`[GoogleSTT/${this.label}] Missing GOOGLE_APPLICATION_CREDENTIALS in environment. Checked CWD:`, process.cwd());
+        } else if (!hasValidCredentialsPath) {
+            console.error(`[GoogleSTT/${this.label}] GOOGLE_APPLICATION_CREDENTIALS does not exist: ${credentialsPath}`);
         } else {
             console.log(`[GoogleSTT/${this.label}] Using credentials from: ${credentialsPath}`);
         }
 
-        this.client = new SpeechClient({
-            keyFilename: credentialsPath
-        });
+        this.client = hasValidCredentialsPath
+            ? new SpeechClient({ keyFilename: credentialsPath })
+            : new SpeechClient();
     }
 
     public setCredentials(keyFilePath: string): void {
+        if (!keyFilePath || !fs.existsSync(keyFilePath)) {
+            console.error(`[GoogleSTT/${this.label}] Refusing to load invalid credentials path: ${keyFilePath}`);
+            return;
+        }
         console.log(`[GoogleSTT/${this.label}] Updating credentials to: ${keyFilePath}`);
         process.env.GOOGLE_APPLICATION_CREDENTIALS = keyFilePath;
         this.client = new SpeechClient({
@@ -167,7 +175,7 @@ export class GoogleSTT extends EventEmitter {
 
     // Google's streamingRecognize hard-kills any stream after 305 seconds.
     // We proactively restart at 4:30 (270s) to prevent the forced close from
-    // causing a 1-second gap in transcription during long interviews.
+    // causing a 1-second gap in transcription during long sessions.
     private proactiveRestartTimer: NodeJS.Timeout | null = null;
     private static readonly PROACTIVE_RESTART_MS = 270_000; // 4 min 30 sec
 

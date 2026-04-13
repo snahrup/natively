@@ -4,6 +4,8 @@
 
 import { RecapLLM } from './llm';
 import { isVerboseLogging } from './verboseLog';
+import { ContextObservationStore } from './context';
+import { MeetingUsageScreenCaptureService } from './services/MeetingUsageScreenCaptureService';
 
 export interface TranscriptSegment {
     marker?: string;
@@ -22,7 +24,7 @@ export interface SuggestionTrigger {
 
 // Context item matching Swift ContextManager structure
 export interface ContextItem {
-    role: 'interviewer' | 'user' | 'assistant';
+    role: 'external' | 'user' | 'assistant';
     text: string;
     timestamp: number;
 }
@@ -62,17 +64,17 @@ export class SessionTracker {
     private transcriptEpochSummaries: string[] = [];
     private isCompacting: boolean = false;
 
-    // Track interim interviewer segment
-    private lastInterimInterviewer: TranscriptSegment | null = null;
+    // Track interim external-speaker segment
+    private lastInterimExternal: TranscriptSegment | null = null;
 
     // Detected coding question from transcript or screenshot extraction
     private detectedCodingQuestion: string | null = null;
     private codingQuestionSource: 'screenshot' | 'transcript' | null = null;
     private codingQuestionSetAt: number | null = null;
 
-    // Rolling buffer for multi-segment interviewer question detection
-    private recentInterviewerBuffer: { text: string; timestamp: number }[] = [];
-    private static readonly INTERVIEWER_BUFFER_WINDOW_MS = 5 * 60 * 1000; // 5 minutes
+    // Rolling buffer for multi-segment question detection from external audio
+    private recentExternalBuffer: { text: string; timestamp: number }[] = [];
+    private static readonly EXTERNAL_BUFFER_WINDOW_MS = 5 * 60 * 1000; // 5 minutes
     // Screenshot-detected question stays sticky for 3 min before transcript can override
     private static readonly SCREENSHOT_STALE_MS = 3 * 60 * 1000;
 
@@ -105,7 +107,7 @@ export class SessionTracker {
 
     /**
      * Set the current coding question.
-     * Priority rules (avoids stale Q1 blocking Q2 detection in multi-question interviews):
+     * Priority rules (avoids stale Q1 blocking Q2 detection in multi-question sessions):
      *  - Screenshot → always stored immediately (explicit user action via Solve)
      *  - Transcript → stored if nothing is known yet, OR if existing question is also from
      *    transcript (newer detection = newer question), OR if screenshot question is stale
@@ -157,11 +159,11 @@ export class SessionTracker {
         this.detectedCodingQuestion = null;
         this.codingQuestionSource = null;
         this.codingQuestionSetAt = null;
-        this.recentInterviewerBuffer = [];
+        this.recentExternalBuffer = [];
     }
 
     /**
-     * Heuristic to decide if an interviewer statement looks like a coding question.
+     * Heuristic to decide if an external statement looks like a coding question.
      * Requires ≥2 of the signal patterns and minimum length to avoid false positives
      * on casual conversation ("can you implement X?" → yes, "sounds good!" → no).
      */
@@ -188,7 +190,7 @@ export class SessionTracker {
      * Only stores FINAL transcripts.
      * Returns { role, isRefinementCandidate } so the engine can decide whether to trigger follow-up.
      */
-    addTranscript(segment: TranscriptSegment): { role: 'interviewer' | 'user' | 'assistant' } | null {
+    addTranscript(segment: TranscriptSegment): { role: 'external' | 'user' | 'assistant' } | null {
         if (!segment.final) return null;
 
         const role = this.mapSpeakerToRole(segment.speaker);
@@ -214,13 +216,24 @@ export class SessionTracker {
         this.evictOldEntries();
 
         // Filter out internal system prompts that might be passed via IPC
-        const isInternalPrompt = text.startsWith("You are a real-time interview assistant") ||
+        const isInternalPrompt = text.startsWith("You are a real-time meeting coach") ||
             text.startsWith("You are a helper") ||
             text.startsWith("CONTEXT:");
 
         if (!isInternalPrompt) {
             // Add to session transcript
             this.fullTranscript.push(segment);
+            const metadata = this.currentMeetingMetadata || {};
+            const shouldRecordAsLiveTranscript =
+                segment.speaker === 'external' || Boolean(metadata.calendarEventId);
+            if (shouldRecordAsLiveTranscript) {
+                ContextObservationStore.getInstance().recordTranscriptSegment({
+                    speaker: segment.speaker,
+                    text,
+                    timestamp: segment.timestamp,
+                    calendarEventId: metadata.calendarEventId,
+                });
+            }
             // Compact transcript with summarization instead of losing early context
             // Fire-and-forget: sync context; errors are caught internally
             void this.compactTranscriptIfNeeded().catch(e =>
@@ -256,6 +269,11 @@ export class SessionTracker {
             text: cleanText,
             timestamp: Date.now()
         });
+        ContextObservationStore.getInstance().recordInteraction({
+            role: 'assistant',
+            text: cleanText,
+            timestamp: Date.now(),
+        });
 
         // Also add to fullTranscript so it persists in the session history (and summaries)
         this.fullTranscript.push({
@@ -278,7 +296,7 @@ export class SessionTracker {
         this.assistantResponseHistory.push({
             text: cleanText,
             timestamp: Date.now(),
-            questionContext: this.getLastInterviewerTurn() || 'unknown'
+            questionContext: this.getLastExternalTurn() || 'unknown'
         });
 
         // Keep history bounded (last 10 responses)
@@ -293,34 +311,34 @@ export class SessionTracker {
     /**
      * Handle incoming transcript from native audio service
      */
-    handleTranscript(segment: TranscriptSegment): { role: 'interviewer' | 'user' | 'assistant' } | null {
-        // Track interim segments for interviewer to prevent data loss on stop
+    handleTranscript(segment: TranscriptSegment): { role: 'external' | 'user' | 'assistant' } | null {
+        // Track interim external audio to prevent data loss on stop
         if (segment.speaker === 'user') {
             if (isVerboseLogging() && (Math.random() < 0.05 || segment.final)) {
                 console.log(`[SessionTracker] RX User Segment: Final=${segment.final} Text="${segment.text.substring(0, 50)}..."`);
             }
         }
-        if (segment.speaker === 'interviewer') {
+        if (segment.speaker === 'external') {
             if (isVerboseLogging() && (Math.random() < 0.05 || segment.final)) {
-                console.log(`[SessionTracker] RX Interviewer Segment: Final=${segment.final} Text="${segment.text.substring(0, 50)}..."`);
+                console.log(`[SessionTracker] RX External Segment: Final=${segment.final} Text="${segment.text.substring(0, 50)}..."`);
             }
 
             if (!segment.final) {
-                this.lastInterimInterviewer = segment;
+                this.lastInterimExternal = segment;
             } else {
-                this.lastInterimInterviewer = null;
+                this.lastInterimExternal = null;
 
                 // Add segment to rolling buffer and evict old entries
-                this.recentInterviewerBuffer.push({ text: segment.text, timestamp: segment.timestamp });
-                const bufferCutoff = Date.now() - SessionTracker.INTERVIEWER_BUFFER_WINDOW_MS;
-                this.recentInterviewerBuffer = this.recentInterviewerBuffer.filter(e => e.timestamp >= bufferCutoff);
+                this.recentExternalBuffer.push({ text: segment.text, timestamp: segment.timestamp });
+                const bufferCutoff = Date.now() - SessionTracker.EXTERNAL_BUFFER_WINDOW_MS;
+                this.recentExternalBuffer = this.recentExternalBuffer.filter(e => e.timestamp >= bufferCutoff);
 
                 // Test single segment first; if no match, test accumulated recent turns
-                // (interviewer may state a problem across multiple speech segments)
+                // (the other speaker may state a problem across multiple speech segments)
                 if (this.looksLikeCodingQuestion(segment.text)) {
                     this.setCodingQuestion(segment.text, 'transcript');
-                } else if (this.recentInterviewerBuffer.length > 1) {
-                    const combinedText = this.recentInterviewerBuffer.map(e => e.text).join(' ');
+                } else if (this.recentExternalBuffer.length > 1) {
+                    const combinedText = this.recentExternalBuffer.map(e => e.text).join(' ');
                     if (this.looksLikeCodingQuestion(combinedText)) {
                         this.setCodingQuestion(combinedText, 'transcript');
                     }
@@ -351,8 +369,8 @@ export class SessionTracker {
         return this.assistantResponseHistory;
     }
 
-    getLastInterimInterviewer(): TranscriptSegment | null {
-        return this.lastInterimInterviewer;
+    getLastInterimExternal(): TranscriptSegment | null {
+        return this.lastInterimExternal;
     }
 
     /**
@@ -361,7 +379,7 @@ export class SessionTracker {
     getFormattedContext(lastSeconds: number = 120): string {
         const items = this.getContext(lastSeconds);
         return items.map(item => {
-            const label = item.role === 'interviewer' ? 'INTERVIEWER' :
+            const label = item.role === 'external' ? 'CONTEXT' :
                 item.role === 'user' ? 'ME' :
                     'ASSISTANT (PREVIOUS SUGGESTION)';
             return `[${label}]: ${item.text}`;
@@ -369,11 +387,11 @@ export class SessionTracker {
     }
 
     /**
-     * Get the last interviewer turn
+     * Get the last external turn
      */
-    getLastInterviewerTurn(): string | null {
+    getLastExternalTurn(): string | null {
         for (let i = this.contextItems.length - 1; i >= 0; i--) {
-            if (this.contextItems[i].role === 'interviewer') {
+            if (this.contextItems[i].role === 'external') {
                 return this.contextItems[i].text;
             }
         }
@@ -381,12 +399,12 @@ export class SessionTracker {
     }
 
     /**
-     * Get full session context from accumulated transcript (User + Interviewer + Assistant)
+     * Get full session context from accumulated transcript (user + external + assistant)
      */
     getFullSessionContext(): string {
         const recentTranscript = this.fullTranscript.map(segment => {
             const role = this.mapSpeakerToRole(segment.speaker);
-            const label = role === 'interviewer' ? 'INTERVIEWER' :
+            const label = role === 'external' ? 'CONTEXT' :
                 role === 'user' ? 'ME' :
                     'ASSISTANT';
             return `[${label}]: ${segment.text}`;
@@ -433,17 +451,18 @@ export class SessionTracker {
     /**
      * Public method to log usage from external sources (e.g. IPC direct chat)
      */
-    logUsage(type: string, question: string, answer: string): void {
-        this.fullUsage.push({
+    async logUsage(type: string, question: string, answer: string): Promise<void> {
+        this.fullUsage.push(await this.attachUsageScreenCaptures({
             type,
             timestamp: Date.now(),
             question,
             answer
-        });
+        }));
+        this.capUsageArray();
     }
 
-    pushUsage(entry: any): void {
-        this.fullUsage.push(entry);
+    async pushUsage(entry: any): Promise<void> {
+        this.fullUsage.push(await this.attachUsageScreenCaptures(entry));
         this.capUsageArray();
     }
 
@@ -455,11 +474,11 @@ export class SessionTracker {
      * Force-save any pending interim transcript (called on meeting stop)
      */
     flushInterimTranscript(): void {
-        if (this.lastInterimInterviewer) {
-            console.log('[SessionTracker] Force-saving pending interim transcript:', this.lastInterimInterviewer.text);
-            const finalSegment = { ...this.lastInterimInterviewer, final: true };
+        if (this.lastInterimExternal) {
+            console.log('[SessionTracker] Force-saving pending interim transcript:', this.lastInterimExternal.text);
+            const finalSegment = { ...this.lastInterimExternal, final: true };
             this.addTranscript(finalSegment);
-            this.lastInterimInterviewer = null;
+            this.lastInterimExternal = null;
         }
     }
 
@@ -468,6 +487,7 @@ export class SessionTracker {
     // ============================================
 
     reset(): void {
+        ContextObservationStore.getInstance().clearSessionArtifacts();
         this.contextItems = [];
         this.fullTranscript = [];
         this.fullUsage = [];
@@ -475,21 +495,21 @@ export class SessionTracker {
         this.sessionStartTime = Date.now();
         this.lastAssistantMessage = null;
         this.assistantResponseHistory = [];
-        this.lastInterimInterviewer = null;
+        this.lastInterimExternal = null;
         this.detectedCodingQuestion = null;
         this.codingQuestionSource = null;
         this.codingQuestionSetAt = null;
-        this.recentInterviewerBuffer = [];
+        this.recentExternalBuffer = [];
     }
 
     // ============================================
     // Private Helpers
     // ============================================
 
-    mapSpeakerToRole(speaker: string): 'interviewer' | 'user' | 'assistant' {
+    mapSpeakerToRole(speaker: string): 'external' | 'user' | 'assistant' {
         if (speaker === 'user') return 'user';
         if (speaker === 'assistant') return 'assistant';
-        return 'interviewer'; // system audio = interviewer
+        return 'external'; // system audio = external speaker/context
     }
 
     private evictOldEntries(): void {
@@ -500,6 +520,29 @@ export class SessionTracker {
         if (this.contextItems.length > this.maxContextItems) {
             this.contextItems = this.contextItems.slice(-this.maxContextItems);
         }
+    }
+
+    private async attachUsageScreenCaptures(entry: any): Promise<any> {
+        const timestamp = Number.isFinite(entry?.timestamp) ? entry.timestamp : Date.now();
+        const normalizedEntry = {
+            ...entry,
+            timestamp,
+        };
+
+        if (Array.isArray(normalizedEntry.screenCaptures) && normalizedEntry.screenCaptures.length > 0) {
+            return normalizedEntry;
+        }
+
+        try {
+            const screenCaptures = await MeetingUsageScreenCaptureService.getInstance().captureForUsage(timestamp);
+            if (screenCaptures.length > 0) {
+                normalizedEntry.screenCaptures = screenCaptures;
+            }
+        } catch (error) {
+            console.warn('[SessionTracker] Failed to attach usage screen captures:', error);
+        }
+
+        return normalizedEntry;
     }
 
     /**
@@ -516,7 +559,7 @@ export class SessionTracker {
             const oldEntries = this.fullTranscript.slice(0, summarizeCount);
             const summaryInput = oldEntries.map(seg => {
                 const role = this.mapSpeakerToRole(seg.speaker);
-                const label = role === 'interviewer' ? 'INTERVIEWER' :
+                const label = role === 'external' ? 'CONTEXT' :
                     role === 'user' ? 'ME' : 'ASSISTANT';
                 return `[${label}]: ${seg.text}`;
             }).join('\n');

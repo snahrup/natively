@@ -1,4 +1,4 @@
-import { ChevronUp, ChevronDown, PointerOff } from "lucide-react";
+import { ChevronUp, ChevronDown, GripVertical } from "lucide-react";
 import icon from "../icon.png";
 import type { OverlayAppearance } from "../../lib/overlayAppearance";
 
@@ -21,16 +21,34 @@ export default function TopPill({
         <div className="flex justify-center mt-2 select-none z-50">
             <div
                 className="
-          draggable-area
           flex items-center gap-2
           rounded-full
           overlay-pill-surface
           backdrop-blur-md
           pl-1.5 pr-1.5 py-1.5
           transition-all duration-300 ease-sculpted
-        "
+                "
                 style={appearance.pillStyle}
             >
+                <div
+                    className="
+          drag-region
+          flex items-center gap-1.5
+          px-2.5 py-1.5
+          rounded-full
+          overlay-chip-surface
+          overlay-text-interactive
+          text-[11px]
+          font-medium
+          border
+        "
+                    style={appearance.chipStyle}
+                    title="Drag window"
+                >
+                    <GripVertical className="w-3.5 h-3.5 opacity-70" />
+                    <span className="tracking-wide opacity-80">Drag</span>
+                </div>
+
                 {/* LOGO BUTTON */}
                 <button
                     onClick={onLogoClick}

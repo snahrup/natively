@@ -30,6 +30,7 @@ export interface ElectronAPI {
   onUnauthorized: (callback: () => void) => () => void
   onDebugError: (callback: (error: string) => void) => () => void
   takeScreenshot: () => Promise<{ path: string; preview: string }>
+  getImagePreview: (path: string) => Promise<string | null>
   takeSelectiveScreenshot: () => Promise<{ path: string; preview: string; cancelled?: boolean }>
   moveWindowLeft: () => Promise<void>
   moveWindowRight: () => Promise<void>
@@ -65,26 +66,20 @@ export interface ElectronAPI {
   getOpenAtLogin: () => Promise<boolean>
   onSettingsVisibilityChange: (callback: (isVisible: boolean) => void) => () => void
   toggleSettingsWindow: (coords?: { x: number; y: number }) => Promise<void>
+  openChatLogViewer: () => Promise<{ success: boolean; error?: string }>
+  closeChatLogViewer: () => Promise<{ success: boolean; error?: string }>
   closeSettingsWindow: () => Promise<void>
   toggleAdvancedSettings: () => Promise<void>
   closeAdvancedSettings: () => Promise<void>
 
   // LLM Model Management
-  getCurrentLlmConfig: () => Promise<{ provider: "ollama" | "gemini"; model: string; isOllama: boolean }>
-  getAvailableOllamaModels: () => Promise<string[]>
-  switchToOllama: (model?: string, url?: string) => Promise<{ success: boolean; error?: string }>
-  switchToGemini: (apiKey?: string, modelId?: string) => Promise<{ success: boolean; error?: string }>
-  testLlmConnection: (provider: 'gemini' | 'groq' | 'openai' | 'claude', apiKey?: string) => Promise<{ success: boolean; error?: string }>
+  getCurrentLlmConfig: () => Promise<{ provider: "claude" | "codex"; model: string; isOllama: false; reasoningEffort?: 'low' | 'medium' | 'high' | 'xhigh' }>
   selectServiceAccount: () => Promise<{ success: boolean; path?: string; cancelled?: boolean; error?: string }>
 
   // API Key Management
-  setGeminiApiKey: (apiKey: string) => Promise<{ success: boolean; error?: string }>
-  setGroqApiKey: (apiKey: string) => Promise<{ success: boolean; error?: string }>
-  setOpenaiApiKey: (apiKey: string) => Promise<{ success: boolean; error?: string }>
-  setClaudeApiKey: (apiKey: string) => Promise<{ success: boolean; error?: string }>
   setNativelyApiKey: (apiKey: string) => Promise<{ success: boolean; error?: string }>
   getNativelyUsage: () => Promise<{ ok: boolean; error?: string; plan?: string; quota?: { transcription: { used: number; limit: number; remaining: number }; ai: { used: number; limit: number; remaining: number }; search: { used: number; limit: number; remaining: number }; resets_at: string }; member_since?: string }>
-  getStoredCredentials: () => Promise<{ hasNativelyKey?: boolean; hasGeminiKey: boolean; hasGroqKey: boolean; hasOpenaiKey: boolean; hasClaudeKey: boolean; googleServiceAccountPath: string | null; sttProvider: 'google' | 'groq' | 'openai' | 'deepgram' | 'elevenlabs' | 'azure' | 'ibmwatson' | 'soniox' | 'natively'; hasSttGroqKey: boolean; hasSttOpenaiKey: boolean; hasDeepgramKey: boolean; hasElevenLabsKey: boolean; hasAzureKey: boolean; azureRegion: string; hasIbmWatsonKey: boolean; ibmWatsonRegion: string; groqSttModel?: string; hasSonioxKey?: boolean; hasTavilyKey?: boolean; geminiPreferredModel?: string; groqPreferredModel?: string; openaiPreferredModel?: string; claudePreferredModel?: string; sttGroqKey?: string; sttOpenaiKey?: string; sttDeepgramKey?: string; sttElevenLabsKey?: string; sttAzureKey?: string; sttIbmKey?: string; sttSonioxKey?: string }>
+  getStoredCredentials: () => Promise<{ hasNativelyKey?: boolean; hasClaudeMax?: boolean; claudeMaxStatus?: 'ready' | 'expired' | 'missing' | 'invalid'; hasCodex?: boolean; googleServiceAccountPath: string | null; sttProvider: 'google' | 'groq' | 'openai' | 'deepgram' | 'elevenlabs' | 'azure' | 'ibmwatson' | 'soniox' | 'natively'; hasSttGroqKey: boolean; hasSttOpenaiKey: boolean; hasDeepgramKey: boolean; hasElevenLabsKey: boolean; hasAzureKey: boolean; azureRegion: string; hasIbmWatsonKey: boolean; ibmWatsonRegion: string; groqSttModel?: string; hasSonioxKey?: boolean; hasTavilyKey?: boolean; sttGroqKey?: string; sttOpenaiKey?: string; sttDeepgramKey?: string; sttElevenLabsKey?: string; sttAzureKey?: string; sttIbmKey?: string; sttSonioxKey?: string }>
 
   // STT Provider Management
   setSttProvider: (provider: 'google' | 'groq' | 'openai' | 'deepgram' | 'elevenlabs' | 'azure' | 'ibmwatson' | 'soniox' | 'natively') => Promise<{ success: boolean; error?: string }>
@@ -138,14 +133,23 @@ export interface ElectronAPI {
   setActionButtonMode: (mode: 'recap' | 'brainstorm') => Promise<{ success: boolean }>
   onActionButtonModeChanged: (callback: (mode: 'recap' | 'brainstorm') => void) => () => void
 
+  // Meeting AI (IP Corp mode + Continuous OCR)
+  setIPCorpMode: (enabled: boolean) => Promise<{ success: boolean; error?: string; warning?: string }>
+  setContinuousOCR: (enabled: boolean) => Promise<{ success: boolean; error?: string }>
+  getMeetingAIStatus: () => Promise<{ claudeMaxAvailable: boolean; claudeMaxStatus?: 'ready' | 'expired' | 'missing' | 'invalid'; ocrRunning: boolean; ipCorpMode: boolean; clawmemAvailable?: boolean; nexusAvailable?: boolean; ipCorpWarning?: string | null }>
+  reloadMeetingMemory: () => Promise<{ success: boolean; chunks?: number; error?: string }>
+
   // Meeting Lifecycle
   startMeeting: (metadata?: any) => Promise<{ success: boolean; error?: string }>
   endMeeting: () => Promise<{ success: boolean; error?: string }>
   finalizeMicSTT: () => Promise<void>
-  getRecentMeetings: () => Promise<Array<{ id: string; title: string; date: string; duration: string; summary: string }>>
+  getRecentMeetings: () => Promise<Array<{ id: string; title: string; date: string; duration: string; summary: string; source?: 'manual' | 'calendar' | 'teams' | 'cluely' | 'imported'; importMetadata?: { sourceFormat?: 'cluely' | 'teams' | 'generic'; importedAt?: string; fidelity?: string } }>>
   getMeetingDetails: (id: string) => Promise<any>
+  getChatDebugEntries: (limit?: number) => Promise<Array<{ id: number; meetingId?: string | null; type: string; timestamp: number; userQuery: string; aiResponse: string; metadata: any }>>
+  getDisplayLayout: () => Promise<Array<{ id: number; label: string; bounds: { x: number; y: number; width: number; height: number }; scaleFactor: number; isPrimary: boolean }>>
   updateMeetingTitle: (id: string, title: string) => Promise<boolean>
   updateMeetingSummary: (id: string, updates: { overview?: string, actionItems?: string[], keyPoints?: string[], actionItemsTitle?: string, keyPointsTitle?: string }) => Promise<boolean>
+  generateMeetingOverview: (meetingId: string, options?: { force?: boolean }) => Promise<any>
   deleteMeeting: (id: string) => Promise<boolean>
   setWindowMode: (mode: 'launcher' | 'overlay', inactive?: boolean) => Promise<void>
 
@@ -169,7 +173,8 @@ export interface ElectronAPI {
   onSessionReset: (callback: () => void) => () => void;
 
   // Streaming listeners
-  streamGeminiChat: (message: string, imagePaths?: string[], context?: string, options?: { skipSystemPrompt?: boolean, ignoreKnowledgeMode?: boolean }) => Promise<void>
+  streamGeminiChat: (message: string, imagePaths?: string[], context?: string, options?: { skipSystemPrompt?: boolean, ignoreKnowledgeMode?: boolean, surface?: string }) => Promise<void>
+  reviewChatMessage: (input: { text: string; reviewType: 'voice_pass' | 'technical_check'; sourceIntent?: string }) => Promise<{ reviewType: 'voice_pass' | 'technical_check'; reviewerModel: string; text: string; error?: string }>
   onGeminiStreamToken: (callback: (token: string) => void) => () => void
   onGeminiStreamDone: (callback: () => void) => () => void
   onGeminiStreamError: (callback: (error: string) => void) => () => void;
@@ -178,23 +183,15 @@ export interface ElectronAPI {
   getDefaultModel: () => Promise<{ model: string }>;
   setModel: (modelId: string) => Promise<{ success: boolean; error?: string }>;
   setDefaultModel: (modelId: string) => Promise<{ success: boolean; error?: string }>;
+  getReasoningEffort: () => Promise<{ effort: 'low' | 'medium' | 'high' | 'xhigh' }>;
+  setReasoningEffort: (effort: 'low' | 'medium' | 'high' | 'xhigh') => Promise<{ success: boolean; error?: string }>;
   toggleModelSelector: (coords: { x: number; y: number }) => Promise<void>;
-  forceRestartOllama: () => Promise<void>;
 
   // Settings Window
   toggleSettingsWindow: (coords?: { x: number; y: number }) => Promise<void>;
 
-  // Groq Fast Text Mode
-  getGroqFastTextMode: () => Promise<{ enabled: boolean }>;
-  setGroqFastTextMode: (enabled: boolean) => Promise<{ success: boolean; error?: string }>;
-
   // Demo
   seedDemo: () => Promise<{ success: boolean }>;
-
-  // Custom Providers
-  saveCustomProvider: (provider: any) => Promise<{ success: boolean; id?: string; error?: string }>;
-  getCustomProviders: () => Promise<any[]>;
-  deleteCustomProvider: (id: string) => Promise<{ success: boolean; error?: string }>;
 
   // Follow-up Email
   generateFollowupEmail: (input: any) => Promise<string>;
@@ -211,8 +208,8 @@ export interface ElectronAPI {
   flushDatabase: () => Promise<{ success: boolean }>;
 
   onUndetectableChanged: (callback: (state: boolean) => void) => () => void;
-  onGroqFastTextChanged: (callback: (enabled: boolean) => void) => () => void;
   onModelChanged: (callback: (modelId: string) => void) => () => void;
+  onReasoningEffortChanged: (callback: (effort: 'low' | 'medium' | 'high' | 'xhigh') => void) => () => void;
 
   onOllamaPullProgress: (callback: (data: { status: string; percent: number }) => void) => () => void;
   onOllamaPullComplete: (callback: () => void) => () => void;
@@ -231,9 +228,35 @@ export interface ElectronAPI {
   // Calendar
   calendarConnect: () => Promise<{ success: boolean; error?: string }>
   calendarDisconnect: () => Promise<{ success: boolean; error?: string }>
-  getCalendarStatus: () => Promise<{ connected: boolean; email?: string }>
-  getUpcomingEvents: () => Promise<Array<{ id: string; title: string; startTime: string; endTime: string; link?: string; source: 'google' }>>
+  getCalendarStatus: () => Promise<{ connected: boolean; email?: string; providers?: { google: boolean; outlook: boolean; teams: boolean }; warnings?: string[] }>
+  getUpcomingEvents: () => Promise<Array<{ id: string; title: string; startTime: string; endTime: string; link?: string; description?: string; location?: string; attendees?: Array<{ email: string; displayName?: string; organizer?: boolean; optional?: boolean; responseStatus?: string }>; source: 'google' | 'outlook' }>>
   calendarRefresh: () => Promise<{ success: boolean; error?: string }>
+  getMeetingPrepPacket: (eventId: string) => Promise<{
+    event: { id: string; title: string; startTime: string; endTime: string; link?: string; description?: string; location?: string; attendees?: Array<{ email: string; displayName?: string }>; source: 'google' | 'outlook' };
+    generatedAt: string;
+    timing: { startsInMinutes: number; durationMinutes: number };
+    sourceHealth: { calendar: boolean; memory: boolean; backgroundContext: boolean; roleBrief: boolean; liveResearch: boolean };
+    summary: string;
+    contextBullets: string[];
+    profileSnapshot: string[];
+    relatedMeetings: Array<{ id: string; title: string; date: string; summary: string; matchScore: number }>;
+    memoryHighlights: Array<{ title: string; excerpt: string; source: string; type: string; date?: string; score: number }>;
+    prepChecklist: string[];
+    openQuestions: string[];
+    openCommitments: string[];
+  } | null>
+
+  // Local Microsoft Bridges
+  getMicrosoftLocalStatus: () => Promise<any>
+  outlookListEmails: (options?: { top?: number; unreadOnly?: boolean }) => Promise<{ emails: any[]; totalCount: number }>
+  outlookSearchEmails: (query: string, top?: number) => Promise<{ emails: any[]; totalCount: number }>
+  outlookCreateDraft: (draft: any) => Promise<{ entryId: string }>
+  outlookSendEmail: (draft: any) => Promise<{ success: boolean; error?: string }>
+  outlookCreateCalendarEvent: (request: any) => Promise<{ entryId: string }>
+  outlookReplyEmail: (entryId: string, body: string, replyAll?: boolean, send?: boolean) => Promise<{ success: boolean; error?: string }>
+  teamsListChats: (limit?: number) => Promise<any[]>
+  teamsGetMessages: (chatId: string, limit?: number) => Promise<any[]>
+  teamsSendMessage: (chatId: string, text: string) => Promise<{ success: boolean; error?: string; warning?: string; verified?: boolean }>
 
   // Auto-Update
   onUpdateAvailable: (callback: (info: any) => void) => () => void
@@ -279,6 +302,19 @@ export interface ElectronAPI {
   profileDelete: () => Promise<{ success: boolean; error?: string }>
   profileGetProfile: () => Promise<any>
   profileSelectFile: () => Promise<{ success?: boolean; cancelled?: boolean; filePath?: string; error?: string }>
+  meetingImportSelectFiles: () => Promise<{ success?: boolean; cancelled?: boolean; filePaths: string[]; error?: string }>
+  meetingImportIngest: (artifacts: any[]) => Promise<{ importedMeetings: any[]; skippedArtifacts: Array<{ name: string; reason: string }>; totalArtifacts: number }>
+  teamsImportDiscover: (limit?: number) => Promise<Array<{ chatId: string; meetingTitle: string; date?: string; hasTranscript: boolean }>>
+  teamsImportIngest: (options?: { limit?: number; chatIds?: string[] }) => Promise<{ importedMeetings: any[]; skippedArtifacts: Array<{ name: string; reason: string }>; totalArtifacts: number; attemptedChats: number; discoveredCandidates: number }>
+  cluelyImportDiscover: (limit?: number) => Promise<{ candidates: Array<{ sessionId: string; meetingTitle: string; date?: string; hasTranscript: boolean; hasSummary: boolean; hasUsage: boolean; source: 'live' | 'cached' }>; mode: 'live' | 'cached' | 'unavailable'; warning?: string; sessionEmail?: string; tokenFresh?: boolean }>
+  cluelyImportIngest: (options?: { limit?: number; sessionIds?: string[] }) => Promise<{ importedMeetings: any[]; skippedArtifacts: Array<{ name: string; reason: string }>; totalArtifacts: number; attemptedSessions: number; discoveredCandidates: number; mode: 'live' | 'cached' | 'unavailable'; warning?: string }>
+  getContextHubStatus: () => Promise<any>
+  getAutonomousOpsStatus: () => Promise<any>
+  refreshAutonomousOpsStatus: () => Promise<any>
+  startAutonomousWorkflow: (workflowId: string, options?: { goalId?: string; autonomyLevel?: 'observe' | 'assist' | 'bounded-auto' | 'approval-required' }) => Promise<any>
+  stopAutonomousWorkflow: (workflowId: string) => Promise<{ success: boolean; error?: string }>
+  invokeAutonomousWorkflowAction: (workflowId: string, actionId: string, payload?: Record<string, any>) => Promise<{ success: boolean; summary: string; output?: Record<string, any>; stdout?: string; stderr?: string }>
+  onAutonomousOpsUpdated: (callback: (status: any) => void) => () => void
 
   // JD & Research API
   profileUploadJD: (filePath: string) => Promise<{ success: boolean; error?: string }>
@@ -290,10 +326,6 @@ export interface ElectronAPI {
 
   // Tavily Search API
   setTavilyApiKey: (apiKey: string) => Promise<{ success: boolean; error?: string }>
-
-  // Dynamic Model Discovery
-  fetchProviderModels: (provider: 'gemini' | 'groq' | 'openai' | 'claude', apiKey: string) => Promise<{ success: boolean; models?: {id: string, label: string}[]; error?: string }>
-  setProviderPreferredModel: (provider: 'gemini' | 'groq' | 'openai' | 'claude', modelId: string) => Promise<void>
 
   // License Management
   licenseActivate: (key: string) => Promise<{ success: boolean; error?: string }>

@@ -34,6 +34,8 @@ import { oneLight, vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/
 // import { ModelSelector } from './ui/ModelSelector'; // REMOVED
 import TopPill from './ui/TopPill';
 import RollingTranscript from './ui/RollingTranscript';
+import { InlineActionProposalCard, type InlineActionProposal } from './ui/InlineActionProposalCard';
+import { InlineWorkflowRecommendationCard, type InlineWorkflowRecommendation } from './ui/InlineWorkflowRecommendationCard';
 import { NegotiationCoachingCard } from '../premium';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -44,10 +46,11 @@ import { analytics, detectProviderType } from '../lib/analytics/analytics.servic
 import { useShortcuts } from '../hooks/useShortcuts';
 import { useResolvedTheme } from '../hooks/useResolvedTheme';
 import { getOverlayAppearance, OVERLAY_OPACITY_DEFAULT } from '../lib/overlayAppearance';
+import { getDisplayModelName, resolvePreferredVisibleModelId } from '../utils/modelUtils';
 
 interface Message {
     id: string;
-    role: 'user' | 'system' | 'interviewer';
+    role: 'user' | 'system' | 'external';
     text: string;
     isStreaming?: boolean;
     hasScreenshot?: boolean;
@@ -64,6 +67,13 @@ interface Message {
         yourTarget: number | null;
         currency: string;
     };
+    actionProposal?: InlineActionProposal;
+    workflowRecommendation?: InlineWorkflowRecommendation;
+    reviewMeta?: {
+        reviewType: 'voice_pass' | 'technical_check';
+        reviewedBy: string;
+        sourceMessageId: string;
+    };
 }
 
 interface NativelyInterfaceProps {
@@ -71,12 +81,18 @@ interface NativelyInterfaceProps {
     overlayOpacity?: number;
 }
 
+const LIVE_TRANSCRIPT_KEY = 'natively_live_transcript';
+const LEGACY_TRANSCRIPT_KEY = ['natively_', 'inter', 'viewer_transcript'].join('');
+type ScreenshotAttachment = { path: string; preview: string };
+
 const NativelyInterface: React.FC<NativelyInterfaceProps> = ({ onEndMeeting, overlayOpacity = OVERLAY_OPACITY_DEFAULT }) => {
     const isLightTheme = useResolvedTheme() === 'light';
     const [isExpanded, setIsExpanded] = useState(true);
     const [inputValue, setInputValue] = useState('');
     const { shortcuts, isShortcutPressed } = useShortcuts();
     const [messages, setMessages] = useState<Message[]>([]);
+    const [reviewingMessageId, setReviewingMessageId] = useState<string | null>(null);
+    const [reviewingType, setReviewingType] = useState<'voice_pass' | 'technical_check' | null>(null);
     const [isConnected, setIsConnected] = useState(false);
     const [isProcessing, setIsProcessing] = useState(false);
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -86,7 +102,7 @@ const NativelyInterface: React.FC<NativelyInterfaceProps> = ({ onEndMeeting, ove
     const [manualTranscript, setManualTranscript] = useState('');
     const manualTranscriptRef = useRef<string>('');
     const [showTranscript, setShowTranscript] = useState(() => {
-        const stored = localStorage.getItem('natively_interviewer_transcript');
+        const stored = localStorage.getItem(LIVE_TRANSCRIPT_KEY) ?? localStorage.getItem(LEGACY_TRANSCRIPT_KEY);
         return stored !== 'false';
     });
 
@@ -96,17 +112,20 @@ const NativelyInterface: React.FC<NativelyInterfaceProps> = ({ onEndMeeting, ove
     // Sync transcript setting
     useEffect(() => {
         const handleStorage = () => {
-            const stored = localStorage.getItem('natively_interviewer_transcript');
+            const stored = localStorage.getItem(LIVE_TRANSCRIPT_KEY) ?? localStorage.getItem(LEGACY_TRANSCRIPT_KEY);
             setShowTranscript(stored !== 'false');
         };
         window.addEventListener('storage', handleStorage);
         return () => window.removeEventListener('storage', handleStorage);
     }, []);
 
-    const [rollingTranscript, setRollingTranscript] = useState('');  // For interviewer rolling text bar
-    const [isInterviewerSpeaking, setIsInterviewerSpeaking] = useState(false);  // Track if actively speaking
+    const [rollingTranscript, setRollingTranscript] = useState('');
+    const [isContextSpeaking, setIsContextSpeaking] = useState(false);
     const [voiceInput, setVoiceInput] = useState('');  // Accumulated user voice input
     const voiceInputRef = useRef<string>('');  // Ref for capturing in async handlers
+    const offeredWorkflowRecommendationSignaturesRef = useRef<Set<string>>(new Set());
+    const dismissedWorkflowRecommendationSignaturesRef = useRef<Set<string>>(new Set());
+    const notifiedWorkflowCompletionSignaturesRef = useRef<Set<string>>(new Set());
     const textInputRef = useRef<HTMLInputElement>(null); // Ref for input focus
     const isStealthRef = useRef<boolean>(false); // Tracks if the next expansion should be stealthy
     const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -128,7 +147,7 @@ const NativelyInterface: React.FC<NativelyInterfaceProps> = ({ onEndMeeting, ove
     });
 
     // Model Selection State
-    const [currentModel, setCurrentModel] = useState<string>('gemini-3-flash-preview');
+    const [currentModel, setCurrentModel] = useState<string>('');
 
     // Dynamic Action Button Mode (Recap vs Brainstorm)
     const [actionButtonMode, setActionButtonMode] = useState<'recap' | 'brainstorm'>('recap');
@@ -161,16 +180,70 @@ const NativelyInterface: React.FC<NativelyInterfaceProps> = ({ onEndMeeting, ove
     const inputClass = `${isLightTheme ? 'focus:ring-black/10' : 'focus:ring-white/10'} overlay-input-surface overlay-input-text`;
     const controlSurfaceClass = 'overlay-control-surface overlay-text-interactive';
 
+    const isExplicitScreenReadRequest = (value: string): boolean => {
+        const text = value.trim().toLowerCase();
+        if (!text) return false;
+
+        return [
+            /what(?:'s| is) on my screen/,
+            /what am i looking at/,
+            /what do you see/,
+            /what(?:'s| is) visible/,
+            /describe (?:my|the) screen/,
+            /analy(?:s|z)e (?:my|the|this) screen/,
+            /summari(?:s|z)e (?:my|the|this) screen/,
+            /read (?:my|the|this) screen/,
+            /what(?:'s| is) happening on (?:my|the) screen/,
+        ].some((pattern) => pattern.test(text));
+    };
+
+    const buildScreenReadContext = (question: string): string => {
+        const recentChat = conversationContext.trim();
+        const parts = [
+            'The user is asking about what is visible on their screen right now.',
+            'Use the attached screenshot as the primary source of truth.',
+            'Describe the active window(s), the main task underway, and any obvious errors, blockers, or next steps.',
+            'If something is partially obscured or unreadable, say that directly instead of guessing.',
+            `User question: ${question}`,
+        ];
+
+        if (recentChat) {
+            parts.push(`Recent chat context:\n${recentChat}`);
+        }
+
+        return parts.join('\n\n');
+    };
+
+    const ensureFreshScreenAttachment = async (
+        question: string,
+        attachments: ScreenshotAttachment[]
+    ): Promise<ScreenshotAttachment[]> => {
+        if (attachments.length > 0 || !isExplicitScreenReadRequest(question)) {
+            return attachments;
+        }
+
+        try {
+            const capture = await window.electronAPI.takeScreenshot();
+            return capture ? [capture] : attachments;
+        } catch (error) {
+            console.error('[NativelyInterface] Failed to auto-capture screen for explicit screen-read request:', error);
+            return attachments;
+        }
+    };
+
     useEffect(() => {
         // Load the persisted default model (not the runtime model)
         // Each new meeting starts with the default from settings
         if (window.electronAPI?.getDefaultModel) {
-            window.electronAPI.getDefaultModel()
-                .then((result: any) => {
-                    if (result && result.model) {
-                        setCurrentModel(result.model);
-                        // Also set the runtime model to the default
-                        window.electronAPI.setModel(result.model).catch(() => { });
+            Promise.all([
+                window.electronAPI.getDefaultModel(),
+                window.electronAPI?.getStoredCredentials?.(),
+            ])
+                .then(([result, creds]: any) => {
+                    const resolvedModel = resolvePreferredVisibleModelId(result?.model, creds);
+                    if (resolvedModel) {
+                        setCurrentModel(resolvedModel);
+                        window.electronAPI.setModel(resolvedModel).catch(() => { });
                     }
                 })
                 .catch((err: any) => console.error("Failed to fetch default model:", err));
@@ -277,7 +350,7 @@ const NativelyInterface: React.FC<NativelyInterfaceProps> = ({ onEndMeeting, ove
     useEffect(() => {
         const context = messages
             .filter(m => m.role !== 'user' || !m.hasScreenshot)
-            .map(m => `${m.role === 'interviewer' ? 'Interviewer' : m.role === 'user' ? 'User' : 'Assistant'}: ${m.text}`)
+            .map(m => `${m.role === 'external' ? 'Context' : m.role === 'user' ? 'User' : 'Assistant'}: ${m.text}`)
             .slice(-20)
             .join('\n');
         setConversationContext(context);
@@ -397,19 +470,18 @@ const NativelyInterface: React.FC<NativelyInterfaceProps> = ({ onEndMeeting, ove
                 return;  // Don't add to messages while recording
             }
 
-            // Ignore user mic transcripts when not recording
-            // Only interviewer (system audio) transcripts should appear in chat
+            // Ignore user mic transcripts when not recording.
+            // External/system audio is what powers the live context bar.
             if (transcript.speaker === 'user') {
                 return;  // Skip user mic input - only relevant when Answer button is active
             }
 
-            // Only show interviewer (system audio) transcripts in rolling bar
-            if (transcript.speaker !== 'interviewer') {
+            if (transcript.speaker !== 'external') {
                 return;  // Safety check for any other speaker types
             }
 
             // Route to rolling transcript bar - accumulate text continuously
-            setIsInterviewerSpeaking(!transcript.final);
+            setIsContextSpeaking(!transcript.final);
 
             if (transcript.final) {
                 // Append finalized text to accumulated transcript
@@ -420,7 +492,7 @@ const NativelyInterface: React.FC<NativelyInterfaceProps> = ({ onEndMeeting, ove
 
                 // Clear speaking indicator after pause
                 setTimeout(() => {
-                    setIsInterviewerSpeaking(false);
+                    setIsContextSpeaking(false);
                 }, 3000);
             } else {
                 // For partial transcripts, show current segment appended to accumulated
@@ -735,12 +807,78 @@ const NativelyInterface: React.FC<NativelyInterfaceProps> = ({ onEndMeeting, ove
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []); // intentionally empty — these listeners must survive isExpanded changes
 
+    useEffect(() => {
+        const unsubscribe = window.electronAPI.onAutonomousOpsUpdated((status) => {
+            processAutonomousStatus(status);
+        });
+
+        window.electronAPI.getAutonomousOpsStatus?.()
+            .then((status) => {
+                processAutonomousStatus(status);
+            })
+            .catch(() => {});
+
+        return () => {
+            unsubscribe?.();
+        };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
     // Quick Actions - Updated to use new Intelligence APIs
 
     const handleCopy = (text: string) => {
         navigator.clipboard.writeText(text);
         analytics.trackCopyAnswer();
         // Optional: Trigger a small toast or state change for visual feedback
+    };
+
+    const handleReviewMessage = async (message: Message, reviewType: 'voice_pass' | 'technical_check') => {
+        if (!message.text.trim()) return;
+
+        setReviewingMessageId(message.id);
+        setReviewingType(reviewType);
+
+        try {
+            const result = await window.electronAPI.reviewChatMessage({
+                text: message.text,
+                reviewType,
+                sourceIntent: message.intent,
+            });
+
+            if (!result?.text?.trim()) {
+                throw new Error(result?.error || 'Review returned no content.');
+            }
+
+            setMessages((prev) => [
+                ...prev,
+                {
+                    id: `${Date.now()}-${reviewType}`,
+                    role: 'system',
+                    text: result.text.trim(),
+                    reviewMeta: {
+                        reviewType,
+                        reviewedBy: result.reviewerModel,
+                        sourceMessageId: message.id,
+                    },
+                },
+            ]);
+
+            setTimeout(() => {
+                messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+            }, 50);
+        } catch (error: any) {
+            setMessages((prev) => [
+                ...prev,
+                {
+                    id: `${Date.now()}-review-error`,
+                    role: 'system',
+                    text: `Review failed: ${error?.message || 'Unknown error'}`,
+                },
+            ]);
+        } finally {
+            setReviewingMessageId(null);
+            setReviewingType(null);
+        }
     };
 
     const handleWhatToSay = async () => {
@@ -956,6 +1094,18 @@ const NativelyInterface: React.FC<NativelyInterfaceProps> = ({ onEndMeeting, ove
                     });
                     return; // Skip the normal append below
                 }
+                if (parsed?.__actionProposal) {
+                    setMessages(prev => {
+                        const lastMsg = prev[prev.length - 1];
+                        if (lastMsg && lastMsg.isStreaming && lastMsg.role === 'system') {
+                            const updated = [...prev];
+                            updated[prev.length - 1] = { ...lastMsg, text: token };
+                            return updated;
+                        }
+                        return prev;
+                    });
+                    return;
+                }
             } catch {
                 // Not JSON — normal text token, fall through to the standard append.
             }
@@ -1007,6 +1157,14 @@ const NativelyInterface: React.FC<NativelyInterfaceProps> = ({ onEndMeeting, ove
                                 isStreaming: false,
                                 isNegotiationCoaching: true,
                                 negotiationCoachingData: coaching,
+                                text: '',
+                            }];
+                        }
+                        if (parsed?.__actionProposal) {
+                            return [...prev.slice(0, -1), {
+                                ...lastMsg,
+                                isStreaming: false,
+                                actionProposal: parsed.__actionProposal,
                                 text: '',
                             }];
                         }
@@ -1065,6 +1223,18 @@ const NativelyInterface: React.FC<NativelyInterfaceProps> = ({ onEndMeeting, ove
                         });
                         return; // Skip normal append
                     }
+                    if (parsed?.__actionProposal) {
+                        setMessages(prev => {
+                            const lastMsg = prev[prev.length - 1];
+                            if (lastMsg && lastMsg.isStreaming && lastMsg.role === 'system') {
+                                const updated = [...prev];
+                                updated[prev.length - 1] = { ...lastMsg, text: data.chunk };
+                                return updated;
+                            }
+                            return prev;
+                        });
+                        return;
+                    }
                 } catch {
                     // Normal text chunk — fall through.
                 }
@@ -1102,6 +1272,14 @@ const NativelyInterface: React.FC<NativelyInterfaceProps> = ({ onEndMeeting, ove
                                     isStreaming: false,
                                     isNegotiationCoaching: true,
                                     negotiationCoachingData: coaching,
+                                    text: '',
+                                }];
+                            }
+                            if (parsed?.__actionProposal) {
+                                return [...prev.slice(0, -1), {
+                                    ...lastMsg,
+                                    isStreaming: false,
+                                    actionProposal: parsed.__actionProposal,
                                     text: '',
                                 }];
                             }
@@ -1153,7 +1331,7 @@ const NativelyInterface: React.FC<NativelyInterfaceProps> = ({ onEndMeeting, ove
             // Send manual finalization signal to STT Providers
             window.electronAPI.finalizeMicSTT().catch(err => console.error('[NativelyInterface] Failed to send finalizeMicSTT:', err));
 
-            const currentAttachments = attachedContext;
+            let currentAttachments = attachedContext;
             setAttachedContext([]); // Clear context immediately on send
 
             const question = (voiceInputRef.current + (manualTranscriptRef.current ? ' ' + manualTranscriptRef.current : '')).trim();
@@ -1161,6 +1339,9 @@ const NativelyInterface: React.FC<NativelyInterfaceProps> = ({ onEndMeeting, ove
             voiceInputRef.current = '';
             setManualTranscript('');
             manualTranscriptRef.current = '';
+
+            currentAttachments = await ensureFreshScreenAttachment(question, currentAttachments);
+            const isScreenReadRequest = isExplicitScreenReadRequest(question);
 
             if (!question && currentAttachments.length === 0) {
                 // No voice input and no image
@@ -1201,13 +1382,25 @@ const NativelyInterface: React.FC<NativelyInterfaceProps> = ({ onEndMeeting, ove
 
                 if (currentAttachments.length > 0) {
                     // Image + Voice Context
-                    prompt = `You are a helper. The user has provided a screenshot and a spoken question/command.
+                    if (isScreenReadRequest) {
+                        prompt = `You are reading the user's live screen.
+User said: "${question}"
+
+Instructions:
+1. Use the attached screenshot as the primary source of truth.
+2. Describe what is visible right now, not what was visible earlier.
+3. Name obvious errors, blockers, or next steps if they are on screen.
+4. If a detail is unclear or obscured, say so instead of guessing.
+5. Be concise and direct.`;
+                    } else {
+                        prompt = `You are a helper. The user has provided a screenshot and a spoken question/command.
 User said: "${question}"
 
 Instructions:
 1. Analyze the screenshot in the context of what the user said.
 2. Provide a direct, helpful answer.
 3. Be concise.`;
+                    }
                 } else {
                     // JIT RAG pre-flight: try to use indexed meeting context first
                     const ragResult = await window.electronAPI.ragQueryLive?.(question);
@@ -1217,7 +1410,7 @@ Instructions:
                     }
 
                     // Voice Only (Smart Extract) — fallback
-                    prompt = `You are a real-time interview assistant. The user just repeated or paraphrased a question from their interviewer.
+                    prompt = `You are a real-time meeting coach. The user just repeated or paraphrased a question from the live conversation.
 Instructions:
 1. Extract the core question being asked
 2. Provide a clear, concise, and professional answer that the user can say out loud
@@ -1230,7 +1423,7 @@ Provide only the answer, nothing else.`;
 
                 // Call Streaming API: message = question, context = instructions
                 requestStartTimeRef.current = Date.now();
-                await window.electronAPI.streamGeminiChat(question, currentAttachments.length > 0 ? currentAttachments.map(s => s.path) : undefined, prompt, { skipSystemPrompt: true });
+                await window.electronAPI.streamGeminiChat(question, currentAttachments.length > 0 ? currentAttachments.map(s => s.path) : undefined, prompt, { skipSystemPrompt: true, surface: 'widget' });
 
             } catch (err) {
                 // Initial invocation failing (e.g. IPC error before stream starts)
@@ -1275,7 +1468,10 @@ Provide only the answer, nothing else.`;
         if (!inputValue.trim() && attachedContext.length === 0) return;
 
         const userText = inputValue;
-        const currentAttachments = attachedContext;
+        let currentAttachments = attachedContext;
+        const isScreenReadRequest = isExplicitScreenReadRequest(userText);
+
+        currentAttachments = await ensureFreshScreenAttachment(userText, currentAttachments);
 
         // Clear inputs immediately
         setInputValue('');
@@ -1320,7 +1516,10 @@ Provide only the answer, nothing else.`;
             await window.electronAPI.streamGeminiChat(
                 userText || 'Analyze this screenshot',
                 currentAttachments.length > 0 ? currentAttachments.map(s => s.path) : undefined,
-                conversationContext // Pass context so "answer this" works
+                isScreenReadRequest && currentAttachments.length > 0
+                    ? buildScreenReadContext(userText || 'Describe the screen')
+                    : conversationContext,
+                { surface: 'widget' }
             );
         } catch (err) {
             setIsProcessing(false);
@@ -1347,8 +1546,217 @@ Provide only the answer, nothing else.`;
         setMessages([]);
     };
 
+    const chooseWorkflowRecommendationAction = (workflow: any): { id: string | null; label: string | null } => {
+        const availableActions = Array.isArray(workflow?.availableActions) ? workflow.availableActions : [];
+        const byId = (actionId: string) => availableActions.find((action: any) => action?.id === actionId) || null;
+        const runId = workflow?.structuredState?.currentRunId || workflow?.structuredState?.runId;
+
+        if (workflow?.state === 'ready-to-take-over') {
+            const action = byId('start_run');
+            if (action) return { id: action.id, label: action.label };
+        }
+
+        if (workflow?.state === 'blocked' && runId) {
+            const action = byId('resume_run');
+            if (action) return { id: action.id, label: action.label };
+        }
+
+        if (workflow?.state === 'blocked') {
+            const action = byId('retry_failed_entities');
+            if (action) return { id: action.id, label: action.label };
+        }
+
+        const nextActionIds = Array.isArray(workflow?.nextActionIds) ? workflow.nextActionIds : [];
+        const nextControlAction = nextActionIds
+            .map((actionId: string) => byId(actionId))
+            .find((action: any) => action && action.policyClass !== 'read');
+
+        if (nextControlAction) {
+            return { id: nextControlAction.id, label: nextControlAction.label };
+        }
+
+        return { id: null, label: null };
+    };
+
+    const buildWorkflowRecommendation = (workflow: any): InlineWorkflowRecommendation => {
+        const action = chooseWorkflowRecommendationAction(workflow);
+        const runId = workflow?.structuredState?.currentRunId || workflow?.structuredState?.runId || '';
+        const signature = [
+            workflow?.workflowId || 'workflow',
+            workflow?.state || 'unknown',
+            workflow?.summary || '',
+            runId,
+        ].join('::');
+
+        const note = action.id
+            ? `I noticed ${workflow.label} looks stuck or incomplete. Approve this and I’ll take it over, run ${action.label?.toLowerCase()}, and let you know when it finishes.`
+            : `I noticed ${workflow.label} needs attention. Approve this and I’ll take it over and keep an eye on it for you.`;
+
+        return {
+            workflowId: workflow.workflowId,
+            workflowLabel: workflow.label,
+            signature,
+            state: workflow.state || 'unknown',
+            note,
+            suggestedActionId: action.id,
+            suggestedActionLabel: action.label,
+        };
+    };
+
+    const dismissWorkflowRecommendation = (messageId: string, signature: string) => {
+        dismissedWorkflowRecommendationSignaturesRef.current.add(signature);
+        setMessages(prev => prev.filter((msg) => msg.id !== messageId));
+    };
+
+    const approveWorkflowRecommendation = (messageId: string, workflowLabel: string, signature: string, summary: string) => {
+        offeredWorkflowRecommendationSignaturesRef.current.add(signature);
+        setMessages(prev => prev.map((msg) => {
+            if (msg.id !== messageId) return msg;
+            return {
+                ...msg,
+                workflowRecommendation: undefined,
+                text: `${summary} I’ll keep watching ${workflowLabel} and tell you when it finishes.`,
+                intent: 'workflow_recommendation_approved',
+            };
+        }));
+    };
+
+    const processAutonomousStatus = (status: any) => {
+        const workflows = Array.isArray(status?.workflows) ? status.workflows : [];
+
+        workflows.forEach((workflow: any) => {
+            const runId = workflow?.structuredState?.currentRunId || workflow?.structuredState?.runId || '';
+            const signature = [
+                workflow?.workflowId || 'workflow',
+                workflow?.state || 'unknown',
+                workflow?.summary || '',
+                runId,
+            ].join('::');
+
+            const shouldRecommendTakeover =
+                !workflow?.manual
+                && (workflow?.state === 'blocked' || workflow?.state === 'ready-to-take-over');
+
+            if (
+                shouldRecommendTakeover
+                && !offeredWorkflowRecommendationSignaturesRef.current.has(signature)
+                && !dismissedWorkflowRecommendationSignaturesRef.current.has(signature)
+            ) {
+                const recommendation = buildWorkflowRecommendation(workflow);
+                offeredWorkflowRecommendationSignaturesRef.current.add(signature);
+                setIsExpanded(true);
+                setMessages(prev => {
+                    if (prev.some((msg) => msg.workflowRecommendation?.signature === signature)) {
+                        return prev;
+                    }
+                    return [...prev, {
+                        id: `workflow-recommendation-${Date.now()}`,
+                        role: 'system',
+                        text: '',
+                        workflowRecommendation: recommendation,
+                        intent: 'workflow_recommendation',
+                    }];
+                });
+            }
+
+            if (workflow?.manual && workflow?.state === 'completed' && !notifiedWorkflowCompletionSignaturesRef.current.has(signature)) {
+                notifiedWorkflowCompletionSignaturesRef.current.add(signature);
+                setMessages(prev => [...prev, {
+                    id: `workflow-complete-${Date.now()}`,
+                    role: 'system',
+                    text: `${workflow.label} finished. ${workflow.summary}`,
+                    intent: 'workflow_complete',
+                }]);
+            }
+        });
+    };
 
 
+
+
+    const renderReviewBanner = (msg: Message) => {
+        if (!msg.reviewMeta) return null;
+
+        const reviewLabel = msg.reviewMeta.reviewType === 'voice_pass' ? 'Voice Pass' : 'Technical Cross-Check';
+        return (
+            <div className={`mb-2 inline-flex items-center gap-2 rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide ${subtleSurfaceClass}`} style={appearance.subtleStyle}>
+                <Sparkles className="w-3 h-3" />
+                <span>{reviewLabel}</span>
+                <span className="opacity-70">|</span>
+                <span className="normal-case tracking-normal">{msg.reviewMeta.reviewedBy}</span>
+            </div>
+        );
+    };
+
+    const canReviewMessage = (msg: Message) =>
+        msg.role === 'system'
+        && !msg.isStreaming
+        && !!msg.text.trim()
+        && !msg.reviewMeta
+        && !msg.actionProposal
+        && !msg.isNegotiationCoaching;
+
+    const renderReviewControls = (msg: Message) => {
+        if (msg.role !== 'system' || msg.isStreaming) return null;
+
+        const reviewable = canReviewMessage(msg);
+        const reviewInFlight = reviewingMessageId === msg.id;
+
+        return (
+            <div className="absolute top-2 right-2 flex flex-col items-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                {reviewable && (
+                    <div
+                        className={`flex items-center gap-1 rounded-full border px-1.5 py-1 backdrop-blur-md ${
+                            isLightTheme ? 'bg-white/85 border-black/10' : 'bg-slate-950/75 border-white/10'
+                        }`}
+                    >
+                        <button
+                            onClick={() => handleReviewMessage(msg, 'voice_pass')}
+                            disabled={reviewInFlight}
+                            className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-[10px] font-medium transition-colors ${
+                                reviewInFlight
+                                    ? 'cursor-wait text-text-tertiary'
+                                    : 'hover:bg-black/5 dark:hover:bg-white/10 overlay-text-interactive'
+                            }`}
+                            title="Review with GPT-5.4"
+                        >
+                            {reviewInFlight && reviewingType === 'voice_pass' ? (
+                                <RefreshCw className="w-3 h-3 animate-spin" />
+                            ) : (
+                                <Sparkles className="w-3 h-3" />
+                            )}
+                            <span>GPT-5.4</span>
+                        </button>
+                        <button
+                            onClick={() => handleReviewMessage(msg, 'technical_check')}
+                            disabled={reviewInFlight}
+                            className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-[10px] font-medium transition-colors ${
+                                reviewInFlight
+                                    ? 'cursor-wait text-text-tertiary'
+                                    : 'hover:bg-black/5 dark:hover:bg-white/10 overlay-text-interactive'
+                            }`}
+                            title="Cross-check with Codex"
+                        >
+                            {reviewInFlight && reviewingType === 'technical_check' ? (
+                                <RefreshCw className="w-3 h-3 animate-spin" />
+                            ) : (
+                                <Code className="w-3 h-3" />
+                            )}
+                            <span>Codex</span>
+                        </button>
+                    </div>
+                )}
+                <button
+                    onClick={() => handleCopy(msg.text)}
+                    className="p-1.5 rounded-md overlay-icon-surface overlay-icon-surface-hover overlay-text-interactive"
+                    title="Copy to clipboard"
+                    style={appearance.iconStyle}
+                >
+                    <Copy className="w-3.5 h-3.5" />
+                </button>
+            </div>
+        );
+    };
 
     const renderMessageText = (msg: Message) => {
         // Negotiation coaching card takes priority
@@ -1368,6 +1776,36 @@ Provide only the answer, nothing else.`;
             );
         }
 
+        if (msg.actionProposal) {
+            return (
+                <>
+                    {renderReviewBanner(msg)}
+                    <InlineActionProposalCard proposal={msg.actionProposal} />
+                </>
+            );
+        }
+
+        if (msg.workflowRecommendation) {
+            return (
+                <>
+                    {renderReviewBanner(msg)}
+                    <InlineWorkflowRecommendationCard
+                        recommendation={msg.workflowRecommendation}
+                        onApproved={(summary) => approveWorkflowRecommendation(
+                            msg.id,
+                            msg.workflowRecommendation?.workflowLabel || 'this workflow',
+                            msg.workflowRecommendation?.signature || '',
+                            summary
+                        )}
+                        onDismissed={() => dismissWorkflowRecommendation(
+                            msg.id,
+                            msg.workflowRecommendation?.signature || ''
+                        )}
+                    />
+                </>
+            );
+        }
+
         // Code-containing messages get special styling
         // We split by code blocks to keep the "Code Solution" UI intact for the code parts
         // But use ReactMarkdown for the text parts around it
@@ -1375,9 +1813,10 @@ Provide only the answer, nothing else.`;
             const parts = msg.text.split(/(```[\s\S]*?```)/g);
             return (
                 <div className={`rounded-lg p-3 my-1 border ${subtleSurfaceClass}`} style={appearance.subtleStyle}>
+                    {renderReviewBanner(msg)}
                     <div className={`flex items-center gap-2 mb-2 font-semibold text-xs uppercase tracking-wide ${isLightTheme ? 'text-violet-600' : 'text-purple-300'}`}>
                         <Code className="w-3.5 h-3.5" />
-                        <span>Code Solution</span>
+                        <span>Technical Response</span>
                     </div>
                     <div className={`space-y-2 text-[13px] leading-relaxed ${isLightTheme ? 'text-slate-800' : 'text-slate-200'}`}>
                         {parts.map((part, i) => {
@@ -1387,14 +1826,13 @@ Provide only the answer, nothing else.`;
                                     const lang = match[1] || 'python';
                                     const code = match[2].trim();
                                     return (
-                                        <div key={i} className={`my-3 rounded-xl overflow-hidden border shadow-lg ${codeBlockClass}`} style={appearance.codeBlockStyle}>
-                                            {/* Minimalist Apple Header */}
-                                            <div className={`px-3 py-1.5 border-b ${codeHeaderClass}`} style={appearance.codeHeaderStyle}>
+                                        <details key={i} className={`my-3 rounded-xl overflow-hidden border ${codeBlockClass}`} style={appearance.codeBlockStyle}>
+                                            <summary className={`px-3 py-2 cursor-pointer list-none flex items-center justify-between ${codeHeaderClass}`} style={appearance.codeHeaderStyle}>
                                                 <span className={`text-[10px] uppercase tracking-widest font-semibold font-mono ${codeHeaderTextClass}`}>
-                                                    {lang || 'CODE'}
+                                                    Show Technical Details • {lang || 'CODE'}
                                                 </span>
-                                            </div>
-                                            <div className="bg-transparent">
+                                            </summary>
+                                            <div className="bg-transparent border-t" style={appearance.codeHeaderStyle}>
                                                 <SyntaxHighlighter
                                                     language={lang}
                                                     style={codeTheme}
@@ -1414,7 +1852,7 @@ Provide only the answer, nothing else.`;
                                                     {code}
                                                 </SyntaxHighlighter>
                                             </div>
-                                        </div>
+                                        </details>
                                     );
                                 }
                             }
@@ -1541,15 +1979,14 @@ Provide only the answer, nothing else.`;
                                     }
 
                                     return (
-                                        <div key={i} className={`my-3 rounded-xl overflow-hidden border shadow-lg ${codeBlockClass}`} style={appearance.codeBlockStyle}>
-                                            {/* Minimalist Apple Header */}
-                                            <div className={`px-3 py-1.5 border-b ${codeHeaderClass}`} style={appearance.codeHeaderStyle}>
+                                        <details key={i} className={`my-3 rounded-xl overflow-hidden border ${codeBlockClass}`} style={appearance.codeBlockStyle}>
+                                            <summary className={`px-3 py-2 cursor-pointer list-none flex items-center justify-between ${codeHeaderClass}`} style={appearance.codeHeaderStyle}>
                                                 <span className={`text-[10px] uppercase tracking-widest font-semibold font-mono ${codeHeaderTextClass}`}>
-                                                    {lang || 'CODE'}
+                                                    Show Technical Details • {lang || 'CODE'}
                                                 </span>
-                                            </div>
+                                            </summary>
 
-                                            <div className="bg-transparent">
+                                            <div className="bg-transparent border-t" style={appearance.codeHeaderStyle}>
                                                 <SyntaxHighlighter
                                                     language={lang}
                                                     style={codeTheme}
@@ -1569,7 +2006,7 @@ Provide only the answer, nothing else.`;
                                                     {code}
                                                 </SyntaxHighlighter>
                                             </div>
-                                        </div>
+                                        </details>
                                     );
                                 }
                             }
@@ -1598,26 +2035,29 @@ Provide only the answer, nothing else.`;
             );
         }
 
-        // Standard Text Messages (e.g. from User or Interviewer)
+        // Standard text messages
         // We still want basic markdown support here too
         return (
-            <div className="markdown-content">
-                <ReactMarkdown
-                    remarkPlugins={[remarkGfm, remarkMath]}
-                    rehypePlugins={[rehypeKatex]}
-                    components={{
-                        p: ({ node, ...props }: any) => <p className="mb-2 last:mb-0 whitespace-pre-wrap" {...props} />,
-                        strong: ({ node, ...props }: any) => <strong className="font-bold opacity-100 overlay-text-strong" {...props} />,
-                        em: ({ node, ...props }: any) => <em className="italic opacity-90 overlay-text-secondary" {...props} />,
-                        ul: ({ node, ...props }: any) => <ul className="list-disc ml-4 mb-2 space-y-1" {...props} />,
-                        ol: ({ node, ...props }: any) => <ol className="list-decimal ml-4 mb-2 space-y-1" {...props} />,
-                        li: ({ node, ...props }: any) => <li className="pl-1" {...props} />,
-                        code: ({ node, ...props }: any) => <code className={`overlay-inline-code-surface rounded px-1 py-0.5 text-xs font-mono ${isLightTheme ? 'text-slate-800' : ''}`} {...props} />,
-                        a: ({ node, ...props }: any) => <a className="underline hover:opacity-80" target="_blank" rel="noopener noreferrer" {...props} />,
-                    }}
-                >
-                    {msg.text}
-                </ReactMarkdown>
+            <div>
+                {renderReviewBanner(msg)}
+                <div className="markdown-content">
+                    <ReactMarkdown
+                        remarkPlugins={[remarkGfm, remarkMath]}
+                        rehypePlugins={[rehypeKatex]}
+                        components={{
+                            p: ({ node, ...props }: any) => <p className="mb-2 last:mb-0 whitespace-pre-wrap" {...props} />,
+                            strong: ({ node, ...props }: any) => <strong className="font-bold opacity-100 overlay-text-strong" {...props} />,
+                            em: ({ node, ...props }: any) => <em className="italic opacity-90 overlay-text-secondary" {...props} />,
+                            ul: ({ node, ...props }: any) => <ul className="list-disc ml-4 mb-2 space-y-1" {...props} />,
+                            ol: ({ node, ...props }: any) => <ol className="list-decimal ml-4 mb-2 space-y-1" {...props} />,
+                            li: ({ node, ...props }: any) => <li className="pl-1" {...props} />,
+                            code: ({ node, ...props }: any) => <code className={`overlay-inline-code-surface rounded px-1 py-0.5 text-xs font-mono ${isLightTheme ? 'text-slate-800' : ''}`} {...props} />,
+                            a: ({ node, ...props }: any) => <a className="underline hover:opacity-80" target="_blank" rel="noopener noreferrer" {...props} />,
+                        }}
+                    >
+                        {msg.text}
+                    </ReactMarkdown>
+                </div>
             </div>
         );
     };
@@ -1910,18 +2350,18 @@ Provide only the answer, nothing else.`;
                             onLogoClick={() => window.electronAPI?.setWindowMode?.('launcher')}
                         />
                         <div
-                            className={`relative w-[600px] max-w-full backdrop-blur-2xl border rounded-[24px] overflow-hidden flex flex-col draggable-area overlay-shell-surface ${overlayPanelClass}`}
+                            className={`relative w-[600px] max-w-full backdrop-blur-2xl border rounded-[24px] overflow-hidden flex flex-col overlay-shell-surface ${overlayPanelClass}`}
                             style={appearance.shellStyle}
                         >
 
 
 
 
-                            {/* Rolling Transcript Bar - Single-line interviewer speech */}
-                            {(rollingTranscript || isInterviewerSpeaking) && showTranscript && (
+                            {/* Rolling Transcript Bar */}
+                            {(rollingTranscript || isContextSpeaking) && showTranscript && (
                                 <RollingTranscript
                                     text={rollingTranscript}
-                                    isActive={isInterviewerSpeaking}
+                                    isActive={isContextSpeaking}
                                     surfaceStyle={appearance.transcriptStyle}
                                 />
                             )}
@@ -1943,14 +2383,14 @@ Provide only the answer, nothing else.`;
                                                     ? 'overlay-text-primary font-normal'
                                                     : ''
                                                 }
-                      ${msg.role === 'interviewer'
+                      ${msg.role === 'external'
                                                     ? 'overlay-text-muted italic pl-0 text-[13px]'
                                                     : ''
                                                 }
                     `}>
-                                                {msg.role === 'interviewer' && (
+                                                {msg.role === 'external' && (
                                                     <div className="flex items-center gap-1.5 mb-1 text-[10px] font-medium uppercase tracking-wider overlay-text-muted">
-                                                        Interviewer
+                                                        Context
                                                         {msg.isStreaming && <span className="w-1 h-1 bg-green-500 rounded-full animate-pulse" />}
                                                     </div>
                                                 )}
@@ -1960,16 +2400,7 @@ Provide only the answer, nothing else.`;
                                                         <span>Screenshot attached</span>
                                                     </div>
                                                 )}
-                                                {msg.role === 'system' && !msg.isStreaming && (
-                                                    <button
-                                                        onClick={() => handleCopy(msg.text)}
-                                                        className="absolute top-2 right-2 p-1.5 rounded-md opacity-0 group-hover:opacity-100 transition-opacity overlay-icon-surface overlay-icon-surface-hover overlay-text-interactive"
-                                                        title="Copy to clipboard"
-                                                        style={appearance.iconStyle}
-                                                    >
-                                                        <Copy className="w-3.5 h-3.5" />
-                                                    </button>
-                                                )}
+                                                {renderReviewControls(msg)}
                                                 {renderMessageText(msg)}
                                             </div>
                                         </div>
@@ -2011,19 +2442,19 @@ Provide only the answer, nothing else.`;
                             {/* Quick Actions - Minimal & Clean */}
                             <div className={`flex flex-nowrap justify-center items-center gap-1.5 px-4 pb-3 overflow-x-hidden ${rollingTranscript && showTranscript ? 'pt-1' : 'pt-3'}`}>
                                 <button onClick={handleWhatToSay} className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-medium border transition-all active:scale-95 duration-200 interaction-base interaction-press whitespace-nowrap shrink-0 ${quickActionClass}`} style={appearance.chipStyle}>
-                                    <Pencil className="w-3 h-3 opacity-70" /> What to answer?
+                                    <Pencil className="w-3 h-3 opacity-70" /> Draft Reply
                                 </button>
                                 <button onClick={handleClarify} className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-medium border transition-all active:scale-95 duration-200 interaction-base interaction-press whitespace-nowrap shrink-0 ${quickActionClass}`} style={appearance.chipStyle}>
-                                    <MessageSquare className="w-3 h-3 opacity-70" /> Clarify
+                                    <MessageSquare className="w-3 h-3 opacity-70" /> Clarify Context
                                 </button>
                                 <button onClick={actionButtonMode === 'brainstorm' ? handleBrainstorm : handleRecap} className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-medium border transition-all active:scale-95 duration-200 interaction-base interaction-press whitespace-nowrap shrink-0 ${quickActionClass}`} style={appearance.chipStyle}>
                                     {actionButtonMode === 'brainstorm'
-                                        ? <><Lightbulb className="w-3 h-3 opacity-70" /> Brainstorm</>
-                                        : <><RefreshCw className="w-3 h-3 opacity-70" /> Recap</>
+                                        ? <><Lightbulb className="w-3 h-3 opacity-70" /> Explore Options</>
+                                        : <><RefreshCw className="w-3 h-3 opacity-70" /> Summarize</>
                                     }
                                 </button>
                                 <button onClick={handleFollowUpQuestions} className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-medium border transition-all active:scale-95 duration-200 interaction-base interaction-press whitespace-nowrap shrink-0 ${quickActionClass}`} style={appearance.chipStyle}>
-                                    <HelpCircle className="w-3 h-3 opacity-70" /> Follow Up Question
+                                    <HelpCircle className="w-3 h-3 opacity-70" /> Suggest Follow-Up
                                 </button>
                                 <button
                                     onClick={handleAnswerNow}
@@ -2039,7 +2470,7 @@ Provide only the answer, nothing else.`;
                                             Stop
                                         </>
                                     ) : (
-                                        <><Zap className="w-3 h-3 opacity-70" /> Answer</>
+                                        <><Zap className="w-3 h-3 opacity-70" /> Voice Ask</>
                                     )}
                                 </button>
                             </div>
@@ -2080,7 +2511,7 @@ Provide only the answer, nothing else.`;
                                                 </div>
                                             ))}
                                         </div>
-                                        <span className="text-[10px] overlay-text-muted">Ask a question or click Answer</span>
+                                        <span className="text-[10px] overlay-text-muted">Ask a question or click Ask AI</span>
                                     </div>
                                 )}
 
@@ -2145,16 +2576,7 @@ Provide only the answer, nothing else.`;
                                             style={appearance.controlStyle}
                                         >
                                             <span className="truncate min-w-0 flex-1">
-                                                {(() => {
-                                                    const m = currentModel;
-                                                    if (m.startsWith('ollama-')) return m.replace('ollama-', '');
-                                                    if (m === 'gemini-3.1-flash-lite-preview') return 'Gemini 3.1 Flash';
-                                                    if (m === 'gemini-3.1-pro-preview') return 'Gemini 3.1 Pro';
-                                                    if (m === 'llama-3.3-70b-versatile') return 'Groq Llama 3.3';
-                                                    if (m === 'gpt-5.4') return 'GPT 5.4';
-                                                    if (m === 'claude-sonnet-4-6') return 'Sonnet 4.6';
-                                                    return m;
-                                                })()}
+                                                {getDisplayModelName(currentModel) || 'Select model'}
                                             </span>
                                             <ChevronDown size={14} className="shrink-0 transition-transform" />
                                         </button>

@@ -88,9 +88,7 @@ const UpdateBanner: React.FC = () => {
                 const isArm = arch === 'arm64';
                 const dmgSuffix = isArm ? 'arm64' : 'x64';
                 setInstructionsArch(dmgSuffix);
-                const version = updateInfo?.version ? updateInfo.version.replace('v', '') : '2.0.8';
-                const url = `https://github.com/evinjohnn/natively-cluely-ai-assistant/releases/download/v${version}/Natively-${version}-${dmgSuffix}.dmg`;
-                window.electronAPI.openExternal(url);
+                window.electronAPI.openExternal('https://natively.software/downloads');
                 setStatus('instructions');
             } catch (err) {
                 console.error("Failed to get arch", err);

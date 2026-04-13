@@ -358,7 +358,7 @@ const Queue: React.FC<QueueProps> = ({ setView }) => {
                     <br />
                     <span className="text-xs text-gray-500">Take a screenshot (Cmd+H) for automatic analysis</span>
                     <br />
-                    <span className="text-xs text-gray-500">Click ⚙️ Models to switch AI providers</span>
+                    <span className="text-xs text-gray-500">Click ⚙️ Models to switch models</span>
                   </div>
                 ) : (
                   chatMessages.map((msg, idx) => (

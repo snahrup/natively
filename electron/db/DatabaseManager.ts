@@ -4,19 +4,61 @@ import path from 'path';
 import { app } from 'electron';
 import fs from 'fs';
 import * as sqliteVec from 'sqlite-vec';
+import { MeetingUsageScreenCaptureService, type MeetingUsageScreenCapture } from '../services/MeetingUsageScreenCaptureService';
 
 // Interfaces for our data objects
+export type MeetingSource = 'manual' | 'calendar' | 'teams' | 'cluely' | 'imported';
+
+export interface MeetingImportMetadata {
+    sourceFormat?: 'cluely' | 'teams' | 'generic';
+    importedAt?: string;
+    fidelity?: 'exact' | 'reconstructed';
+    relatedArtifacts?: string[];
+    sourceMeetingId?: string;
+    matchedCalendarEventId?: string;
+    matchedCalendarSubject?: string;
+    calendarOrganizer?: string;
+    calendarAttendees?: string[];
+    transcriptRecoveredFrom?: 'teams' | 'notion' | 'unknown';
+    enrichmentSources?: string[];
+}
+
+export interface MeetingContextOverviewEvidence {
+    title: string;
+    sourceType: string;
+    excerpt: string;
+    date?: string;
+    score?: number;
+}
+
+export interface MeetingContextOverview {
+    synopsis: string;
+    significance: string;
+    value: string;
+    continuity: string[];
+    upcomingSignals: string[];
+    evidence: MeetingContextOverviewEvidence[];
+    generatedAt: string;
+    confidence?: 'low' | 'medium' | 'high';
+    model?: string;
+}
+
+export interface MeetingDetailedSummary {
+    overview?: string;
+    actionItems: string[];
+    keyPoints: string[];
+    actionItemsTitle?: string;
+    keyPointsTitle?: string;
+    contextOverview?: MeetingContextOverview;
+}
+
 export interface Meeting {
     id: string;
     title: string;
     date: string; // ISO string
     duration: string;
     summary: string;
-    detailedSummary?: {
-        overview?: string;
-        actionItems: string[];
-        keyPoints: string[];
-    };
+    detailedSummary?: MeetingDetailedSummary;
     transcript?: Array<{
         speaker: string;
         text: string;
@@ -28,10 +70,54 @@ export interface Meeting {
         question?: string;
         answer?: string;
         items?: string[];
+        screenCaptures?: MeetingUsageScreenCapture[];
     }>;
     calendarEventId?: string;
-    source?: 'manual' | 'calendar';
+    source?: MeetingSource;
+    importMetadata?: MeetingImportMetadata;
     isProcessed?: boolean;
+}
+
+export type MeetingChangeEvent =
+    | { type: 'upsert'; meetingId: string; meeting: Meeting }
+    | { type: 'delete'; meetingId: string };
+
+export type MeetingChangeListener = (event: MeetingChangeEvent) => void | Promise<void>;
+
+export interface ChatDebugMetadata {
+    surface: string;
+    status: 'completed' | 'error' | 'proposal' | 'superseded';
+    provider?: string | null;
+    modelId?: string | null;
+    reasoningEffort?: string | null;
+    hadImages?: boolean;
+    imagePaths?: string[];
+    firstTokenAt?: string | null;
+    completedAt?: string | null;
+    firstTokenLatencyMs?: number | null;
+    totalLatencyMs?: number | null;
+    proposalKind?: string | null;
+    error?: string | null;
+    contextLength?: number;
+    ragMode?: 'meeting' | 'live' | 'global' | null;
+    ignoreKnowledgeMode?: boolean;
+    skipSystemPrompt?: boolean;
+    screenReadRequest?: boolean;
+    ocrObservationCount?: number;
+    latestOcrCapturedAt?: string | null;
+    latestOcrAgeMs?: number | null;
+    latestOcrExcerpt?: string | null;
+    latestOcrDisplayCount?: number | null;
+}
+
+export interface ChatDebugEntry {
+    id: number;
+    meetingId?: string | null;
+    type: string;
+    timestamp: number;
+    userQuery: string;
+    aiResponse: string;
+    metadata: ChatDebugMetadata;
 }
 
 export class DatabaseManager {
@@ -39,11 +125,59 @@ export class DatabaseManager {
     private db: Database.Database | null = null;
     private dbPath: string;
     private resolvedExtPath: string = '';
+    private initError: string | null = null;
+    private hasInitialized: boolean = false;
+    private meetingChangeListeners = new Set<MeetingChangeListener>();
 
     private constructor() {
-        const userDataPath = app.getPath('userData');
-        this.dbPath = path.join(userDataPath, 'natively.db');
+        const canonicalDataPath = path.join(app.getPath('appData'), 'natively');
+        const legacyBasePaths = [app.getPath('userData')];
+        this.dbPath = this.resolveDatabasePath(canonicalDataPath, legacyBasePaths);
         this.init();
+    }
+
+    private resolveDatabasePath(canonicalBasePath: string, legacyBasePaths: string[]): string {
+        const canonicalDbPath = path.join(canonicalBasePath, 'natively.db');
+
+        if (!fs.existsSync(canonicalBasePath)) {
+            fs.mkdirSync(canonicalBasePath, { recursive: true });
+        }
+
+        for (const legacyBasePath of legacyBasePaths) {
+            if (!legacyBasePath) continue;
+            if (path.resolve(legacyBasePath) === path.resolve(canonicalBasePath)) continue;
+
+            const legacyDbPath = path.join(legacyBasePath, 'natively.db');
+            if (!fs.existsSync(legacyDbPath) || fs.existsSync(canonicalDbPath)) {
+                continue;
+            }
+
+            try {
+                this.copyDatabaseArtifacts(legacyDbPath, canonicalDbPath);
+                console.log(`[DatabaseManager] Migrated legacy database from ${legacyDbPath} to ${canonicalDbPath}`);
+            } catch (error) {
+                console.error('[DatabaseManager] Failed to migrate legacy database, falling back to legacy path:', error);
+                return legacyDbPath;
+            }
+        }
+
+        return canonicalDbPath;
+    }
+
+    private copyDatabaseArtifacts(sourceDbPath: string, targetDbPath: string) {
+        const artifacts = ['', '-wal', '-shm'];
+        const targetDir = path.dirname(targetDbPath);
+
+        if (!fs.existsSync(targetDir)) {
+            fs.mkdirSync(targetDir, { recursive: true });
+        }
+
+        for (const suffix of artifacts) {
+            const sourcePath = `${sourceDbPath}${suffix}`;
+            const targetPath = `${targetDbPath}${suffix}`;
+            if (!fs.existsSync(sourcePath)) continue;
+            fs.copyFileSync(sourcePath, targetPath);
+        }
     }
 
     public static getInstance(): DatabaseManager {
@@ -53,7 +187,18 @@ export class DatabaseManager {
         return DatabaseManager.instance;
     }
 
+    public isReady(): boolean {
+        return !!this.db;
+    }
+
+    public getInitError(): string | null {
+        return this.initError;
+    }
+
     private init() {
+        if (this.hasInitialized) return;
+        this.hasInitialized = true;
+
         try {
             console.log(`[DatabaseManager] Initializing database at ${this.dbPath}`);
             // Ensure directory exists (though userData usually does)
@@ -80,6 +225,7 @@ export class DatabaseManager {
 
             this.db = new Database(this.dbPath);
             this.db.pragma('journal_mode = WAL');
+            this.db.pragma('foreign_keys = ON');
 
             // Load sqlite-vec extension for native vector search
             try {
@@ -103,7 +249,9 @@ export class DatabaseManager {
             this.runMigrations();
         } catch (error) {
             console.error('[DatabaseManager] Failed to initialize database:', error);
-            throw error;
+            this.db = null;
+            this.initError = error instanceof Error ? error.message : String(error);
+            console.error('[DatabaseManager] Continuing without SQLite-backed persistence.');
         }
     }
 
@@ -197,7 +345,7 @@ export class DatabaseManager {
                     structured_json TEXT NOT NULL,
                     compact_persona TEXT NOT NULL,
                     intro_short TEXT,
-                    intro_interview TEXT,
+                    intro_live_context TEXT,
                     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
                 );
 
@@ -430,6 +578,67 @@ export class DatabaseManager {
             this.db.pragma('user_version = 10');
         }
 
+        // Version 10 → 11: Add contradictions table for ContradictionDetector
+        if (version < 11) {
+            console.log('[DatabaseManager] Applying migration v10 → v11: Add contradictions table');
+            this.db.exec(`
+                CREATE TABLE IF NOT EXISTS contradictions (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    meeting_id TEXT NOT NULL,
+                    meeting_title TEXT NOT NULL,
+                    detected_at TEXT NOT NULL,
+                    new_claim TEXT NOT NULL,
+                    prior_fact TEXT NOT NULL,
+                    prior_source TEXT NOT NULL,
+                    resolution TEXT NOT NULL DEFAULT 'newer_wins',
+                    notes TEXT
+                );
+                CREATE INDEX IF NOT EXISTS idx_contradictions_meeting ON contradictions(meeting_id);
+                CREATE INDEX IF NOT EXISTS idx_contradictions_detected ON contradictions(detected_at DESC);
+            `);
+            this.db.pragma('user_version = 11');
+            console.log('[DatabaseManager] v11 migration: contradictions table created ✓');
+        }
+
+        // Version 11 → 12: Rebuild contradictions table with UNIQUE(meeting_id, new_claim)
+        // so INSERT OR IGNORE actually deduplicates. The v11 table had no unique constraint,
+        // making INSERT OR IGNORE a no-op for deduplication.
+        if (version < 12) {
+            console.log('[DatabaseManager] Applying migration v11 → v12: Add UNIQUE constraint to contradictions');
+            try {
+                const migrate = this.db.transaction(() => {
+                    this.db!.exec('ALTER TABLE contradictions RENAME TO contradictions_old;');
+                    this.db!.exec(`
+                        CREATE TABLE contradictions (
+                            id INTEGER PRIMARY KEY AUTOINCREMENT,
+                            meeting_id TEXT NOT NULL,
+                            meeting_title TEXT NOT NULL,
+                            detected_at TEXT NOT NULL,
+                            new_claim TEXT NOT NULL,
+                            prior_fact TEXT NOT NULL,
+                            prior_source TEXT NOT NULL,
+                            resolution TEXT NOT NULL DEFAULT 'newer_wins',
+                            notes TEXT,
+                            UNIQUE(meeting_id, new_claim)
+                        );
+                    `);
+                    this.db!.exec(`
+                        INSERT OR IGNORE INTO contradictions
+                            SELECT id, meeting_id, meeting_title, detected_at, new_claim, prior_fact, prior_source, resolution, notes
+                            FROM contradictions_old;
+                    `);
+                    this.db!.exec('DROP TABLE contradictions_old;');
+                    this.db!.exec('CREATE INDEX IF NOT EXISTS idx_contradictions_meeting ON contradictions(meeting_id);');
+                    this.db!.exec('CREATE INDEX IF NOT EXISTS idx_contradictions_detected ON contradictions(detected_at DESC);');
+                });
+                migrate();
+                console.log('[DatabaseManager] v12 migration: contradictions UNIQUE constraint added ✓');
+            } catch (e) {
+                console.error('[DatabaseManager] v12 migration failed (non-fatal):', e);
+            }
+            this.db.pragma('user_version = 12');
+        }
+
         console.log('[DatabaseManager] Migrations completed.');
     }
 
@@ -602,6 +811,13 @@ export class DatabaseManager {
         return this.dbPath;
     }
 
+    public subscribeMeetingChanges(listener: MeetingChangeListener): () => void {
+        this.meetingChangeListeners.add(listener);
+        return () => {
+            this.meetingChangeListeners.delete(listener);
+        };
+    }
+
     /**
      * Resolved sqlite-vec extension path (without platform file suffix).
      * Used by worker threads that open their own DB connection.
@@ -610,15 +826,42 @@ export class DatabaseManager {
         return this.resolvedExtPath;
     }
 
+    private notifyMeetingChange(event: MeetingChangeEvent): void {
+        if (this.meetingChangeListeners.size === 0) return;
+
+        for (const listener of this.meetingChangeListeners) {
+            Promise.resolve(listener(event)).catch((error) => {
+                console.warn('[DatabaseManager] Meeting change listener failed:', error);
+            });
+        }
+    }
+
     public saveMeeting(meeting: Meeting, startTimeMs: number, durationMs: number) {
         if (!this.db) {
             console.error('[DatabaseManager] DB not initialized');
-            return;
+            throw new Error(this.initError || 'SQLite persistence is unavailable.');
         }
 
-        const insertMeeting = this.db.prepare(`
-            INSERT OR REPLACE INTO meetings (id, title, start_time, duration_ms, summary_json, created_at, calendar_event_id, source, is_processed)
+        const upsertMeeting = this.db.prepare(`
+            INSERT INTO meetings (id, title, start_time, duration_ms, summary_json, created_at, calendar_event_id, source, is_processed)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ON CONFLICT(id) DO UPDATE SET
+                title = excluded.title,
+                start_time = excluded.start_time,
+                duration_ms = excluded.duration_ms,
+                summary_json = excluded.summary_json,
+                created_at = excluded.created_at,
+                calendar_event_id = excluded.calendar_event_id,
+                source = excluded.source,
+                is_processed = excluded.is_processed
+        `);
+
+        const deleteTranscript = this.db.prepare(`
+            DELETE FROM transcripts WHERE meeting_id = ?
+        `);
+
+        const deleteInteractions = this.db.prepare(`
+            DELETE FROM ai_interactions WHERE meeting_id = ?
         `);
 
         const insertTranscript = this.db.prepare(`
@@ -633,12 +876,13 @@ export class DatabaseManager {
 
         const summaryJson = JSON.stringify({
             legacySummary: meeting.summary,
-            detailedSummary: meeting.detailedSummary
+            detailedSummary: meeting.detailedSummary,
+            importMetadata: meeting.importMetadata || null,
         });
 
         const runTransaction = this.db.transaction(() => {
-            // 1. Insert Meeting
-            insertMeeting.run(
+            // Save the parent row first so child inserts always attach to the current meeting record.
+            upsertMeeting.run(
                 meeting.id,
                 meeting.title,
                 startTimeMs,
@@ -649,6 +893,10 @@ export class DatabaseManager {
                 meeting.source || 'manual',
                 meeting.isProcessed ? 1 : 0
             );
+
+            // Replace child rows on every save so placeholder saves and final saves stay idempotent.
+            deleteTranscript.run(meeting.id);
+            deleteInteractions.run(meeting.id);
 
             // 2. Insert Transcript
             if (meeting.transcript) {
@@ -665,17 +913,32 @@ export class DatabaseManager {
             // 3. Insert Interactions
             if (meeting.usage) {
                 for (const usage of meeting.usage) {
-                    let metadata = null;
+                    let metadataPayload: Record<string, unknown> | null = null;
                     if (usage.items) {
-                        metadata = JSON.stringify(usage.items);
+                        metadataPayload = {
+                            ...(metadataPayload || {}),
+                            items: usage.items,
+                        };
                     } else if (usage.type === 'followup_questions' && usage.answer) {
                         // Sometimes answer is the array for questions, or we store it in metadata
                         // In intelligence manager we pushed: { type: 'followup_questions', answer: fullQuestions }
                         // Let's store that 'answer' (array) in metadata for this type
                         if (Array.isArray(usage.answer)) {
-                            metadata = JSON.stringify(usage.answer);
+                            metadataPayload = {
+                                ...(metadataPayload || {}),
+                                items: usage.answer,
+                            };
                         }
                     }
+
+                    if (Array.isArray(usage.screenCaptures) && usage.screenCaptures.length > 0) {
+                        metadataPayload = {
+                            ...(metadataPayload || {}),
+                            screenCaptures: usage.screenCaptures,
+                        };
+                    }
+
+                    const metadata = metadataPayload ? JSON.stringify(metadataPayload) : null;
 
                     // Normalization
                     const answerText = Array.isArray(usage.answer) ? null : usage.answer || null;
@@ -695,6 +958,12 @@ export class DatabaseManager {
 
         try {
             runTransaction();
+            const persistedMeeting = this.getMeetingDetails(meeting.id) ?? meeting;
+            this.notifyMeetingChange({
+                type: 'upsert',
+                meetingId: meeting.id,
+                meeting: persistedMeeting,
+            });
             console.log(`[DatabaseManager] Successfully saved meeting ${meeting.id}`);
         } catch (err) {
             console.error(`[DatabaseManager] Failed to save meeting ${meeting.id}`, err);
@@ -707,6 +976,16 @@ export class DatabaseManager {
         try {
             const stmt = this.db.prepare('UPDATE meetings SET title = ? WHERE id = ?');
             const info = stmt.run(title, id);
+            if (info.changes > 0) {
+                const meeting = this.getMeetingDetails(id);
+                if (meeting) {
+                    this.notifyMeetingChange({
+                        type: 'upsert',
+                        meetingId: id,
+                        meeting,
+                    });
+                }
+            }
             return info.changes > 0;
         } catch (error) {
             console.error(`[DatabaseManager] Failed to update title for meeting ${id}:`, error);
@@ -714,7 +993,14 @@ export class DatabaseManager {
         }
     }
 
-    public updateMeetingSummary(id: string, updates: { overview?: string, actionItems?: string[], keyPoints?: string[], actionItemsTitle?: string, keyPointsTitle?: string }): boolean {
+    public updateMeetingSummary(id: string, updates: {
+        overview?: string,
+        actionItems?: string[],
+        keyPoints?: string[],
+        actionItemsTitle?: string,
+        keyPointsTitle?: string,
+        contextOverview?: MeetingContextOverview
+    }): boolean {
         if (!this.db) return false;
 
         try {
@@ -748,12 +1034,97 @@ export class DatabaseManager {
             // 3. Write back
             const stmt = this.db.prepare('UPDATE meetings SET summary_json = ? WHERE id = ?');
             const info = stmt.run(jsonStr, id);
+            if (info.changes > 0) {
+                const meeting = this.getMeetingDetails(id);
+                if (meeting) {
+                    this.notifyMeetingChange({
+                        type: 'upsert',
+                        meetingId: id,
+                        meeting,
+                    });
+                }
+            }
             return info.changes > 0;
 
         } catch (error) {
             console.error(`[DatabaseManager] Failed to update summary for meeting ${id}:`, error);
             return false;
         }
+    }
+
+    public saveChatDebugEntry(input: {
+        meetingId?: string | null;
+        type?: string;
+        timestamp?: number;
+        userQuery?: string | null;
+        aiResponse?: string | null;
+        metadata?: ChatDebugMetadata | Record<string, any> | null;
+    }): number | null {
+        if (!this.db) return null;
+
+        try {
+            const stmt = this.db.prepare(`
+                INSERT INTO ai_interactions (meeting_id, type, timestamp, user_query, ai_response, metadata_json)
+                VALUES (?, ?, ?, ?, ?, ?)
+            `);
+
+            const metadataJson = input.metadata ? JSON.stringify(input.metadata) : null;
+            const info = stmt.run(
+                input.meetingId ?? null,
+                input.type ?? 'chat_debug:widget',
+                input.timestamp ?? Date.now(),
+                input.userQuery ?? null,
+                input.aiResponse ?? null,
+                metadataJson
+            );
+
+            return Number(info.lastInsertRowid);
+        } catch (error) {
+            console.error('[DatabaseManager] Failed to save chat debug entry:', error);
+            return null;
+        }
+    }
+
+    public getRecentChatDebugEntries(limit: number = 100): ChatDebugEntry[] {
+        if (!this.db) return [];
+
+        const stmt = this.db.prepare(`
+            SELECT id, meeting_id, type, timestamp, user_query, ai_response, metadata_json
+            FROM ai_interactions
+            WHERE type LIKE 'chat_debug:%'
+            ORDER BY timestamp DESC
+            LIMIT ?
+        `);
+
+        const rows = stmt.all(limit) as any[];
+
+        return rows.map((row) => {
+            let metadata: ChatDebugMetadata = {
+                surface: 'unknown',
+                status: 'completed',
+            };
+
+            if (row.metadata_json) {
+                try {
+                    metadata = {
+                        ...metadata,
+                        ...JSON.parse(row.metadata_json),
+                    };
+                } catch (error) {
+                    console.warn('[DatabaseManager] Failed to parse chat debug metadata:', row.id, error);
+                }
+            }
+
+            return {
+                id: Number(row.id),
+                meetingId: row.meeting_id ?? null,
+                type: row.type,
+                timestamp: Number(row.timestamp) || 0,
+                userQuery: row.user_query || '',
+                aiResponse: row.ai_response || '',
+                metadata,
+            };
+        });
     }
 
     public getRecentMeetings(limit: number = 50): Meeting[] {
@@ -785,11 +1156,25 @@ export class DatabaseManager {
                 detailedSummary: summaryData.detailedSummary,
                 calendarEventId: row.calendar_event_id,
                 source: row.source as any,
+                importMetadata: summaryData.importMetadata || undefined,
                 // We don't load full transcript/usage for list view to keep it light
                 transcript: [] as any[],
                 usage: [] as any[]
             };
         });
+    }
+
+    public getAllMeetingIds(): string[] {
+        if (!this.db) return [];
+
+        const stmt = this.db.prepare(`
+            SELECT id
+            FROM meetings
+            ORDER BY created_at DESC
+        `);
+
+        const rows = stmt.all() as Array<{ id: string }>;
+        return rows.map((row) => row.id);
     }
 
     public getMeetingDetails(id: string): Meeting | null {
@@ -822,6 +1207,7 @@ export class DatabaseManager {
 
         const usage = usageRows.map(row => {
             let items: string[] | undefined;
+            let screenCaptures: MeetingUsageScreenCapture[] | undefined;
             let answer = row.ai_response;
 
             if (row.metadata_json) {
@@ -831,6 +1217,13 @@ export class DatabaseManager {
                         items = parsed;
                         // Special case: for 'followup_questions', earlier we treated 'answer' as the array in memory
                         // UI expects appropriate field. If type is 'followup_questions', usually answer is null and items has the questions.
+                    } else if (parsed && typeof parsed === 'object') {
+                        if (Array.isArray(parsed.items)) {
+                            items = parsed.items;
+                        }
+                        if (Array.isArray(parsed.screenCaptures)) {
+                            screenCaptures = parsed.screenCaptures;
+                        }
                     }
                 } catch (e) { console.warn('[DatabaseManager] Failed to parse metadata_json for interaction:', row?.id, e); }
             }
@@ -840,7 +1233,8 @@ export class DatabaseManager {
                 timestamp: row.timestamp,
                 question: row.user_query,
                 answer: answer,
-                items: items
+                items: items,
+                screenCaptures,
             };
         });
 
@@ -853,6 +1247,7 @@ export class DatabaseManager {
             detailedSummary: summaryData.detailedSummary,
             calendarEventId: meetingRow.calendar_event_id,
             source: meetingRow.source,
+            importMetadata: summaryData.importMetadata || undefined,
             transcript: transcript,
             usage: usage
         };
@@ -862,8 +1257,17 @@ export class DatabaseManager {
         if (!this.db) return false;
 
         try {
+            const meetingDetails = this.getMeetingDetails(id);
+            const screenCaptures = (meetingDetails?.usage || []).flatMap((usage) => usage.screenCaptures || []);
             const stmt = this.db.prepare('DELETE FROM meetings WHERE id = ?');
             const info = stmt.run(id);
+            if (info.changes > 0) {
+                void MeetingUsageScreenCaptureService.getInstance().deleteCapturedFiles(screenCaptures);
+                this.notifyMeetingChange({
+                    type: 'delete',
+                    meetingId: id,
+                });
+            }
             console.log(`[DatabaseManager] Deleted meeting ${id}. Changes: ${info.changes}`);
             return info.changes > 0;
         } catch (error) {
@@ -901,6 +1305,7 @@ export class DatabaseManager {
                 detailedSummary: summaryData.detailedSummary,
                 calendarEventId: row.calendar_event_id,
                 source: row.source,
+                importMetadata: summaryData.importMetadata || undefined,
                 isProcessed: false,
                 transcript: [] as any[], // Fetched separately via getMeetingDetails or manually if needed
                 usage: [] as any[]
@@ -974,11 +1379,11 @@ Join a scheduled meeting and start directly from the meeting notification.
 # Main Features
 
 ## Five Quick Action Buttons
-- **What to answer**: Instantly generates a context-aware response to the current topic.
-- **Clarify**: Asks a targeted, senior-level clarifying question to establish constraints.
-- **Recap**: Generates a comprehensive summary of the conversation so far.
-- **Follow Up Question**: Suggests strategic questions you can ask to drive the conversation.
-- **Answer**: Manually trigger a response or use voice input to ask specific questions.
+- **Draft Reply**: Instantly generates a context-aware response to the current topic.
+- **Clarify Context**: Asks a targeted clarifying question to establish missing constraints.
+- **Summarize**: Generates a comprehensive summary of the conversation so far.
+- **Suggest Follow-Up**: Suggests strategic questions or next steps to keep the conversation moving.
+- **Voice Ask**: Manually trigger a response or use voice input to ask specific questions.
 
 ## Meeting Insights (Launcher)
 - **Smart Note Taking**: Automatically captures key points, action items, and structured summaries.
@@ -1004,7 +1409,7 @@ Click **Live Insights** during a call to view:
 # Making the Most of Natively
 
 ### Custom Context
-Upload resumes, project briefs, sales scripts, or other documents to tailor responses to your workflow. (coming soon).
+Upload background documents, project briefs, sales scripts, or other reference material to tailor responses to your workflow. (coming soon).
 
 ### Language Preferences
 Go to **Settings → Language Preferences** to:
@@ -1090,20 +1495,20 @@ natively.contact@gmail.com`;
                 keyPoints: []
             },
             transcript: [
-                { speaker: 'interviewer', text: "Welcome to Natively! Let me show you how it works.", timestamp: 0 },
+                { speaker: 'external', text: "Welcome to Natively! Let me show you how it works.", timestamp: 0 },
                 { speaker: 'user', text: "Thanks! I'm excited to try it out.", timestamp: 5000 },
-                { speaker: 'interviewer', text: "You have 5 quick action buttons. 'What to answer' listens to the conversation and suggests what you should say.", timestamp: 10000 },
-                { speaker: 'user', text: "That sounds helpful for interviews.", timestamp: 18000 },
-                { speaker: 'interviewer', text: "Check out the 'How to Use' section in the notes for API setup instructions.", timestamp: 20000 },
-                { speaker: 'interviewer', text: "'Clarify' asks a targeted question to get missing constraints. 'Recap' summarizes the entire conversation so far.", timestamp: 22000 },
+                { speaker: 'external', text: "You have 5 quick action buttons. 'Draft Reply' listens to the conversation and suggests what you should say.", timestamp: 10000 },
+                { speaker: 'user', text: "That sounds helpful during live conversations.", timestamp: 18000 },
+                { speaker: 'external', text: "Check out the 'How to Use' section in the notes for API setup instructions.", timestamp: 20000 },
+                { speaker: 'external', text: "'Clarify Context' asks a targeted question to get missing constraints. 'Summarize' condenses the conversation so far.", timestamp: 22000 },
                 { speaker: 'user', text: "What about the other buttons?", timestamp: 30000 },
-                { speaker: 'interviewer', text: "'Follow Up Questions' suggests questions you can ask. 'Answer' lets you speak a question and get an instant response.", timestamp: 35000 },
+                { speaker: 'external', text: "'Suggest Follow-Up' recommends your next question. 'Voice Ask' lets you speak a question and get an instant response.", timestamp: 35000 },
                 { speaker: 'user', text: "Can I take screenshots during calls?", timestamp: 45000 },
-                { speaker: 'interviewer', text: "Yes! Press Cmd+H for full screen or Cmd+Shift+H to select an area. The AI will analyze it and help you.", timestamp: 50000 },
+                { speaker: 'external', text: "Yes! Press Cmd+H for full screen or Cmd+Shift+H to select an area. The AI will analyze it and help you.", timestamp: 50000 },
                 { speaker: 'user', text: "How do I hide Natively during screen share?", timestamp: 60000 },
-                { speaker: 'interviewer', text: "Press Cmd+B to toggle visibility anytime. You can also enable undetectable mode in settings.", timestamp: 65000 },
+                { speaker: 'external', text: "Press Cmd+B to toggle visibility anytime. You can also enable undetectable mode in settings.", timestamp: 65000 },
                 { speaker: 'user', text: "This is amazing. What happens after the call?", timestamp: 75000 },
-                { speaker: 'interviewer', text: "You get detailed meeting notes with action items, key points, full transcript, and a log of all AI interactions.", timestamp: 80000 }
+                { speaker: 'external', text: "You get detailed meeting notes with action items, key points, full transcript, and a log of all AI interactions.", timestamp: 80000 }
             ],
             usage: [
                 { type: 'assist', timestamp: 15000, question: 'What features does Natively have?', answer: 'Natively offers 5 quick action buttons, screenshot analysis, real-time transcription, and comprehensive meeting notes.' },

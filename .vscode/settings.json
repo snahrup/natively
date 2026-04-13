@@ -1,4 +1,7 @@
 {
     "git.ignoreLimitWarning": true,
-    "postman.settings.dotenv-detection-notification-visibility": false
+    "postman.settings.dotenv-detection-notification-visibility": false,
+    "editor.autoIndentOnPaste": true,
+    "editor.bracketPairColorization.enabled": false,
+    "chatgpt.openOnStartup": true
 }

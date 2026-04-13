@@ -8,6 +8,7 @@ interface ElectronAPI {
   }) => Promise<void>
   getRecognitionLanguages: () => Promise<Record<string, any>>
   getScreenshots: () => Promise<Array<{ path: string; preview: string }>>
+  getDisplayLayout: () => Promise<Array<{ id: number; label: string; bounds: { x: number; y: number; width: number; height: number }; scaleFactor: number; isPrimary: boolean }>>
   deleteScreenshot: (
     path: string
   ) => Promise<{ success: boolean; error?: string }>
@@ -33,6 +34,7 @@ interface ElectronAPI {
   onUnauthorized: (callback: () => void) => () => void
   onDebugError: (callback: (error: string) => void) => () => void
   takeScreenshot: () => Promise<void>
+  getImagePreview: (path: string) => Promise<string | null>
   takeSelectiveScreenshot: () => Promise<{ path: string; preview: string; cancelled?: boolean }>
   moveWindowLeft: () => Promise<void>
   moveWindowRight: () => Promise<void>
@@ -47,21 +49,13 @@ interface ElectronAPI {
   quitApp: () => Promise<void>
 
   // LLM Model Management
-  getCurrentLlmConfig: () => Promise<{ provider: "ollama" | "gemini"; model: string; isOllama: boolean }>
-  getAvailableOllamaModels: () => Promise<string[]>
-  switchToOllama: (model?: string, url?: string) => Promise<{ success: boolean; error?: string }>
-  switchToGemini: (apiKey?: string, modelId?: string) => Promise<{ success: boolean; error?: string }>
-  testLlmConnection: (provider: 'gemini' | 'groq' | 'openai' | 'claude', apiKey?: string) => Promise<{ success: boolean; error?: string }>
+  getCurrentLlmConfig: () => Promise<{ provider: "claude" | "codex"; model: string; isOllama: false; reasoningEffort?: 'low' | 'medium' | 'high' | 'xhigh' }>
   selectServiceAccount: () => Promise<{ success: boolean; path?: string; cancelled?: boolean; error?: string }>
 
   // API Key Management
-  setGeminiApiKey: (apiKey: string) => Promise<{ success: boolean; error?: string }>
-  setGroqApiKey: (apiKey: string) => Promise<{ success: boolean; error?: string }>
-  setOpenaiApiKey: (apiKey: string) => Promise<{ success: boolean; error?: string }>
-  setClaudeApiKey: (apiKey: string) => Promise<{ success: boolean; error?: string }>
   setNativelyApiKey: (apiKey: string) => Promise<{ success: boolean; error?: string }>
   getNativelyUsage: () => Promise<{ ok: boolean; plan?: string; quota?: { transcription: { used: number; limit: number; remaining: number }; ai: { used: number; limit: number; remaining: number }; search: { used: number; limit: number; remaining: number }; resets_at: string }; member_since?: string; error?: string; status?: number }>
-  getStoredCredentials: () => Promise<{ hasGeminiKey: boolean; hasGroqKey: boolean; hasOpenaiKey: boolean; hasClaudeKey: boolean; hasNativelyKey: boolean; googleServiceAccountPath: string | null; sttProvider: string; hasSttGroqKey: boolean; hasSttOpenaiKey: boolean; hasDeepgramKey: boolean; hasElevenLabsKey: boolean; hasAzureKey: boolean; azureRegion: string; hasIbmWatsonKey: boolean; ibmWatsonRegion: string; hasSonioxKey: boolean }>
+  getStoredCredentials: () => Promise<{ hasNativelyKey: boolean; hasClaudeMax: boolean; claudeMaxStatus?: 'ready' | 'expired' | 'missing' | 'invalid'; hasCodex: boolean; googleServiceAccountPath: string | null; sttProvider: string; hasSttGroqKey: boolean; hasSttOpenaiKey: boolean; hasDeepgramKey: boolean; hasElevenLabsKey: boolean; hasAzureKey: boolean; azureRegion: string; hasIbmWatsonKey: boolean; ibmWatsonRegion: string; hasSonioxKey: boolean }>
 
   // STT Provider Management
   setSttProvider: (provider: 'google' | 'groq' | 'openai' | 'deepgram' | 'elevenlabs' | 'azure' | 'ibmwatson' | 'soniox' | 'natively') => Promise<{ success: boolean; error?: string }>
@@ -108,10 +102,12 @@ interface ElectronAPI {
   startMeeting: (metadata?: any) => Promise<{ success: boolean; error?: string }>
   endMeeting: () => Promise<{ success: boolean; error?: string }>
   finalizeMicSTT: () => Promise<void>
-  getRecentMeetings: () => Promise<Array<{ id: string; title: string; date: string; duration: string; summary: string }>>
+  getRecentMeetings: () => Promise<Array<{ id: string; title: string; date: string; duration: string; summary: string; source?: 'manual' | 'calendar' | 'teams' | 'cluely' | 'imported'; importMetadata?: { sourceFormat?: 'cluely' | 'teams' | 'generic'; importedAt?: string; fidelity?: string } }>>
   getMeetingDetails: (id: string) => Promise<any>
+  getChatDebugEntries: (limit?: number) => Promise<Array<{ id: number; meetingId?: string | null; type: string; timestamp: number; userQuery: string; aiResponse: string; metadata: any }>>
   updateMeetingTitle: (id: string, title: string) => Promise<boolean>
   updateMeetingSummary: (id: string, updates: { overview?: string, actionItems?: string[], keyPoints?: string[], actionItemsTitle?: string, keyPointsTitle?: string }) => Promise<boolean>
+  generateMeetingOverview: (meetingId: string, options?: { force?: boolean }) => Promise<any>
   onMeetingsUpdated: (callback: () => void) => () => void
 
   // Intelligence Mode Events
@@ -130,23 +126,23 @@ interface ElectronAPI {
   getDefaultModel: () => Promise<{ model: string }>
   setModel: (modelId: string) => Promise<{ success: boolean; error?: string }>
   setDefaultModel: (modelId: string) => Promise<{ success: boolean; error?: string }>
+  getReasoningEffort: () => Promise<{ effort: 'low' | 'medium' | 'high' | 'xhigh' }>
+  setReasoningEffort: (effort: 'low' | 'medium' | 'high' | 'xhigh') => Promise<{ success: boolean; error?: string }>
   toggleModelSelector: (coords: { x: number; y: number }) => Promise<void>
-  forceRestartOllama: () => Promise<void>
 
   // Settings Window
   toggleSettingsWindow: (coords?: { x: number; y: number }) => Promise<void>
+  openChatLogViewer: () => Promise<{ success: boolean; error?: string }>
+  closeChatLogViewer: () => Promise<{ success: boolean; error?: string }>
 
-  // Groq Fast Text Mode
-  getGroqFastTextMode: () => Promise<{ enabled: boolean }>
-  setGroqFastTextMode: (enabled: boolean) => Promise<{ success: boolean; error?: string }>
+  // Meeting AI (IP Corp mode + Continuous OCR)
+  setIPCorpMode: (enabled: boolean) => Promise<{ success: boolean; error?: string; warning?: string }>
+  setContinuousOCR: (enabled: boolean) => Promise<{ success: boolean; error?: string }>
+  getMeetingAIStatus: () => Promise<{ claudeMaxAvailable: boolean; claudeMaxStatus?: 'ready' | 'expired' | 'missing' | 'invalid'; ocrRunning: boolean; ipCorpMode: boolean; clawmemAvailable?: boolean; nexusAvailable?: boolean; ipCorpWarning?: string | null }>
+  reloadMeetingMemory: () => Promise<{ success: boolean; error?: string }>
 
   // Demo
   seedDemo: () => Promise<{ success: boolean }>
-
-  // Custom Providers
-  saveCustomProvider: (provider: any) => Promise<{ success: boolean; id?: string; error?: string }>
-  getCustomProviders: () => Promise<any[]>
-  deleteCustomProvider: (id: string) => Promise<{ success: boolean; error?: string }>
 
   // Follow-up Email
   generateFollowupEmail: (input: any) => Promise<string>
@@ -177,15 +173,16 @@ interface ElectronAPI {
   onOverlayMousePassthroughChanged: (callback: (enabled: boolean) => void) => () => void
 
   // Streaming listeners
-  streamGeminiChat: (message: string, imagePaths?: string[], context?: string, options?: { skipSystemPrompt?: boolean, ignoreKnowledgeMode?: boolean }) => Promise<void>
+  streamGeminiChat: (message: string, imagePaths?: string[], context?: string, options?: { skipSystemPrompt?: boolean, ignoreKnowledgeMode?: boolean, surface?: string }) => Promise<void>
+  reviewChatMessage: (input: { text: string; reviewType: 'voice_pass' | 'technical_check'; sourceIntent?: string }) => Promise<{ reviewType: 'voice_pass' | 'technical_check'; reviewerModel: string; text: string; error?: string }>
   onGeminiStreamToken: (callback: (token: string) => void) => () => void
   onGeminiStreamDone: (callback: () => void) => () => void
   onGeminiStreamError: (callback: (error: string) => void) => () => void
 
 
   onUndetectableChanged: (callback: (state: boolean) => void) => () => void
-  onGroqFastTextChanged: (callback: (enabled: boolean) => void) => () => void
   onModelChanged: (callback: (modelId: string) => void) => () => void
+  onReasoningEffortChanged: (callback: (effort: 'low' | 'medium' | 'high' | 'xhigh') => void) => () => void
 
   // Ollama
   onOllamaPullProgress: (callback: (data: { status: string; percent: number }) => void) => () => void
@@ -199,9 +196,34 @@ interface ElectronAPI {
   // Calendar
   calendarConnect: () => Promise<{ success: boolean; error?: string }>
   calendarDisconnect: () => Promise<{ success: boolean; error?: string }>
-  getCalendarStatus: () => Promise<{ connected: boolean; email?: string }>
-  getUpcomingEvents: () => Promise<Array<{ id: string; title: string; startTime: string; endTime: string; link?: string; source: 'google' }>>
+  getCalendarStatus: () => Promise<{ connected: boolean; email?: string; providers?: { google: boolean; outlook: boolean; teams: boolean }; warnings?: string[] }>
+  getUpcomingEvents: () => Promise<Array<{ id: string; title: string; startTime: string; endTime: string; link?: string; description?: string; location?: string; attendees?: Array<{ email: string; displayName?: string; organizer?: boolean; optional?: boolean; responseStatus?: string }>; source: 'google' }>>
   calendarRefresh: () => Promise<{ success: boolean; error?: string }>
+  getMeetingPrepPacket: (eventId: string) => Promise<{
+    event: { id: string; title: string; startTime: string; endTime: string; link?: string; description?: string; location?: string; attendees?: Array<{ email: string; displayName?: string }>; source: 'google' };
+    generatedAt: string;
+    timing: { startsInMinutes: number; durationMinutes: number };
+    sourceHealth: { calendar: boolean; memory: boolean; backgroundContext: boolean; roleBrief: boolean; liveResearch: boolean };
+    summary: string;
+    contextBullets: string[];
+    profileSnapshot: string[];
+    relatedMeetings: Array<{ id: string; title: string; date: string; summary: string; matchScore: number }>;
+    memoryHighlights: Array<{ title: string; excerpt: string; source: string; type: string; date?: string; score: number }>;
+    prepChecklist: string[];
+    openQuestions: string[];
+  } | null>
+
+  // Local Microsoft Bridges
+  getMicrosoftLocalStatus: () => Promise<any>
+  outlookListEmails: (options?: { top?: number; unreadOnly?: boolean }) => Promise<{ emails: any[]; totalCount: number }>
+  outlookSearchEmails: (query: string, top?: number) => Promise<{ emails: any[]; totalCount: number }>
+  outlookCreateDraft: (draft: any) => Promise<{ entryId: string }>
+  outlookSendEmail: (draft: any) => Promise<{ success: boolean; error?: string }>
+  outlookCreateCalendarEvent: (request: any) => Promise<{ entryId: string }>
+  outlookReplyEmail: (entryId: string, body: string, replyAll?: boolean, send?: boolean) => Promise<{ success: boolean; error?: string }>
+  teamsListChats: (limit?: number) => Promise<any[]>
+  teamsGetMessages: (chatId: string, limit?: number) => Promise<any[]>
+  teamsSendMessage: (chatId: string, text: string) => Promise<{ success: boolean; error?: string; warning?: string; verified?: boolean }>
 
   // Auto-Update
   onUpdateAvailable: (callback: (info: any) => void) => () => void
@@ -248,6 +270,19 @@ interface ElectronAPI {
   profileDelete: () => Promise<{ success: boolean; error?: string }>;
   profileGetProfile: () => Promise<any>;
   profileSelectFile: () => Promise<{ success?: boolean; cancelled?: boolean; filePath?: string; error?: string }>;
+  meetingImportSelectFiles: () => Promise<{ success?: boolean; cancelled?: boolean; filePaths: string[]; error?: string }>;
+  meetingImportIngest: (artifacts: any[]) => Promise<{ importedMeetings: any[]; skippedArtifacts: Array<{ name: string; reason: string }>; totalArtifacts: number }>;
+  teamsImportDiscover: (limit?: number) => Promise<Array<{ chatId: string; meetingTitle: string; date?: string; hasTranscript: boolean }>>;
+  teamsImportIngest: (options?: { limit?: number; chatIds?: string[] }) => Promise<{ importedMeetings: any[]; skippedArtifacts: Array<{ name: string; reason: string }>; totalArtifacts: number; attemptedChats: number; discoveredCandidates: number }>;
+  cluelyImportDiscover: (limit?: number) => Promise<{ candidates: Array<{ sessionId: string; meetingTitle: string; date?: string; hasTranscript: boolean; hasSummary: boolean; hasUsage: boolean; source: 'live' | 'cached' }>; mode: 'live' | 'cached' | 'unavailable'; warning?: string; sessionEmail?: string; tokenFresh?: boolean }>;
+  cluelyImportIngest: (options?: { limit?: number; sessionIds?: string[] }) => Promise<{ importedMeetings: any[]; skippedArtifacts: Array<{ name: string; reason: string }>; totalArtifacts: number; attemptedSessions: number; discoveredCandidates: number; mode: 'live' | 'cached' | 'unavailable'; warning?: string }>;
+  getContextHubStatus: () => Promise<any>;
+  getAutonomousOpsStatus: () => Promise<any>;
+  refreshAutonomousOpsStatus: () => Promise<any>;
+  startAutonomousWorkflow: (workflowId: string, options?: { goalId?: string; autonomyLevel?: 'observe' | 'assist' | 'bounded-auto' | 'approval-required' }) => Promise<any>;
+  stopAutonomousWorkflow: (workflowId: string) => Promise<{ success: boolean; error?: string }>;
+  invokeAutonomousWorkflowAction: (workflowId: string, actionId: string, payload?: Record<string, any>) => Promise<{ success: boolean; summary: string; output?: Record<string, any>; stdout?: string; stderr?: string }>;
+  onAutonomousOpsUpdated: (callback: (status: any) => void) => () => void;
 
   // JD & Research API
   profileUploadJD: (filePath: string) => Promise<{ success: boolean; error?: string }>;
@@ -303,8 +338,10 @@ contextBridge.exposeInMainWorld("electronAPI", {
     ipcRenderer.invoke("update-content-dimensions", dimensions),
   getRecognitionLanguages: () => ipcRenderer.invoke("get-recognition-languages"),
   takeScreenshot: () => ipcRenderer.invoke("take-screenshot"),
+  getImagePreview: (path: string) => ipcRenderer.invoke("get-image-preview", path),
   takeSelectiveScreenshot: () => ipcRenderer.invoke("take-selective-screenshot"),
   getScreenshots: () => ipcRenderer.invoke("get-screenshots"),
+  getDisplayLayout: () => ipcRenderer.invoke("get-display-layout"),
   deleteScreenshot: (path: string) =>
     ipcRenderer.invoke("delete-screenshot", path),
 
@@ -496,17 +533,9 @@ contextBridge.exposeInMainWorld("electronAPI", {
 
   // LLM Model Management
   getCurrentLlmConfig: () => ipcRenderer.invoke("get-current-llm-config"),
-  getAvailableOllamaModels: () => ipcRenderer.invoke("get-available-ollama-models"),
-  switchToOllama: (model?: string, url?: string) => ipcRenderer.invoke("switch-to-ollama", model, url),
-  switchToGemini: (apiKey?: string, modelId?: string) => ipcRenderer.invoke("switch-to-gemini", apiKey, modelId),
-  testLlmConnection: (provider: 'gemini' | 'groq' | 'openai' | 'claude', apiKey: string) => ipcRenderer.invoke("test-llm-connection", provider, apiKey),
   selectServiceAccount: () => ipcRenderer.invoke("select-service-account"),
 
   // API Key Management
-  setGeminiApiKey: (apiKey: string) => ipcRenderer.invoke("set-gemini-api-key", apiKey),
-  setGroqApiKey: (apiKey: string) => ipcRenderer.invoke("set-groq-api-key", apiKey),
-  setOpenaiApiKey: (apiKey: string) => ipcRenderer.invoke("set-openai-api-key", apiKey),
-  setClaudeApiKey: (apiKey: string) => ipcRenderer.invoke("set-claude-api-key", apiKey),
   setNativelyApiKey: (apiKey: string) => ipcRenderer.invoke("set-natively-api-key", apiKey),
   getNativelyUsage: () => ipcRenderer.invoke("get-natively-usage"),
   getStoredCredentials: () => ipcRenderer.invoke("get-stored-credentials"),
@@ -620,8 +649,10 @@ contextBridge.exposeInMainWorld("electronAPI", {
   finalizeMicSTT: () => ipcRenderer.invoke("finalize-mic-stt"),
   getRecentMeetings: () => ipcRenderer.invoke("get-recent-meetings"),
   getMeetingDetails: (id: string) => ipcRenderer.invoke("get-meeting-details", id),
+  getChatDebugEntries: (limit?: number) => ipcRenderer.invoke("get-chat-debug-entries", limit),
   updateMeetingTitle: (id: string, title: string) => ipcRenderer.invoke("update-meeting-title", { id, title }),
   updateMeetingSummary: (id: string, updates: any) => ipcRenderer.invoke("update-meeting-summary", { id, updates }),
+  generateMeetingOverview: (meetingId: string, options?: { force?: boolean }) => ipcRenderer.invoke("generate-meeting-overview", { meetingId, force: options?.force }),
   deleteMeeting: (id: string) => ipcRenderer.invoke("delete-meeting", id),
 
   onMeetingsUpdated: (callback: () => void) => {
@@ -751,7 +782,8 @@ contextBridge.exposeInMainWorld("electronAPI", {
 
 
   // Streaming Chat
-  streamGeminiChat: (message: string, imagePaths?: string[], context?: string, options?: { skipSystemPrompt?: boolean, ignoreKnowledgeMode?: boolean }) => ipcRenderer.invoke("gemini-chat-stream", message, imagePaths, context, options),
+  streamGeminiChat: (message: string, imagePaths?: string[], context?: string, options?: { skipSystemPrompt?: boolean, ignoreKnowledgeMode?: boolean, surface?: string }) => ipcRenderer.invoke("gemini-chat-stream", message, imagePaths, context, options),
+  reviewChatMessage: (input: { text: string; reviewType: 'voice_pass' | 'technical_check'; sourceIntent?: string }) => ipcRenderer.invoke('chat:review-message', input),
 
   onGeminiStreamToken: (callback: (token: string) => void) => {
     const subscription = (_: any, token: string) => callback(token)
@@ -781,23 +813,23 @@ contextBridge.exposeInMainWorld("electronAPI", {
   getDefaultModel: () => ipcRenderer.invoke('get-default-model'),
   setModel: (modelId: string) => ipcRenderer.invoke('set-model', modelId),
   setDefaultModel: (modelId: string) => ipcRenderer.invoke('set-default-model', modelId),
+  getReasoningEffort: () => ipcRenderer.invoke('get-reasoning-effort'),
+  setReasoningEffort: (effort: 'low' | 'medium' | 'high' | 'xhigh') => ipcRenderer.invoke('set-reasoning-effort', effort),
   toggleModelSelector: (coords: { x: number; y: number }) => ipcRenderer.invoke('toggle-model-selector', coords),
-  forceRestartOllama: () => ipcRenderer.invoke('force-restart-ollama'),
 
   // Settings Window
   toggleSettingsWindow: (coords?: { x: number; y: number }) => ipcRenderer.invoke('toggle-settings-window', coords),
+  openChatLogViewer: () => ipcRenderer.invoke('open-chat-log-viewer'),
+  closeChatLogViewer: () => ipcRenderer.invoke('close-chat-log-viewer'),
 
-  // Groq Fast Text Mode
-  getGroqFastTextMode: () => ipcRenderer.invoke('get-groq-fast-text-mode'),
-  setGroqFastTextMode: (enabled: boolean) => ipcRenderer.invoke('set-groq-fast-text-mode', enabled),
+  // Meeting AI (IP Corp mode + Continuous OCR)
+  setIPCorpMode: (enabled: boolean) => ipcRenderer.invoke('set-ip-corp-mode', enabled),
+  setContinuousOCR: (enabled: boolean) => ipcRenderer.invoke('set-continuous-ocr', enabled),
+  getMeetingAIStatus: () => ipcRenderer.invoke('get-meeting-ai-status'),
+  reloadMeetingMemory: () => ipcRenderer.invoke('reload-meeting-memory'),
 
   // Demo
   seedDemo: () => ipcRenderer.invoke('seed-demo'),
-
-  // Custom Providers
-  saveCustomProvider: (provider: any) => ipcRenderer.invoke('save-custom-provider', provider),
-  getCustomProviders: () => ipcRenderer.invoke('get-custom-providers'),
-  deleteCustomProvider: (id: string) => ipcRenderer.invoke('delete-custom-provider', id),
 
   // Follow-up Email
   generateFollowupEmail: (input: any) => ipcRenderer.invoke('generate-followup-email', input),
@@ -837,19 +869,19 @@ contextBridge.exposeInMainWorld("electronAPI", {
     }
   },
 
-  onGroqFastTextChanged: (callback: (enabled: boolean) => void) => {
-    const subscription = (_: any, enabled: boolean) => callback(enabled)
-    ipcRenderer.on('groq-fast-text-changed', subscription)
-    return () => {
-      ipcRenderer.removeListener('groq-fast-text-changed', subscription)
-    }
-  },
-
   onModelChanged: (callback: (modelId: string) => void) => {
     const subscription = (_: any, modelId: string) => callback(modelId)
     ipcRenderer.on('model-changed', subscription)
     return () => {
       ipcRenderer.removeListener('model-changed', subscription)
+    }
+  },
+
+  onReasoningEffortChanged: (callback: (effort: 'low' | 'medium' | 'high' | 'xhigh') => void) => {
+    const subscription = (_: any, effort: 'low' | 'medium' | 'high' | 'xhigh') => callback(effort)
+    ipcRenderer.on('reasoning-effort-changed', subscription)
+    return () => {
+      ipcRenderer.removeListener('reasoning-effort-changed', subscription)
     }
   },
 
@@ -886,6 +918,19 @@ contextBridge.exposeInMainWorld("electronAPI", {
   getCalendarStatus: () => ipcRenderer.invoke('get-calendar-status'),
   getUpcomingEvents: () => ipcRenderer.invoke('get-upcoming-events'),
   calendarRefresh: () => ipcRenderer.invoke('calendar-refresh'),
+  getMeetingPrepPacket: (eventId: string) => ipcRenderer.invoke('get-meeting-prep-packet', eventId),
+
+  // Local Microsoft Bridges
+  getMicrosoftLocalStatus: () => ipcRenderer.invoke('microsoft-local-status'),
+  outlookListEmails: (options?: { top?: number; unreadOnly?: boolean }) => ipcRenderer.invoke('outlook-list-emails', options),
+  outlookSearchEmails: (query: string, top?: number) => ipcRenderer.invoke('outlook-search-emails', query, top),
+  outlookCreateDraft: (draft: any) => ipcRenderer.invoke('outlook-create-draft', draft),
+  outlookSendEmail: (draft: any) => ipcRenderer.invoke('outlook-send-email', draft),
+  outlookCreateCalendarEvent: (request: any) => ipcRenderer.invoke('outlook-create-calendar-event', request),
+  outlookReplyEmail: (entryId: string, body: string, replyAll?: boolean, send?: boolean) => ipcRenderer.invoke('outlook-reply-email', entryId, body, replyAll, send),
+  teamsListChats: (limit?: number) => ipcRenderer.invoke('teams-list-chats', limit),
+  teamsGetMessages: (chatId: string, limit?: number) => ipcRenderer.invoke('teams-get-messages', chatId, limit),
+  teamsSendMessage: (chatId: string, text: string) => ipcRenderer.invoke('teams-send-message', chatId, text),
 
   // Auto-Update
   onUpdateAvailable: (callback: (info: any) => void) => {
@@ -1015,6 +1060,25 @@ contextBridge.exposeInMainWorld("electronAPI", {
   profileDelete: () => ipcRenderer.invoke('profile:delete'),
   profileGetProfile: () => ipcRenderer.invoke('profile:get-profile'),
   profileSelectFile: () => ipcRenderer.invoke('profile:select-file'),
+  meetingImportSelectFiles: () => ipcRenderer.invoke('meeting-import:select-files'),
+  meetingImportIngest: (artifacts: any[]) => ipcRenderer.invoke('meeting-import:ingest', artifacts),
+  teamsImportDiscover: (limit?: number) => ipcRenderer.invoke('teams-import:discover', limit),
+  teamsImportIngest: (options?: { limit?: number; chatIds?: string[] }) => ipcRenderer.invoke('teams-import:ingest', options),
+  cluelyImportDiscover: (limit?: number) => ipcRenderer.invoke('cluely-import:discover', limit),
+  cluelyImportIngest: (options?: { limit?: number; sessionIds?: string[] }) => ipcRenderer.invoke('cluely-import:ingest', options),
+  getContextHubStatus: () => ipcRenderer.invoke('context-hub:get-status'),
+  getAutonomousOpsStatus: () => ipcRenderer.invoke('autonomous-ops:get-status'),
+  refreshAutonomousOpsStatus: () => ipcRenderer.invoke('autonomous-ops:refresh'),
+  startAutonomousWorkflow: (workflowId: string, options?: { goalId?: string; autonomyLevel?: 'observe' | 'assist' | 'bounded-auto' | 'approval-required' }) => ipcRenderer.invoke('autonomous-ops:start-workflow', workflowId, options),
+  stopAutonomousWorkflow: (workflowId: string) => ipcRenderer.invoke('autonomous-ops:stop-workflow', workflowId),
+  invokeAutonomousWorkflowAction: (workflowId: string, actionId: string, payload?: Record<string, any>) => ipcRenderer.invoke('autonomous-ops:invoke-action', workflowId, actionId, payload),
+  onAutonomousOpsUpdated: (callback: (status: any) => void) => {
+    const subscription = (_: any, status: any) => callback(status)
+    ipcRenderer.on('autonomous-ops:updated', subscription)
+    return () => {
+      ipcRenderer.removeListener('autonomous-ops:updated', subscription)
+    }
+  },
 
   // JD & Research API
   profileUploadJD: (filePath: string) => ipcRenderer.invoke('profile:upload-jd', filePath),
@@ -1026,10 +1090,6 @@ contextBridge.exposeInMainWorld("electronAPI", {
 
   // Tavily Search API
   setTavilyApiKey: (apiKey: string) => ipcRenderer.invoke('set-tavily-api-key', apiKey),
-
-  // Dynamic Model Discovery
-  fetchProviderModels: (provider: 'gemini' | 'groq' | 'openai' | 'claude', apiKey: string) => ipcRenderer.invoke('fetch-provider-models', provider, apiKey),
-  setProviderPreferredModel: (provider: 'gemini' | 'groq' | 'openai' | 'claude', modelId: string) => ipcRenderer.invoke('set-provider-preferred-model', provider, modelId),
 
   // License Management
   licenseActivate: (key: string) => ipcRenderer.invoke('license:activate', key),

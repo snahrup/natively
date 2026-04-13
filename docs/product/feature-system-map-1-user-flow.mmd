@@ -1,0 +1,55 @@
+flowchart TD
+    U[User] --> A[Open Natively]
+    A --> B[Launcher, Context Overview, Overlay]
+    B --> C{Current mode}
+
+    C -->|Meeting live| D[Meeting Coach]
+    C -->|Before meeting| E[Prep Packet]
+    C -->|Ad hoc request| F[Reactive Chat]
+    C -->|Import or inspect context| G[Context Hub]
+    C -->|Background watch| H[Ambient Capture]
+
+    D --> I[Live transcript]
+    D --> J[Screen OCR]
+    D --> K[Current calendar event]
+    D --> L[Prior meetings and memory]
+    D --> M[Profile and role context]
+
+    E --> K
+    E --> L
+    E --> M
+    E --> N[Commitments and contradictions]
+
+    F --> O[Action planner]
+    O -->|Answer only| P[Rendered answer]
+    O -->|Action requested| Q[Inline action card]
+    Q --> R[Outlook action]
+    Q --> S[Teams action]
+    Q --> T[Calendar invite action]
+
+    G --> U2[Manual import]
+    G --> V[Imported meeting history]
+    G --> W[Microsoft actions panel]
+
+    H --> J
+    H --> X[Chat interaction logging]
+    H --> Y[Observation store]
+
+    I --> Z[Retrieval broker]
+    J --> Y
+    K --> Z
+    L --> Z
+    M --> Z
+    N --> Z
+    U2 --> AA[Meeting import service]
+    AA --> AB[SQLite meeting memory]
+    AB --> AC[RAG index]
+    AC --> Z
+    X --> Y
+    Y --> Z
+    V --> AB
+
+    Z --> AD[Ranked evidence set]
+    AD --> D
+    AD --> E
+    AD --> F

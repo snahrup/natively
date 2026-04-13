@@ -9,27 +9,8 @@ import path from 'path';
 
 const CREDENTIALS_PATH = path.join(app.getPath('userData'), 'credentials.enc');
 
-export interface CustomProvider {
-    id: string;
-    name: string;
-    curlCommand: string;
-}
-
-export interface CurlProvider {
-    id: string;
-    name: string;
-    curlCommand: string;
-    responsePath: string; // e.g. "choices[0].message.content"
-}
-
 export interface StoredCredentials {
-    geminiApiKey?: string;
-    groqApiKey?: string;
-    openaiApiKey?: string;
-    claudeApiKey?: string;
     googleServiceAccountPath?: string;
-    customProviders?: CustomProvider[];
-    curlProviders?: CurlProvider[];
     defaultModel?: string;
     nativelyApiKey?: string;
     // STT Provider settings
@@ -46,13 +27,9 @@ export interface StoredCredentials {
     sonioxApiKey?: string;
     sttLanguage?: string;
     aiResponseLanguage?: string;
+    reasoningEffort?: 'low' | 'medium' | 'high' | 'xhigh';
     // Tavily Search
     tavilyApiKey?: string;
-    // Dynamic Model Discovery – preferred models per provider
-    geminiPreferredModel?: string;
-    groqPreferredModel?: string;
-    openaiPreferredModel?: string;
-    claudePreferredModel?: string;
 }
 
 export class CredentialsManager {
@@ -83,28 +60,18 @@ export class CredentialsManager {
     // Getters
     // =========================================================================
 
-    public getGeminiApiKey(): string | undefined {
-        return this.credentials.geminiApiKey;
-    }
-
-    public getGroqApiKey(): string | undefined {
-        return this.credentials.groqApiKey;
-    }
-
-    public getOpenaiApiKey(): string | undefined {
-        return this.credentials.openaiApiKey;
-    }
-
-    public getClaudeApiKey(): string | undefined {
-        return this.credentials.claudeApiKey;
+    private isPlaceholderGoogleServiceAccountPath(filePath?: string): boolean {
+        if (!filePath) return false;
+        const normalized = filePath.replace(/\//g, '\\').toLowerCase();
+        return normalized.includes('\\path\\to\\your\\service-account.json');
     }
 
     public getGoogleServiceAccountPath(): string | undefined {
-        return this.credentials.googleServiceAccountPath;
-    }
-
-    public getCustomProviders(): CustomProvider[] {
-        return this.credentials.customProviders || [];
+        const filePath = this.credentials.googleServiceAccountPath;
+        if (!filePath || this.isPlaceholderGoogleServiceAccountPath(filePath)) {
+            return undefined;
+        }
+        return filePath;
     }
 
     public getSttProvider(): 'google' | 'groq' | 'openai' | 'deepgram' | 'elevenlabs' | 'azure' | 'ibmwatson' | 'soniox' | 'natively' {
@@ -162,8 +129,13 @@ export class CredentialsManager {
     public getAiResponseLanguage(): string {
         return this.credentials.aiResponseLanguage || 'auto';
     }
+
+    public getReasoningEffort(): 'low' | 'medium' | 'high' | 'xhigh' {
+        return this.credentials.reasoningEffort || 'xhigh';
+    }
+
     public getDefaultModel(): string {
-        return this.credentials.defaultModel || 'gemini-3.1-flash-lite-preview';
+        return normalizeDefaultModel(this.credentials.defaultModel);
     }
 
     public getNativelyApiKey(): string | undefined {
@@ -178,32 +150,16 @@ export class CredentialsManager {
     // Setters (auto-save)
     // =========================================================================
 
-    public setGeminiApiKey(key: string): void {
-        this.credentials.geminiApiKey = key;
-        this.saveCredentials();
-        console.log('[CredentialsManager] Gemini API Key updated');
-    }
+    public setGoogleServiceAccountPath(filePath: string | null | undefined): void {
+        const normalizedPath = filePath?.trim();
+        if (!normalizedPath || this.isPlaceholderGoogleServiceAccountPath(normalizedPath)) {
+            delete this.credentials.googleServiceAccountPath;
+            this.saveCredentials();
+            console.log('[CredentialsManager] Google Service Account path cleared');
+            return;
+        }
 
-    public setGroqApiKey(key: string): void {
-        this.credentials.groqApiKey = key;
-        this.saveCredentials();
-        console.log('[CredentialsManager] Groq API Key updated');
-    }
-
-    public setOpenaiApiKey(key: string): void {
-        this.credentials.openaiApiKey = key;
-        this.saveCredentials();
-        console.log('[CredentialsManager] OpenAI API Key updated');
-    }
-
-    public setClaudeApiKey(key: string): void {
-        this.credentials.claudeApiKey = key;
-        this.saveCredentials();
-        console.log('[CredentialsManager] Claude API Key updated');
-    }
-
-    public setGoogleServiceAccountPath(filePath: string): void {
-        this.credentials.googleServiceAccountPath = filePath;
+        this.credentials.googleServiceAccountPath = normalizedPath;
         this.saveCredentials();
         console.log('[CredentialsManager] Google Service Account path updated');
     }
@@ -292,10 +248,17 @@ export class CredentialsManager {
         this.saveCredentials();
         console.log(`[CredentialsManager] AI Response Language set to: ${language}`);
     }
-    public setDefaultModel(model: string): void {
-        this.credentials.defaultModel = model;
+
+    public setReasoningEffort(effort: 'low' | 'medium' | 'high' | 'xhigh'): void {
+        this.credentials.reasoningEffort = effort;
         this.saveCredentials();
-        console.log(`[CredentialsManager] Default Model set to: ${model}`);
+        console.log(`[CredentialsManager] Reasoning Effort set to: ${effort}`);
+    }
+
+    public setDefaultModel(model: string): void {
+        this.credentials.defaultModel = normalizeDefaultModel(model);
+        this.saveCredentials();
+        console.log(`[CredentialsManager] Default Model set to: ${this.credentials.defaultModel}`);
     }
 
     public setNativelyApiKey(key: string): void {
@@ -303,31 +266,12 @@ export class CredentialsManager {
         this.credentials.nativelyApiKey = trimmed || undefined;
 
         if (trimmed) {
-            // Auto-promote natively to default model unless user already chose a non-Gemini/Groq model
-            const current = this.credentials.defaultModel || '';
-            const isAutoDefault = !current
-                || current.startsWith('gemini-')
-                || current.startsWith('llama-')
-                || current.startsWith('mixtral-')
-                || current.startsWith('gemma-')
-                || current === 'gemini'
-                || current === 'llama';
-            if (isAutoDefault) {
-                this.credentials.defaultModel = 'natively';
-                console.log('[CredentialsManager] Auto-set default model to natively');
-            }
-
             // Auto-promote natively STT if still on the default Google STT
             if (!this.credentials.sttProvider || this.credentials.sttProvider === 'google') {
                 this.credentials.sttProvider = 'natively';
                 console.log('[CredentialsManager] Auto-set STT provider to natively');
             }
         } else {
-            // Key cleared — revert natively-auto-set defaults back to safe fallbacks
-            if (this.credentials.defaultModel === 'natively') {
-                this.credentials.defaultModel = 'gemini-3.1-flash-lite-preview';
-                console.log('[CredentialsManager] Natively key cleared — reset default model to Gemini Flash');
-            }
             if (this.credentials.sttProvider === 'natively') {
                 this.credentials.sttProvider = 'google';
                 console.log('[CredentialsManager] Natively key cleared — reset STT provider to Google');
@@ -336,65 +280,6 @@ export class CredentialsManager {
 
         this.saveCredentials();
         console.log('[CredentialsManager] Natively API Key updated');
-    }
-
-    public getPreferredModel(provider: 'gemini' | 'groq' | 'openai' | 'claude'): string | undefined {
-        const key = `${provider}PreferredModel` as keyof StoredCredentials;
-        return this.credentials[key] as string | undefined;
-    }
-
-    public setPreferredModel(provider: 'gemini' | 'groq' | 'openai' | 'claude', modelId: string): void {
-        const key = `${provider}PreferredModel` as keyof StoredCredentials;
-        (this.credentials as any)[key] = modelId;
-        this.saveCredentials();
-        console.log(`[CredentialsManager] ${provider} preferred model set to: ${modelId}`);
-    }
-
-    public saveCustomProvider(provider: CustomProvider): void {
-        if (!this.credentials.customProviders) {
-            this.credentials.customProviders = [];
-        }
-        // Check if exists, update if so
-        const index = this.credentials.customProviders.findIndex(p => p.id === provider.id);
-        if (index !== -1) {
-            this.credentials.customProviders[index] = provider;
-        } else {
-            this.credentials.customProviders.push(provider);
-        }
-        this.saveCredentials();
-        console.log(`[CredentialsManager] Custom Provider '${provider.name}' saved`);
-    }
-
-    public deleteCustomProvider(id: string): void {
-        if (!this.credentials.customProviders) return;
-        this.credentials.customProviders = this.credentials.customProviders.filter(p => p.id !== id);
-        this.saveCredentials();
-        console.log(`[CredentialsManager] Custom Provider '${id}' deleted`);
-    }
-
-    public getCurlProviders(): CurlProvider[] {
-        return this.credentials.curlProviders || [];
-    }
-
-    public saveCurlProvider(provider: CurlProvider): void {
-        if (!this.credentials.curlProviders) {
-            this.credentials.curlProviders = [];
-        }
-        const index = this.credentials.curlProviders.findIndex(p => p.id === provider.id);
-        if (index !== -1) {
-            this.credentials.curlProviders[index] = provider;
-        } else {
-            this.credentials.curlProviders.push(provider);
-        }
-        this.saveCredentials();
-        console.log(`[CredentialsManager] Curl Provider '${provider.name}' saved`);
-    }
-
-    public deleteCurlProvider(id: string): void {
-        if (!this.credentials.curlProviders) return;
-        this.credentials.curlProviders = this.credentials.curlProviders.filter(p => p.id !== id);
-        this.saveCredentials();
-        console.log(`[CredentialsManager] Curl Provider '${id}' deleted`);
     }
 
     public clearAll(): void {
@@ -451,6 +336,41 @@ export class CredentialsManager {
         }
     }
 
+    private scrubLegacyTextModelState(): void {
+        let mutated = false;
+
+        const legacyKeys = [
+            'geminiApiKey',
+            'groqApiKey',
+            'openaiApiKey',
+            'claudeApiKey',
+            'customProviders',
+            'curlProviders',
+            'geminiPreferredModel',
+            'groqPreferredModel',
+            'openaiPreferredModel',
+            'claudePreferredModel',
+        ];
+
+        for (const key of legacyKeys) {
+            if ((this.credentials as Record<string, unknown>)[key] !== undefined) {
+                delete (this.credentials as Record<string, unknown>)[key];
+                mutated = true;
+            }
+        }
+
+        const normalizedDefault = normalizeDefaultModel(this.credentials.defaultModel);
+        if (this.credentials.defaultModel !== normalizedDefault) {
+            this.credentials.defaultModel = normalizedDefault;
+            mutated = true;
+        }
+
+        if (mutated) {
+            this.saveCredentials();
+            console.log('[CredentialsManager] Scrubbed legacy text-model API state from stored credentials');
+        }
+    }
+
     private loadCredentials(): void {
         try {
             // Try encrypted file first
@@ -466,6 +386,7 @@ export class CredentialsManager {
                     const parsed = JSON.parse(decrypted);
                     if (typeof parsed === 'object' && parsed !== null) {
                         this.credentials = parsed;
+                        this.scrubLegacyTextModelState();
                         console.log('[CredentialsManager] Loaded encrypted credentials');
                     } else {
                         throw new Error('Decrypted credentials is not a valid object');
@@ -496,6 +417,7 @@ export class CredentialsManager {
                     const parsed = JSON.parse(data);
                     if (typeof parsed === 'object' && parsed !== null) {
                         this.credentials = parsed;
+                        this.scrubLegacyTextModelState();
                         console.log('[CredentialsManager] Loaded plaintext credentials');
                     } else {
                         throw new Error('Plaintext credentials is not a valid object');
@@ -512,5 +434,35 @@ export class CredentialsManager {
             console.error('[CredentialsManager] Failed to load credentials:', error);
             this.credentials = {};
         }
+    }
+}
+
+function normalizeDefaultModel(model?: string): string {
+    if (!model) return 'claude-sonnet-4-6';
+    switch (model) {
+        case 'claude':
+        case 'claude-max':
+        case 'claude-max-sonnet':
+        case 'claude-max-sonnet-4-6':
+            return 'claude-sonnet-4-6';
+        case 'claude-max-opus':
+        case 'claude-max-opus-4-6':
+            return 'claude-opus-4-6';
+        case 'codex':
+        case 'codex-gpt-5.4':
+            return 'gpt-5.4';
+        case 'codex-gpt-5.4-mini':
+            return 'gpt-5.4-mini';
+        case 'codex-gpt-5.3-codex':
+            return 'gpt-5.3-codex';
+        case 'codex-gpt-5.3-codex-spark':
+            return 'gpt-5.3-codex-spark';
+        case 'codex-gpt-5.2':
+            return 'gpt-5.2';
+        default:
+            if (model.startsWith('claude-') || model.startsWith('gpt-5')) {
+                return model;
+            }
+            return 'claude-sonnet-4-6';
     }
 }

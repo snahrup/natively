@@ -1,6 +1,6 @@
 // electron/rag/EmbeddingPipeline.ts
 // Post-meeting embedding generation with queue-based retry logic
-// Uses pluggable IEmbeddingProvider (Gemini, OpenAI, or Ollama)
+// Uses pluggable IEmbeddingProvider (local/Ollama only)
 // On provider exhaustion, automatically falls back to LocalEmbeddingProvider (on-device).
 
 import Database from 'better-sqlite3';
@@ -20,7 +20,7 @@ const RETRY_DELAY_BASE_MS = 2000;
  * - NOT real-time: embeddings generated after meeting ends
  * - Queue-based: persists in SQLite for retry on failure
  * - Background processing: doesn't block UI
- * - Provider-agnostic: works with Gemini, OpenAI, or Ollama embeddings
+ * - Provider-agnostic: works with Ollama or bundled local embeddings
  */
 export class EmbeddingPipeline {
     private provider: IEmbeddingProvider | null = null;
@@ -67,8 +67,6 @@ export class EmbeddingPipeline {
         const hasNew = (prevVal: string | undefined, nextVal: string | undefined) =>
             !prevVal && !!nextVal;
         return (
-            hasNew(prev.openaiKey, next.openaiKey) ||
-            hasNew(prev.geminiKey, next.geminiKey) ||
             hasNew(prev.ollamaUrl, next.ollamaUrl)
         );
     }

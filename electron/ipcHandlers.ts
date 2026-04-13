@@ -4,9 +4,11 @@ import { app, ipcMain, shell, dialog, desktopCapturer, systemPreferences, Browse
 import { AppState } from "./main"
 import { GEMINI_FLASH_MODEL } from "./IntelligenceManager"
 import { DatabaseManager } from "./db/DatabaseManager"; // Import Database Manager
+import { ContextObservationStore } from "./context";
 import * as path from "path";
 import * as fs from "fs";
 import { AudioDevices } from "./audio/AudioDevices";
+import { getLocalCliStatus, isLocalCliAvailable } from "./services/CliProviderResolver";
 
 
 import { RECOGNITION_LANGUAGES, AI_RESPONSE_LANGUAGES } from "./config/languages"
@@ -15,6 +17,149 @@ export function initializeIpcHandlers(appState: AppState): void {
   const safeHandle = (channel: string, listener: (event: any, ...args: any[]) => Promise<any> | any) => {
     ipcMain.removeHandler(channel);
     ipcMain.handle(channel, listener);
+  };
+  const broadcastMeetingsUpdated = () => {
+    try {
+      BrowserWindow.getAllWindows().forEach((win) => {
+        if (!win.isDestroyed()) {
+          win.webContents.send("meetings-updated");
+        }
+      });
+    } catch (error) {
+      console.warn("[IPC] Failed to broadcast meetings-updated:", error);
+    }
+  };
+
+  type ChatDebugStatus = 'completed' | 'error' | 'proposal' | 'superseded';
+  type ChatDebugSurface = 'widget' | 'meeting_overlay' | 'global_overlay' | 'widget_live_rag' | 'meeting_rag' | 'global_rag' | string;
+  type ChatDebugModelState = {
+    provider: string | null;
+    modelId: string | null;
+    reasoningEffort: string | null;
+  };
+
+  const getChatDebugModelState = (): ChatDebugModelState => {
+    try {
+      const llmHelper = appState.processingHelper.getLLMHelper();
+      return {
+        provider: llmHelper.getCurrentProvider?.() ?? null,
+        modelId: llmHelper.getCurrentModel?.() ?? null,
+        reasoningEffort: llmHelper.getReasoningEffort?.() ?? null,
+      };
+    } catch {
+      return {
+        provider: null,
+        modelId: null,
+        reasoningEffort: null,
+      };
+    }
+  };
+
+  const isExplicitScreenReadRequest = (value: string): boolean => {
+    const text = value.trim().toLowerCase();
+    if (!text) return false;
+
+    return [
+      /what(?:'s| is) on my screen/,
+      /what am i looking at/,
+      /what do you see/,
+      /what(?:'s| is) visible/,
+      /describe (?:my|the) screen/,
+      /analy(?:s|z)e (?:my|the|this) screen/,
+      /summari(?:s|z)e (?:my|the|this) screen/,
+      /read (?:my|the|this) screen/,
+      /what(?:'s| is) happening on (?:my|the) screen/,
+    ].some((pattern) => pattern.test(text));
+  };
+
+  const getChatDebugOcrSnapshot = (referenceTimestamp: number) => {
+    try {
+      const observations = ContextObservationStore.getInstance().getDocuments({
+        sourceTypes: ['ocr_observation'],
+        maxAgeMs: 15 * 60 * 1000,
+      });
+      const latest = observations
+        .slice()
+        .sort((left, right) => Date.parse(right.createdAt) - Date.parse(left.createdAt))[0];
+      const latestCapturedAtMs = latest ? Date.parse(latest.createdAt) : Number.NaN;
+
+      return {
+        ocrObservationCount: observations.length,
+        latestOcrCapturedAt: latest?.createdAt || null,
+        latestOcrAgeMs: latest && !Number.isNaN(latestCapturedAtMs)
+          ? Math.max(0, referenceTimestamp - latestCapturedAtMs)
+          : null,
+        latestOcrExcerpt: latest?.body
+          ? latest.body.replace(/\s+/g, ' ').slice(0, 240)
+          : null,
+        latestOcrDisplayCount: typeof latest?.metadata?.displayCount === 'number'
+          ? latest.metadata.displayCount
+          : null,
+      };
+    } catch {
+      return {
+        ocrObservationCount: 0,
+        latestOcrCapturedAt: null,
+        latestOcrAgeMs: null,
+        latestOcrExcerpt: null,
+        latestOcrDisplayCount: null,
+      };
+    }
+  };
+
+  const saveChatDebugEntry = (input: {
+    surface: ChatDebugSurface;
+    status: ChatDebugStatus;
+    modelState?: ChatDebugModelState;
+    meetingId?: string | null;
+    timestamp: number;
+    userQuery: string;
+    aiResponse?: string | null;
+    imagePaths?: string[];
+    firstTokenAt?: number | null;
+    completedAt?: number;
+    proposalKind?: string | null;
+    error?: string | null;
+    contextLength?: number;
+    ragMode?: 'meeting' | 'live' | 'global' | null;
+    ignoreKnowledgeMode?: boolean;
+    skipSystemPrompt?: boolean;
+  }) => {
+    try {
+      const completedAt = input.completedAt ?? Date.now();
+      const modelState = input.modelState ?? getChatDebugModelState();
+      const ocrSnapshot = getChatDebugOcrSnapshot(completedAt);
+      DatabaseManager.getInstance().saveChatDebugEntry({
+        meetingId: input.meetingId ?? null,
+        type: `chat_debug:${input.surface}`,
+        timestamp: input.timestamp,
+        userQuery: input.userQuery,
+        aiResponse: input.aiResponse ?? '',
+        metadata: {
+          surface: input.surface,
+          status: input.status,
+          provider: modelState.provider,
+          modelId: modelState.modelId,
+          reasoningEffort: modelState.reasoningEffort,
+          hadImages: (input.imagePaths?.length || 0) > 0,
+          imagePaths: input.imagePaths || [],
+          firstTokenAt: input.firstTokenAt ? new Date(input.firstTokenAt).toISOString() : null,
+          completedAt: new Date(completedAt).toISOString(),
+          firstTokenLatencyMs: input.firstTokenAt ? Math.max(0, input.firstTokenAt - input.timestamp) : null,
+          totalLatencyMs: Math.max(0, completedAt - input.timestamp),
+          proposalKind: input.proposalKind ?? null,
+          error: input.error ?? null,
+          contextLength: input.contextLength ?? 0,
+          ragMode: input.ragMode ?? null,
+          ignoreKnowledgeMode: !!input.ignoreKnowledgeMode,
+          skipSystemPrompt: !!input.skipSystemPrompt,
+          screenReadRequest: isExplicitScreenReadRequest(input.userQuery),
+          ...ocrSnapshot,
+        },
+      });
+    } catch (error) {
+      console.warn('[IPC] Failed to persist chat debug entry:', error);
+    }
   };
 
   // --- NEW Test Helper ---
@@ -237,6 +382,28 @@ export function initializeIpcHandlers(appState: AppState): void {
     }
   })
 
+  safeHandle("get-display-layout", async () => {
+    try {
+      return screen
+        .getAllDisplays()
+        .map((display) => ({
+          id: display.id,
+          label: String(display.label || display.id),
+          bounds: display.bounds,
+          scaleFactor: display.scaleFactor,
+          isPrimary: display.id === screen.getPrimaryDisplay().id,
+        }))
+        .sort((a, b) => {
+          if (a.bounds.x !== b.bounds.x) return a.bounds.x - b.bounds.x;
+          if (a.bounds.y !== b.bounds.y) return a.bounds.y - b.bounds.y;
+          return a.id - b.id;
+        })
+    } catch (error) {
+      console.error("[IPC] get-display-layout failed:", error)
+      return []
+    }
+  })
+
   safeHandle("toggle-window", async () => {
     appState.toggleMainWindow()
   })
@@ -353,6 +520,11 @@ export function initializeIpcHandlers(appState: AppState): void {
         timestamp: Date.now(),
         final: true
       }, true);
+      ContextObservationStore.getInstance().recordInteraction({
+        role: 'user',
+        text: message,
+        timestamp: Date.now(),
+      });
 
       // 2. Add assistant response and set as last message
       console.log(`[IPC] Updating IntelligenceManager with assistant message...`);
@@ -360,7 +532,7 @@ export function initializeIpcHandlers(appState: AppState): void {
       console.log(`[IPC] Updated IntelligenceManager.Last message: `, intelligenceManager.getLastAssistantMessage()?.substring(0, 50));
 
       // Log Usage
-      intelligenceManager.logUsage('chat', message, result);
+      await intelligenceManager.logUsage('chat', message, result);
 
       return result;
     } catch (error: any) {
@@ -375,7 +547,12 @@ export function initializeIpcHandlers(appState: AppState): void {
   // that a newer stream has taken over.
   let _chatStreamId = 0;
 
-  safeHandle("gemini-chat-stream", async (event, message: string, imagePaths?: string[], context?: string, options?: { skipSystemPrompt?: boolean, ignoreKnowledgeMode?: boolean }) => {
+  safeHandle("gemini-chat-stream", async (event, message: string, imagePaths?: string[], context?: string, options?: { skipSystemPrompt?: boolean, ignoreKnowledgeMode?: boolean, surface?: ChatDebugSurface }) => {
+    const startedAt = Date.now();
+    const surface = options?.surface || 'widget';
+    const modelState = getChatDebugModelState();
+    let firstTokenAt: number | null = null;
+    let fullResponse = "";
     try {
       console.log("[IPC] gemini-chat-stream started using LLMHelper.streamChat");
       const llmHelper = appState.processingHelper.getLLMHelper();
@@ -391,22 +568,66 @@ export function initializeIpcHandlers(appState: AppState): void {
         timestamp: Date.now(),
         final: true
       }, true);
+      ContextObservationStore.getInstance().recordInteraction({
+        role: 'user',
+        text: message,
+        timestamp: Date.now(),
+      });
 
-      let fullResponse = "";
-
-      // Context Injection for "Answer" button (100s rolling window)
-      if (!context) {
-        // User requested 100 seconds of context for the answer button
-        // Logic: If no explicit context provided (like from manual override), auto-inject from IntelligenceManager
+      // Action-card interception for the inline widget.
+      // If the user is asking for an Outlook / Teams / calendar action, return a
+      // structured proposal instead of freeform chat text so the renderer can
+      // show an embedded sendable card.
+      if (!imagePaths?.length) {
         try {
-          const autoContext = intelligenceManager.getFormattedContext(100);
-          if (autoContext && autoContext.trim().length > 0) {
-            context = autoContext;
-            console.log(`[IPC] Auto - injected 100s context for gemini - chat - stream(${context.length} chars)`);
+          const { AgentActionPlanner } = require('./services/AgentActionPlanner');
+          const proposal = await AgentActionPlanner.getInstance().maybeBuildProposal(message, llmHelper);
+          if (proposal) {
+            const payload = JSON.stringify({ __actionProposal: proposal });
+            event.sender.send("gemini-stream-token", payload);
+            event.sender.send("gemini-stream-done");
+            intelligenceManager.addAssistantMessage(`[Action proposal prepared: ${proposal.kind}]`);
+            await intelligenceManager.logUsage('chat', message, `[Action proposal prepared: ${proposal.kind}]`);
+            ContextObservationStore.getInstance().recordInteraction({
+              role: 'assistant',
+              text: `[Action proposal prepared: ${proposal.kind}]`,
+              timestamp: Date.now(),
+            });
+            saveChatDebugEntry({
+              surface,
+              status: 'proposal',
+              modelState,
+              timestamp: startedAt,
+              userQuery: message,
+              aiResponse: `[Action proposal prepared: ${proposal.kind}]`,
+              imagePaths,
+              completedAt: Date.now(),
+              proposalKind: proposal.kind,
+              contextLength: context?.length || 0,
+              ignoreKnowledgeMode: options?.ignoreKnowledgeMode,
+              skipSystemPrompt: options?.skipSystemPrompt,
+            });
+            return null;
           }
-        } catch (ctxErr) {
-          console.warn("[IPC] Failed to auto-inject context:", ctxErr);
+        } catch (proposalError: any) {
+          console.warn("[IPC] Action proposal planning failed, falling back to text chat:", proposalError?.message || proposalError);
         }
+      }
+
+      // Always merge in recent live context. Renderer chat history is useful, but
+      // it should not suppress the rolling live session buffer.
+      try {
+        const autoContext = intelligenceManager.getFormattedContext(100);
+        if (autoContext && autoContext.trim().length > 0) {
+          if (!context || !context.includes(autoContext)) {
+            context = context?.trim()
+              ? `${context}\n\nLIVE SESSION CONTEXT:\n${autoContext}`
+              : autoContext;
+          }
+          console.log(`[IPC] Merged live context into gemini-chat-stream (${autoContext.length} chars)`);
+        }
+      } catch (ctxErr) {
+        console.warn("[IPC] Failed to merge live context:", ctxErr);
       }
 
       try {
@@ -417,7 +638,24 @@ export function initializeIpcHandlers(appState: AppState): void {
           // Bail if a newer stream has taken over (user triggered a new request)
           if (_chatStreamId !== myStreamId) {
             console.log(`[IPC] gemini-chat-stream ${myStreamId} superseded by ${_chatStreamId}, stopping.`);
+            saveChatDebugEntry({
+              surface,
+              status: 'superseded',
+              modelState,
+              timestamp: startedAt,
+              userQuery: message,
+              aiResponse: fullResponse,
+              imagePaths,
+              firstTokenAt,
+              completedAt: Date.now(),
+              contextLength: context?.length || 0,
+              ignoreKnowledgeMode: options?.ignoreKnowledgeMode,
+              skipSystemPrompt: options?.skipSystemPrompt,
+            });
             return null;
+          }
+          if (!firstTokenAt) {
+            firstTokenAt = Date.now();
           }
           event.sender.send("gemini-stream-token", token);
           fullResponse += token;
@@ -431,21 +669,67 @@ export function initializeIpcHandlers(appState: AppState): void {
           if (fullResponse.trim().length > 0) {
             intelligenceManager.addAssistantMessage(fullResponse);
             // Log Usage for streaming chat
-            intelligenceManager.logUsage('chat', message, fullResponse);
+            await intelligenceManager.logUsage('chat', message, fullResponse);
           }
+
+          saveChatDebugEntry({
+            surface,
+            status: 'completed',
+            modelState,
+            timestamp: startedAt,
+            userQuery: message,
+            aiResponse: fullResponse,
+            imagePaths,
+            firstTokenAt,
+            completedAt: Date.now(),
+            contextLength: context?.length || 0,
+            ignoreKnowledgeMode: options?.ignoreKnowledgeMode,
+            skipSystemPrompt: options?.skipSystemPrompt,
+          });
         }
 
       } catch (streamError: any) {
         console.error("[IPC] Streaming error:", streamError);
+        const sanitizedError = sanitizeErrorMessage(streamError.message || "Unknown streaming error");
         if (_chatStreamId === myStreamId) {
-          event.sender.send("gemini-stream-error", streamError.message || "Unknown streaming error");
+          event.sender.send("gemini-stream-error", sanitizedError);
         }
+        saveChatDebugEntry({
+          surface,
+          status: 'error',
+          modelState,
+          timestamp: startedAt,
+          userQuery: message,
+          aiResponse: fullResponse,
+          imagePaths,
+          firstTokenAt,
+          completedAt: Date.now(),
+          error: sanitizedError,
+          contextLength: context?.length || 0,
+          ignoreKnowledgeMode: options?.ignoreKnowledgeMode,
+          skipSystemPrompt: options?.skipSystemPrompt,
+        });
       }
 
       return null; // Return null as data is sent via events
 
     } catch (error: any) {
       console.error("[IPC] Error in gemini-chat-stream setup:", error);
+      saveChatDebugEntry({
+        surface,
+        status: 'error',
+        modelState,
+        timestamp: startedAt,
+        userQuery: message,
+        aiResponse: fullResponse,
+        imagePaths,
+        firstTokenAt,
+        completedAt: Date.now(),
+        error: sanitizeErrorMessage(error?.message || "Unknown setup error"),
+        contextLength: context?.length || 0,
+        ignoreKnowledgeMode: options?.ignoreKnowledgeMode,
+        skipSystemPrompt: options?.skipSystemPrompt,
+      });
       throw error;
     }
   });
@@ -540,6 +824,16 @@ export function initializeIpcHandlers(appState: AppState): void {
     appState.settingsWindowHelper.closeWindow()
   })
 
+  safeHandle("open-chat-log-viewer", () => {
+    appState.chatLogViewerWindowHelper.showWindow()
+    return { success: true }
+  })
+
+  safeHandle("close-chat-log-viewer", () => {
+    appState.chatLogViewerWindowHelper.closeWindow()
+    return { success: true }
+  })
+
 
 
   safeHandle("set-undetectable", async (_, state: boolean) => {
@@ -609,174 +903,12 @@ export function initializeIpcHandlers(appState: AppState): void {
       return {
         provider: llmHelper.getCurrentProvider(),
         model: llmHelper.getCurrentModel(),
-        isOllama: llmHelper.isUsingOllama()
+        isOllama: llmHelper.isUsingOllama(),
+        reasoningEffort: llmHelper.getReasoningEffort?.() ?? 'xhigh',
       };
     } catch (error: any) {
       // console.error("Error getting current LLM config:", error);
       throw error;
-    }
-  });
-
-  safeHandle("get-available-ollama-models", async () => {
-    try {
-      const llmHelper = appState.processingHelper.getLLMHelper();
-      const models = await llmHelper.getOllamaModels();
-      return models;
-    } catch (error: any) {
-      // console.error("Error getting Ollama models:", error);
-      throw error;
-    }
-  });
-
-  safeHandle("switch-to-ollama", async (_, model?: string, url?: string) => {
-    try {
-      const llmHelper = appState.processingHelper.getLLMHelper();
-      await llmHelper.switchToOllama(model, url);
-      return { success: true };
-    } catch (error: any) {
-      // console.error("Error switching to Ollama:", error);
-      return { success: false, error: error.message };
-    }
-  });
-
-  safeHandle("force-restart-ollama", async () => {
-    try {
-      const llmHelper = appState.processingHelper.getLLMHelper();
-      const success = await llmHelper.forceRestartOllama();
-      return { success };
-    } catch (error: any) {
-      console.error("Error force restarting Ollama:", error);
-      return { success: false, error: error.message };
-    }
-  });
-
-  safeHandle('restart-ollama', async () => {
-    try {
-      // First try to kill it if it's running
-      await appState.processingHelper.getLLMHelper().forceRestartOllama();
-      
-      // The forceRestartOllama now calls OllamaManager.getInstance().init() internally
-      // so we don't need to do it again here.
-      
-      return true;
-    } catch (error: any) {
-      console.error("[IPC restart-ollama] Failed to restart:", error);
-      return false;
-    }
-  });
-
-  safeHandle("ensure-ollama-running", async () => {
-    try {
-      const { OllamaManager } = require('./services/OllamaManager');
-      await OllamaManager.getInstance().init();
-      return { success: true };
-    } catch (error: any) {
-      return { success: false, message: error.message };
-    }
-  });
-
-  safeHandle("switch-to-gemini", async (_, apiKey?: string, modelId?: string) => {
-    try {
-      const llmHelper = appState.processingHelper.getLLMHelper();
-      await llmHelper.switchToGemini(apiKey, modelId);
-
-      // Persist API key if provided
-      if (apiKey) {
-        const { CredentialsManager } = require('./services/CredentialsManager');
-        CredentialsManager.getInstance().setGeminiApiKey(apiKey);
-      }
-
-      return { success: true };
-    } catch (error: any) {
-      // console.error("Error switching to Gemini:", error);
-      return { success: false, error: error.message };
-    }
-  });
-
-  // Dedicated API key setters (for Settings UI Save buttons)
-  safeHandle("set-gemini-api-key", async (_, apiKey: string) => {
-    try {
-      const { CredentialsManager } = require('./services/CredentialsManager');
-      CredentialsManager.getInstance().setGeminiApiKey(apiKey);
-
-      // Also update the LLMHelper immediately
-      const llmHelper = appState.processingHelper.getLLMHelper();
-      llmHelper.setApiKey(apiKey);
-
-      // CQ-06 fix: cancel any in-flight LLM stream before swapping LLM clients.
-      // Use resetEngine() (NOT reset()) so session transcript is preserved mid-meeting.
-      // initializeLLMs() now also calls engine.reset() internally for double-safety.
-      appState.getIntelligenceManager().resetEngine();
-      // Re-init IntelligenceManager
-      appState.getIntelligenceManager().initializeLLMs();
-
-      return { success: true };
-    } catch (error: any) {
-      console.error("Error saving Gemini API key:", error);
-      return { success: false, error: error.message };
-    }
-  });
-
-  safeHandle("set-groq-api-key", async (_, apiKey: string) => {
-    try {
-      const { CredentialsManager } = require('./services/CredentialsManager');
-      CredentialsManager.getInstance().setGroqApiKey(apiKey);
-
-      // Also update the LLMHelper immediately
-      const llmHelper = appState.processingHelper.getLLMHelper();
-      llmHelper.setGroqApiKey(apiKey);
-
-      // CQ-06 fix: cancel in-flight stream before re-init (engine only, not session)
-      appState.getIntelligenceManager().resetEngine();
-      // Re-init IntelligenceManager
-      appState.getIntelligenceManager().initializeLLMs();
-
-      return { success: true };
-    } catch (error: any) {
-      console.error("Error saving Groq API key:", error);
-      return { success: false, error: error.message };
-    }
-  });
-
-  safeHandle("set-openai-api-key", async (_, apiKey: string) => {
-    try {
-      const { CredentialsManager } = require('./services/CredentialsManager');
-      CredentialsManager.getInstance().setOpenaiApiKey(apiKey);
-
-      // Also update the LLMHelper immediately
-      const llmHelper = appState.processingHelper.getLLMHelper();
-      llmHelper.setOpenaiApiKey(apiKey);
-
-      // CQ-06 fix: cancel in-flight stream before re-init (engine only, not session)
-      appState.getIntelligenceManager().resetEngine();
-      // Re-init IntelligenceManager
-      appState.getIntelligenceManager().initializeLLMs();
-
-      return { success: true };
-    } catch (error: any) {
-      console.error("Error saving OpenAI API key:", error);
-      return { success: false, error: error.message };
-    }
-  });
-
-  safeHandle("set-claude-api-key", async (_, apiKey: string) => {
-    try {
-      const { CredentialsManager } = require('./services/CredentialsManager');
-      CredentialsManager.getInstance().setClaudeApiKey(apiKey);
-
-      // Also update the LLMHelper immediately
-      const llmHelper = appState.processingHelper.getLLMHelper();
-      llmHelper.setClaudeApiKey(apiKey);
-
-      // CQ-06 fix: cancel in-flight stream before re-init (engine only, not session)
-      appState.getIntelligenceManager().resetEngine();
-      // Re-init IntelligenceManager
-      appState.getIntelligenceManager().initializeLLMs();
-
-      return { success: true };
-    } catch (error: any) {
-      console.error("Error saving Claude API key:", error);
-      return { success: false, error: error.message };
     }
   });
 
@@ -793,10 +925,10 @@ export function initializeIpcHandlers(appState: AppState): void {
 
       // Sync the model into LLMHelper and notify the UI whenever the effective default changed
       const defaultModel = cm.getDefaultModel();
-      const providers = [...(cm.getCurlProviders() || []), ...(cm.getCustomProviders() || [])];
-      llmHelper.setModel(defaultModel, providers);
+      llmHelper.setModel(defaultModel);
+      const effectiveModelId = llmHelper.getCurrentModel();
       BrowserWindow.getAllWindows().forEach(win => {
-        if (!win.isDestroyed()) win.webContents.send('model-changed', defaultModel);
+        if (!win.isDestroyed()) win.webContents.send('model-changed', effectiveModelId);
       });
 
       // If setNativelyApiKey auto-promoted the STT provider to 'natively', reconfigure
@@ -836,151 +968,6 @@ export function initializeIpcHandlers(appState: AppState): void {
     }
   });
 
-  // Custom Provider Handlers
-  safeHandle("get-custom-providers", async () => {
-    try {
-      const { CredentialsManager } = require('./services/CredentialsManager');
-      const cm = CredentialsManager.getInstance();
-      // Merge new Curl Providers with legacy Custom Providers
-      // New ones take precedence if IDs conflict (though unlikely as UUIDs)
-      const curlProviders = cm.getCurlProviders();
-      const legacyProviders = cm.getCustomProviders() || [];
-      return [...curlProviders, ...legacyProviders];
-    } catch (error: any) {
-      console.error("Error getting custom providers:", error);
-      return [];
-    }
-  });
-
-  safeHandle("save-custom-provider", async (_, provider: unknown) => {
-    try {
-      // SECURITY FIX (P1-2): Validate provider payload shape before persisting.
-      // Prevents malformed/malicious renderer data from polluting CredentialsManager.
-      if (
-        typeof provider !== 'object' || provider === null ||
-        typeof (provider as any).id !== 'string' ||
-        typeof (provider as any).name !== 'string' ||
-        typeof (provider as any).curlCommand !== 'string'
-      ) {
-        console.error('[IPC] save-custom-provider: invalid payload shape', typeof provider);
-        return { success: false, error: 'Invalid provider payload' };
-      }
-
-      const curlCmd: string = (provider as any).curlCommand;
-      // Require {{TEXT}} so the app always has a defined injection point for the user prompt.
-      // We do NOT require the string to start with 'curl' — curlCommand is a template field,
-      // not necessarily a raw CLI string, and over-constraining it would break valid providers.
-      if (!curlCmd.includes('{{TEXT}}')) {
-        return { success: false, error: 'curlCommand must contain {{TEXT}} placeholder for the prompt' };
-      }
-
-      const { CredentialsManager } = require('./services/CredentialsManager');
-      // Save as CurlProvider (supports responsePath)
-      CredentialsManager.getInstance().saveCurlProvider(provider);
-      return { success: true };
-    } catch (error: any) {
-      console.error("Error saving custom provider:", error);
-      return { success: false, error: error.message };
-    }
-  });
-
-  safeHandle("delete-custom-provider", async (_, id: string) => {
-    try {
-      const { CredentialsManager } = require('./services/CredentialsManager');
-      // Try deleting from both storages to be safe
-      CredentialsManager.getInstance().deleteCurlProvider(id);
-      CredentialsManager.getInstance().deleteCustomProvider(id);
-      return { success: true };
-    } catch (error: any) {
-      console.error("Error deleting custom provider:", error);
-      return { success: false, error: error.message };
-    }
-  });
-
-  safeHandle("switch-to-custom-provider", async (_, providerId: string) => {
-    try {
-      const { CredentialsManager } = require('./services/CredentialsManager');
-      const cm = CredentialsManager.getInstance();
-      // BUG-05 fix: providers may be in either the curl or legacy custom store —
-      // merge both when looking up by id so neither store is silently ignored.
-      const provider = [
-        ...(cm.getCurlProviders() || []),
-        ...(cm.getCustomProviders() || [])
-      ].find((p: any) => p.id === providerId);
-
-      if (!provider) {
-        throw new Error("Provider not found");
-      }
-
-      const llmHelper = appState.processingHelper.getLLMHelper();
-      await llmHelper.switchToCustom(provider);
-
-      // Re-init IntelligenceManager (optional, but good for consistency)
-      appState.getIntelligenceManager().initializeLLMs();
-
-      return { success: true };
-    } catch (error: any) {
-      console.error("Error switching to custom provider:", error);
-      return { success: false, error: error.message };
-    }
-  });
-
-
-  // cURL Provider Handlers
-  safeHandle("get-curl-providers", async () => {
-    try {
-      const { CredentialsManager } = require('./services/CredentialsManager');
-      return CredentialsManager.getInstance().getCurlProviders();
-    } catch (error: any) {
-      console.error("Error getting curl providers:", error);
-      return [];
-    }
-  });
-
-  safeHandle("save-curl-provider", async (_, provider: any) => {
-    try {
-      const { CredentialsManager } = require('./services/CredentialsManager');
-      CredentialsManager.getInstance().saveCurlProvider(provider);
-      return { success: true };
-    } catch (error: any) {
-      console.error("Error saving curl provider:", error);
-      return { success: false, error: error.message };
-    }
-  });
-
-  safeHandle("delete-curl-provider", async (_, id: string) => {
-    try {
-      const { CredentialsManager } = require('./services/CredentialsManager');
-      CredentialsManager.getInstance().deleteCurlProvider(id);
-      return { success: true };
-    } catch (error: any) {
-      console.error("Error deleting curl provider:", error);
-      return { success: false, error: error.message };
-    }
-  });
-
-  safeHandle("switch-to-curl-provider", async (_, providerId: string) => {
-    try {
-      const { CredentialsManager } = require('./services/CredentialsManager');
-      const provider = CredentialsManager.getInstance().getCurlProviders().find((p: any) => p.id === providerId);
-
-      if (!provider) {
-        throw new Error("Provider not found");
-      }
-
-      const llmHelper = appState.processingHelper.getLLMHelper();
-      await llmHelper.switchToCurl(provider);
-
-      // Re-init IntelligenceManager (optional, but good for consistency)
-      appState.getIntelligenceManager().initializeLLMs();
-
-      return { success: true };
-    } catch (error: any) {
-      console.error("Error switching to curl provider:", error);
-      return { success: false, error: error.message };
-    }
-  });
-
   // Get stored API keys (masked for UI display)
   safeHandle("get-stored-credentials", async () => {
     try {
@@ -991,10 +978,6 @@ export function initializeIpcHandlers(appState: AppState): void {
       const hasKey = (key?: string) => !!(key && key.trim().length > 0);
 
       return {
-        hasGeminiKey: hasKey(creds.geminiApiKey),
-        hasGroqKey: hasKey(creds.groqApiKey),
-        hasOpenaiKey: hasKey(creds.openaiApiKey),
-        hasClaudeKey: hasKey(creds.claudeApiKey),
         hasNativelyKey: hasKey(creds.nativelyApiKey),
         googleServiceAccountPath: creds.googleServiceAccountPath || null,
         sttProvider: creds.sttProvider || 'google',
@@ -1019,54 +1002,12 @@ export function initializeIpcHandlers(appState: AppState): void {
         sttIbmKey: creds.ibmWatsonApiKey || '',
         sttSonioxKey: creds.sonioxApiKey || '',
         hasTavilyKey: hasKey(creds.tavilyApiKey),
-        // Dynamic Model Discovery - preferred models
-        geminiPreferredModel: creds.geminiPreferredModel || undefined,
-        groqPreferredModel: creds.groqPreferredModel || undefined,
-        openaiPreferredModel: creds.openaiPreferredModel || undefined,
-        claudePreferredModel: creds.claudePreferredModel || undefined,
+        hasClaudeMax: isLocalCliAvailable('claude', true),
+        claudeMaxStatus: getLocalCliStatus('claude', true).state,
+        hasCodex: isLocalCliAvailable('codex', true),
       };
     } catch (error: any) {
-      return { hasGeminiKey: false, hasGroqKey: false, hasOpenaiKey: false, hasClaudeKey: false, hasNativelyKey: false, googleServiceAccountPath: null, sttProvider: 'google', groqSttModel: 'whisper-large-v3-turbo', hasSttGroqKey: false, hasSttOpenaiKey: false, hasDeepgramKey: false, hasElevenLabsKey: false, hasAzureKey: false, azureRegion: 'eastus', hasIbmWatsonKey: false, ibmWatsonRegion: 'us-south', hasSonioxKey: false, hasTavilyKey: false, sttGroqKey: '', sttOpenaiKey: '', sttDeepgramKey: '', sttElevenLabsKey: '', sttAzureKey: '', sttIbmKey: '', sttSonioxKey: '' };
-    }
-  });
-
-  // ==========================================
-  // Dynamic Model Discovery Handlers
-  // ==========================================
-
-  safeHandle("fetch-provider-models", async (_, provider: 'gemini' | 'groq' | 'openai' | 'claude', apiKey: string) => {
-    try {
-      // Fall back to stored key if no key was explicitly provided
-      let key = apiKey?.trim();
-      if (!key) {
-        const { CredentialsManager } = require('./services/CredentialsManager');
-        const cm = CredentialsManager.getInstance();
-        if (provider === 'gemini') key = cm.getGeminiApiKey();
-        else if (provider === 'groq') key = cm.getGroqApiKey();
-        else if (provider === 'openai') key = cm.getOpenaiApiKey();
-        else if (provider === 'claude') key = cm.getClaudeApiKey();
-      }
-
-      if (!key) {
-        return { success: false, error: 'No API key available. Please save a key first.' };
-      }
-
-      const { fetchProviderModels } = require('./utils/modelFetcher');
-      const models = await fetchProviderModels(provider, key);
-      return { success: true, models };
-    } catch (error: any) {
-      console.error(`[IPC] Failed to fetch ${provider} models:`, error);
-      const msg = error?.response?.data?.error?.message || error.message || 'Failed to fetch models';
-      return { success: false, error: msg };
-    }
-  });
-
-  safeHandle("set-provider-preferred-model", async (_, provider: 'gemini' | 'groq' | 'openai' | 'claude', modelId: string) => {
-    try {
-      const { CredentialsManager } = require('./services/CredentialsManager');
-      CredentialsManager.getInstance().setPreferredModel(provider, modelId);
-    } catch (error: any) {
-      console.error(`[IPC] Failed to set preferred model for ${provider}:`, error);
+      return { hasNativelyKey: false, hasClaudeMax: false, claudeMaxStatus: 'missing', hasCodex: false, googleServiceAccountPath: null, sttProvider: 'google', groqSttModel: 'whisper-large-v3-turbo', hasSttGroqKey: false, hasSttOpenaiKey: false, hasDeepgramKey: false, hasElevenLabsKey: false, hasAzureKey: false, azureRegion: 'eastus', hasIbmWatsonKey: false, ibmWatsonRegion: 'us-south', hasSonioxKey: false, hasTavilyKey: false, sttGroqKey: '', sttOpenaiKey: '', sttDeepgramKey: '', sttElevenLabsKey: '', sttAzureKey: '', sttIbmKey: '', sttSonioxKey: '' };
     }
   });
 
@@ -1207,8 +1148,23 @@ export function initializeIpcHandlers(appState: AppState): void {
 
   // Helper to sanitize error messages (remove API key references)
   const sanitizeErrorMessage = (msg: string): string => {
-    // Remove patterns like ": sk-***...***" or ": sdasdada***...dwwC"
-    return msg.replace(/:\s*[a-zA-Z0-9*]+\*+[a-zA-Z0-9*]+\.?$/g, '').trim();
+    const cleaned = msg.replace(/:\s*[a-zA-Z0-9*]+\*+[a-zA-Z0-9*]+\.?$/g, '').trim();
+    const lower = cleaned.toLowerCase();
+
+    if (lower.includes("spawn codex enonent") || lower.includes("codex cli not found")) {
+      return "Codex local session is unavailable. Reopen Codex on this machine and try again.";
+    }
+    if (lower.includes("spawn claude enonent") || lower.includes("claude cli not found")) {
+      return "Claude local session is unavailable. Reopen Claude on this machine and try again.";
+    }
+    if (lower.includes("not logged in") || lower.includes("/login") || lower.includes("authentication_failed")) {
+      return "Claude local session is installed but not logged in. Open Claude Code, run /login, then reopen Natively.";
+    }
+    if (lower.includes("rate_limit_error") || lower.includes("429") || lower.includes("rate limit")) {
+      return "The selected model is temporarily rate limited. Wait a minute and try again.";
+    }
+
+    return cleaned;
   };
 
   safeHandle("test-stt-connection", async (_, provider: 'groq' | 'openai' | 'deepgram' | 'elevenlabs' | 'azure' | 'ibmwatson' | 'soniox', apiKey: string, region?: string) => {
@@ -1381,119 +1337,11 @@ export function initializeIpcHandlers(appState: AppState): void {
     }
   });
 
-  safeHandle("test-llm-connection", async (_, provider: 'gemini' | 'groq' | 'openai' | 'claude', apiKey?: string) => {
-    console.log(`[IPC] Received test-llm-connection request for provider: ${provider}`);
-    try {
-      if (!apiKey || !apiKey.trim()) {
-        const { CredentialsManager } = require('./services/CredentialsManager');
-        const creds = CredentialsManager.getInstance();
-        if (provider === 'gemini') apiKey = creds.getGeminiApiKey();
-        else if (provider === 'groq') apiKey = creds.getGroqApiKey();
-        else if (provider === 'openai') apiKey = creds.getOpenaiApiKey();
-        else if (provider === 'claude') apiKey = creds.getClaudeApiKey();
-      }
-
-      if (!apiKey || !apiKey.trim()) {
-        return { success: false, error: 'No API key provided' };
-      }
-
-      const axios = require('axios');
-      let response;
-
-      if (provider === 'gemini') {
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite-preview:generateContent`;
-        response = await axios.post(url, {
-          contents: [{ parts: [{ text: "Hello" }] }]
-        }, {
-          headers: { 'x-goog-api-key': apiKey },
-          timeout: 15000
-        });
-      } else if (provider === 'groq') {
-        response = await axios.post('https://api.groq.com/openai/v1/chat/completions', {
-          model: "llama-3.3-70b-versatile",
-          messages: [{ role: "user", content: "Hello" }]
-        }, {
-          headers: { Authorization: `Bearer ${apiKey}` },
-          timeout: 15000
-        });
-      } else if (provider === 'openai') {
-        response = await axios.post('https://api.openai.com/v1/chat/completions', {
-          model: "gpt-4o-mini",
-          messages: [{ role: "user", content: "Hello" }]
-        }, {
-          headers: { Authorization: `Bearer ${apiKey}` },
-          timeout: 15000
-        });
-      } else if (provider === 'claude') {
-        response = await axios.post('https://api.anthropic.com/v1/messages', {
-          model: "claude-sonnet-4-6",
-          max_tokens: 10,
-          messages: [{ role: "user", content: "Hello" }]
-        }, {
-          headers: {
-            'x-api-key': apiKey,
-            'anthropic-version': '2023-06-01',
-            'content-type': 'application/json'
-          },
-          timeout: 15000
-        });
-      }
-
-      if (response && (response.status === 200 || response.status === 201)) {
-        return { success: true };
-      } else {
-        return { success: false, error: 'Request failed with status ' + response?.status };
-      }
-
-    } catch (error: any) {
-      console.error("LLM connection test failed:", error);
-      const rawMsg = error?.response?.data?.error?.message || error?.response?.data?.message || (error.response?.data?.error?.type ? `${error.response.data.error.type}: ${error.response.data.error.message}` : error.message) || 'Connection failed';
-      const msg = sanitizeErrorMessage(rawMsg);
-      return { success: false, error: msg };
-    }
-  });
-
-  safeHandle("get-groq-fast-text-mode", () => {
-    try {
-      const llmHelper = appState.processingHelper.getLLMHelper();
-      return { enabled: llmHelper.getGroqFastTextMode() };
-    } catch (error: any) {
-      return { enabled: false };
-    }
-  });
-
-  // Set Groq Fast Text Mode
-  safeHandle("set-groq-fast-text-mode", (_, enabled: boolean) => {
-    try {
-      const llmHelper = appState.processingHelper.getLLMHelper();
-      llmHelper.setGroqFastTextMode(enabled);
-
-      const { SettingsManager } = require('./services/SettingsManager');
-      SettingsManager.getInstance().set('groqFastTextMode', enabled);
-
-      // Broadcast to all windows
-      BrowserWindow.getAllWindows().forEach(win => {
-        win.webContents.send('groq-fast-text-changed', enabled);
-      });
-
-      return { success: true };
-    } catch (error: any) {
-      return { success: false, error: error.message };
-    }
-  });
-
   safeHandle("set-model", async (_, modelId: string) => {
     try {
       const llmHelper = appState.processingHelper.getLLMHelper();
-      const { CredentialsManager } = require('./services/CredentialsManager');
-      const cm = CredentialsManager.getInstance();
-
-      // Get all providers (Curl + Custom)
-      const curlProviders = cm.getCurlProviders();
-      const legacyProviders = cm.getCustomProviders() || [];
-      const allProviders = [...curlProviders, ...legacyProviders];
-
-      llmHelper.setModel(modelId, allProviders);
+      llmHelper.setModel(modelId);
+      const effectiveModelId = llmHelper.getCurrentModel();
 
       // Close the selector window if open
       appState.modelSelectorWindowHelper.hideWindow();
@@ -1501,7 +1349,7 @@ export function initializeIpcHandlers(appState: AppState): void {
       // Broadcast to all windows so NativelyInterface can update its selector (session-only update)
       BrowserWindow.getAllWindows().forEach(win => {
         if (!win.isDestroyed()) {
-          win.webContents.send('model-changed', modelId);
+          win.webContents.send('model-changed', effectiveModelId);
         }
       });
 
@@ -1509,6 +1357,100 @@ export function initializeIpcHandlers(appState: AppState): void {
     } catch (error: any) {
       console.error("Error setting model:", error);
       return { success: false, error: error.message };
+    }
+  });
+
+  safeHandle("get-reasoning-effort", async () => {
+    try {
+      const llmHelper = appState.processingHelper.getLLMHelper();
+      return { effort: llmHelper.getReasoningEffort?.() ?? 'xhigh' };
+    } catch (error: any) {
+      console.error("Error getting reasoning effort:", error);
+      return { effort: 'xhigh' };
+    }
+  });
+
+  safeHandle("set-reasoning-effort", async (_, effort: 'low' | 'medium' | 'high' | 'xhigh') => {
+    try {
+      const llmHelper = appState.processingHelper.getLLMHelper();
+      llmHelper.setReasoningEffort(effort);
+
+      const { CredentialsManager } = require('./services/CredentialsManager');
+      CredentialsManager.getInstance().setReasoningEffort(effort);
+
+      BrowserWindow.getAllWindows().forEach(win => {
+        if (!win.isDestroyed()) {
+          win.webContents.send('reasoning-effort-changed', effort);
+        }
+      });
+
+      return { success: true };
+    } catch (error: any) {
+      console.error("Error setting reasoning effort:", error);
+      return { success: false, error: error.message };
+    }
+  });
+
+  // ── Meeting AI: IP Corp Mode ───────────────────────────────────────────────
+  safeHandle("set-ip-corp-mode", async (_, enabled: boolean) => {
+    try {
+      const llmHelper = appState.processingHelper.getLLMHelper();
+      llmHelper.setIPCorpMode(enabled);
+      if (enabled) {
+        const { warmIPCorpContextCache } = require('./services/IPCorpContextBuilder');
+        const health = await warmIPCorpContextCache();
+        return { success: true, warning: health.warning ?? undefined };
+      }
+      return { success: true };
+    } catch (e: any) {
+      return { success: false, error: e.message };
+    }
+  });
+
+  // ── Meeting AI: Continuous OCR ─────────────────────────────────────────────
+  safeHandle("set-continuous-ocr", async (_, enabled: boolean) => {
+    try {
+      const llmHelper = appState.processingHelper.getLLMHelper();
+      if (enabled) {
+        llmHelper.startContinuousOCR();
+      } else {
+        llmHelper.stopContinuousOCR();
+      }
+      return { success: true };
+    } catch (e: any) {
+      return { success: false, error: e.message };
+    }
+  });
+
+  // ── Meeting AI: Reload knowledge + transcripts ────────────────────────────
+  safeHandle("reload-meeting-memory", async () => {
+    try {
+      const { MeetingMemoryBrain } = require('./services/MeetingMemoryBrain');
+      await MeetingMemoryBrain.getInstance().reload();
+      return { success: true };
+    } catch (e: any) {
+      return { success: false, error: e.message };
+    }
+  });
+
+  // ── Meeting AI: Status ─────────────────────────────────────────────────────
+  safeHandle("get-meeting-ai-status", async () => {
+    try {
+      const { ContinuousOCRService } = require('./services/ContinuousOCRService');
+      const { getIPCorpContextHealth } = require('./services/IPCorpContextBuilder');
+      const ipCorpHealth = getIPCorpContextHealth();
+      const claudeStatus = getLocalCliStatus('claude', true);
+      return {
+        claudeMaxAvailable: claudeStatus.state === 'ready',
+        claudeMaxStatus: claudeStatus.state,
+        ocrRunning: ContinuousOCRService.getInstance().isRunning(),
+        ipCorpMode: appState.processingHelper.getLLMHelper().getIPCorpMode?.() ?? false,
+        clawmemAvailable: ipCorpHealth.clawmemAvailable,
+        nexusAvailable: ipCorpHealth.nexusAvailable,
+        ipCorpWarning: ipCorpHealth.warning,
+      };
+    } catch (e: any) {
+      return { claudeMaxAvailable: false, claudeMaxStatus: 'missing', ocrRunning: false, ipCorpMode: false, clawmemAvailable: false, nexusAvailable: false, ipCorpWarning: 'Unable to read Meeting AI status' };
     }
   });
 
@@ -1521,10 +1463,8 @@ export function initializeIpcHandlers(appState: AppState): void {
 
       // Also update the runtime model
       const llmHelper = appState.processingHelper.getLLMHelper();
-      const curlProviders = cm.getCurlProviders();
-      const legacyProviders = cm.getCustomProviders() || [];
-      const allProviders = [...curlProviders, ...legacyProviders];
-      llmHelper.setModel(modelId, allProviders);
+      llmHelper.setModel(modelId);
+      const effectiveModelId = llmHelper.getCurrentModel();
 
       // Close the selector window if open
       appState.modelSelectorWindowHelper.hideWindow();
@@ -1532,7 +1472,7 @@ export function initializeIpcHandlers(appState: AppState): void {
       // Broadcast to all windows so NativelyInterface can update its selector
       BrowserWindow.getAllWindows().forEach(win => {
         if (!win.isDestroyed()) {
-          win.webContents.send('model-changed', modelId);
+          win.webContents.send('model-changed', effectiveModelId);
         }
       });
 
@@ -1635,12 +1575,26 @@ export function initializeIpcHandlers(appState: AppState): void {
     return DatabaseManager.getInstance().getMeetingDetails(id);
   });
 
+  safeHandle("get-chat-debug-entries", async (_, limit?: number) => {
+    return DatabaseManager.getInstance().getRecentChatDebugEntries(limit ?? 100);
+  });
+
   safeHandle("update-meeting-title", async (_, { id, title }: { id: string; title: string }) => {
     return DatabaseManager.getInstance().updateMeetingTitle(id, title);
   });
 
   safeHandle("update-meeting-summary", async (_, { id, updates }: { id: string; updates: any }) => {
     return DatabaseManager.getInstance().updateMeetingSummary(id, updates);
+  });
+
+  safeHandle("generate-meeting-overview", async (_, { meetingId, force }: { meetingId: string; force?: boolean }) => {
+    const { MeetingOverviewService } = require("./services/MeetingOverviewService");
+    return await MeetingOverviewService.generate({
+      meetingId,
+      force,
+      llmHelper: appState.processingHelper.getLLMHelper(),
+      knowledgeOrchestrator: appState.getKnowledgeOrchestrator(),
+    });
   });
 
   safeHandle("seed-demo", async () => {
@@ -1672,6 +1626,18 @@ export function initializeIpcHandlers(appState: AppState): void {
       }
     } catch {
       console.warn(`[IPC] Invalid URL in open-external: ${url}`);
+    }
+  });
+
+  safeHandle("get-image-preview", async (_, filePath: string) => {
+    try {
+      if (!filePath || typeof filePath !== 'string' || !path.isAbsolute(filePath) || !fs.existsSync(filePath)) {
+        return null;
+      }
+      return await appState.getImagePreview(filePath);
+    } catch (error) {
+      console.warn('[IPC] get-image-preview failed:', error);
+      return null;
     }
   });
 
@@ -1929,13 +1895,37 @@ export function initializeIpcHandlers(appState: AppState): void {
 
   safeHandle("get-upcoming-events", async () => {
     const { CalendarManager } = require('./services/CalendarManager');
-    return CalendarManager.getInstance().getUpcomingEvents();
+    const { MeetingPrepService } = require('./services/MeetingPrepService');
+    const events = await CalendarManager.getInstance().getUpcomingEvents();
+    MeetingPrepService.getInstance()
+      .warmPackets(events, appState.getKnowledgeOrchestrator())
+      .catch((error: any) => {
+        console.warn('[IPC] Meeting prep warm failed:', error?.message || error);
+      });
+    return events;
   });
 
   safeHandle("calendar-refresh", async () => {
     const { CalendarManager } = require('./services/CalendarManager');
     await CalendarManager.getInstance().refreshState();
+    const { MeetingPrepService } = require('./services/MeetingPrepService');
+    const events = await CalendarManager.getInstance().getUpcomingEvents();
+    MeetingPrepService.getInstance()
+      .warmPackets(events, appState.getKnowledgeOrchestrator())
+      .catch((error: any) => {
+        console.warn('[IPC] Meeting prep warm after refresh failed:', error?.message || error);
+      });
     return { success: true };
+  });
+
+  safeHandle("get-meeting-prep-packet", async (_, eventId: string) => {
+    try {
+      const { MeetingPrepService } = require('./services/MeetingPrepService');
+      return await MeetingPrepService.getInstance().buildPacket(eventId, appState.getKnowledgeOrchestrator());
+    } catch (error: any) {
+      console.error('[IPC] get-meeting-prep-packet failed:', error);
+      return null;
+    }
   });
 
   // ==========================================
@@ -2012,6 +2002,79 @@ export function initializeIpcHandlers(appState: AppState): void {
   });
 
   // ==========================================
+  // Local Microsoft Bridge Handlers
+  // ==========================================
+
+  safeHandle("microsoft-local-status", async () => {
+    const { MicrosoftLocalManager } = require('./services/MicrosoftLocalManager');
+    return MicrosoftLocalManager.getInstance().getStatus();
+  });
+
+  safeHandle("outlook-list-emails", async (_, options?: { top?: number; unreadOnly?: boolean }) => {
+    const { MicrosoftLocalManager } = require('./services/MicrosoftLocalManager');
+    const emails = await MicrosoftLocalManager.getInstance().getRecentEmails(options?.top ?? 25, options?.unreadOnly ?? false);
+    return { emails, totalCount: emails.length };
+  });
+
+  safeHandle("outlook-search-emails", async (_, query: string, top?: number) => {
+    const { MicrosoftLocalManager } = require('./services/MicrosoftLocalManager');
+    const emails = await MicrosoftLocalManager.getInstance().searchEmails(query, top ?? 25);
+    return { emails, totalCount: emails.length };
+  });
+
+  safeHandle("outlook-create-draft", async (_, draft: any) => {
+    const { MicrosoftLocalManager } = require('./services/MicrosoftLocalManager');
+    return MicrosoftLocalManager.getInstance().createDraft(draft);
+  });
+
+  safeHandle("outlook-send-email", async (_, draft: any) => {
+    const { MicrosoftLocalManager } = require('./services/MicrosoftLocalManager');
+    await MicrosoftLocalManager.getInstance().sendEmail(draft);
+    return { success: true };
+  });
+
+  safeHandle("outlook-create-calendar-event", async (_, request: any) => {
+    const { MicrosoftLocalManager } = require('./services/MicrosoftLocalManager');
+    return MicrosoftLocalManager.getInstance().createCalendarEvent(request);
+  });
+
+  safeHandle("outlook-reply-email", async (_, entryId: string, body: string, replyAll?: boolean, send?: boolean) => {
+    const { MicrosoftLocalManager } = require('./services/MicrosoftLocalManager');
+    await MicrosoftLocalManager.getInstance().replyToEmail(entryId, body, replyAll, send ?? false);
+    return { success: true };
+  });
+
+  safeHandle("teams-list-chats", async (_, limit?: number) => {
+    const { MicrosoftLocalManager } = require('./services/MicrosoftLocalManager');
+    return MicrosoftLocalManager.getInstance().getTeamsChats(limit ?? 25);
+  });
+
+  safeHandle("teams-get-messages", async (_, chatId: string, limit?: number) => {
+    const { MicrosoftLocalManager } = require('./services/MicrosoftLocalManager');
+    return MicrosoftLocalManager.getInstance().getTeamsMessages(chatId, limit ?? 50);
+  });
+
+  safeHandle("teams-send-message", async (_, chatId: string, text: string) => {
+    const { MicrosoftLocalManager } = require('./services/MicrosoftLocalManager');
+    return MicrosoftLocalManager.getInstance().sendTeamsMessage(chatId, text);
+  });
+
+  safeHandle("chat:review-message", async (_, input: { text: string; reviewType: 'voice_pass' | 'technical_check'; sourceIntent?: string }) => {
+    try {
+      const llmHelper = appState.processingHelper.getLLMHelper();
+      return await llmHelper.reviewAssistantOutput(input);
+    } catch (error: any) {
+      console.error('[IPC] chat:review-message failed:', error);
+      return {
+        reviewType: input?.reviewType || 'voice_pass',
+        reviewerModel: 'error',
+        text: '',
+        error: error?.message || 'Review failed',
+      };
+    }
+  });
+
+  // ==========================================
   // RAG (Retrieval-Augmented Generation) Handlers
   // ==========================================
 
@@ -2021,6 +2084,10 @@ export function initializeIpcHandlers(appState: AppState): void {
   // Query meeting with RAG (meeting-scoped)
   safeHandle("rag:query-meeting", async (event, { meetingId, query }: { meetingId: string; query: string }) => {
     const ragManager = appState.getRAGManager();
+    const startedAt = Date.now();
+    const modelState = getChatDebugModelState();
+    let firstTokenAt: number | null = null;
+    let fullResponse = "";
 
     if (!ragManager || !ragManager.isReady()) {
       // Fallback to regular chat if RAG not available
@@ -2044,13 +2111,45 @@ export function initializeIpcHandlers(appState: AppState): void {
 
       for await (const chunk of stream) {
         if (abortController.signal.aborted) break;
+        if (!firstTokenAt) {
+          firstTokenAt = Date.now();
+        }
+        fullResponse += chunk;
         event.sender.send("rag:stream-chunk", { meetingId, chunk });
       }
 
       event.sender.send("rag:stream-complete", { meetingId });
+      saveChatDebugEntry({
+        surface: 'meeting_rag',
+        status: 'completed',
+        modelState,
+        meetingId,
+        timestamp: startedAt,
+        userQuery: query,
+        aiResponse: fullResponse,
+        firstTokenAt,
+        completedAt: Date.now(),
+        ragMode: 'meeting',
+      });
       return { success: true };
 
     } catch (error: any) {
+      if (error.name === 'AbortError') {
+        saveChatDebugEntry({
+          surface: 'meeting_rag',
+          status: 'superseded',
+          modelState,
+          meetingId,
+          timestamp: startedAt,
+          userQuery: query,
+          aiResponse: fullResponse,
+          firstTokenAt,
+          completedAt: Date.now(),
+          ragMode: 'meeting',
+        });
+        return { success: false, error: error.message };
+      }
+
       if (error.name !== 'AbortError') {
         const msg = error.message || "";
         // If specific RAG failures, return fallback to use transcript window
@@ -2061,6 +2160,19 @@ export function initializeIpcHandlers(appState: AppState): void {
 
         console.error("[RAG] Query error:", error);
         event.sender.send("rag:stream-error", { meetingId, error: msg });
+        saveChatDebugEntry({
+          surface: 'meeting_rag',
+          status: 'error',
+          modelState,
+          meetingId,
+          timestamp: startedAt,
+          userQuery: query,
+          aiResponse: fullResponse,
+          firstTokenAt,
+          completedAt: Date.now(),
+          ragMode: 'meeting',
+          error: msg,
+        });
       }
       return { success: false, error: error.message };
     } finally {
@@ -2071,6 +2183,10 @@ export function initializeIpcHandlers(appState: AppState): void {
   // Query live meeting with JIT RAG
   safeHandle("rag:query-live", async (event, { query }: { query: string }) => {
     const ragManager = appState.getRAGManager();
+    const startedAt = Date.now();
+    const modelState = getChatDebugModelState();
+    let firstTokenAt: number | null = null;
+    let fullResponse = "";
 
     if (!ragManager || !ragManager.isReady()) {
       return { fallback: true };
@@ -2090,13 +2206,43 @@ export function initializeIpcHandlers(appState: AppState): void {
 
       for await (const chunk of stream) {
         if (abortController.signal.aborted) break;
+        if (!firstTokenAt) {
+          firstTokenAt = Date.now();
+        }
+        fullResponse += chunk;
         event.sender.send("rag:stream-chunk", { live: true, chunk });
       }
 
       event.sender.send("rag:stream-complete", { live: true });
+      saveChatDebugEntry({
+        surface: 'widget_live_rag',
+        status: 'completed',
+        modelState,
+        timestamp: startedAt,
+        userQuery: query,
+        aiResponse: fullResponse,
+        firstTokenAt,
+        completedAt: Date.now(),
+        ragMode: 'live',
+      });
       return { success: true };
 
     } catch (error: any) {
+      if (error.name === 'AbortError') {
+        saveChatDebugEntry({
+          surface: 'widget_live_rag',
+          status: 'superseded',
+          modelState,
+          timestamp: startedAt,
+          userQuery: query,
+          aiResponse: fullResponse,
+          firstTokenAt,
+          completedAt: Date.now(),
+          ragMode: 'live',
+        });
+        return { success: false, error: error.message };
+      }
+
       if (error.name !== 'AbortError') {
         const msg = error.message || "";
         // If JIT RAG failed (no embeddings yet, no relevant context), fallback to regular chat
@@ -2106,6 +2252,18 @@ export function initializeIpcHandlers(appState: AppState): void {
         }
         console.error("[RAG] Live query error:", error);
         event.sender.send("rag:stream-error", { live: true, error: msg });
+        saveChatDebugEntry({
+          surface: 'widget_live_rag',
+          status: 'error',
+          modelState,
+          timestamp: startedAt,
+          userQuery: query,
+          aiResponse: fullResponse,
+          firstTokenAt,
+          completedAt: Date.now(),
+          ragMode: 'live',
+          error: msg,
+        });
       }
       return { success: false, error: error.message };
     } finally {
@@ -2116,6 +2274,10 @@ export function initializeIpcHandlers(appState: AppState): void {
   // Query global (cross-meeting search)
   safeHandle("rag:query-global", async (event, { query }: { query: string }) => {
     const ragManager = appState.getRAGManager();
+    const startedAt = Date.now();
+    const modelState = getChatDebugModelState();
+    let firstTokenAt: number | null = null;
+    let fullResponse = "";
 
     if (!ragManager || !ragManager.isReady()) {
       return { fallback: true };
@@ -2130,15 +2292,57 @@ export function initializeIpcHandlers(appState: AppState): void {
 
       for await (const chunk of stream) {
         if (abortController.signal.aborted) break;
+        if (!firstTokenAt) {
+          firstTokenAt = Date.now();
+        }
+        fullResponse += chunk;
         event.sender.send("rag:stream-chunk", { global: true, chunk });
       }
 
       event.sender.send("rag:stream-complete", { global: true });
+      saveChatDebugEntry({
+        surface: 'global_rag',
+        status: 'completed',
+        modelState,
+        timestamp: startedAt,
+        userQuery: query,
+        aiResponse: fullResponse,
+        firstTokenAt,
+        completedAt: Date.now(),
+        ragMode: 'global',
+      });
       return { success: true };
 
     } catch (error: any) {
+      if (error.name === 'AbortError') {
+        saveChatDebugEntry({
+          surface: 'global_rag',
+          status: 'superseded',
+          modelState,
+          timestamp: startedAt,
+          userQuery: query,
+          aiResponse: fullResponse,
+          firstTokenAt,
+          completedAt: Date.now(),
+          ragMode: 'global',
+        });
+        return { success: false, error: error.message };
+      }
+
       if (error.name !== 'AbortError') {
         event.sender.send("rag:stream-error", { global: true, error: error.message });
+        saveChatDebugEntry({
+          surface: 'global_rag',
+          status: 'error',
+          modelState,
+          timestamp: startedAt,
+          userQuery: query,
+          aiResponse: fullResponse,
+          firstTokenAt,
+          completedAt: Date.now(),
+          ragMode: 'global',
+          error: error.message,
+        });
       }
       return { success: false, error: error.message };
     } finally {
@@ -2206,11 +2410,6 @@ export function initializeIpcHandlers(appState: AppState): void {
 
   safeHandle("profile:upload-resume", async (_, filePath: string) => {
     try {
-      // Premium gate: require active license for profile features
-      const { LicenseManager } = require('../premium/electron/services/LicenseManager');
-      if (!LicenseManager.getInstance().isPremium()) {
-        return { success: false, error: 'Pro license required. Please activate a license key to use Profile Intelligence features.' };
-      }
       console.log(`[IPC] profile:upload-resume called with: ${filePath}`);
       const orchestrator = appState.getKnowledgeOrchestrator();
       if (!orchestrator) {
@@ -2247,13 +2446,6 @@ export function initializeIpcHandlers(appState: AppState): void {
 
   safeHandle("profile:set-mode", async (_, enabled: boolean) => {
     try {
-      // Premium gate: only allow enabling profile mode with active license
-      if (enabled) {
-        const { LicenseManager } = require('../premium/electron/services/LicenseManager');
-        if (!LicenseManager.getInstance().isPremium()) {
-          return { success: false, error: 'Pro license required. Please activate a license key to use Profile Intelligence features.' };
-        }
-      }
       const orchestrator = appState.getKnowledgeOrchestrator();
       if (!orchestrator) {
         return { success: false, error: 'Knowledge engine not initialized' };
@@ -2298,7 +2490,7 @@ export function initializeIpcHandlers(appState: AppState): void {
       const result: any = await dialog.showOpenDialog({
         properties: ['openFile'],
         filters: [
-          { name: 'Resume Files', extensions: ['pdf', 'docx', 'txt'] }
+          { name: 'Reference Files', extensions: ['pdf', 'docx', 'txt'] }
         ]
       });
 
@@ -2312,17 +2504,180 @@ export function initializeIpcHandlers(appState: AppState): void {
     }
   });
 
+  safeHandle("meeting-import:select-files", async () => {
+    try {
+      const result: any = await dialog.showOpenDialog({
+        properties: ['openFile', 'multiSelections'],
+        filters: [
+          { name: 'Meeting Files', extensions: ['txt', 'md', 'pdf', 'docx', 'json', 'srt', 'vtt'] }
+        ]
+      });
+
+      if (result.canceled || result.filePaths.length === 0) {
+        return { cancelled: true, filePaths: [] };
+      }
+
+      return { success: true, filePaths: result.filePaths };
+    } catch (error: any) {
+      return { success: false, error: error.message, filePaths: [] };
+    }
+  });
+
+  safeHandle("meeting-import:ingest", async (_, artifacts: any[]) => {
+    try {
+      const { MeetingImportService } = require('./services/MeetingImportService');
+      const service = new MeetingImportService();
+      const llmHelper = appState.processingHelper.getLLMHelper();
+      const ragManager = appState.getRAGManager?.() || null;
+      const result = await service.importArtifacts(artifacts || [], { llmHelper, ragManager });
+      broadcastMeetingsUpdated();
+      return result;
+    } catch (error: any) {
+      console.error('[IPC] meeting-import:ingest failed:', error);
+      return {
+        importedMeetings: [],
+        skippedArtifacts: [{ name: 'Import', reason: error?.message || 'Import failed' }],
+        totalArtifacts: Array.isArray(artifacts) ? artifacts.length : 0,
+      };
+    }
+  });
+
+  safeHandle("teams-import:discover", async (_, limit?: number) => {
+    try {
+      const { TeamsMeetingImportService } = require('./services/TeamsMeetingImportService');
+      const service = new TeamsMeetingImportService();
+      return await service.discoverCandidates(limit || 10);
+    } catch (error: any) {
+      console.error('[IPC] teams-import:discover failed:', error);
+      return [];
+    }
+  });
+
+  safeHandle("teams-import:ingest", async (_, options?: { limit?: number; chatIds?: string[] }) => {
+    try {
+      const { TeamsMeetingImportService } = require('./services/TeamsMeetingImportService');
+      const service = new TeamsMeetingImportService();
+      const llmHelper = appState.processingHelper.getLLMHelper();
+      const ragManager = appState.getRAGManager?.() || null;
+      const result = await service.importRecentCandidates({ llmHelper, ragManager }, options || {});
+      broadcastMeetingsUpdated();
+      return result;
+    } catch (error: any) {
+      console.error('[IPC] teams-import:ingest failed:', error);
+      return {
+        importedMeetings: [],
+        skippedArtifacts: [{ name: 'Teams Import', reason: error?.message || 'Teams import failed' }],
+        totalArtifacts: 0,
+        attemptedChats: 0,
+        discoveredCandidates: 0,
+      };
+    }
+  });
+
+  safeHandle("cluely-import:discover", async (_, limit?: number) => {
+    try {
+      const { CluelyImportService } = require('./services/CluelyImportService');
+      const service = new CluelyImportService();
+      return await service.discoverCandidates(limit || 10);
+    } catch (error: any) {
+      console.error('[IPC] cluely-import:discover failed:', error);
+      return {
+        candidates: [],
+        mode: 'unavailable',
+        warning: error?.message || 'Cluely discovery failed.',
+      };
+    }
+  });
+
+  safeHandle("cluely-import:ingest", async (_, options?: { limit?: number; sessionIds?: string[] }) => {
+    try {
+      const { CluelyImportService } = require('./services/CluelyImportService');
+      const service = new CluelyImportService();
+      const llmHelper = appState.processingHelper.getLLMHelper();
+      const ragManager = appState.getRAGManager?.() || null;
+      const result = await service.importRecentCandidates({ llmHelper, ragManager }, options || {});
+      broadcastMeetingsUpdated();
+      return result;
+    } catch (error: any) {
+      console.error('[IPC] cluely-import:ingest failed:', error);
+      return {
+        importedMeetings: [],
+        skippedArtifacts: [{ name: 'Cluely Import', reason: error?.message || 'Cluely import failed' }],
+        totalArtifacts: 0,
+        attemptedSessions: 0,
+        discoveredCandidates: 0,
+        mode: 'unavailable',
+      };
+    }
+  });
+
+  safeHandle("context-hub:get-status", async () => {
+    try {
+      const { ContextHubStatusService } = require('./services/ContextHubStatusService');
+      return await ContextHubStatusService.getStatus(appState.getKnowledgeOrchestrator?.());
+    } catch (error: any) {
+      console.error('[IPC] context-hub:get-status failed:', error);
+      return null;
+    }
+  });
+
+  safeHandle("autonomous-ops:get-status", async () => {
+    try {
+      const { AutonomousOpsService } = require('./autonomy');
+      return AutonomousOpsService.getInstance().getStatus();
+    } catch (error: any) {
+      console.error('[IPC] autonomous-ops:get-status failed:', error);
+      return null;
+    }
+  });
+
+  safeHandle("autonomous-ops:refresh", async () => {
+    try {
+      const { AutonomousOpsService } = require('./autonomy');
+      return await AutonomousOpsService.getInstance().refreshNow();
+    } catch (error: any) {
+      console.error('[IPC] autonomous-ops:refresh failed:', error);
+      return null;
+    }
+  });
+
+  safeHandle("autonomous-ops:start-workflow", async (_, workflowId: string, options?: { goalId?: string; autonomyLevel?: string }) => {
+    try {
+      const { AutonomousOpsService } = require('./autonomy');
+      return await AutonomousOpsService.getInstance().startWorkflow(workflowId, options);
+    } catch (error: any) {
+      console.error('[IPC] autonomous-ops:start-workflow failed:', error);
+      return null;
+    }
+  });
+
+  safeHandle("autonomous-ops:stop-workflow", async (_, workflowId: string) => {
+    try {
+      const { AutonomousOpsService } = require('./autonomy');
+      AutonomousOpsService.getInstance().stopWorkflow(workflowId);
+      return { success: true };
+    } catch (error: any) {
+      console.error('[IPC] autonomous-ops:stop-workflow failed:', error);
+      return { success: false, error: error?.message || 'Failed to stop workflow monitor.' };
+    }
+  });
+
+  safeHandle("autonomous-ops:invoke-action", async (_, workflowId: string, actionId: string, payload?: Record<string, unknown>) => {
+    try {
+      const { AutonomousOpsService } = require('./autonomy');
+      return await AutonomousOpsService.getInstance().invokeAction(workflowId, actionId, payload);
+    } catch (error: any) {
+      console.error('[IPC] autonomous-ops:invoke-action failed:', error);
+      return { success: false, summary: error?.message || 'Failed to invoke workflow action.' };
+    }
+  });
+
   // ==========================================
   // JD & Research IPC Handlers
   // ==========================================
 
   safeHandle("profile:upload-jd", async (_, filePath: string) => {
     try {
-      // Premium gate
-      const { LicenseManager } = require('../premium/electron/services/LicenseManager');
-      if (!LicenseManager.getInstance().isPremium()) {
-        return { success: false, error: 'Pro license required. Please activate a license key to use Profile Intelligence features.' };
-      }
       console.log(`[IPC] profile:upload-jd called with: ${filePath}`);
       const orchestrator = appState.getKnowledgeOrchestrator();
       if (!orchestrator) {
@@ -2353,11 +2708,6 @@ export function initializeIpcHandlers(appState: AppState): void {
 
   safeHandle("profile:research-company", async (_, companyName: string) => {
     try {
-      // Premium gate
-      const { LicenseManager } = require('../premium/electron/services/LicenseManager');
-      if (!LicenseManager.getInstance().isPremium()) {
-        return { success: false, error: 'Pro license required. Please activate a license key to use Profile Intelligence features.' };
-      }
       const orchestrator = appState.getKnowledgeOrchestrator();
       if (!orchestrator) {
         return { success: false, error: 'Knowledge engine not initialized' };
@@ -2404,18 +2754,13 @@ export function initializeIpcHandlers(appState: AppState): void {
 
   safeHandle("profile:generate-negotiation", async (_, force: boolean = false) => {
     try {
-      // Premium gate
-      const { LicenseManager } = require('../premium/electron/services/LicenseManager');
-      if (!LicenseManager.getInstance().isPremium()) {
-        return { success: false, error: 'Pro license required. Please activate a license key to use Profile Intelligence features.' };
-      }
       const orchestrator = appState.getKnowledgeOrchestrator();
       if (!orchestrator) {
         return { success: false, error: 'Knowledge engine not initialized' };
       }
       const status = orchestrator.getStatus();
       if (!status.hasResume) {
-        return { success: false, error: 'No resume loaded' };
+        return { success: false, error: 'No background context loaded' };
       }
 
       // Use cache unless force-regenerating
@@ -2424,7 +2769,7 @@ export function initializeIpcHandlers(appState: AppState): void {
         script = await orchestrator.generateNegotiationScriptOnDemand();
       }
       if (!script) {
-        return { success: false, error: 'Could not generate negotiation script. Ensure a resume and job description are uploaded.' };
+        return { success: false, error: 'Could not generate negotiation script. Ensure background context and a role brief are loaded.' };
       }
       return { success: true, script };
     } catch (error: any) {
@@ -2492,4 +2837,3 @@ export function initializeIpcHandlers(appState: AppState): void {
     return;
   });
 }
-

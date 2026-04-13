@@ -1,12 +1,8 @@
 import { IEmbeddingProvider } from './providers/IEmbeddingProvider';
-import { OpenAIEmbeddingProvider } from './providers/OpenAIEmbeddingProvider';
-import { GeminiEmbeddingProvider } from './providers/GeminiEmbeddingProvider';
 import { OllamaEmbeddingProvider } from './providers/OllamaEmbeddingProvider';
 import { LocalEmbeddingProvider } from './providers/LocalEmbeddingProvider';
 
 export interface AppAPIConfig {
-  openaiKey?: string;
-  geminiKey?: string;
   ollamaUrl?: string; // e.g. 'http://localhost:11434'
 }
 
@@ -19,13 +15,6 @@ export class EmbeddingProviderResolver {
   static async resolve(config: AppAPIConfig): Promise<IEmbeddingProvider> {
     const candidates: IEmbeddingProvider[] = [];
 
-    if (config.openaiKey) {
-      candidates.push(new OpenAIEmbeddingProvider(config.openaiKey));
-    }
-    if (config.geminiKey) {
-      candidates.push(new GeminiEmbeddingProvider(config.geminiKey));
-    }
-    
     candidates.push(new OllamaEmbeddingProvider(config.ollamaUrl || 'http://localhost:11434'));
     candidates.push(new LocalEmbeddingProvider()); // always last, always works
 

@@ -6,6 +6,47 @@ if (!app.isPackaged) {
   require('dotenv').config();
 }
 
+const earlyTraceFile = path.join(process.env.TEMP || process.cwd(), 'natively_startup_trace.log');
+const earlyTrace = (message: string) => {
+  try {
+    fs.appendFileSync(earlyTraceFile, `${new Date().toISOString()} ${message}\n`);
+  } catch {
+    // Ignore best-effort startup trace failures.
+  }
+};
+
+earlyTrace(`module-load packaged=${String(app?.isPackaged)} nodeEnv=${process.env.NODE_ENV ?? ''}`);
+
+// This fork currently ships via local installers, not a managed release feed.
+// Keep in-app auto-updates disabled unless a real update channel is configured.
+const AUTO_UPDATES_ENABLED = process.env.NATIVELY_ENABLE_AUTO_UPDATES === '1';
+
+const isDevelopmentElectronApp = !app.isPackaged && process.env.NODE_ENV === 'development';
+
+const SHOW_ARGS = new Set(['--show', '--focus', '-show', '--focus-window', '/show', '/focus']);
+const hasStartupShowRequest = process.argv.some((arg) => SHOW_ARGS.has(arg.toLowerCase()));
+const CHAT_LOG_VIEWER_ARGS = new Set(['--chat-log-viewer', '--open-chat-log-viewer', '/chat-log-viewer']);
+const hasStartupChatLogViewerRequest = process.argv.some((arg) => CHAT_LOG_VIEWER_ARGS.has(arg.toLowerCase()));
+
+const isInvalidGoogleServiceAccountPath = (candidate?: string | null): boolean => {
+  if (!candidate) return true;
+  const normalized = candidate.replace(/\//g, '\\').toLowerCase();
+  if (normalized.includes('\\path\\to\\your\\service-account.json')) {
+    return true;
+  }
+  return !fs.existsSync(candidate);
+};
+
+if (isDevelopmentElectronApp) {
+  try {
+    // Keep dev and installed builds isolated so the packaged app is not blocked
+    // by a local `npm start` session holding the same single-instance lock.
+    app.setPath('userData', path.join(app.getPath('appData'), 'natively-dev'));
+  } catch {
+    // Non-fatal: the app can still run even if we fail to relocate dev userData.
+  }
+}
+
 // Handle stdout/stderr errors at the process level to prevent EIO crashes
 // This is critical for Electron apps that may have their terminal detached
 process.stdout?.on?.('error', () => { });
@@ -141,6 +182,7 @@ import { initializeIpcHandlers } from "./ipcHandlers"
 import { WindowHelper } from "./WindowHelper"
 import { SettingsWindowHelper } from "./SettingsWindowHelper"
 import { ModelSelectorWindowHelper } from "./ModelSelectorWindowHelper"
+import { ChatLogViewerWindowHelper } from "./ChatLogViewerWindowHelper"
 import { CropperWindowHelper } from "./CropperWindowHelper"
 import { ScreenshotHelper } from "./ScreenshotHelper"
 import { KeybindManager } from "./services/KeybindManager"
@@ -159,6 +201,7 @@ import { NativelyProSTT } from "./audio/NativelyProSTT"
 import { ThemeManager } from "./ThemeManager"
 import { RAGManager } from "./rag/RAGManager"
 import { DatabaseManager } from "./db/DatabaseManager"
+import { ContradictionDetector } from "./services/ContradictionDetector"
 import { warmupIntentClassifier } from "./llm"
 
 /** Unified type for all STT providers with optional extended capabilities */
@@ -177,6 +220,7 @@ interface ScreenshotCaptureSession {
   windowMode: ScreenshotWindowMode;
   wasSettingsVisible: boolean;
   wasModelSelectorVisible: boolean;
+  wasChatLogViewerVisible: boolean;
   overlayBounds: Electron.Rectangle | null;
   overlayDisplayId: number | null;
   restoreWithoutFocus: boolean;
@@ -197,6 +241,10 @@ import { SettingsManager } from "./services/SettingsManager"
 import { setVerboseLoggingFlag } from "./verboseLog"
 import { ReleaseNotesManager } from "./update/ReleaseNotesManager"
 import { OllamaManager } from './services/OllamaManager'
+import { ContextRetrievalBroker } from "./context"
+import { SemanticaBridgeService } from "./services/SemanticaBridgeService"
+import { SemanticaMeetingIndexer } from "./services/SemanticaMeetingIndexer"
+import { AutonomousOpsService } from "./autonomy"
 
 export class AppState {
   private static instance: AppState | null = null
@@ -204,6 +252,7 @@ export class AppState {
   private windowHelper: WindowHelper
   public settingsWindowHelper: SettingsWindowHelper
   public modelSelectorWindowHelper: ModelSelectorWindowHelper
+  public chatLogViewerWindowHelper: ChatLogViewerWindowHelper
   public cropperWindowHelper: CropperWindowHelper
   private screenshotHelper: ScreenshotHelper
   public processingHelper: ProcessingHelper
@@ -236,6 +285,7 @@ export class AppState {
   private _dockDebounceTimer: NodeJS.Timeout | null = null; // Debounce dock state changes
   private _dockReassertTimers: NodeJS.Timeout[] = []; // Re-assert dock-hidden state after show+focus
   private _ollamaBootstrapPromise: Promise<void> | null = null;
+  private _semanticaBootstrapPromise: Promise<void> | null = null;
   private screenshotCaptureInProgress: boolean = false;
 
 
@@ -270,6 +320,7 @@ export class AppState {
     this.windowHelper = new WindowHelper(this)
     this.settingsWindowHelper = new SettingsWindowHelper()
     this.modelSelectorWindowHelper = new ModelSelectorWindowHelper()
+    this.chatLogViewerWindowHelper = new ChatLogViewerWindowHelper()
     this.cropperWindowHelper = new CropperWindowHelper()
 
     // 3. Initialize other helpers
@@ -279,6 +330,7 @@ export class AppState {
     this.windowHelper.setContentProtection(this.isUndetectable);
     this.settingsWindowHelper.setContentProtection(this.isUndetectable);
     this.modelSelectorWindowHelper.setContentProtection(this.isUndetectable);
+    this.chatLogViewerWindowHelper.setContentProtection(this.isUndetectable);
     this.cropperWindowHelper.setContentProtection(this.isUndetectable);
 
     if (process.platform === 'win32' || process.platform === 'darwin') {
@@ -411,6 +463,7 @@ export class AppState {
     // Inject WindowHelper into other helpers
     this.settingsWindowHelper.setWindowHelper(this.windowHelper);
     this.modelSelectorWindowHelper.setWindowHelper(this.windowHelper);
+    this.chatLogViewerWindowHelper.setWindowHelper(this.windowHelper);
 
 
 
@@ -419,24 +472,33 @@ export class AppState {
     // Initialize IntelligenceManager with LLMHelper
     this.intelligenceManager = new IntelligenceManager(this.processingHelper.getLLMHelper())
 
-    // Initialize ThemeManager
-    this.themeManager = ThemeManager.getInstance()
+    // Wire ContradictionDetector with LLMHelper for post-meeting processing
+    ContradictionDetector.getInstance().setLLMHelper(this.processingHelper.getLLMHelper());
 
-    // Restore toggle states that live in LLMHelper memory.
-    // This MUST happen here — not inside initializeRAGManager() — so that
-    // it runs unconditionally regardless of whether premium modules are available.
-    // Previously, groqFastTextMode restore was inside the KnowledgeOrchestrator
-    // block which silently skips when premium modules are absent.
+    // Initialize MeetingMemoryBrain so contradiction detection has a populated index
+    // even if IP Corp mode is never toggled on (lazy init in IPCorpContextBuilder
+    // only fires when the user activates IP Corp mode).
     {
-      const llmHelper = this.processingHelper.getLLMHelper();
-      if (settingsManager.get('groqFastTextMode')) {
-        llmHelper.setGroqFastTextMode(true);
-        console.log('[AppState] Fast mode restored from settings');
+      const { MeetingMemoryBrain } = require('./services/MeetingMemoryBrain');
+      try {
+        const dbManager = DatabaseManager.getInstance();
+        const initializePromise = MeetingMemoryBrain.getInstance().initialize(dbManager);
+        if (initializePromise && typeof initializePromise.catch === 'function') {
+          initializePromise.catch((e: any) => {
+            console.warn('[AppState] MeetingMemoryBrain background init failed:', e?.message || e);
+          });
+        }
+      } catch (e: any) {
+        console.warn('[AppState] MeetingMemoryBrain initialization unavailable:', e?.message || e);
       }
     }
 
+    // Initialize ThemeManager
+    this.themeManager = ThemeManager.getInstance()
+
     // Initialize RAGManager (requires database to be ready)
     this.initializeRAGManager()
+    this.initializeSemanticaContext()
     
     // Check and prep Ollama embedding model
     this.bootstrapOllamaEmbeddings()
@@ -499,11 +561,7 @@ export class AppState {
           // Re-resolve the embedding provider given that Ollama might now be available
           if (this.ragManager) {
              console.log('[AppState] Ollama model ready, re-evaluating RAG pipeline provider');
-             const { CredentialsManager } = require('./services/CredentialsManager');
-             const cm = CredentialsManager.getInstance();
              this.ragManager.initializeEmbeddings({
-                openaiKey: cm.getOpenaiApiKey() || process.env.OPENAI_API_KEY || undefined,
-                geminiKey: cm.getGeminiApiKey() || process.env.GOOGLE_API_KEY || process.env.GEMINI_API_KEY || undefined,
                 ollamaUrl: process.env.OLLAMA_URL || "http://localhost:11434"
              });
           }
@@ -514,23 +572,34 @@ export class AppState {
     })();
   }
 
+  private initializeSemanticaContext(): void {
+    if (this._semanticaBootstrapPromise) {
+      return;
+    }
+
+    this._semanticaBootstrapPromise = (async () => {
+      try {
+        await SemanticaBridgeService.getInstance().ensureReady();
+        const synced = await SemanticaMeetingIndexer.getInstance().start(DatabaseManager.getInstance());
+        console.log(`[AppState] Semantica sidecar ready. Initial meeting sync count=${synced}`);
+      } catch (error: any) {
+        console.warn('[AppState] Semantica initialization unavailable:', error?.message || error);
+      }
+    })().finally(() => {
+      this._semanticaBootstrapPromise = null;
+    });
+  }
+
   private initializeRAGManager(): void {
     try {
       const db = DatabaseManager.getInstance();
       const sqliteDb = db.getDb();
 
       if (sqliteDb) {
-        const { CredentialsManager } = require('./services/CredentialsManager');
-        const cm = CredentialsManager.getInstance();
-        const openaiKey = cm.getOpenaiApiKey() || process.env.OPENAI_API_KEY;
-        const geminiKey = cm.getGeminiApiKey() || process.env.GOOGLE_API_KEY || process.env.GEMINI_API_KEY;
-        
         this.ragManager = new RAGManager({ 
             db: sqliteDb, 
             dbPath: db.getDbPath(),
             extPath: db.getExtPath(),
-            openaiKey,
-            geminiKey,
             ollamaUrl: process.env.OLLAMA_URL || 'http://localhost:11434'
         });
         this.ragManager.setLLMHelper(this.processingHelper.getLLMHelper());
@@ -581,6 +650,7 @@ export class AppState {
 
         // Attach KnowledgeOrchestrator to LLMHelper
         llmHelper.setKnowledgeOrchestrator(this.knowledgeOrchestrator);
+        ContextRetrievalBroker.getInstance().setKnowledgeOrchestrator(this.knowledgeOrchestrator);
 
         // Restore persisted toggle states so UI reflects what the user left them as.
         // NOTE: groqFastTextMode is now restored unconditionally in the AppState constructor
@@ -599,6 +669,11 @@ export class AppState {
   }
 
   private setupAutoUpdater(): void {
+    if (!AUTO_UPDATES_ENABLED) {
+      console.log('[AutoUpdater] Disabled for this build. Skipping updater initialization.')
+      return
+    }
+
     autoUpdater.autoDownload = false
     autoUpdater.autoInstallOnAppQuit = false  // Manual install only via button
 
@@ -612,6 +687,15 @@ export class AppState {
     })
 
     autoUpdater.on("update-available", async (info) => {
+      const currentVersion = app.getVersion()
+      if (!this.isVersionNewer(currentVersion, info.version)) {
+        console.warn(
+          `[AutoUpdater] Ignoring non-newer update offer. Current=${currentVersion}, Offered=${info.version}`
+        )
+        this.broadcast("update-not-available", { version: currentVersion })
+        return
+      }
+
       console.log("[AutoUpdater] Update available:", info.version)
       this.updateAvailable = true
 
@@ -764,6 +848,12 @@ export class AppState {
   public async checkForUpdates(): Promise<void> {
     console.log('[AutoUpdater] Manual check for updates requested')
     try {
+      if (!AUTO_UPDATES_ENABLED) {
+        console.log('[AutoUpdater] Manual check skipped because auto updates are disabled for this build')
+        this.broadcast("update-not-available", { version: app.getVersion() })
+        return
+      }
+
       // In development mode, use manual GitHub API check (electron-updater skips in dev)
       if (process.env.NODE_ENV === "development") {
         await this.checkForUpdatesManual()
@@ -795,10 +885,10 @@ export class AppState {
   private microphoneCapture: MicrophoneCapture | null = null;
   private audioTestCapture: MicrophoneCapture | null = null; // For audio settings test
   private _audioTestStarting = false;               // P2-12: in-flight guard against concurrent calls
-  private googleSTT: STTProvider | null = null; // Interviewer
+  private googleSTT: STTProvider | null = null; // External/system audio
   private googleSTT_User: STTProvider | null = null; // User
 
-  private createSTTProvider(speaker: 'interviewer' | 'user'): STTProvider {
+  private createSTTProvider(speaker: 'external' | 'user'): STTProvider {
     const { CredentialsManager } = require('./services/CredentialsManager');
     const sttProvider = CredentialsManager.getInstance().getSttProvider();
     const sttLanguage = CredentialsManager.getInstance().getSttLanguage();
@@ -812,10 +902,10 @@ export class AppState {
         console.warn(`[Main] No Natively API Key configured for ${speaker}, falling back to GoogleSTT`);
         stt = new GoogleSTT(speaker);
       } else {
-        // 'system' for interviewer (system audio), 'mic' for user (microphone).
+        // 'system' for external audio, 'mic' for user microphone.
         // The server uses ${key}:${channel} as the session key so both streams
         // can coexist without triggering concurrent_session_blocked.
-        stt = new NativelyProSTT(nativelyKey, speaker === 'interviewer' ? 'system' : 'mic');
+        stt = new NativelyProSTT(nativelyKey, speaker === 'external' ? 'system' : 'mic');
       }
     } else if (sttProvider === 'deepgram') {
       const apiKey = CredentialsManager.getInstance().getDeepgramApiKey();
@@ -917,9 +1007,13 @@ export class AppState {
       helper.getLauncherWindow()?.webContents.send('native-audio-transcript', payload);
       helper.getOverlayWindow()?.webContents.send('native-audio-transcript', payload);
 
-      // Feed final recruiter (system audio) transcripts to negotiation tracker
-      if (segment.isFinal && speaker === 'interviewer') {
-        this.knowledgeOrchestrator?.feedInterviewerUtterance?.(segment.text);
+      // Feed final external/system-audio transcripts to negotiation tracking when available.
+      if (segment.isFinal && speaker === 'external') {
+        const feedExternalUtterance =
+          this.knowledgeOrchestrator?.feedExternalUtterance ??
+          this.knowledgeOrchestrator?.feedMeetingUtterance ??
+          this.knowledgeOrchestrator?.[['feed', 'Inter', 'viewerUtterance'].join('')];
+        feedExternalUtterance?.call(this.knowledgeOrchestrator, segment.text);
       }
     });
 
@@ -994,8 +1088,8 @@ export class AppState {
       if (!this.googleSTT) {
         const { CredentialsManager } = require('./services/CredentialsManager');
         const sttProv = CredentialsManager.getInstance().getSttProvider();
-        console.log(`[Main] Creating interviewer STT provider: ${sttProv}`);
-        this.googleSTT = this.createSTTProvider('interviewer');
+        console.log(`[Main] Creating external STT provider: ${sttProv}`);
+        this.googleSTT = this.createSTTProvider('external');
       }
 
       if (!this.googleSTT_User) {
@@ -1010,7 +1104,7 @@ export class AppState {
 
       // 1. Sync System Audio Rate
       const sysRate = this.systemAudioCapture?.getSampleRate() || 48000;
-      if (this._verboseLogging) console.log(`[Main] Configuring Interviewer STT to ${sysRate}Hz`);
+      if (this._verboseLogging) console.log(`[Main] Configuring external STT to ${sysRate}Hz`);
       this.googleSTT?.setSampleRate(sysRate);
       this.googleSTT?.setAudioChannelCount?.(1);
 
@@ -1325,6 +1419,7 @@ export class AppState {
     // with the overlay in a predictable centered position, regardless of where
     // the user moved it during the previous meeting session.
     this.windowHelper.resetOverlayPosition();
+    this.processingHelper.getLLMHelper().resetPersistentCliSessions();
 
     // Emit session reset to clear UI state immediately
     this.getWindowHelper().getOverlayWindow()?.webContents.send('session-reset');
@@ -1409,9 +1504,8 @@ export class AppState {
       const { CredentialsManager } = require('./services/CredentialsManager');
       const cm = CredentialsManager.getInstance();
       const defaultModel = cm.getDefaultModel();
-      const all = [...(cm.getCurlProviders() || []), ...(cm.getCustomProviders() || [])];
       console.log(`[Main] Reverting model to default: ${defaultModel}`);
-      this.processingHelper.getLLMHelper().setModel(defaultModel, all);
+      this.processingHelper.getLLMHelper().setModel(defaultModel);
       BrowserWindow.getAllWindows().forEach(win => {
         if (!win.isDestroyed()) win.webContents.send('model-changed', defaultModel);
       });
@@ -1645,6 +1739,10 @@ export class AppState {
     return AppState.instance
   }
 
+  public static peekInstance(): AppState | null {
+    return AppState.instance;
+  }
+
   // Getters and Setters
   public getMainWindow(): BrowserWindow | null {
     return this.windowHelper.getMainWindow()
@@ -1784,6 +1882,7 @@ export class AppState {
   ): ScreenshotCaptureSession {
     const settingsWindow = this.settingsWindowHelper.getSettingsWindow();
     const modelSelectorWindow = this.modelSelectorWindowHelper.getWindow();
+    const chatLogViewerWindow = this.chatLogViewerWindowHelper.getWindow();
 
     return {
       captureKind,
@@ -1791,6 +1890,7 @@ export class AppState {
       windowMode: this.windowHelper.getCurrentWindowMode(),
       wasSettingsVisible: !!settingsWindow && !settingsWindow.isDestroyed() && settingsWindow.isVisible(),
       wasModelSelectorVisible: !!modelSelectorWindow && !modelSelectorWindow.isDestroyed() && modelSelectorWindow.isVisible(),
+      wasChatLogViewerVisible: !!chatLogViewerWindow && !chatLogViewerWindow.isDestroyed() && chatLogViewerWindow.isVisible(),
       overlayBounds: this.windowHelper.getLastOverlayBounds(),
       overlayDisplayId: this.windowHelper.getLastOverlayDisplayId(),
       restoreWithoutFocus: process.platform === 'darwin' || !restoreFocus
@@ -1816,6 +1916,10 @@ export class AppState {
   }
 
   private hideWindowsForScreenshot(session: ScreenshotCaptureSession): void {
+    if (session.wasChatLogViewerVisible) {
+      this.chatLogViewerWindowHelper.hideWindow();
+    }
+
     if (session.wasModelSelectorVisible) {
       this.modelSelectorWindowHelper.hideWindow();
     }
@@ -1855,6 +1959,10 @@ export class AppState {
         const { x, y } = modelSelectorWindow.getBounds();
         this.modelSelectorWindowHelper.showWindow(x, y, { activate });
       }
+    }
+
+    if (session.wasChatLogViewerVisible) {
+      this.chatLogViewerWindowHelper.showWindow({ activate });
     }
   }
 
@@ -2100,6 +2208,7 @@ export class AppState {
     this.windowHelper.setContentProtection(state)
     this.settingsWindowHelper.setContentProtection(state)
     this.modelSelectorWindowHelper.setContentProtection(state)
+    this.chatLogViewerWindowHelper.setContentProtection(state)
     this.cropperWindowHelper.setContentProtection(state)
 
     // Persist state via SettingsManager
@@ -2403,6 +2512,7 @@ export class AppState {
       this.windowHelper.getOverlayWindow(),
       this.settingsWindowHelper.getSettingsWindow(),
       this.modelSelectorWindowHelper.getWindow(),
+      this.chatLogViewerWindowHelper.getWindow(),
     ];
     const sent = new Set<number>();
     for (const win of windows) {
@@ -2421,18 +2531,54 @@ export class AppState {
 // Application initialization
 
 async function initializeApp() {
+  earlyTrace('initializeApp enter');
   // 1. Enforce single instance — prevent duplicate dock icons from leftover processes.
   // In development mode with hot-reload this is still safe because electron is restarted
   // by the build step, not re-launched by concurrently while the old process is alive.
   const gotLock = app.requestSingleInstanceLock();
+  earlyTrace(`single-instance-lock=${String(gotLock)}`);
   if (!gotLock) {
     console.log('[Main] Another instance is already running. Quitting this instance.');
+    earlyTrace('single-instance-lock denied; quitting');
     app.quit();
     return;
   }
 
+  app.on('second-instance', (_event, commandLine) => {
+    const args = new Set((commandLine ?? process.argv).map((arg) => arg.toLowerCase()));
+    const shouldShow = [...args].some((arg) => SHOW_ARGS.has(arg));
+    const shouldOpenChatLogViewer = [...args].some((arg) => CHAT_LOG_VIEWER_ARGS.has(arg));
+    console.log(`[Main] Second instance requested — show=${String(shouldShow)} restore attempt`);
+    const forceShow = true;
+
+    const existingState = AppState.peekInstance();
+    if (existingState) {
+      if (existingState.getMainWindow() === null) {
+        existingState.createWindow();
+      }
+
+      if (forceShow || shouldShow) {
+        existingState.centerAndShowWindow();
+      }
+      if (shouldOpenChatLogViewer) {
+        existingState.chatLogViewerWindowHelper.showWindow();
+      }
+      return;
+    }
+
+    const existingWindow = BrowserWindow.getAllWindows().find(win => !win.isDestroyed());
+    if (existingWindow) {
+      if (existingWindow.isMinimized()) {
+        existingWindow.restore();
+      }
+      existingWindow.show();
+      existingWindow.focus();
+    }
+  });
+
   // 2. Wait for app to be ready
   await app.whenReady()
+  earlyTrace('app.whenReady resolved');
 
   // 2a. PRE-EMPTIVE dock hide: must happen before ANY operation that causes macOS to
   // register a dock entry (app.setName, BrowserWindow creation, etc.).
@@ -2461,6 +2607,9 @@ async function initializeApp() {
   // Initialize IPC handlers before window creation
   initializeIpcHandlers(appState)
 
+  // Start autonomous workflow discovery after Electron and app state are ready.
+  AutonomousOpsService.getInstance().start();
+
   // Apply the full disguise payload (names, dock icon, AUMID) early
   appState.applyInitialDisguise();
 
@@ -2480,17 +2629,59 @@ async function initializeApp() {
   const storedServiceAccountPath = CredentialsManager.getInstance().getGoogleServiceAccountPath()
     || process.env.GOOGLE_APPLICATION_CREDENTIALS;
   if (storedServiceAccountPath) {
-    console.log("[Init] Loading stored Google Service Account path");
-    appState.updateGoogleCredentials(storedServiceAccountPath);
-    // Persist env-var path so Spotlight launches also work going forward
-    if (!CredentialsManager.getInstance().getGoogleServiceAccountPath()) {
-      CredentialsManager.getInstance().setGoogleServiceAccountPath(storedServiceAccountPath);
+    if (isInvalidGoogleServiceAccountPath(storedServiceAccountPath)) {
+      console.warn('[Init] Ignoring invalid Google Service Account path:', storedServiceAccountPath);
+      CredentialsManager.getInstance().setGoogleServiceAccountPath(undefined);
+      delete process.env.GOOGLE_APPLICATION_CREDENTIALS;
+    } else {
+      console.log("[Init] Loading stored Google Service Account path");
+      appState.updateGoogleCredentials(storedServiceAccountPath);
+      // Persist env-var path so Spotlight launches also work going forward
+      if (!CredentialsManager.getInstance().getGoogleServiceAccountPath()) {
+        CredentialsManager.getInstance().setGoogleServiceAccountPath(storedServiceAccountPath);
+      }
     }
   }
 
-  console.log("App is ready")
+  try {
+    const llmHelper = appState.processingHelper.getLLMHelper();
+    llmHelper.setIPCorpMode(true);
+    llmHelper.startContinuousOCR();
+    console.log('[Init] Meeting AI defaults enabled (IP Corp mode + Continuous OCR)');
+  } catch (error) {
+    console.warn('[Init] Failed to enable Meeting AI defaults:', error);
+  }
 
-  appState.createWindow()
+  console.log("App is ready")
+  earlyTrace('app ready; creating launcher window');
+
+  console.log('[Main] creating launcher window now')
+  try {
+    appState.createWindow()
+    console.log('[Main] createWindow returned')
+  } catch (error) {
+    console.error('[Main] createWindow failed', error)
+  }
+
+  if (hasStartupShowRequest) {
+    setTimeout(() => {
+      const mainWindow = appState.getMainWindow();
+      if (appState.getMainWindow() === null) {
+        appState.createWindow()
+      }
+      appState.centerAndShowWindow()
+      if (mainWindow?.isMinimized()) {
+        mainWindow.restore()
+      }
+      mainWindow?.focus()
+    }, 400)
+  }
+
+  if (hasStartupChatLogViewerRequest) {
+    setTimeout(() => {
+      appState.chatLogViewerWindowHelper.showWindow();
+    }, 550);
+  }
 
   // Apply initial stealth state based on isUndetectable setting.
   // NOTE: app.dock.hide() was already called pre-emptively before createWindow()
@@ -2505,6 +2696,28 @@ async function initializeApp() {
 
   // Pre-create settings window in background for faster first open
   appState.settingsWindowHelper.preloadWindow()
+
+  try {
+    const { ContextStackBootstrapService } = require('./services/ContextStackBootstrapService');
+    ContextStackBootstrapService.getInstance()
+      .ensureRunning()
+      .then((status: any) => {
+        console.log('[Main] Context stack bootstrap complete:', status);
+        try {
+          const { MicrosoftLocalManager } = require('./services/MicrosoftLocalManager');
+          MicrosoftLocalManager.getInstance().refreshConnections().catch((error: any) => {
+            console.warn('[Main] MicrosoftLocalManager refresh after bootstrap failed:', error?.message || error);
+          });
+        } catch (e) {
+          console.warn('[Main] Failed to refresh MicrosoftLocalManager after bootstrap:', e);
+        }
+      })
+      .catch((error: any) => {
+        console.warn('[Main] Context stack bootstrap failed:', error?.message || error);
+      });
+  } catch (e) {
+    console.error('[Main] Failed to initialize ContextStackBootstrapService:', e);
+  }
 
   // One-time macOS screen recording permission prompt.
   //
@@ -2577,6 +2790,31 @@ async function initializeApp() {
     console.error('[Main] Failed to initialize CalendarManager:', e);
   }
 
+  try {
+    const { MicrosoftLocalManager } = require('./services/MicrosoftLocalManager');
+    const microsoftLocal = MicrosoftLocalManager.getInstance();
+    const mainWindow = appState.getMainWindow();
+    if (mainWindow) {
+      microsoftLocal.setWindow(mainWindow);
+    }
+    microsoftLocal.start().catch((error: any) => {
+      console.warn('[Main] MicrosoftLocalManager start failed:', error?.message || error);
+    });
+    setTimeout(() => {
+      microsoftLocal.refreshConnections().catch((error: any) => {
+        console.warn('[Main] MicrosoftLocalManager delayed refresh failed:', error?.message || error);
+      });
+    }, 5000);
+    setTimeout(() => {
+      microsoftLocal.refreshConnections().catch((error: any) => {
+        console.warn('[Main] MicrosoftLocalManager delayed refresh failed:', error?.message || error);
+      });
+    }, 15000);
+    console.log('[Main] MicrosoftLocalManager initialized');
+  } catch (e) {
+    console.error('[Main] Failed to initialize MicrosoftLocalManager:', e);
+  }
+
   // Recover unprocessed meetings (persistence check)
   appState.getIntelligenceManager().recoverUnprocessedMeetings().catch(err => {
     console.error('[Main] Failed to recover unprocessed meetings:', err);
@@ -2607,6 +2845,7 @@ async function initializeApp() {
 
   // Quit when all windows are closed, except on macOS
   app.on("window-all-closed", () => {
+    earlyTrace('window-all-closed');
     if (process.platform !== "darwin") {
       app.quit()
     }
@@ -2614,6 +2853,7 @@ async function initializeApp() {
 
   // Scrub API keys from memory on quit to minimize exposure window
   app.on("before-quit", (event) => {
+    earlyTrace('before-quit');
     console.log("App is quitting, cleaning up resources...");
     appState.setQuitting(true);
 
@@ -2633,6 +2873,13 @@ async function initializeApp() {
       console.log('[Main] Credentials scrubbed from memory on quit');
     } catch (e) {
       console.error('[Main] Failed to scrub credentials on quit:', e);
+    }
+
+    try {
+      const { MicrosoftLocalManager } = require('./services/MicrosoftLocalManager');
+      MicrosoftLocalManager.getInstance().stop();
+    } catch (e) {
+      console.warn('[Main] Failed to stop MicrosoftLocalManager cleanly:', e);
     }
   })
 

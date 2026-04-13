@@ -24,6 +24,65 @@ function runCommand(command, extraEnv = {}) {
   execSync(command, { stdio: 'inherit', cwd: nativeModulePath, env: { ...process.env, ...extraEnv } });
 }
 
+function getWindowsTargetTriple() {
+  const archTargetMap = {
+    x64: 'x86_64-pc-windows-msvc',
+    ia32: 'i686-pc-windows-msvc',
+    arm64: 'aarch64-pc-windows-msvc',
+  };
+
+  return archTargetMap[os.arch()] ?? null;
+}
+
+function getWindowsArtifactName() {
+  const archArtifactMap = {
+    x64: 'index.win32-x64-msvc.node',
+    ia32: 'index.win32-ia32-msvc.node',
+    arm64: 'index.win32-arm64-msvc.node',
+  };
+
+  return archArtifactMap[os.arch()] ?? null;
+}
+
+function recoverWindowsArtifactFromCargo() {
+  if (os.platform() !== 'win32') {
+    return false;
+  }
+
+  const targetTriple = getWindowsTargetTriple();
+  const artifactName = getWindowsArtifactName();
+
+  if (!targetTriple || !artifactName) {
+    return false;
+  }
+
+  const compiledDllPath = path.join(
+    nativeModulePath,
+    'target',
+    targetTriple,
+    'release',
+    'natively_audio.dll'
+  );
+  const recoveredArtifactPath = path.join(nativeModulePath, artifactName);
+
+  if (!fs.existsSync(compiledDllPath)) {
+    return false;
+  }
+
+  try {
+    fs.copyFileSync(compiledDllPath, recoveredArtifactPath);
+    console.warn(`Recovered Windows native artifact from cargo output: ${artifactName}`);
+    return true;
+  } catch (error) {
+    if (error?.code === 'EBUSY' && fs.existsSync(recoveredArtifactPath)) {
+      console.warn(`Windows native artifact is locked; reusing existing artifact: ${artifactName}`);
+      return true;
+    }
+
+    throw error;
+  }
+}
+
 // Resolve the actual clang runtime lib path (Xcode version changes across machines).
 // Rust's cross-compilation toolchain embeds a stale version number; we override with LIBRARY_PATH.
 function getClangLibPath() {
@@ -120,7 +179,15 @@ if (os.platform() === 'darwin') {
 
 } else {
   console.log(`Building for current platform: ${os.platform()}`);
-  runCommand('npx napi build --platform --release');
+  try {
+    runCommand('npx napi build --platform --release');
+  } catch (error) {
+    const recovered = recoverWindowsArtifactFromCargo();
+    if (!recovered) {
+      throw error;
+    }
+    console.warn(`Continuing after napi copy failure: ${error.message}`);
+  }
 
   const artifactMap = {
     win32: {

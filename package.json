@@ -1,8 +1,8 @@
 {
   "name": "natively",
-  "version": "2.3.1",
-  "main": "dist-electron/electron/main.js",
-  "description": "Natively is a meeting notes app that uses AI to generate notes from your meetings.",
+  "version": "2.3.7",
+  "main": "dist-electron/electron/bootstrap.js",
+  "description": "Local-first proactive meeting and workflow companion.",
   "scripts": {
     "clean": "rimraf dist dist-electron",
     "dev": "vite",
@@ -10,14 +10,15 @@
     "build:electron": "tsc -p electron/tsconfig.json",
     "preview": "vite preview",
     "postinstall": "cross-env SHARP_IGNORE_GLOBAL_LIBVIPS=1 npm rebuild sharp && node scripts/download-models.js && node scripts/ensure-sqlite-vec.js",
-    "electron:dev": "npm run build:electron && cross-env NODE_ENV=development electron .",
-    "electron:build": "npm run build:electron && cross-env NODE_ENV=production electron .",
-    "app:dev": "concurrently \"npm run dev -- --port 5180 --strictPort\" \"wait-on http://localhost:5180 && npm run electron:dev\"",
+    "electron:dev": "npm run build:electron && node scripts/launch-electron.js --development",
+    "electron:build": "npm run build:electron && node scripts/launch-electron.js --production",
+    "app:dev": "node scripts/start-dev.js",
     "app:build": "npm run build && npm run build:electron && cross-env NATIVELY_BUILD_ALL_MAC_ARCHES=1 npm run build:native && electron-builder",
     "watch": "tsc -p electron/tsconfig.json --watch",
     "start": "npm run app:dev",
     "dist": "npm run app:build",
-    "build:native": "node scripts/build-native.js"
+    "build:native": "node scripts/build-native.js",
+    "launch": "powershell -NoProfile -ExecutionPolicy Bypass -File launch-natively.ps1"
   },
   "build": {
     "generateUpdatesFilesForAllChannels": true,
@@ -42,6 +43,12 @@
       "output": "release",
       "buildResources": "assets"
     },
+    "publish": [
+      {
+        "provider": "generic",
+        "url": "https://natively.software/releases"
+      }
+    ],
     "extraResources": [
       {
         "from": "assets/",
@@ -54,6 +61,22 @@
       {
         "from": "resources/models/",
         "to": "models/"
+      },
+      {
+        "from": "electron/services/outlook-bridge/",
+        "to": "outlook-bridge/"
+      },
+      {
+        "from": "sidecars/semantica-runtime/",
+        "to": "sidecars/semantica-runtime/",
+        "filter": [
+          "main.py",
+          "requirements-min.txt"
+        ]
+      },
+      {
+        "from": "../semantica/semantica/",
+        "to": "semantica-upstream/semantica/"
       }
     ],
     "mac": {
@@ -125,15 +148,7 @@
       "allowToChangeInstallationDirectory": true,
       "deleteAppDataOnUninstall": false,
       "artifactName": "${productName}-Setup-${version}.${ext}"
-    },
-    "publish": [
-      {
-        "provider": "github",
-        "owner": "evinjohnn",
-        "repo": "natively-cluely-ai-assistant",
-        "releaseType": "release"
-      }
-    ]
+    }
   },
   "keywords": [],
   "author": "",
@@ -174,12 +189,10 @@
     "wait-on": "^8.0.1"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.74.0",
     "@bany/curl-to-json": "^1.2.10",
     "@elevenlabs/client": "^0.15.1",
     "@elevenlabs/elevenlabs-js": "^2.39.0",
     "@google-cloud/speech": "^7.2.1",
-    "@google/genai": "^1.44.0",
     "@google/stitch-sdk": "^0.0.3",
     "@grpc/grpc-js": "^1.14.3",
     "@grpc/proto-loader": "^0.8.0",
@@ -198,13 +211,11 @@
     "electron-updater": "^6.7.3",
     "form-data": "^4.0.1",
     "framer-motion": "^12.29.2",
-    "groq-sdk": "^0.37.0",
     "jspdf": "^4.0.0",
     "katex": "^0.16.27",
     "keytar": "^7.9.0",
     "lucide-react": "^0.460.0",
     "mammoth": "^1.11.0",
-    "openai": "^6.22.0",
     "pdf-parse": "^2.4.5",
     "react": "^18.3.1",
     "react-code-blocks": "^0.1.6",
