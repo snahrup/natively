@@ -10,6 +10,7 @@ import {
     FileText,
     History,
     ListTodo,
+    LogIn,
     MessageSquareText,
     Monitor,
     RefreshCw,
@@ -141,6 +142,14 @@ const emptyOverview: MeetingContextOverview = {
     upcomingSignals: [],
     evidence: [],
     generatedAt: '',
+};
+
+const isClaudeAuthErrorMessage = (message: string) => {
+    const lower = (message || '').toLowerCase();
+    return lower.includes('not logged in')
+        || lower.includes('/login')
+        || lower.includes('authentication_failed')
+        || lower.includes('claude local session is installed but not logged in');
 };
 
 const formatMeetingDate = (value: string) => {
@@ -350,6 +359,8 @@ const MeetingDetails: React.FC<MeetingDetailsProps> = ({ meeting: initialMeeting
     const [isChatOpen, setIsChatOpen] = useState(false);
     const [submittedQuery, setSubmittedQuery] = useState('');
     const [isGeneratingOverview, setIsGeneratingOverview] = useState(false);
+    const [isStartingClaudeLogin, setIsStartingClaudeLogin] = useState(false);
+    const [hasAutoStartedClaudeLogin, setHasAutoStartedClaudeLogin] = useState(false);
     const [overviewError, setOverviewError] = useState('');
     const [screenGallery, setScreenGallery] = useState<ScreenGalleryState | null>(null);
     const [isLoadingScreenGallery, setIsLoadingScreenGallery] = useState(false);
@@ -377,6 +388,8 @@ const MeetingDetails: React.FC<MeetingDetailsProps> = ({ meeting: initialMeeting
         setTranscriptFilter('');
         setQuery('');
         setSubmittedQuery('');
+        setIsStartingClaudeLogin(false);
+        setHasAutoStartedClaudeLogin(false);
         setOverviewError('');
         setScreenGallery(null);
         setScreenGalleryError('');
@@ -393,6 +406,37 @@ const MeetingDetails: React.FC<MeetingDetailsProps> = ({ meeting: initialMeeting
         }));
     };
 
+    const overviewNeedsClaudeLogin = isClaudeAuthErrorMessage(overviewError);
+
+    const startClaudeLogin = async () => {
+        if (!window.electronAPI?.startClaudeLogin) {
+            setOverviewError('Claude sign-in could not be started from Natively. Open Claude Code and run /login.');
+            return false;
+        }
+
+        try {
+            setIsStartingClaudeLogin(true);
+            const result = await window.electronAPI.startClaudeLogin();
+            if (!result?.success) {
+                setOverviewError(result?.error || 'Unable to start Claude sign-in from Natively.');
+                return false;
+            }
+
+            if (result.alreadyLoggedIn) {
+                setOverviewError('Claude is already signed in. Refresh the brief to try again.');
+                return true;
+            }
+
+            setOverviewError('Claude sign-in started. Finish the approval in your browser, then refresh the brief.');
+            return true;
+        } catch (error: any) {
+            setOverviewError(error?.message || 'Unable to start Claude sign-in from Natively.');
+            return false;
+        } finally {
+            setIsStartingClaudeLogin(false);
+        }
+    };
+
     const generateOverview = async (force = false) => {
         if (!window.electronAPI?.generateMeetingOverview) return;
 
@@ -403,7 +447,21 @@ const MeetingDetails: React.FC<MeetingDetailsProps> = ({ meeting: initialMeeting
             if (overview) mergeContextOverview(overview);
         } catch (error: any) {
             console.error('[MeetingDetails] Failed to generate meeting overview:', error);
-            setOverviewError(error?.message || 'Unable to generate the meeting overview right now.');
+            const message = error?.message || 'Unable to generate the meeting overview right now.';
+
+            if (isClaudeAuthErrorMessage(message)) {
+                if (!hasAutoStartedClaudeLogin) {
+                    setHasAutoStartedClaudeLogin(true);
+                    const started = await startClaudeLogin();
+                    if (!started) {
+                        setOverviewError('Claude sign-in is required to generate this brief.');
+                    }
+                } else {
+                    setOverviewError('Claude sign-in is required to generate this brief. Finish the browser approval, then refresh the brief.');
+                }
+            } else {
+                setOverviewError(message);
+            }
         } finally {
             setIsGeneratingOverview(false);
         }
@@ -554,11 +612,11 @@ const MeetingDetails: React.FC<MeetingDetailsProps> = ({ meeting: initialMeeting
                                     <button
                                         type="button"
                                         onClick={() => void generateOverview(true)}
-                                        disabled={isGeneratingOverview}
+                                        disabled={isGeneratingOverview || isStartingClaudeLogin}
                                         className="inline-flex items-center gap-2 rounded-full border border-border-subtle bg-bg-item-surface px-4 py-2 text-xs font-semibold text-text-primary transition-colors hover:border-border-muted disabled:opacity-60"
                                     >
                                         <RefreshCw size={14} className={isGeneratingOverview ? 'animate-spin' : ''} />
-                                        {isGeneratingOverview ? 'Refreshing brief...' : 'Refresh brief'}
+                                        {isGeneratingOverview ? 'Refreshing brief...' : isStartingClaudeLogin ? 'Connecting Claude...' : 'Refresh brief'}
                                     </button>
                                     <button
                                         type="button"
@@ -572,9 +630,22 @@ const MeetingDetails: React.FC<MeetingDetailsProps> = ({ meeting: initialMeeting
                             </div>
 
                             {overviewError && (
-                                <div className="mb-4 flex items-start gap-3 rounded-2xl border border-amber-500/25 bg-amber-500/10 px-4 py-3 text-sm text-amber-600">
+                                <div className="mb-4 flex items-start justify-between gap-4 rounded-2xl border border-amber-500/25 bg-amber-500/10 px-4 py-3 text-sm text-amber-600">
+                                    <div className="flex items-start gap-3">
                                     <AlertCircle size={16} className="mt-0.5 shrink-0" />
-                                    <div>{overviewError}</div>
+                                        <div>{overviewError}</div>
+                                    </div>
+                                    {overviewNeedsClaudeLogin ? (
+                                        <button
+                                            type="button"
+                                            onClick={() => void startClaudeLogin()}
+                                            disabled={isStartingClaudeLogin}
+                                            className="inline-flex shrink-0 items-center gap-2 rounded-full border border-amber-500/30 bg-white/60 px-3 py-1.5 text-xs font-semibold text-amber-700 transition-colors hover:border-amber-500/50 disabled:opacity-60"
+                                        >
+                                            <LogIn size={13} />
+                                            {isStartingClaudeLogin ? 'Starting sign-in...' : 'Sign in to Claude'}
+                                        </button>
+                                    ) : null}
                                 </div>
                             )}
 

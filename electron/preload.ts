@@ -105,9 +105,11 @@ interface ElectronAPI {
   getRecentMeetings: () => Promise<Array<{ id: string; title: string; date: string; duration: string; summary: string; source?: 'manual' | 'calendar' | 'teams' | 'cluely' | 'imported'; importMetadata?: { sourceFormat?: 'cluely' | 'teams' | 'generic'; importedAt?: string; fidelity?: string } }>>
   getMeetingDetails: (id: string) => Promise<any>
   getChatDebugEntries: (limit?: number) => Promise<Array<{ id: number; meetingId?: string | null; type: string; timestamp: number; userQuery: string; aiResponse: string; metadata: any }>>
+  onChatDebugIssue: (callback: (issue: { id: number; surface: string; surfaceLabel: string; status: string; timestamp: number; userQuery: string; aiResponse: string; error: string | null; provider: string | null; modelId: string | null }) => void) => () => void
   updateMeetingTitle: (id: string, title: string) => Promise<boolean>
   updateMeetingSummary: (id: string, updates: { overview?: string, actionItems?: string[], keyPoints?: string[], actionItemsTitle?: string, keyPointsTitle?: string }) => Promise<boolean>
   generateMeetingOverview: (meetingId: string, options?: { force?: boolean }) => Promise<any>
+  startClaudeLogin: () => Promise<{ success: boolean; launched?: boolean; alreadyLoggedIn?: boolean; error?: string }>
   onMeetingsUpdated: (callback: () => void) => () => void
 
   // Intelligence Mode Events
@@ -650,9 +652,17 @@ contextBridge.exposeInMainWorld("electronAPI", {
   getRecentMeetings: () => ipcRenderer.invoke("get-recent-meetings"),
   getMeetingDetails: (id: string) => ipcRenderer.invoke("get-meeting-details", id),
   getChatDebugEntries: (limit?: number) => ipcRenderer.invoke("get-chat-debug-entries", limit),
+  onChatDebugIssue: (callback: (issue: { id: number; surface: string; surfaceLabel: string; status: string; timestamp: number; userQuery: string; aiResponse: string; error: string | null; provider: string | null; modelId: string | null }) => void) => {
+    const subscription = (_: any, issue: any) => callback(issue);
+    ipcRenderer.on("chat-debug:issue", subscription);
+    return () => {
+      ipcRenderer.removeListener("chat-debug:issue", subscription);
+    };
+  },
   updateMeetingTitle: (id: string, title: string) => ipcRenderer.invoke("update-meeting-title", { id, title }),
   updateMeetingSummary: (id: string, updates: any) => ipcRenderer.invoke("update-meeting-summary", { id, updates }),
   generateMeetingOverview: (meetingId: string, options?: { force?: boolean }) => ipcRenderer.invoke("generate-meeting-overview", { meetingId, force: options?.force }),
+  startClaudeLogin: () => ipcRenderer.invoke("claude-auth-login"),
   deleteMeeting: (id: string) => ipcRenderer.invoke("delete-meeting", id),
 
   onMeetingsUpdated: (callback: () => void) => {

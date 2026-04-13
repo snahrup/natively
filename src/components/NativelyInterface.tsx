@@ -52,6 +52,7 @@ interface Message {
     id: string;
     role: 'user' | 'system' | 'external';
     text: string;
+    chatDebugIssueId?: number;
     isStreaming?: boolean;
     hasScreenshot?: boolean;
     screenshotPreview?: string;
@@ -528,6 +529,27 @@ const NativelyInterface: React.FC<NativelyInterfaceProps> = ({ onEndMeeting, ove
                 text: `Error: ${err.error}`
             }]);
         }));
+
+        if (window.electronAPI.onChatDebugIssue) {
+            cleanups.push(window.electronAPI.onChatDebugIssue((issue) => {
+                setMessages(prev => {
+                    if (prev.some((msg) => msg.chatDebugIssueId === issue.id)) {
+                        return prev;
+                    }
+
+                    const detail = issue.error || issue.aiResponse || 'A chat turn was flagged as an issue.';
+                    const modelLabel = [issue.provider, issue.modelId].filter(Boolean).join(' • ');
+                    const detailLine = modelLabel ? `${detail}\n\nSource: ${issue.surfaceLabel} • ${modelLabel}` : `${detail}\n\nSource: ${issue.surfaceLabel}`;
+
+                    return [...prev, {
+                        id: `chat-debug-issue-${issue.id}`,
+                        chatDebugIssueId: issue.id,
+                        role: 'system',
+                        text: `Issue detected.\n\n${detailLine}`,
+                    }];
+                });
+            }));
+        }
 
 
 

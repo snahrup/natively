@@ -146,10 +146,12 @@ export interface ElectronAPI {
   getRecentMeetings: () => Promise<Array<{ id: string; title: string; date: string; duration: string; summary: string; source?: 'manual' | 'calendar' | 'teams' | 'cluely' | 'imported'; importMetadata?: { sourceFormat?: 'cluely' | 'teams' | 'generic'; importedAt?: string; fidelity?: string } }>>
   getMeetingDetails: (id: string) => Promise<any>
   getChatDebugEntries: (limit?: number) => Promise<Array<{ id: number; meetingId?: string | null; type: string; timestamp: number; userQuery: string; aiResponse: string; metadata: any }>>
+  onChatDebugIssue: (callback: (issue: { id: number; surface: string; surfaceLabel: string; status: string; timestamp: number; userQuery: string; aiResponse: string; error: string | null; provider: string | null; modelId: string | null }) => void) => () => void
   getDisplayLayout: () => Promise<Array<{ id: number; label: string; bounds: { x: number; y: number; width: number; height: number }; scaleFactor: number; isPrimary: boolean }>>
   updateMeetingTitle: (id: string, title: string) => Promise<boolean>
   updateMeetingSummary: (id: string, updates: { overview?: string, actionItems?: string[], keyPoints?: string[], actionItemsTitle?: string, keyPointsTitle?: string }) => Promise<boolean>
   generateMeetingOverview: (meetingId: string, options?: { force?: boolean }) => Promise<any>
+  startClaudeLogin: () => Promise<{ success: boolean; launched?: boolean; alreadyLoggedIn?: boolean; error?: string }>
   deleteMeeting: (id: string) => Promise<boolean>
   setWindowMode: (mode: 'launcher' | 'overlay', inactive?: boolean) => Promise<void>
 

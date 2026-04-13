@@ -1,14 +1,16 @@
 // ipcHandlers.ts
 
-import { app, ipcMain, shell, dialog, desktopCapturer, systemPreferences, BrowserWindow, screen } from "electron"
+import { app, ipcMain, shell, dialog, desktopCapturer, systemPreferences, BrowserWindow, Notification, screen } from "electron"
 import { AppState } from "./main"
 import { GEMINI_FLASH_MODEL } from "./IntelligenceManager"
 import { DatabaseManager } from "./db/DatabaseManager"; // Import Database Manager
 import { ContextObservationStore } from "./context";
 import * as path from "path";
 import * as fs from "fs";
+import { spawn } from "child_process";
 import { AudioDevices } from "./audio/AudioDevices";
-import { getLocalCliStatus, isLocalCliAvailable } from "./services/CliProviderResolver";
+import { buildClaudeCliEnv } from "./services/ClaudeCliEnvironment";
+import { buildLocalCliInvocation, getLocalCliStatus, isLocalCliAvailable } from "./services/CliProviderResolver";
 
 
 import { RECOGNITION_LANGUAGES, AI_RESPONSE_LANGUAGES } from "./config/languages"
@@ -37,6 +39,27 @@ export function initializeIpcHandlers(appState: AppState): void {
     modelId: string | null;
     reasoningEffort: string | null;
   };
+  type ChatDebugIssuePayload = {
+    id: number;
+    surface: ChatDebugSurface;
+    surfaceLabel: string;
+    status: ChatDebugStatus;
+    timestamp: number;
+    userQuery: string;
+    aiResponse: string;
+    error: string | null;
+    provider: string | null;
+    modelId: string | null;
+  };
+
+  const CHAT_DEBUG_SURFACE_LABELS: Record<string, string> = {
+    widget: "Widget Chat",
+    meeting_overlay: "Meeting Overlay",
+    global_overlay: "Global Overlay",
+    widget_live_rag: "Widget Live RAG",
+    meeting_rag: "Meeting Recall RAG",
+    global_rag: "Global Recall RAG",
+  };
 
   const getChatDebugModelState = (): ChatDebugModelState => {
     try {
@@ -52,6 +75,33 @@ export function initializeIpcHandlers(appState: AppState): void {
         modelId: null,
         reasoningEffort: null,
       };
+    }
+  };
+
+  const surfaceLabelForChatDebug = (surface: ChatDebugSurface): string => {
+    return CHAT_DEBUG_SURFACE_LABELS[surface] || surface;
+  };
+
+  const publishChatDebugIssue = (payload: ChatDebugIssuePayload) => {
+    try {
+      for (const win of BrowserWindow.getAllWindows()) {
+        if (!win.isDestroyed()) {
+          win.webContents.send("chat-debug:issue", payload);
+        }
+      }
+    } catch (error) {
+      console.warn("[IPC] Failed to publish chat debug issue event:", error);
+    }
+
+    try {
+      const notification = new Notification({
+        title: `${payload.surfaceLabel} issue detected`,
+        body: payload.error || payload.aiResponse || payload.userQuery || "A chat turn was flagged as an issue.",
+        silent: false,
+      });
+      notification.show();
+    } catch (error) {
+      console.warn("[IPC] Failed to show chat debug issue notification:", error);
     }
   };
 
@@ -129,7 +179,7 @@ export function initializeIpcHandlers(appState: AppState): void {
       const completedAt = input.completedAt ?? Date.now();
       const modelState = input.modelState ?? getChatDebugModelState();
       const ocrSnapshot = getChatDebugOcrSnapshot(completedAt);
-      DatabaseManager.getInstance().saveChatDebugEntry({
+      const entryId = DatabaseManager.getInstance().saveChatDebugEntry({
         meetingId: input.meetingId ?? null,
         type: `chat_debug:${input.surface}`,
         timestamp: input.timestamp,
@@ -157,6 +207,21 @@ export function initializeIpcHandlers(appState: AppState): void {
           ...ocrSnapshot,
         },
       });
+
+      if (entryId && input.status === 'error') {
+        publishChatDebugIssue({
+          id: entryId,
+          surface: input.surface,
+          surfaceLabel: surfaceLabelForChatDebug(input.surface),
+          status: input.status,
+          timestamp: input.timestamp,
+          userQuery: input.userQuery,
+          aiResponse: input.aiResponse ?? '',
+          error: input.error ?? null,
+          provider: modelState.provider,
+          modelId: modelState.modelId,
+        });
+      }
     } catch (error) {
       console.warn('[IPC] Failed to persist chat debug entry:', error);
     }
@@ -1167,6 +1232,56 @@ export function initializeIpcHandlers(appState: AppState): void {
     return cleaned;
   };
 
+  const beginClaudeAuthLogin = async (): Promise<{ launched: boolean; alreadyLoggedIn?: boolean }> => {
+    if (!isLocalCliAvailable("claude", true)) {
+      throw new Error("Claude local session is unavailable. Reopen Claude on this machine and try again.");
+    }
+
+    const statusInvocation = buildLocalCliInvocation("claude", ["auth", "status"]);
+    const statusResult = await new Promise<{ stdout: string; stderr: string; code: number | null }>((resolve, reject) => {
+      const child = spawn(statusInvocation.command, statusInvocation.args, {
+        cwd: process.cwd(),
+        env: buildClaudeCliEnv(process.env),
+        windowsHide: true,
+      });
+
+      let stdout = "";
+      let stderr = "";
+
+      child.stdout.on("data", (chunk) => {
+        stdout += chunk.toString();
+      });
+
+      child.stderr.on("data", (chunk) => {
+        stderr += chunk.toString();
+      });
+
+      child.on("error", reject);
+      child.on("close", (code) => resolve({ stdout, stderr, code }));
+    });
+
+    try {
+      const parsed = JSON.parse(statusResult.stdout || "{}");
+      if (parsed?.loggedIn) {
+        return { launched: false, alreadyLoggedIn: true };
+      }
+    } catch {
+      // Fall through to login attempt if status output is malformed.
+    }
+
+    const loginInvocation = buildLocalCliInvocation("claude", ["auth", "login", "--claudeai"]);
+    const child = spawn(loginInvocation.command, loginInvocation.args, {
+      cwd: process.cwd(),
+      env: buildClaudeCliEnv(process.env),
+      windowsHide: true,
+      detached: true,
+      stdio: "ignore",
+    });
+    child.unref();
+
+    return { launched: true };
+  };
+
   safeHandle("test-stt-connection", async (_, provider: 'groq' | 'openai' | 'deepgram' | 'elevenlabs' | 'azure' | 'ibmwatson' | 'soniox', apiKey: string, region?: string) => {
     console.log(`[IPC] Received test - stt - connection request for provider: ${provider} `);
     try {
@@ -1588,13 +1703,31 @@ export function initializeIpcHandlers(appState: AppState): void {
   });
 
   safeHandle("generate-meeting-overview", async (_, { meetingId, force }: { meetingId: string; force?: boolean }) => {
-    const { MeetingOverviewService } = require("./services/MeetingOverviewService");
-    return await MeetingOverviewService.generate({
-      meetingId,
-      force,
-      llmHelper: appState.processingHelper.getLLMHelper(),
-      knowledgeOrchestrator: appState.getKnowledgeOrchestrator(),
-    });
+    try {
+      const { MeetingOverviewService } = require("./services/MeetingOverviewService");
+      return await MeetingOverviewService.generate({
+        meetingId,
+        force,
+        llmHelper: appState.processingHelper.getLLMHelper(),
+        knowledgeOrchestrator: appState.getKnowledgeOrchestrator(),
+      });
+    } catch (error: any) {
+      throw new Error(sanitizeErrorMessage(error?.message || "Unable to generate the meeting overview right now."));
+    }
+  });
+
+  safeHandle("claude-auth-login", async () => {
+    try {
+      return {
+        success: true,
+        ...await beginClaudeAuthLogin(),
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        error: sanitizeErrorMessage(error?.message || "Unable to start Claude sign-in."),
+      };
+    }
   });
 
   safeHandle("seed-demo", async () => {

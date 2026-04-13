@@ -4,6 +4,7 @@ import os from "os";
 import path from "path";
 
 import { buildPromptContextBlock, ContextRetrievalBroker } from "./context";
+import { buildClaudeCliEnv } from "./services/ClaudeCliEnvironment";
 import { buildLocalCliInvocation, type LocalCliProvider } from "./services/CliProviderResolver";
 import { ContinuousOCRService } from "./services/ContinuousOCRService";
 
@@ -662,6 +663,8 @@ export class LLMHelper {
       "--verbose",
       "--output-format",
       "stream-json",
+      "--disable-slash-commands",
+      "--strict-mcp-config",
       "--permission-mode",
       "bypassPermissions",
       "--model",
@@ -739,6 +742,10 @@ export class LLMHelper {
   }
 
   private buildCliEnv(provider: LocalCliProvider): NodeJS.ProcessEnv {
+    if (provider === "claude") {
+      return buildClaudeCliEnv(process.env);
+    }
+
     const env: NodeJS.ProcessEnv = { ...process.env };
     const homeDir = os.homedir();
     const parsed = path.parse(homeDir);
@@ -746,10 +753,10 @@ export class LLMHelper {
     env.USERPROFILE = homeDir;
     env.HOMEDRIVE = parsed.root.replace(/[\\/]+$/, "");
     env.HOMEPATH = homeDir.slice(parsed.root.length - 1);
-    env.CLAUDE_CODE_SIMPLE = "1";
 
     if (provider === "codex") {
       env.CODEX_DISABLE_AUTOUPDATES = "1";
+      env.CLAUDE_CODE_SIMPLE = "1";
     }
 
     return env;
