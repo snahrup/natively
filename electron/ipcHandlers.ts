@@ -1638,6 +1638,7 @@ export function initializeIpcHandlers(appState: AppState): void {
         claudeMaxAvailable: claudeStatus.state === 'ready',
         claudeMaxStatus: claudeStatus.state,
         ocrRunning: ContinuousOCRService.getInstance().isRunning(),
+        ocrHealth: ContinuousOCRService.getInstance().getHealth(),
         ipCorpMode: appState.processingHelper.getLLMHelper().getIPCorpMode?.() ?? false,
         clawmemAvailable: ipCorpHealth.clawmemAvailable,
         nexusAvailable: ipCorpHealth.nexusAvailable,

@@ -71,7 +71,17 @@ export class ContinuousOCRService {
   private lastDisplayReferences: string[] = [];
   private sessionDisplays: SessionDisplay[] = [];
 
-  private constructor(intervalMs = 5000, rollingWindowMs = 60_000) {
+  // Extraction health: every failure path here used to be console.warn-only,
+  // so lock screens / revoked permission / dead displays degraded silently
+  // while status reported "running".
+  private lastSuccessfulExtractAt = 0;
+  private consecutiveFailureCount = 0;
+  private lastExtractError: string | null = null;
+
+  // 15s cadence: with the realtime request profile each extraction is a cheap
+  // fast call, and the rolling window still holds multiple frames. The old 5s
+  // interval drove a frontier-model spawn per display per cycle.
+  private constructor(intervalMs = 15_000, rollingWindowMs = 60_000) {
     this.intervalMs = intervalMs;
     this.rollingWindowMs = rollingWindowMs;
   }
@@ -124,6 +134,33 @@ export class ContinuousOCRService {
   /** Returns true only if the capture loop is actively running. */
   isRunning(): boolean {
     return this.running;
+  }
+
+  /** Extraction health for status surfaces (get-meeting-ai-status etc.). */
+  getHealth(): {
+    running: boolean;
+    lastSuccessfulExtractAt: string | null;
+    consecutiveFailureCount: number;
+    lastError: string | null;
+  } {
+    return {
+      running: this.running,
+      lastSuccessfulExtractAt: this.lastSuccessfulExtractAt
+        ? new Date(this.lastSuccessfulExtractAt).toISOString()
+        : null,
+      consecutiveFailureCount: this.consecutiveFailureCount,
+      lastError: this.lastExtractError,
+    };
+  }
+
+  private noteExtractFailure(message: string): void {
+    this.consecutiveFailureCount += 1;
+    this.lastExtractError = message;
+    if (this.consecutiveFailureCount === 5) {
+      console.error(`[ContinuousOCR] Screen extraction has failed ${this.consecutiveFailureCount} times in a row — screen context is degraded. Last error: ${message}`);
+    } else {
+      console.warn(`[ContinuousOCR] Extraction failure #${this.consecutiveFailureCount}: ${message}`);
+    }
   }
 
   /**
@@ -255,7 +292,13 @@ export class ContinuousOCRService {
 
     try {
       const captures = await this.captureAllDisplays();
-      if (captures.length === 0) return;
+      if (captures.length === 0) {
+        // Lock screen, revoked screen-recording permission, or RDP session:
+        // getSources silently returns nothing useful. Count it as a failure
+        // so health surfaces show the degradation.
+        this.noteExtractFailure("no displays captured (locked screen or screen-recording permission revoked?)");
+        return;
+      }
       if (!this.running || runToken !== this.runToken) return;
 
       const capturedAt = Date.now();
@@ -302,6 +345,10 @@ export class ContinuousOCRService {
       }
 
       if (!this.running || runToken !== this.runToken) return;
+      // The cycle ran end-to-end — a blank screen is not a failure.
+      this.lastSuccessfulExtractAt = Date.now();
+      this.consecutiveFailureCount = 0;
+      this.lastExtractError = null;
       const combinedExtracted = extractedByDisplay.join("\n\n").trim();
       if (combinedExtracted.length > 10) {
         this.frames.push({
@@ -318,7 +365,7 @@ export class ContinuousOCRService {
         console.log(`[ContinuousOCR] Captured ${captures.length} screen(s), ${combinedExtracted.length} chars`);
       }
     } catch (err: any) {
-      console.warn("[ContinuousOCR] Extract failed:", err.message);
+      this.noteExtractFailure(err?.message || String(err));
     } finally {
       this.busy = false;
     }

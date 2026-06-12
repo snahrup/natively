@@ -232,6 +232,11 @@ export class LLMHelper {
         model: this.currentModelId,
         prompt,
         imagePaths,
+        // Continuous text extraction must be cheap and fast: realtime routes
+        // Claude to sonnet/low/15s and codex to low-effort/9s. Without this
+        // the loop spawned the user's interactive model (opus at max effort,
+        // 180s timeout) per display per cycle.
+        requestProfile: "realtime",
       });
     });
     service.start();
