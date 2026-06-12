@@ -17,6 +17,12 @@ const RECONNECT_BASE_DELAY_MS = 1000;
 const RECONNECT_MAX_DELAY_MS = 30000;
 const RECONNECT_MAX_ATTEMPTS = 10;
 const KEEPALIVE_INTERVAL_MS = 5000;
+// Receive-side liveness: if an OPEN socket produces no message/pong for this
+// long, it is half-open (e.g. WiFi drop — OS keeps the TCP socket "open" for
+// minutes while every send is silently lost). Terminate to force reconnect.
+const LIVENESS_TIMEOUT_MS = 15000;
+// ~30-75s of disconnect audio (chunks arrive every ~20-50ms)
+const MAX_BUFFER_CHUNKS = 1500;
 
 export class DeepgramStreamingSTT extends EventEmitter {
     private apiKey: string;
@@ -33,6 +39,8 @@ export class DeepgramStreamingSTT extends EventEmitter {
     private keepAliveTimer: NodeJS.Timeout | null = null;
     private buffer: Buffer[] = [];
     private isConnecting = false;
+    private lastLivenessAt = 0;
+    private lastConnectAttemptAt = 0;
 
     constructor(apiKey: string) {
         super();
@@ -142,9 +150,12 @@ export class DeepgramStreamingSTT extends EventEmitter {
 
         if (!this.ws || this.ws.readyState !== WebSocket.OPEN) {
             this.buffer.push(chunk);
-            if (this.buffer.length > 500) this.buffer.shift(); // Cap buffer size
-            
-            if (!this.isConnecting && this.shouldReconnect && !this.reconnectTimer) {
+            if (this.buffer.length > MAX_BUFFER_CHUNKS) this.buffer.shift(); // Cap buffer size
+
+            // Lazy connect, throttled: without the time guard this fires per
+            // audio chunk (up to ~50/sec) whenever no reconnect timer is set.
+            if (!this.isConnecting && this.shouldReconnect && !this.reconnectTimer &&
+                Date.now() - this.lastConnectAttemptAt > RECONNECT_BASE_DELAY_MS) {
                 console.log('[DeepgramStreaming] WS not ready. Lazy connecting on new audio...');
                 this.connect();
             }
@@ -161,6 +172,7 @@ export class DeepgramStreamingSTT extends EventEmitter {
     private connect(): void {
         if (this.isConnecting) return;
         this.isConnecting = true;
+        this.lastConnectAttemptAt = Date.now();
 
         const langParam = this.languageCode === null
             ? '&detect_language=true'
@@ -193,6 +205,7 @@ export class DeepgramStreamingSTT extends EventEmitter {
             this.isActive = true;
             this.isConnecting = false;
             this.reconnectAttempts = 0;
+            this.lastLivenessAt = Date.now();
             console.log('[DeepgramStreaming] Connected');
 
             // Send buffered audio
@@ -207,7 +220,12 @@ export class DeepgramStreamingSTT extends EventEmitter {
             this.startKeepAlive();
         });
 
+        this.ws.on('pong', () => {
+            this.lastLivenessAt = Date.now();
+        });
+
         this.ws.on('message', (data: WebSocket.Data) => {
+            this.lastLivenessAt = Date.now();
             try {
                 const msg = JSON.parse(data.toString());
 
@@ -256,19 +274,22 @@ export class DeepgramStreamingSTT extends EventEmitter {
     private scheduleReconnect(): void {
         if (!this.shouldReconnect) return;
 
-        if (this.reconnectAttempts >= RECONNECT_MAX_ATTEMPTS) {
-            console.error(`[DeepgramStreaming] Max reconnect attempts (${RECONNECT_MAX_ATTEMPTS}) reached — giving up`);
-            this.emit('error', new Error('DeepgramStreamingSTT: max reconnect attempts exceeded'));
-            return;
+        // Never give up while a session is running: a meeting can outlive any
+        // outage. After the exponential ramp, keep retrying at the max interval.
+        // Surface degradation once so the audio-error pipeline can show it.
+        if (this.reconnectAttempts === RECONNECT_MAX_ATTEMPTS) {
+            console.error(`[DeepgramStreaming] ${RECONNECT_MAX_ATTEMPTS} reconnect attempts failed — continuing to retry every ${RECONNECT_MAX_DELAY_MS / 1000}s`);
+            this.emit('error', new Error('DeepgramStreamingSTT: repeated reconnect failures — transcription degraded, still retrying'));
         }
 
         const delay = Math.min(
             RECONNECT_BASE_DELAY_MS * Math.pow(2, this.reconnectAttempts),
             RECONNECT_MAX_DELAY_MS
         );
-        this.reconnectAttempts++;
+        // Cap the counter so Math.pow stays bounded; delay is already at max.
+        this.reconnectAttempts = Math.min(this.reconnectAttempts + 1, RECONNECT_MAX_ATTEMPTS + 1);
 
-        console.log(`[DeepgramStreaming] Reconnecting in ${delay}ms (attempt ${this.reconnectAttempts}/${RECONNECT_MAX_ATTEMPTS})...`);
+        console.log(`[DeepgramStreaming] Reconnecting in ${delay}ms (attempt ${this.reconnectAttempts})...`);
 
         this.reconnectTimer = setTimeout(() => {
             this.reconnectTimer = null;
@@ -284,14 +305,27 @@ export class DeepgramStreamingSTT extends EventEmitter {
 
     private startKeepAlive(): void {
         this.clearKeepAlive();
+        this.lastLivenessAt = Date.now();
         this.keepAliveTimer = setInterval(() => {
-            if (this.ws?.readyState === WebSocket.OPEN) {
-                try {
-                    // Send KeepAlive JSON instead of raw ping frame for Deepgram API idle prevention
-                    this.ws.send(JSON.stringify({ type: 'KeepAlive' }));
-                } catch {
-                    // Ignore errors
-                }
+            if (this.ws?.readyState !== WebSocket.OPEN) return;
+
+            // Liveness watchdog: a healthy server answers pings (protocol pong)
+            // even when nobody is speaking. No traffic at all means the socket
+            // is half-open — terminate so close/reconnect runs NOW instead of
+            // after the OS retransmission timeout (1-2+ minutes of lost audio).
+            if (Date.now() - this.lastLivenessAt > LIVENESS_TIMEOUT_MS) {
+                console.warn(`[DeepgramStreaming] No server traffic for ${LIVENESS_TIMEOUT_MS / 1000}s — terminating half-open socket`);
+                try { this.ws.terminate(); } catch { /* close handler reconnects */ }
+                return;
+            }
+
+            try {
+                // KeepAlive JSON prevents Deepgram idle timeout; protocol ping
+                // forces a pong so liveness is observable during silence.
+                this.ws.send(JSON.stringify({ type: 'KeepAlive' }));
+                this.ws.ping();
+            } catch {
+                // Ignore errors
             }
         }, KEEPALIVE_INTERVAL_MS);
     }

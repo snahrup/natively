@@ -6,6 +6,13 @@ import * as path from 'path';
 import { RECOGNITION_LANGUAGES } from '../config/languages';
 
 const ELEVENLABS_WS_URL = 'wss://api.elevenlabs.io/v1/speech-to-text/realtime';
+const RECONNECT_BASE_DELAY_MS = 1000;
+const KEEPALIVE_INTERVAL_MS = 5000;
+// Receive-side liveness: no message/pong on an OPEN socket for this long
+// means the socket is half-open (WiFi drop) — terminate to force reconnect.
+const LIVENESS_TIMEOUT_MS = 15000;
+// ~30-75s of disconnect audio (chunks arrive every ~20-50ms)
+const MAX_BUFFER_CHUNKS = 1500;
 
 export class ElevenLabsStreamingSTT extends EventEmitter {
     private apiKey: string;
@@ -14,6 +21,9 @@ export class ElevenLabsStreamingSTT extends EventEmitter {
     private shouldReconnect = false;
     private reconnectAttempts = 0;
     private reconnectTimer: NodeJS.Timeout | null = null;
+    private keepAliveTimer: NodeJS.Timeout | null = null;
+    private lastLivenessAt = 0;
+    private lastConnectAttemptAt = 0;
     private inputSampleRate = 48000; // what the mic/system audio captures at
     private targetSampleRate = 16000; // what ElevenLabs Scribe v2 requires
     
@@ -88,6 +98,7 @@ export class ElevenLabsStreamingSTT extends EventEmitter {
             clearTimeout(this.reconnectTimer);
             this.reconnectTimer = null;
         }
+        this.clearKeepAlive();
         if (this.ws) {
             this.ws.removeAllListeners();
             this.ws.close();
@@ -116,12 +127,14 @@ export class ElevenLabsStreamingSTT extends EventEmitter {
 
         if (!this.ws || this.ws.readyState !== WebSocket.OPEN || !this.isSessionReady) {
             this.buffer.push(chunk);
-            if (this.buffer.length > 500) {
+            if (this.buffer.length > MAX_BUFFER_CHUNKS) {
                 this.buffer.shift(); // Cap buffer size
                 console.warn('[ElevenLabsStreaming] Buffer full — oldest audio chunk dropped.');
             }
 
-            if (!this.isConnecting && this.shouldReconnect && !this.reconnectTimer) {
+            // Lazy connect, throttled so failures cannot storm at audio-chunk rate
+            if (!this.isConnecting && this.shouldReconnect && !this.reconnectTimer &&
+                Date.now() - this.lastConnectAttemptAt > RECONNECT_BASE_DELAY_MS) {
                 console.log('[ElevenLabsStreaming] WS not ready. Lazy connecting on new audio...');
                 this.connect();
             }
@@ -195,7 +208,8 @@ export class ElevenLabsStreamingSTT extends EventEmitter {
         if (this.isConnecting) return;
         this.isConnecting = true;
         this.isSessionReady = false;
-        
+        this.lastConnectAttemptAt = Date.now();
+
         console.log(`[ElevenLabsStreaming] Connecting... key=${this.apiKey?.slice(0, 8)}...`);
 
         // raw WebSocket URL with parameters
@@ -226,13 +240,20 @@ export class ElevenLabsStreamingSTT extends EventEmitter {
             }
             this.isConnecting = false;
             this.reconnectAttempts = 0;
+            this.lastLivenessAt = Date.now();
+            this.startKeepAlive();
             console.log('[ElevenLabsStreaming] Connected');
 
             // Note: ElevenLabs requires waiting for 'session_started' before sending audio.
             // Buffer flush happens in the 'session_started' message handler below.
         });
 
+        this.ws.on('pong', () => {
+            this.lastLivenessAt = Date.now();
+        });
+
         this.ws.on('message', (data: WebSocket.RawData) => {
+            this.lastLivenessAt = Date.now();
             try {
                 const rawStr = data.toString();
                 if (this.debugMessageCount < 10) {
@@ -308,12 +329,22 @@ export class ElevenLabsStreamingSTT extends EventEmitter {
             this.ws = null;
             this.isConnecting = false;
             this.isSessionReady = false;
+            this.clearKeepAlive();
             console.log(`[ElevenLabsStreaming] Closed: code=${code} reason=${reason}`);
-            if (this.shouldReconnect && code !== 1000) {
+
+            if (!this.shouldReconnect) {
+                // stop() or auth_error — session is truly done
+                this.isActive = false;
+                return;
+            }
+
+            if (code !== 1000) {
                 this.scheduleReconnect();
             } else {
-                // If not reconnecting, mark session as truly inactive
-                this.isActive = false;
+                // Server-initiated graceful close (session limit, idle timeout).
+                // The meeting is still running: NEVER kill isActive here — stay
+                // active and lazily reconnect on the next audio chunk.
+                console.log('[ElevenLabsStreaming] Server closed session (1000) — staying active, will reconnect on next audio');
             }
         });
 
@@ -325,10 +356,10 @@ export class ElevenLabsStreamingSTT extends EventEmitter {
 
     private scheduleReconnect(): void {
         if (!this.shouldReconnect) return;
-        
+
         const delay = Math.min(1000 * Math.pow(2, this.reconnectAttempts), 30000);
         this.reconnectAttempts++;
-        
+
         console.log(`[ElevenLabsStreaming] Reconnecting in ${delay}ms...`);
         this.reconnectTimer = setTimeout(() => {
             this.reconnectTimer = null;
@@ -336,5 +367,34 @@ export class ElevenLabsStreamingSTT extends EventEmitter {
                 this.connect();
             }
         }, delay);
+    }
+
+    private startKeepAlive(): void {
+        this.clearKeepAlive();
+        this.keepAliveTimer = setInterval(() => {
+            if (this.ws?.readyState !== WebSocket.OPEN) return;
+
+            // Liveness watchdog: pings get protocol pongs even during silence,
+            // so zero traffic means a half-open socket — terminate to force the
+            // close/reconnect path immediately instead of after the OS timeout.
+            if (Date.now() - this.lastLivenessAt > LIVENESS_TIMEOUT_MS) {
+                console.warn(`[ElevenLabsStreaming] No server traffic for ${LIVENESS_TIMEOUT_MS / 1000}s — terminating half-open socket`);
+                try { this.ws.terminate(); } catch { /* close handler reconnects */ }
+                return;
+            }
+
+            try {
+                this.ws.ping();
+            } catch {
+                // Ignore errors
+            }
+        }, KEEPALIVE_INTERVAL_MS);
+    }
+
+    private clearKeepAlive(): void {
+        if (this.keepAliveTimer) {
+            clearInterval(this.keepAliveTimer);
+            this.keepAliveTimer = null;
+        }
     }
 }

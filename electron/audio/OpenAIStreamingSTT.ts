@@ -37,6 +37,10 @@ const RECONNECT_MAX_MS  = 30_000;
 /** Keep-alive ping interval (ms) — prevents idle disconnects */
 const KEEPALIVE_INTERVAL_MS = 20_000;
 
+/** Receive-side liveness: no message/pong on an OPEN socket for this long
+ *  means the socket is half-open (WiFi drop) — terminate to force reconnect. */
+const LIVENESS_TIMEOUT_MS = 45_000;
+
 /** Rolling audio ring-buffer: sized for worst-case raw INPUT audio (48kHz stereo 16-bit × 30s).
  *  The ring buffer stores PRE-RESAMPLED chunks from write(), not the 24kHz WS output. */
 const MAX_RING_BUFFER_BYTES = 48_000 * 2 * 2 * 30; // 5 760 000 bytes (48kHz stereo × 16-bit × 30s)
@@ -89,6 +93,8 @@ export class OpenAIStreamingSTT extends EventEmitter {
     private connectionTimeoutTimer: NodeJS.Timeout | null = null;
     private sessionSetupTimer: NodeJS.Timeout | null = null;
     private isSessionReady = false;     // set after transcription_session.created
+    private lastLivenessAt = 0;
+    private lastConnectAttemptAt = 0;
 
     // Audio batching state
     private pcmAccumulator: Int16Array[] = [];
@@ -207,8 +213,10 @@ export class OpenAIStreamingSTT extends EventEmitter {
             // Always push to ring-buffer while not yet connected (pre-buffer)
             if (!this.isSessionReady) {
                 this._ringBufferPush(chunk);
-                // Trigger lazy connect if not already in progress
-                if (!this.isConnecting && this.shouldReconnect && !this.reconnectTimer) {
+                // Trigger lazy connect if not already in progress (throttled so
+                // failures cannot storm at audio-chunk rate)
+                if (!this.isConnecting && this.shouldReconnect && !this.reconnectTimer &&
+                    Date.now() - this.lastConnectAttemptAt > RECONNECT_BASE_MS) {
                     this._connectWs();
                 }
                 return;
@@ -241,6 +249,7 @@ export class OpenAIStreamingSTT extends EventEmitter {
         if (this.isConnecting || !this.shouldReconnect) return;
         this.isConnecting  = true;
         this.isSessionReady = false;
+        this.lastConnectAttemptAt = Date.now();
 
         const model: WsModel = WS_MODELS[this.wsModelIndex] ?? WS_MODELS[0];
         console.log(`[OpenAIStreaming] Connecting WebSocket (model=${model}, attempt=${this.reconnectAttempts + 1})...`);
@@ -315,7 +324,12 @@ export class OpenAIStreamingSTT extends EventEmitter {
             }));
         });
 
+        this.ws.on('pong', () => {
+            this.lastLivenessAt = Date.now();
+        });
+
         this.ws.on('message', (raw: WebSocket.Data) => {
+            this.lastLivenessAt = Date.now();
             try {
                 const msg = JSON.parse(raw.toString());
                 this._handleWsMessage(msg);
@@ -519,17 +533,28 @@ export class OpenAIStreamingSTT extends EventEmitter {
 
     private _startKeepAlive(): void {
         this._clearKeepAlive();
+        this.lastLivenessAt = Date.now();
         this.keepAliveTimer = setInterval(() => {
-            if (this.ws?.readyState === WebSocket.OPEN) {
-                try {
-                    // Send a minimal silent PCM frame to prevent idle disconnects.
-                    // An empty string ('') can be rejected by some API versions; 8 zero-bytes is safe.
-                    this.ws.send(JSON.stringify({
-                        type:  'input_audio_buffer.append',
-                        audio: OpenAIStreamingSTT.KEEPALIVE_AUDIO_B64,
-                    }));
-                } catch { /* ignore */ }
+            if (this.ws?.readyState !== WebSocket.OPEN) return;
+
+            // Liveness watchdog: pings get protocol pongs even during silence,
+            // so zero traffic means a half-open socket — terminate to force the
+            // close/reconnect path immediately instead of after the OS timeout.
+            if (Date.now() - this.lastLivenessAt > LIVENESS_TIMEOUT_MS) {
+                console.warn(`[OpenAIStreaming] No server traffic for ${LIVENESS_TIMEOUT_MS / 1000}s — terminating half-open socket`);
+                try { this.ws.terminate(); } catch { /* close handler reconnects */ }
+                return;
             }
+
+            try {
+                // Send a minimal silent PCM frame to prevent idle disconnects.
+                // An empty string ('') can be rejected by some API versions; 8 zero-bytes is safe.
+                this.ws.send(JSON.stringify({
+                    type:  'input_audio_buffer.append',
+                    audio: OpenAIStreamingSTT.KEEPALIVE_AUDIO_B64,
+                }));
+                this.ws.ping();
+            } catch { /* ignore */ }
         }, KEEPALIVE_INTERVAL_MS);
     }
 

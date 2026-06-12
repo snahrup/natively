@@ -24,6 +24,11 @@ const SONIOX_WEBSOCKET_URL = 'wss://stt-rt.soniox.com/transcribe-websocket';
 const RECONNECT_BASE_DELAY_MS = 1000;
 const RECONNECT_MAX_DELAY_MS = 30000;
 const KEEPALIVE_INTERVAL_MS = 5000;
+// Receive-side liveness: no message/pong on an OPEN socket for this long
+// means the socket is half-open (WiFi drop) — terminate to force reconnect.
+const LIVENESS_TIMEOUT_MS = 15000;
+// ~30-75s of disconnect audio (chunks arrive every ~20-50ms)
+const MAX_BUFFER_CHUNKS = 1500;
 
 export class SonioxStreamingSTT extends EventEmitter {
     private apiKey: string;
@@ -41,6 +46,8 @@ export class SonioxStreamingSTT extends EventEmitter {
 
     private buffer: Buffer[] = [];
     private isConnecting = false;
+    private lastLivenessAt = 0;
+    private lastConnectAttemptAt = 0;
 
     constructor(apiKey: string) {
         super();
@@ -148,9 +155,11 @@ export class SonioxStreamingSTT extends EventEmitter {
 
         if (!this.ws || this.ws.readyState !== WebSocket.OPEN || !this.configSent) {
             this.buffer.push(chunk);
-            if (this.buffer.length > 500) this.buffer.shift(); // Cap buffer size
+            if (this.buffer.length > MAX_BUFFER_CHUNKS) this.buffer.shift(); // Cap buffer size
 
-            if (!this.isConnecting && this.shouldReconnect && !this.reconnectTimer) {
+            // Lazy connect, throttled so failures cannot storm at audio-chunk rate
+            if (!this.isConnecting && this.shouldReconnect && !this.reconnectTimer &&
+                Date.now() - this.lastConnectAttemptAt > RECONNECT_BASE_DELAY_MS) {
                 console.log('[SonioxStreaming] WS not ready. Lazy connecting on new audio...');
                 this.connect();
             }
@@ -180,7 +189,8 @@ export class SonioxStreamingSTT extends EventEmitter {
     private connect(): void {
         if (this.isConnecting) return;
         this.isConnecting = true;
-        
+        this.lastConnectAttemptAt = Date.now();
+
         console.log(`[SonioxStreaming] Connecting (rate=${this.sampleRate}, ch=${this.numChannels})...`);
 
         this.configSent = false;
@@ -198,6 +208,7 @@ export class SonioxStreamingSTT extends EventEmitter {
             }
 
             this.reconnectAttempts = 0;
+            this.lastLivenessAt = Date.now();
             console.log('[SonioxStreaming] Connected, sending config...');
 
             // Send initial configuration as first message
@@ -239,7 +250,12 @@ export class SonioxStreamingSTT extends EventEmitter {
             this.startKeepAlive();
         });
 
+        this.ws.on('pong', () => {
+            this.lastLivenessAt = Date.now();
+        });
+
         this.ws.on('message', (data: WebSocket.Data) => {
+            this.lastLivenessAt = Date.now();
             try {
                 const msg = JSON.parse(data.toString());
 
@@ -323,12 +339,23 @@ export class SonioxStreamingSTT extends EventEmitter {
             this.clearKeepAlive();
             console.log(`[SonioxStreaming] Closed (code=${code}, reason=${reason.toString()})`);
 
-            // Auto-reconnect on unexpected close
-            if (this.shouldReconnect && code !== 1000) {
+            if (!this.shouldReconnect) {
+                // stop() requested — session is truly done
+                this.isActive = false;
+                return;
+            }
+
+            if (code !== 1000) {
+                // Unexpected close — reconnect with backoff
                 this.scheduleReconnect();
             } else {
-                // If not reconnecting, mark session as truly inactive
-                this.isActive = false;
+                // Server-initiated graceful close (session limit, idle timeout).
+                // The meeting is still running: NEVER kill isActive here — stay
+                // active and lazily reconnect on the next audio chunk, exactly
+                // like the Deepgram handler. (Previously this set isActive=false
+                // and silently dropped every subsequent chunk for the rest of
+                // the meeting.)
+                console.log('[SonioxStreaming] Server closed session (1000) — staying active, will reconnect on next audio');
             }
         });
     }
@@ -362,13 +389,23 @@ export class SonioxStreamingSTT extends EventEmitter {
 
     private startKeepAlive(): void {
         this.clearKeepAlive();
+        this.lastLivenessAt = Date.now();
         this.keepAliveTimer = setInterval(() => {
-            if (this.ws?.readyState === WebSocket.OPEN) {
-                try {
-                    this.ws.ping();
-                } catch {
-                    // Ignore errors
-                }
+            if (this.ws?.readyState !== WebSocket.OPEN) return;
+
+            // Liveness watchdog: pings get protocol pongs even during silence,
+            // so zero traffic means a half-open socket — terminate to force the
+            // close/reconnect path immediately instead of after the OS timeout.
+            if (Date.now() - this.lastLivenessAt > LIVENESS_TIMEOUT_MS) {
+                console.warn(`[SonioxStreaming] No server traffic for ${LIVENESS_TIMEOUT_MS / 1000}s — terminating half-open socket`);
+                try { this.ws.terminate(); } catch { /* close handler reconnects */ }
+                return;
+            }
+
+            try {
+                this.ws.ping();
+            } catch {
+                // Ignore errors
             }
         }, KEEPALIVE_INTERVAL_MS);
     }
