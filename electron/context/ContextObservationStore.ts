@@ -160,6 +160,20 @@ export class ContextObservationStore {
     });
   }
 
+  /**
+   * Persist a commitment document into the durable lane (180-day TTL).
+   * Used by meeting ingestion and the deadline sweep (which re-records to
+   * update notification metadata).
+   */
+  recordCommitmentDocument(doc: ContextDocument): void {
+    if (doc.sourceType !== "task_or_commitment") return;
+    const createdMs = Date.parse(doc.createdAt) || Date.now();
+    this.upsertDocument({
+      ...doc,
+      expiresAt: doc.expiresAt ?? new Date(createdMs + TTL_BY_SOURCE_MS.task_or_commitment).toISOString(),
+    });
+  }
+
   getDocuments(options?: {
     sourceTypes?: ContextSourceType[];
     maxAgeMs?: number;

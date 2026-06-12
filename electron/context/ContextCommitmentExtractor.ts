@@ -52,6 +52,8 @@ export class ContextCommitmentExtractor {
     relatedMeetingIds: string[];
   }): ContextDocument {
     const body = `Open commitment from ${input.meeting.title || "meeting"}: ${input.title}`;
+    const reference = new Date(Date.parse(input.createdAt) || Date.now());
+    const dueAt = parseDuePhrase(input.title, reference);
     return {
       id: `commitment:${crypto.createHash("sha1").update(`${input.meeting.id}:${input.title}`).digest("hex").slice(0, 16)}`,
       sourceType: "task_or_commitment",
@@ -60,6 +62,7 @@ export class ContextCommitmentExtractor {
       body,
       createdAt: input.createdAt,
       updatedAt: input.createdAt,
+      dueAt: dueAt ?? undefined,
       trustTier: "durable",
       visibility: "private",
       freshnessClass: "recent",
@@ -71,6 +74,108 @@ export class ContextCommitmentExtractor {
       },
     };
   }
+}
+
+const WEEKDAYS = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
+const MONTHS = [
+  "january", "february", "march", "april", "may", "june",
+  "july", "august", "september", "october", "november", "december",
+];
+const END_OF_DAY_HOUR = 17;
+
+/**
+ * Deterministic date-phrase parser for commitment text ("I'll send that by
+ * Friday", "end of day", "by June 15", "in 3 days"). Returns an ISO timestamp
+ * (local 17:00 on the resolved day) or null when no temporal phrase is found.
+ * No LLM calls — this runs on every meeting save.
+ */
+export function parseDuePhrase(text: string, reference: Date = new Date()): string | null {
+  const lower = text.toLowerCase();
+
+  const atEndOfDay = (date: Date): string => {
+    const result = new Date(date);
+    result.setHours(END_OF_DAY_HOUR, 0, 0, 0);
+    return result.toISOString();
+  };
+  const addDays = (date: Date, days: number): Date => {
+    const result = new Date(date);
+    result.setDate(result.getDate() + days);
+    return result;
+  };
+
+  // "by/before/until/due <weekday>" (also "next <weekday>")
+  const weekdayMatch = lower.match(/\b(?:by|before|until|due|on|next)\s+(?:next\s+)?(sunday|monday|tuesday|wednesday|thursday|friday|saturday)\b/);
+  if (weekdayMatch) {
+    const target = WEEKDAYS.indexOf(weekdayMatch[1]);
+    let delta = (target - reference.getDay() + 7) % 7;
+    if (delta === 0) delta = 7; // "by Friday" said on a Friday means next week
+    return atEndOfDay(addDays(reference, delta));
+  }
+
+  // "tomorrow"
+  if (/\btomorrow\b/.test(lower)) {
+    return atEndOfDay(addDays(reference, 1));
+  }
+
+  // "today", "end of day", "eod", "tonight", "close of business", "cob"
+  if (/\b(?:today|tonight|end of (?:the )?day|eod|close of business|cob)\b/.test(lower)) {
+    return atEndOfDay(reference);
+  }
+
+  // "end of week", "eow", "this week" → Friday of the reference week
+  if (/\b(?:end of (?:the )?week|eow|this week)\b/.test(lower)) {
+    const delta = (5 - reference.getDay() + 7) % 7;
+    return atEndOfDay(addDays(reference, delta));
+  }
+
+  // "next week" → next Monday
+  if (/\bnext week\b/.test(lower)) {
+    const delta = ((1 - reference.getDay() + 7) % 7) || 7;
+    return atEndOfDay(addDays(reference, delta));
+  }
+
+  // "end of month", "eom"
+  if (/\b(?:end of (?:the )?month|eom)\b/.test(lower)) {
+    const result = new Date(reference.getFullYear(), reference.getMonth() + 1, 0);
+    return atEndOfDay(result);
+  }
+
+  // "in N day(s)/week(s)"
+  const inMatch = lower.match(/\bin\s+(\d{1,2})\s+(day|days|week|weeks)\b/);
+  if (inMatch) {
+    const amount = parseInt(inMatch[1], 10);
+    const days = inMatch[2].startsWith("week") ? amount * 7 : amount;
+    return atEndOfDay(addDays(reference, days));
+  }
+
+  // "by <Month> <day>" (e.g. "by June 15", "before march 3rd")
+  const monthMatch = lower.match(/\b(?:by|before|until|due|on)\s+(january|february|march|april|may|june|july|august|september|october|november|december)\s+(\d{1,2})(?:st|nd|rd|th)?\b/);
+  if (monthMatch) {
+    const month = MONTHS.indexOf(monthMatch[1]);
+    const day = parseInt(monthMatch[2], 10);
+    if (day >= 1 && day <= 31) {
+      let result = new Date(reference.getFullYear(), month, day);
+      if (result.getTime() < reference.getTime()) {
+        result = new Date(reference.getFullYear() + 1, month, day);
+      }
+      return atEndOfDay(result);
+    }
+  }
+
+  // "by the 15th" (day of the current/next month)
+  const dayMatch = lower.match(/\b(?:by|before|until|due)\s+the\s+(\d{1,2})(?:st|nd|rd|th)\b/);
+  if (dayMatch) {
+    const day = parseInt(dayMatch[1], 10);
+    if (day >= 1 && day <= 31) {
+      let result = new Date(reference.getFullYear(), reference.getMonth(), day);
+      if (result.getTime() < reference.getTime()) {
+        result = new Date(reference.getFullYear(), reference.getMonth() + 1, day);
+      }
+      return atEndOfDay(result);
+    }
+  }
+
+  return null;
 }
 
 function extractCommitmentFromLine(line: string): string | null {

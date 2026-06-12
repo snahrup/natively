@@ -4170,6 +4170,17 @@ async function initializeApp() {
     console.error('[Main] Failed to initialize MicrosoftLocalManager:', e);
   }
 
+  // Deadline awareness: watch meeting saves for dated commitments and fire
+  // one clickable notification when each enters its due-soon window.
+  try {
+    const { DeadlineSweepService } = require('./services/DeadlineSweepService');
+    DeadlineSweepService.getInstance().start(() => {
+      appState.centerAndShowWindow();
+    });
+  } catch (e) {
+    console.error('[Main] Failed to start DeadlineSweepService:', e);
+  }
+
   // Power state awareness: an all-day session crosses sleep/lock boundaries.
   // suspend → flush transcript + stop captures cleanly; resume → restart the
   // pipeline if a meeting is active; unlock → restart only if actually stale.

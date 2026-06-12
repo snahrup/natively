@@ -29,6 +29,8 @@ export interface ContextDocument {
   createdAt: string;
   updatedAt?: string;
   expiresAt?: string;
+  /** ISO timestamp a commitment/task is due (parsed from "by Friday" etc.). */
+  dueAt?: string;
   eventTimeStart?: string;
   eventTimeEnd?: string;
   participants?: string[];
