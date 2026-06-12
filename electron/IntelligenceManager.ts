@@ -209,12 +209,25 @@ export class IntelligenceManager extends EventEmitter {
     // Meeting Lifecycle (delegates to persistence)
     // ============================================
 
+    /**
+     * Create the meeting DB row and start the incremental transcript flush.
+     * Call at meeting START so a crash mid-meeting cannot lose the transcript.
+     */
+    startMeetingPersistence(metadata?: any): string | null {
+        return this.persistence.startMeeting(metadata);
+    }
+
+    /** Synchronously persist all pending transcript segments (before-quit safe). */
+    flushActiveMeeting(): void {
+        this.persistence.flushActiveMeeting();
+    }
+
     async stopMeeting(): Promise<string | null> {
         return this.persistence.stopMeeting();
     }
 
-    async recoverUnprocessedMeetings(): Promise<void> {
-        return this.persistence.recoverUnprocessedMeetings();
+    async recoverUnprocessedMeetings(options?: { llmProcessing?: boolean }): Promise<void> {
+        return this.persistence.recoverUnprocessedMeetings(options);
     }
 
     // ============================================

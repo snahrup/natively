@@ -13,13 +13,95 @@ import { reconstructTranscriptWithCodex } from './services/TranscriptReconstruct
 import { generateMeetingTitleWithCodex, isPlaceholderMeetingTitle } from './services/MeetingTitleService';
 const crypto = require('crypto');
 
+const TRANSCRIPT_FLUSH_INTERVAL_MS = 15_000;
+
 export class MeetingPersistence {
     private session: SessionTracker;
     private llmHelper: LLMHelper;
 
+    // Incremental persistence: meeting row is created at START and transcript
+    // segments are flushed to SQLite on a timer, so a crash/quit mid-meeting
+    // loses at most one flush interval of transcript instead of everything.
+    private activeMeetingId: string | null = null;
+    private activeMeetingStartTime: number = 0;
+    private flushTimer: NodeJS.Timeout | null = null;
+
     constructor(session: SessionTracker, llmHelper: LLMHelper) {
         this.session = session;
         this.llmHelper = llmHelper;
+    }
+
+    /**
+     * Called at meeting START: generates the meetingId, writes the meeting row
+     * immediately (is_processed=0), and starts the incremental transcript flush.
+     * Failure is non-fatal — stopMeeting() falls back to generating a fresh
+     * UUID at stop (the pre-incremental behavior).
+     */
+    public startMeeting(metadata?: { title?: string; calendarEventId?: string; source?: 'manual' | 'calendar' } | null): string | null {
+        this.stopFlushTimer();
+        const meetingId = crypto.randomUUID();
+        const startTime = Date.now();
+        try {
+            DatabaseManager.getInstance().createMeetingShell({
+                id: meetingId,
+                // "Live meeting" is recognized by isPlaceholderMeetingTitle, so
+                // recovery and title generation both treat it as replaceable.
+                title: metadata?.title && !isPlaceholderMeetingTitle(metadata.title) ? metadata.title : 'Live meeting',
+                startTimeMs: startTime,
+                calendarEventId: metadata?.calendarEventId,
+                source: metadata?.source,
+            });
+        } catch (e) {
+            console.error('[MeetingPersistence] Failed to create meeting row at start — incremental persistence disabled for this meeting:', e);
+            return null;
+        }
+        this.activeMeetingId = meetingId;
+        this.activeMeetingStartTime = startTime;
+        this.flushTimer = setInterval(() => this.flushPendingSegments(), TRANSCRIPT_FLUSH_INTERVAL_MS);
+        this.flushTimer.unref?.();
+        console.log(`[MeetingPersistence] Meeting ${meetingId} persisted at start; incremental flush every ${TRANSCRIPT_FLUSH_INTERVAL_MS / 1000}s`);
+        return meetingId;
+    }
+
+    /**
+     * Flush transcript segments that have not yet been written to SQLite.
+     * Synchronous (better-sqlite3), so it is also safe to call from the
+     * app's before-quit handler via flushActiveMeeting().
+     */
+    private flushPendingSegments(): void {
+        if (!this.activeMeetingId) return;
+        const pending = this.session.getUnflushedSegments();
+        if (pending.length === 0) return;
+        try {
+            const db = DatabaseManager.getInstance();
+            db.appendTranscriptSegments(
+                this.activeMeetingId,
+                pending.map(s => ({ speaker: s.speaker, text: s.text, timestamp: s.timestamp }))
+            );
+            this.session.markSegmentsFlushed(pending.length);
+            db.updateMeetingDuration(this.activeMeetingId, Date.now() - this.activeMeetingStartTime);
+        } catch (e) {
+            // Segments stay unflushed and are retried next interval; the final
+            // saveMeeting() rewrites all rows anyway, so this is never fatal.
+            console.warn('[MeetingPersistence] Incremental transcript flush failed (will retry):', e);
+        }
+    }
+
+    /**
+     * Force-persist everything pending for the active meeting (interim segment
+     * included). Called from the before-quit handler.
+     */
+    public flushActiveMeeting(): void {
+        if (!this.activeMeetingId) return;
+        this.session.flushInterimTranscript();
+        this.flushPendingSegments();
+    }
+
+    private stopFlushTimer(): void {
+        if (this.flushTimer) {
+            clearInterval(this.flushTimer);
+            this.flushTimer = null;
+        }
     }
 
     /**
@@ -29,6 +111,10 @@ export class MeetingPersistence {
     public async stopMeeting(): Promise<string | null> {
         console.log('[MeetingPersistence] Stopping meeting and queueing save...');
 
+        this.stopFlushTimer();
+        const startedMeetingId = this.activeMeetingId;
+        this.activeMeetingId = null;
+
         // 0. Force-save any pending interim transcript
         this.session.flushInterimTranscript();
 
@@ -36,6 +122,10 @@ export class MeetingPersistence {
         const durationMs = Date.now() - this.session.getSessionStartTime();
         if (durationMs < 1000) {
             console.log("Meeting too short, ignoring.");
+            // Remove the shell row created at start — it holds nothing.
+            if (startedMeetingId) {
+                try { DatabaseManager.getInstance().deleteMeeting(startedMeetingId); } catch { /* non-fatal */ }
+            }
             this.session.reset();
             return null;
         }
@@ -55,7 +145,10 @@ export class MeetingPersistence {
         // 2. Reset state immediately so new meeting can start or UI is clean
         this.session.reset();
 
-        const meetingId = crypto.randomUUID();
+        // Reuse the id created at meeting start so the final save lands on the
+        // incrementally-persisted row; fall back to a fresh UUID if the start
+        // row could not be created.
+        const meetingId = startedMeetingId ?? crypto.randomUUID();
         this.processAndSaveMeeting(snapshot, meetingId, metadataSnapshot).catch(err => {
             console.error('[MeetingPersistence] Background processing failed:', err);
         });
@@ -247,9 +340,16 @@ export class MeetingPersistence {
     }
 
     /**
-     * Recover meetings that were started but not fully processed (e.g. app crash)
+     * Recover meetings that were started but not fully processed (e.g. app crash).
+     *
+     * Two modes:
+     * - llmProcessing=false (default; always safe at startup): DATA-only recovery.
+     *   The transcript is already in SQLite from the incremental flush — finalize
+     *   the row (real title/duration, is_processed=1) with ZERO model calls.
+     * - llmProcessing=true (behind NATIVELY_ENABLE_STARTUP_MEETING_RECOVERY):
+     *   full reprocessing with title/summary generation, as before.
      */
-    public async recoverUnprocessedMeetings(): Promise<void> {
+    public async recoverUnprocessedMeetings(options?: { llmProcessing?: boolean }): Promise<void> {
         console.log('[MeetingPersistence] Checking for unprocessed meetings...');
         const db = DatabaseManager.getInstance();
         const unprocessed = db.getUnprocessedMeetings();
@@ -259,7 +359,12 @@ export class MeetingPersistence {
             return;
         }
 
-        console.log(`[MeetingPersistence] Found ${unprocessed.length} unprocessed meetings. recovering...`);
+        console.log(`[MeetingPersistence] Found ${unprocessed.length} unprocessed meetings. recovering (llmProcessing=${Boolean(options?.llmProcessing)})...`);
+
+        if (!options?.llmProcessing) {
+            this.recoverMeetingDataOnly(unprocessed.map(m => m.id));
+            return;
+        }
 
         for (const m of unprocessed) {
             try {
@@ -294,6 +399,45 @@ export class MeetingPersistence {
 
             } catch (e) {
                 console.error(`[MeetingPersistence] Failed to recover meeting ${m.id}`, e);
+            }
+        }
+    }
+
+    /**
+     * Finalize crashed meetings from their incrementally-flushed transcripts
+     * without any model calls. Empty shells (no transcript rows) are deleted.
+     */
+    private recoverMeetingDataOnly(meetingIds: string[]): void {
+        const db = DatabaseManager.getInstance();
+        for (const id of meetingIds) {
+            try {
+                const details = db.getMeetingDetails(id);
+                if (!details) continue;
+
+                const transcript = details.transcript || [];
+                if (transcript.length === 0) {
+                    console.log(`[MeetingPersistence] Removing empty unprocessed meeting ${id} (no transcript rows)`);
+                    db.deleteMeeting(id);
+                    continue;
+                }
+
+                // Prefer last-segment timestamp over the (possibly stale) stored duration.
+                const startTime = new Date(details.date).getTime();
+                const lastTs = transcript[transcript.length - 1].timestamp;
+                const parts = (details.duration || '0:00').split(':');
+                const storedMs = (((parseInt(parts[0]) || 0) * 60) + (parseInt(parts[1]) || 0)) * 1000;
+                const durationMs = Number.isFinite(startTime) && lastTs > startTime
+                    ? lastTs - startTime
+                    : storedMs;
+
+                const title = isPlaceholderMeetingTitle(details.title)
+                    ? 'Recovered meeting'
+                    : details.title;
+
+                db.markMeetingRecovered(id, { title, durationMs });
+                console.log(`[MeetingPersistence] Recovered meeting data ${id} (${transcript.length} segments, no LLM calls)`);
+            } catch (e) {
+                console.error(`[MeetingPersistence] Failed data-only recovery for meeting ${id}`, e);
             }
         }
     }

@@ -878,6 +878,86 @@ export class DatabaseManager {
         }
     }
 
+    /**
+     * Create the meeting row at meeting START (is_processed=0) so a crash or
+     * force-quit mid-meeting leaves a recoverable record. Idempotent.
+     */
+    public createMeetingShell(params: {
+        id: string;
+        title: string;
+        startTimeMs: number;
+        calendarEventId?: string;
+        source?: string;
+    }): void {
+        if (!this.db) {
+            throw new Error(this.initError || 'SQLite persistence is unavailable.');
+        }
+        this.db.prepare(`
+            INSERT INTO meetings (id, title, start_time, duration_ms, summary_json, created_at, calendar_event_id, source, is_processed)
+            VALUES (?, ?, ?, 0, ?, ?, ?, ?, 0)
+            ON CONFLICT(id) DO NOTHING
+        `).run(
+            params.id,
+            params.title,
+            params.startTimeMs,
+            JSON.stringify({ legacySummary: '', detailedSummary: { actionItems: [], keyPoints: [] } }),
+            new Date(params.startTimeMs).toISOString(),
+            params.calendarEventId || null,
+            params.source || 'manual'
+        );
+    }
+
+    /**
+     * Append transcript segments to an in-progress meeting (incremental flush).
+     * Rows written here are deduped by the final saveMeeting(), which
+     * delete-and-reinserts all child rows.
+     */
+    public appendTranscriptSegments(
+        meetingId: string,
+        segments: Array<{ speaker: string; text: string; timestamp: number }>
+    ): void {
+        if (!this.db || segments.length === 0) return;
+        const insert = this.db.prepare(`
+            INSERT INTO transcripts (meeting_id, speaker, content, timestamp_ms)
+            VALUES (?, ?, ?, ?)
+        `);
+        const tx = this.db.transaction((segs: Array<{ speaker: string; text: string; timestamp: number }>) => {
+            for (const s of segs) {
+                insert.run(meetingId, s.speaker, s.text, s.timestamp);
+            }
+        });
+        tx(segments);
+    }
+
+    /** Keep an in-progress meeting's duration current so recovery shows real length. */
+    public updateMeetingDuration(id: string, durationMs: number): void {
+        if (!this.db) return;
+        this.db.prepare('UPDATE meetings SET duration_ms = ? WHERE id = ?').run(durationMs, id);
+    }
+
+    /**
+     * Finalize a crashed meeting from its incrementally-flushed data without
+     * any LLM calls: real title/duration, is_processed=1 so it renders as a
+     * normal meeting instead of being stuck at "Processing...".
+     */
+    public markMeetingRecovered(id: string, params: { title: string; durationMs: number }): boolean {
+        if (!this.db) return false;
+        const summaryJson = JSON.stringify({
+            legacySummary: 'Recovered after unexpected shutdown — transcript preserved; summary not generated.',
+            detailedSummary: { actionItems: [], keyPoints: [] },
+        });
+        const info = this.db.prepare(`
+            UPDATE meetings SET title = ?, duration_ms = ?, summary_json = ?, is_processed = 1 WHERE id = ?
+        `).run(params.title, params.durationMs, summaryJson, id);
+        if (info.changes > 0) {
+            const meeting = this.getMeetingDetails(id);
+            if (meeting) {
+                this.notifyMeetingChange({ type: 'upsert', meetingId: id, meeting });
+            }
+        }
+        return info.changes > 0;
+    }
+
     public saveMeeting(meeting: Meeting, startTimeMs: number, durationMs: number) {
         if (!this.db) {
             console.error('[DatabaseManager] DB not initialized');

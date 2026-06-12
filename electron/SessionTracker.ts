@@ -59,6 +59,11 @@ export class SessionTracker {
     private fullUsage: any[] = []; // UsageInteraction
     private sessionStartTime: number = Date.now();
 
+    // Incremental persistence: index into fullTranscript up to which segments
+    // have been flushed to SQLite. Adjusted on compaction so accounting
+    // survives the slice; flushed rows stay in the DB regardless of RAM eviction.
+    private lastFlushedIndex: number = 0;
+
     // Rolling summarization: epoch summaries preserve early context when arrays are compacted
     private static readonly MAX_EPOCH_SUMMARIES = 5;
     private transcriptEpochSummaries: string[] = [];
@@ -449,6 +454,25 @@ export class SessionTracker {
     }
 
     // ============================================
+    // Incremental Transcript Flush (for MeetingPersistence)
+    // ============================================
+
+    /**
+     * Segments not yet flushed to SQLite. fullTranscript only ever contains
+     * FINAL segments (addTranscript drops interims), so everything returned
+     * here is safe to persist. Call markSegmentsFlushed(count) after a
+     * successful DB write — both calls must happen in the same synchronous
+     * block so compaction cannot interleave.
+     */
+    getUnflushedSegments(): TranscriptSegment[] {
+        return this.fullTranscript.slice(this.lastFlushedIndex);
+    }
+
+    markSegmentsFlushed(count: number): void {
+        this.lastFlushedIndex = Math.min(this.lastFlushedIndex + count, this.fullTranscript.length);
+    }
+
+    // ============================================
     // Usage Tracking
     // ============================================
 
@@ -504,6 +528,7 @@ export class SessionTracker {
         this.contextItems = [];
         this.fullTranscript = [];
         this.fullUsage = [];
+        this.lastFlushedIndex = 0;
         this.transcriptEpochSummaries = [];
         this.sessionStartTime = Date.now();
         this.lastAssistantMessage = null;
@@ -598,6 +623,10 @@ export class SessionTracker {
 
             // Evict ONLY the exact 500 oldest entries that we just summarized
             this.fullTranscript = this.fullTranscript.slice(summarizeCount);
+            // Keep flush accounting consistent with the slice. Evicted entries
+            // are always long-flushed (flush runs every 15s, compaction only
+            // evicts the oldest 500 of 1800+), so flooring at 0 is safe.
+            this.lastFlushedIndex = Math.max(0, this.lastFlushedIndex - summarizeCount);
         } finally {
             this.isCompacting = false;
         }

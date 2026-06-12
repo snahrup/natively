@@ -2446,6 +2446,13 @@ export class AppState {
     if (metadata) {
       this.intelligenceManager.setMeetingMetadata(metadata);
     }
+    // Incremental transcript persistence: create the meeting row NOW and start
+    // the periodic flush, so a crash/quit mid-meeting cannot lose the transcript.
+    try {
+      this.intelligenceManager.startMeetingPersistence(metadata);
+    } catch (e) {
+      console.error('[Main] Failed to start incremental meeting persistence (non-fatal):', e);
+    }
     this.applyPreparedMeetingContext(metadata);
     this.startProactiveScreenContext();
 
@@ -3921,13 +3928,14 @@ async function initializeApp() {
     console.error('[Main] Failed to initialize MicrosoftLocalManager:', e);
   }
 
-  if (STARTUP_MEETING_RECOVERY_ENABLED) {
-    appState.getIntelligenceManager().recoverUnprocessedMeetings().catch(err => {
+  // Recovery always runs for DATA (finalize crashed meetings from their
+  // incrementally-flushed transcripts — zero model calls). The LLM summary
+  // pass stays behind the env flag to avoid automatic model calls on launch.
+  appState.getIntelligenceManager()
+    .recoverUnprocessedMeetings({ llmProcessing: STARTUP_MEETING_RECOVERY_ENABLED })
+    .catch(err => {
       console.error('[Main] Failed to recover unprocessed meetings:', err);
     });
-  } else {
-    console.log('[Init] Startup meeting recovery disabled by default to avoid automatic model calls on launch.');
-  }
 
   // Note: We do NOT force dock show here anymore, respecting stealth mode.
 
@@ -3965,6 +3973,15 @@ async function initializeApp() {
     earlyTrace('before-quit');
     console.log("App is quitting, cleaning up resources...");
     appState.setQuitting(true);
+
+    // Persist any unflushed transcript segments before teardown — better-sqlite3
+    // is synchronous, so this completes inside the before-quit handler.
+    try {
+      appState.getIntelligenceManager().flushActiveMeeting();
+    } catch (e) {
+      console.error('[Main] Failed to flush meeting transcript on quit:', e);
+    }
+
     appState.stopMeetingPrepScheduler();
 
     // Dispose CropperWindowHelper to clean up IPC listeners and prevent memory leaks
