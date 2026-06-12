@@ -200,8 +200,24 @@ export class DeepgramStreamingSTT extends EventEmitter {
                 Authorization: `Token ${this.apiKey}`,
             },
         });
+        // Identity capture: recovery restarts can replace this.ws while this
+        // socket's handshake/close events are still in flight. Handlers must
+        // ignore events from a socket that is no longer the current one.
+        const socket = this.ws;
 
         this.ws.on('open', () => {
+            // Guard: stop() may have run mid-handshake, or a newer socket may
+            // have replaced this one. Without this, a late open latches
+            // isActive=true with shouldReconnect=false and the next start()
+            // becomes a silent no-op.
+            if (this.ws !== socket || !this.shouldReconnect) {
+                try { socket.close(); } catch { /* ignore */ }
+                if (this.ws === socket) {
+                    this.ws = null;
+                    this.isConnecting = false;
+                }
+                return;
+            }
             this.isActive = true;
             this.isConnecting = false;
             this.reconnectAttempts = 0;
@@ -255,6 +271,10 @@ export class DeepgramStreamingSTT extends EventEmitter {
         });
 
         this.ws.on('close', (code: number, reason: Buffer) => {
+            // Stale event from a socket that was already replaced (recovery
+            // restart) — don't clear the NEW socket's keepalive or reconnect.
+            if (this.ws !== socket) return;
+
             // Do not force isActive=false; let write() trigger reconnect if isActive is still true
             this.isConnecting = false;
             this.clearKeepAlive();

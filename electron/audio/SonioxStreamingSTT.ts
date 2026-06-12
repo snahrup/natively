@@ -195,6 +195,9 @@ export class SonioxStreamingSTT extends EventEmitter {
 
         this.configSent = false;
         this.ws = new WebSocket(SONIOX_WEBSOCKET_URL);
+        // Identity capture: recovery restarts can replace this.ws while this
+        // socket's close event is still in flight (see close handler below).
+        const socket = this.ws;
 
         this.ws.on('open', () => {
             // Guard: stop() may have been called while the WS handshake was in flight.
@@ -332,6 +335,10 @@ export class SonioxStreamingSTT extends EventEmitter {
         });
 
         this.ws.on('close', (code: number, reason: Buffer) => {
+            // Stale event from a socket that was already replaced — without
+            // this guard a late close would null the NEW this.ws and orphan it.
+            if (this.ws !== socket && this.ws !== null) return;
+
             // Null out the ws reference immediately to prevent stale reuse
             this.ws = null;
             this.isConnecting = false;

@@ -336,6 +336,11 @@ export class AppState {
   private meetingSpeakerLabels: Map<string, string> = new Map();
   private selfSpeakerKeys: Set<string> = new Set();
 
+  // Last explicitly-selected audio devices (from reconfigureAudio) so recovery
+  // rebuilds don't silently switch a deliberate device choice back to default.
+  private preferredInputDeviceId: string | null = null;
+  private preferredOutputDeviceId: string | null = null;
+
   // Audio-pipeline watchdog + power awareness (active only during meetings)
   private audioWatchdogTimer: NodeJS.Timeout | null = null;
   private audioRecoveryInProgress: boolean = false;
@@ -994,10 +999,15 @@ export class AppState {
     // Grace period right after pipeline start
     if (now - this.audioPipelineStartedAt < AppState.AUDIO_STALL_THRESHOLD_MS) return;
 
-    const stalled = (lastAt: number) =>
-      lastAt === 0 || now - lastAt > AppState.AUDIO_STALL_THRESHOLD_MS;
-    const systemStalled = Boolean(this.systemAudioCapture && this.googleSTT) && stalled(this.lastSystemAudioChunkAt);
-    const micStalled = Boolean(this.microphoneCapture && this.googleSTT_User) && stalled(this.lastMicAudioChunkAt);
+    // A leg is stall-eligible only if it produced at least one chunk THIS
+    // meeting (counters reset in startMeeting). Legs that never produce —
+    // mic-only sessions, denied screen-recording permission, idle WASAPI
+    // loopback — are a readiness-chip concern; restarting them would
+    // interrupt the healthy leg.
+    const systemStalled = this.systemAudioChunkCount > 0 &&
+      now - this.lastSystemAudioChunkAt > AppState.AUDIO_STALL_THRESHOLD_MS;
+    const micStalled = this.micAudioChunkCount > 0 &&
+      now - this.lastMicAudioChunkAt > AppState.AUDIO_STALL_THRESHOLD_MS;
     if (!systemStalled && !micStalled) return;
 
     const scope = [systemStalled ? 'system audio' : null, micStalled ? 'microphone' : null]
@@ -1017,32 +1027,46 @@ export class AppState {
     this.lastAudioRecoveryAt = now;
     this.audioRecoveryAttempts += 1;
     this.broadcast('meeting-audio-error', `Audio capture stalled (${scope}) — restarting capture (attempt ${this.audioRecoveryAttempts}/${AppState.AUDIO_RECOVERY_MAX_ATTEMPTS})...`);
-    this.restartAudioPipelineForRecovery(`watchdog: ${scope} stalled`);
+    // Restart only the stalled leg(s) so the healthy leg keeps flowing.
+    this.restartAudioPipelineForRecovery(`watchdog: ${scope} stalled`, { system: systemStalled, mic: micStalled });
   }
 
-  /** Tear down captures and rebuild the pipeline. Session/transcript state is untouched. */
-  private restartAudioPipelineForRecovery(reason: string): void {
+  /** Tear down the given capture legs and rebuild them. Session/transcript state is untouched. */
+  private restartAudioPipelineForRecovery(
+    reason: string,
+    legs: { system: boolean; mic: boolean } = { system: true, mic: true }
+  ): void {
     if (!this.isMeetingActive || this.audioRecoveryInProgress) return;
+    if (!legs.system && !legs.mic) return;
     this.audioRecoveryInProgress = true;
     try {
-      console.warn(`[Main] Restarting audio pipeline (${reason})...`);
-      try { this.googleSTT?.stop(); } catch { /* keep going */ }
-      try { this.googleSTT_User?.stop(); } catch { /* keep going */ }
+      const legLabel = [legs.system ? 'system' : null, legs.mic ? 'mic' : null].filter(Boolean).join('+');
+      console.warn(`[Main] Restarting audio pipeline (${reason}; legs=${legLabel})...`);
 
       // DESTROY the captures rather than stop/start: the native monitor is
       // created once and pinned to the device resolved at construction, so a
       // stop/start would re-attach to a dead/unplugged device. Re-creating
-      // re-resolves the CURRENT default device (covers headset hot-plug).
-      try { this.systemAudioCapture?.destroy(); } catch { /* keep going */ }
-      this.systemAudioCapture = null;
-      try { this.microphoneCapture?.destroy(); } catch { /* keep going */ }
-      this.microphoneCapture = null;
+      // re-resolves the device (covers headset hot-plug).
+      if (legs.system) {
+        try { this.googleSTT?.stop(); } catch { /* keep going */ }
+        try { this.systemAudioCapture?.destroy(); } catch { /* keep going */ }
+        this.systemAudioCapture = null;
+      }
+      if (legs.mic) {
+        try { this.googleSTT_User?.stop(); } catch { /* keep going */ }
+        try { this.microphoneCapture?.destroy(); } catch { /* keep going */ }
+        this.microphoneCapture = null;
+      }
 
       this.setupSystemAudioPipeline();
-      this.systemAudioCapture?.start();
-      this.googleSTT?.start();
-      this.microphoneCapture?.start();
-      this.googleSTT_User?.start();
+      if (legs.system) {
+        this.systemAudioCapture?.start();
+        this.googleSTT?.start();
+      }
+      if (legs.mic) {
+        this.microphoneCapture?.start();
+        this.googleSTT_User?.start();
+      }
 
       this.audioPipelineStartedAt = Date.now();
       console.log('[Main] Audio pipeline restarted.');
@@ -2162,7 +2186,12 @@ export class AppState {
       // 1. Initialize Captures if missing
       // If they already exist (e.g. from reconfigureAudio), they are already wired to write to this.googleSTT/User
       if (!this.systemAudioCapture) {
-        this.systemAudioCapture = new SystemAudioCapture();
+        try {
+          this.systemAudioCapture = new SystemAudioCapture(this.preferredOutputDeviceId || undefined);
+        } catch (err) {
+          console.warn('[Main] Preferred output device failed during pipeline setup; using default:', err);
+          this.systemAudioCapture = new SystemAudioCapture();
+        }
         // Wire Capture -> STT
         let _sysChunkCount = 0;
         this.systemAudioCapture.on('data', (chunk: Buffer) => {
@@ -2191,7 +2220,12 @@ export class AppState {
       }
 
       if (!this.microphoneCapture) {
-        this.microphoneCapture = new MicrophoneCapture();
+        try {
+          this.microphoneCapture = new MicrophoneCapture(this.preferredInputDeviceId || undefined);
+        } catch (err) {
+          console.warn('[Main] Preferred input device failed during pipeline setup; using default:', err);
+          this.microphoneCapture = new MicrophoneCapture();
+        }
         this.microphoneCapture.on('data', (chunk: Buffer) => {
           this.recordAudioChunk("microphone", chunk.length);
           this.googleSTT_User?.write(chunk);
@@ -2254,6 +2288,11 @@ export class AppState {
   private async reconfigureAudio(inputDeviceId?: string, outputDeviceId?: string): Promise<void> {
     console.log(`[Main] Reconfiguring Audio: Input=${inputDeviceId}, Output=${outputDeviceId}`);
 
+    // Remember the explicit choice so recovery rebuilds re-resolve the same
+    // devices (falling back to default only if they fail to construct).
+    this.preferredInputDeviceId = inputDeviceId?.trim() || null;
+    this.preferredOutputDeviceId = outputDeviceId?.trim() || null;
+
     // 1. System Audio (Output Capture)
     if (this.systemAudioCapture) {
       // destroy() calls stop() AND removeAllListeners(), preventing EventEmitter listener leaks.
@@ -2289,6 +2328,9 @@ export class AppState {
       this.systemAudioCapture.on('error', (err: Error) => {
         console.error('[Main] SystemAudioCapture Error:', err);
         this.recordAudioPipelineError("System audio capture", err);
+        if (this.isMeetingActive) {
+          this.broadcastAudioPipelineErrorThrottled(`System audio capture error: ${err.message || err}`);
+        }
       });
       console.log('[Main] SystemAudioCapture initialized.');
     } catch (err) {
@@ -2319,6 +2361,9 @@ export class AppState {
         this.systemAudioCapture.on('error', (err: Error) => {
           console.error('[Main] SystemAudioCapture (Default) Error:', err);
           this.recordAudioPipelineError("System audio capture default", err);
+          if (this.isMeetingActive) {
+            this.broadcastAudioPipelineErrorThrottled(`System audio capture error: ${err.message || err}`);
+          }
         });
       } catch (err2) {
         console.error('[Main] Failed to initialize SystemAudioCapture (Default):', err2);
@@ -2355,6 +2400,9 @@ export class AppState {
       this.microphoneCapture.on('error', (err: Error) => {
         console.error('[Main] MicrophoneCapture Error:', err);
         this.recordAudioPipelineError("Microphone capture", err);
+        if (this.isMeetingActive) {
+          this.broadcastAudioPipelineErrorThrottled(`Microphone capture error: ${err.message || err}`);
+        }
       });
       console.log('[Main] MicrophoneCapture initialized.');
     } catch (err) {
@@ -2380,6 +2428,9 @@ export class AppState {
         this.microphoneCapture.on('error', (err: Error) => {
           console.error('[Main] MicrophoneCapture (Default) Error:', err);
           this.recordAudioPipelineError("Microphone capture default", err);
+          if (this.isMeetingActive) {
+            this.broadcastAudioPipelineErrorThrottled(`Microphone capture error: ${err.message || err}`);
+          }
         });
       } catch (err2) {
         console.error('[Main] Failed to initialize MicrophoneCapture (Default):', err2);
