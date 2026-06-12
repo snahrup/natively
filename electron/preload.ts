@@ -868,8 +868,10 @@ contextBridge.exposeInMainWorld("electronAPI", {
     }
   },
 
-  onGeminiStreamDone: (callback: () => void) => {
-    const subscription = () => callback()
+  onGeminiStreamDone: (callback: (finalText?: string) => void) => {
+    // finalText (when present) is the authoritative sanitized response —
+    // streamed deltas can include narration from intermediate tool-use turns.
+    const subscription = (_: any, finalText?: string | null) => callback(finalText ?? undefined)
     ipcRenderer.on("gemini-stream-done", subscription)
     return () => {
       ipcRenderer.removeListener("gemini-stream-done", subscription)

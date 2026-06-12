@@ -261,8 +261,9 @@ const GlobalChatOverlay: React.FC<GlobalChatOverlayProps> = ({
                     });
                 });
 
-                const oldDoneCleanup = window.electronAPI?.onGeminiStreamDone(() => {
-                    const finalContent = streamBuffer.getBufferedContent();
+                const oldDoneCleanup = window.electronAPI?.onGeminiStreamDone((finalText?: string) => {
+                    // Prefer the authoritative final text over buffered deltas
+                    const finalContent = finalText ?? streamBuffer.getBufferedContent();
                     setMessages(prev => prev.map(msg =>
                         msg.id === assistantMessageId
                             ? { ...msg, content: finalContent, isStreaming: false }

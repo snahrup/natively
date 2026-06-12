@@ -1726,8 +1726,19 @@ const NativelyInterface: React.FC<NativelyInterfaceProps> = ({ onEndMeeting, ove
             });
         }));
 
+        // A newer widget request superseded an older one: clear the stale
+        // spinner on any earlier bubble (the active stream is always the last).
+        if (window.electronAPI.onGeminiStreamSuperseded) {
+            cleanups.push(window.electronAPI.onGeminiStreamSuperseded((s) => {
+                if (s !== 'widget') return;
+                setMessages(prev => prev.map((msg, i) =>
+                    msg.isStreaming && i < prev.length - 1 ? { ...msg, isStreaming: false } : msg
+                ));
+            }));
+        }
+
         // Stream Done
-        cleanups.push(window.electronAPI.onGeminiStreamDone(() => {
+        cleanups.push(window.electronAPI.onGeminiStreamDone((finalText?: string) => {
             setIsProcessing(false);
 
             // Calculate latency if we have a start time
@@ -1769,8 +1780,14 @@ const NativelyInterface: React.FC<NativelyInterfaceProps> = ({ onEndMeeting, ove
                             }];
                         }
                     } catch {}
-                    // Normal completion
-                    return [...prev.slice(0, -1), { ...lastMsg, isStreaming: false }];
+                    // Normal completion — prefer the authoritative final text:
+                    // streamed deltas can include narration from intermediate
+                    // tool-use turns on vision requests.
+                    return [...prev.slice(0, -1), {
+                        ...lastMsg,
+                        isStreaming: false,
+                        text: finalText ?? lastMsg.text,
+                    }];
                 }
                 return prev;
             });

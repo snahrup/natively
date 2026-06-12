@@ -1420,20 +1420,30 @@ export class AppState {
     });
 
     const proactiveScreenExpected = this.proactiveModeEnabled && this.isMeetingActive;
+    // Extraction can be failing (lock screen, revoked permission, provider
+    // timeouts) while the loop still reports "running" — surface that.
+    let ocrHealth: { consecutiveFailureCount: number; lastError: string | null } | null = null;
+    try {
+      const { ContinuousOCRService } = require("./services/ContinuousOCRService");
+      ocrHealth = ContinuousOCRService.getInstance().getHealth();
+    } catch { /* status stays based on ocrRunning alone */ }
+    const ocrDegraded = Boolean(ocrHealth && ocrHealth.consecutiveFailureCount >= 3);
     checks.push({
       id: "screen",
       label: "Screen Context",
       status: proactiveScreenExpected
-        ? audio.screen.ocrRunning
+        ? audio.screen.ocrRunning && !ocrDegraded
           ? "ready"
           : "warning"
         : this.screenshotCaptureInProgress
           ? "warming"
           : "ready",
       detail: proactiveScreenExpected
-        ? audio.screen.ocrRunning
-          ? "Live screen context is feeding proactive coaching."
-          : "Proactive mode is on, but live screen context is not running."
+        ? ocrDegraded
+          ? `Screen extraction is failing (${ocrHealth!.consecutiveFailureCount}x in a row): ${ocrHealth!.lastError || "unknown error"}`
+          : audio.screen.ocrRunning
+            ? "Live screen context is feeding proactive coaching."
+            : "Proactive mode is on, but live screen context is not running."
         : this.screenshotCaptureInProgress
           ? "Screen capture is in progress."
           : "Screen ask and selective screenshot are available.",

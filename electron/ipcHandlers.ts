@@ -645,6 +645,9 @@ export function initializeIpcHandlers(appState: AppState): void {
   // answer mid-sentence with no terminal event. Superseded streams now always
   // emit 'gemini-stream-superseded' so renderers can release their listeners.
   const _chatStreamIds = new Map<string, number>();
+  // Active CLI abort handles per surface: superseding a stream also KILLS its
+  // CLI process immediately instead of letting it burn to completion/timeout.
+  const _chatStreamControllers = new Map<string, AbortController>();
 
   safeHandle("gemini-chat-stream", async (event, message: string, imagePaths?: string[], context?: string, options?: { skipSystemPrompt?: boolean, ignoreKnowledgeMode?: boolean, surface?: ChatDebugSurface }) => {
     const startedAt = Date.now();
@@ -662,6 +665,16 @@ export function initializeIpcHandlers(appState: AppState): void {
       const myStreamId = (_chatStreamIds.get(surface) || 0) + 1;
       _chatStreamIds.set(surface, myStreamId);
       const isSuperseded = () => (_chatStreamIds.get(surface) || 0) !== myStreamId;
+
+      // Kill the CLI process of any in-flight stream on this surface.
+      _chatStreamControllers.get(surface)?.abort();
+      const streamController = new AbortController();
+      _chatStreamControllers.set(surface, streamController);
+      const releaseController = () => {
+        if (_chatStreamControllers.get(surface) === streamController) {
+          _chatStreamControllers.delete(surface);
+        }
+      };
 
       // Update IntelligenceManager with USER message immediately
       const intelligenceManager = appState.getIntelligenceManager();
@@ -715,6 +728,7 @@ export function initializeIpcHandlers(appState: AppState): void {
               ignoreKnowledgeMode: options?.ignoreKnowledgeMode,
               skipSystemPrompt: options?.skipSystemPrompt,
             });
+            releaseController();
             return null;
           }
         } catch (proposalError: any) {
@@ -738,9 +752,16 @@ export function initializeIpcHandlers(appState: AppState): void {
         console.warn("[IPC] Failed to merge live context:", ctxErr);
       }
 
+      let authoritativeResponse: string | null = null;
       try {
-        // USE streamChat which handles routing
-        const stream = llmHelper.streamChat(message, imagePaths, context, options?.skipSystemPrompt ? "" : undefined, options?.ignoreKnowledgeMode);
+        // USE streamChat which handles routing. onFinalText delivers the
+        // authoritative (sanitized) answer — streamed deltas can include
+        // narration from intermediate tool-use turns on vision requests.
+        const stream = llmHelper.streamChat(message, imagePaths, context, options?.skipSystemPrompt ? "" : undefined, {
+          ignoreKnowledgeMode: options?.ignoreKnowledgeMode === true,
+          onFinalText: (text: string) => { authoritativeResponse = text; },
+          abortSignal: streamController.signal,
+        });
 
         for await (const token of stream) {
           // Bail if a newer stream on this surface has taken over
@@ -775,13 +796,17 @@ export function initializeIpcHandlers(appState: AppState): void {
 
         // Final check: only send done if we are still the active stream
         if (!isSuperseded()) {
-          event.sender.send("gemini-stream-done");
+          // Prefer the authoritative final text over accumulated deltas for
+          // everything that outlives the stream (renderer reconciliation,
+          // session memory, usage log, debug ledger).
+          const finalResponse = (authoritativeResponse ?? fullResponse) as string;
+          event.sender.send("gemini-stream-done", authoritativeResponse);
 
           // Update IntelligenceManager with ASSISTANT message after completion
-          if (fullResponse.trim().length > 0) {
-            intelligenceManager.addAssistantMessage(fullResponse);
+          if (finalResponse.trim().length > 0) {
+            intelligenceManager.addAssistantMessage(finalResponse);
             // Log Usage for streaming chat
-            await intelligenceManager.logUsage('chat', message, fullResponse);
+            await intelligenceManager.logUsage('chat', message, finalResponse);
           }
 
           saveChatDebugEntry({
@@ -790,7 +815,7 @@ export function initializeIpcHandlers(appState: AppState): void {
             modelState,
             timestamp: startedAt,
             userQuery: message,
-            aiResponse: fullResponse,
+            aiResponse: finalResponse,
             imagePaths,
             firstTokenAt,
             completedAt: Date.now(),
@@ -826,6 +851,8 @@ export function initializeIpcHandlers(appState: AppState): void {
           ignoreKnowledgeMode: options?.ignoreKnowledgeMode,
           skipSystemPrompt: options?.skipSystemPrompt,
         });
+      } finally {
+        releaseController();
       }
 
       return null; // Return null as data is sent via events
@@ -847,6 +874,11 @@ export function initializeIpcHandlers(appState: AppState): void {
         ignoreKnowledgeMode: options?.ignoreKnowledgeMode,
         skipSystemPrompt: options?.skipSystemPrompt,
       });
+      // Note: no controller cleanup here — a setup failure this early may
+      // predate this request's claim, and deleting the map entry could strand
+      // a PREVIOUS stream's abort handle. A stale entry is harmless (the next
+      // request on the surface aborts and replaces it; abort after completion
+      // is a no-op).
       throw error;
     }
   });

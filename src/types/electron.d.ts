@@ -147,7 +147,7 @@ export interface ElectronAPI {
   // Meeting AI (IP Corp mode + Continuous OCR)
   setIPCorpMode: (enabled: boolean) => Promise<{ success: boolean; error?: string; warning?: string }>
   setContinuousOCR: (enabled: boolean) => Promise<{ success: boolean; error?: string }>
-  getMeetingAIStatus: () => Promise<{ claudeMaxAvailable: boolean; claudeMaxStatus?: 'ready' | 'expired' | 'missing' | 'invalid'; ocrRunning: boolean; ipCorpMode: boolean; clawmemAvailable?: boolean; nexusAvailable?: boolean; ipCorpWarning?: string | null }>
+  getMeetingAIStatus: () => Promise<{ claudeMaxAvailable: boolean; claudeMaxStatus?: 'ready' | 'expired' | 'missing' | 'invalid'; ocrRunning: boolean; ocrHealth?: { running: boolean; lastSuccessfulExtractAt: string | null; consecutiveFailureCount: number; lastError: string | null }; ipCorpMode: boolean; clawmemAvailable?: boolean; nexusAvailable?: boolean; ipCorpWarning?: string | null }>
   reloadMeetingMemory: () => Promise<{ success: boolean; chunks?: number; error?: string }>
 
   // Meeting Lifecycle
@@ -193,7 +193,7 @@ export interface ElectronAPI {
   streamGeminiChat: (message: string, imagePaths?: string[], context?: string, options?: { skipSystemPrompt?: boolean, ignoreKnowledgeMode?: boolean, surface?: string }) => Promise<void>
   reviewChatMessage: (input: { text: string; reviewType: 'voice_pass' | 'technical_check'; sourceIntent?: string }) => Promise<{ reviewType: 'voice_pass' | 'technical_check'; reviewerModel: string; text: string; error?: string }>
   onGeminiStreamToken: (callback: (token: string) => void) => () => void
-  onGeminiStreamDone: (callback: () => void) => () => void
+  onGeminiStreamDone: (callback: (finalText?: string) => void) => () => void
   onGeminiStreamError: (callback: (error: string) => void) => () => void;
   onGeminiStreamSuperseded: (callback: (surface: string) => void) => () => void;
 

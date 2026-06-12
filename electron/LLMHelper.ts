@@ -21,6 +21,13 @@ type ChatOptions = {
   responseSchema?: Record<string, unknown>;
   /** Real streaming: invoked with each incremental text delta as the CLI produces it. */
   onToken?: (token: string) => void;
+  /**
+   * Invoked once with the authoritative (sanitized) final response. Streamed
+   * deltas can include narration from intermediate assistant turns (tool-use
+   * vision flows) — consumers that persist/render the final answer should
+   * prefer this over their accumulated tokens.
+   */
+  onFinalText?: (text: string) => void;
   /** Cancellation: aborting kills the underlying CLI process tree immediately. */
   abortSignal?: AbortSignal;
 };
@@ -594,6 +601,9 @@ export class LLMHelper {
     if (response && response.length > streamedLength) {
       yield streamedLength > 0 ? response.slice(streamedLength) : response;
     }
+    if (response) {
+      try { options.onFinalText?.(response); } catch { /* consumer errors are not ours */ }
+    }
   }
 
   public async chat(
@@ -1061,8 +1071,16 @@ export class LLMHelper {
             if (parsed?.msg?.type === "agent_message_delta" && typeof parsed.msg.delta === "string") {
               emitDirectDelta(parsed.msg.delta);
             }
-            const itemText = parsed?.item?.text;
-            if (typeof itemText === "string" && itemText.trim()) {
+            // Item events also fire for reasoning summaries and command output
+            // (which carry .text too) — only the agent's message is the answer.
+            // Items without a type field keep the legacy match for back-compat.
+            const item = parsed?.item;
+            const itemKind = item?.item_type ?? item?.type;
+            const itemText = item?.text;
+            if (
+              typeof itemText === "string" && itemText.trim() &&
+              (itemKind === undefined || itemKind === "agent_message" || itemKind === "assistant_message")
+            ) {
               finalText = itemText;
               emitCumulativeText(itemText);
             }
@@ -1221,17 +1239,21 @@ type ClaudeRequestProfile = {
 // opus at max effort takes 30s+ per cold CLI spawn — useless mid-conversation.
 const REALTIME_CLAUDE_MODEL = "claude-sonnet-4-6";
 const REALTIME_CLAUDE_TIMEOUT_MS = 15_000;
+// Vision realtime calls (continuous OCR) need spawn + image read + full-text
+// output — a text-tuned budget systematically times out on them.
+const REALTIME_VISION_TIMEOUT_MS = 45_000;
 
 function resolveClaudeRequestProfile(
   request: CliRequest,
   configuredEffort: ReasoningEffort,
 ): ClaudeRequestProfile {
   if (request.requestProfile === "realtime") {
+    const hasImages = !!request.imagePaths?.length;
     return {
       model: REALTIME_CLAUDE_MODEL,
       effort: "low",
-      timeoutMs: REALTIME_CLAUDE_TIMEOUT_MS,
-      reason: "proactive-realtime",
+      timeoutMs: hasImages ? REALTIME_VISION_TIMEOUT_MS : REALTIME_CLAUDE_TIMEOUT_MS,
+      reason: hasImages ? "proactive-realtime-vision" : "proactive-realtime",
     };
   }
 
@@ -1272,10 +1294,12 @@ function resolveCodexRequestProfile(
     /\b(draft reply|clarify|clarifying question|summarize|recap|suggest follow-up|follow-up questions|concise|2-4 sentences)\b/.test(lower);
 
   if (request.requestProfile === "realtime") {
+    // Image-aware: 9s was tuned for text-only coach reflexes; vision calls
+    // (continuous OCR per display) need spawn + upload + extraction time.
     return {
       effort: "low",
-      timeoutMs: 9_000,
-      reason: "proactive-realtime",
+      timeoutMs: hasImages ? REALTIME_VISION_TIMEOUT_MS : 9_000,
+      reason: hasImages ? "proactive-realtime-vision" : "proactive-realtime",
     };
   }
 
