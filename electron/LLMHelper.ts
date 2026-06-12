@@ -734,6 +734,7 @@ export class LLMHelper {
         imagePaths,
         requestProfile: request.requestProfile,
         responseSchema: request.responseSchema,
+        reasoningEffort: request.reasoningEffort,
       });
     }
 
@@ -749,6 +750,7 @@ export class LLMHelper {
   }
 
   private async runClaudeCli(request: CliRequest): Promise<string> {
+    const profile = resolveClaudeRequestProfile(request, this.reasoningEffort);
     const args: string[] = [
       "-p",
       "--verbose",
@@ -761,9 +763,9 @@ export class LLMHelper {
       "--permission-mode",
       "bypassPermissions",
       "--model",
-      request.model,
+      profile.model,
       "--effort",
-      DEFAULT_CLAUDE_EFFORT,
+      profile.effort,
     ];
 
     if (request.systemPrompt) {
@@ -782,12 +784,16 @@ export class LLMHelper {
     const invocation = buildLocalCliInvocation("claude", args);
     const env = this.buildCliEnv("claude");
 
+    console.log(
+      `[LLMHelper] Claude request profile model=${profile.model} effort=${profile.effort} timeout=${Math.round(profile.timeoutMs / 1000)}s reason=${profile.reason}`
+    );
     const result = await this.collectJsonlOutput(
       invocation.command,
       invocation.args,
       env,
       "claude",
       request.prompt,
+      profile.timeoutMs,
     );
     if (result.error) {
       throw new Error(result.error);
@@ -1076,6 +1082,47 @@ function normalizeCodexModel(modelId?: string): string {
 function providerForModel(modelId: string): ActiveProvider {
   const normalized = normalizeModelId(modelId);
   return SUPPORTED_CLAUDE_MODELS.has(normalized) ? "claude" : "codex";
+}
+
+type ClaudeRequestProfile = {
+  model: string;
+  effort: string;
+  timeoutMs: number;
+  reason: string;
+};
+
+// Live-meeting reflex lane: sonnet-class at low effort with a tight timeout.
+// opus at max effort takes 30s+ per cold CLI spawn — useless mid-conversation.
+const REALTIME_CLAUDE_MODEL = "claude-sonnet-4-6";
+const REALTIME_CLAUDE_TIMEOUT_MS = 15_000;
+
+function resolveClaudeRequestProfile(
+  request: CliRequest,
+  configuredEffort: ReasoningEffort,
+): ClaudeRequestProfile {
+  if (request.requestProfile === "realtime") {
+    return {
+      model: REALTIME_CLAUDE_MODEL,
+      effort: "low",
+      timeoutMs: REALTIME_CLAUDE_TIMEOUT_MS,
+      reason: "proactive-realtime",
+    };
+  }
+
+  const effort = request.reasoningEffort || configuredEffort;
+  return {
+    model: request.model,
+    effort: claudeEffortFlag(effort),
+    timeoutMs: DEFAULT_CLI_REQUEST_TIMEOUT_MS,
+    reason: request.reasoningEffort ? "explicit-effort" : "configured-effort",
+  };
+}
+
+// ReasoningEffort uses the codex vocabulary ("xhigh"); the claude CLI's top
+// tier is "max" (or the AI_CLAUDE_EFFORT override, preserved as the meaning
+// of "what the maximum tier maps to").
+function claudeEffortFlag(effort: ReasoningEffort): string {
+  return effort === "xhigh" ? DEFAULT_CLAUDE_EFFORT : effort;
 }
 
 function resolveCodexRequestProfile(
