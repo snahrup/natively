@@ -18,7 +18,9 @@
     "start": "npm run app:dev",
     "dist": "npm run app:build",
     "build:native": "node scripts/build-native.js",
-    "launch": "powershell -NoProfile -ExecutionPolicy Bypass -File launch-natively.ps1"
+    "launch": "powershell -NoProfile -ExecutionPolicy Bypass -File launch-natively.ps1",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "build": {
     "generateUpdatesFilesForAllChannels": true,
@@ -186,6 +188,7 @@
     "vite": "^5.4.11",
     "vite-plugin-electron": "^0.28.8",
     "vite-plugin-electron-renderer": "^0.14.6",
+    "vitest": "^4.1.8",
     "wait-on": "^8.0.1"
   },
   "dependencies": {
