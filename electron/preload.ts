@@ -847,6 +847,14 @@ contextBridge.exposeInMainWorld("electronAPI", {
     }
   },
 
+  onMeetingAudioError: (callback: (message: string) => void) => {
+    const subscription = (_: any, message: string) => callback(message)
+    ipcRenderer.on("meeting-audio-error", subscription)
+    return () => {
+      ipcRenderer.removeListener("meeting-audio-error", subscription)
+    }
+  },
+
 
   // Streaming Chat
   streamGeminiChat: (message: string, imagePaths?: string[], context?: string, options?: { skipSystemPrompt?: boolean, ignoreKnowledgeMode?: boolean, surface?: string }) => ipcRenderer.invoke("gemini-chat-stream", message, imagePaths, context, options),

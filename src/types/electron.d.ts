@@ -187,6 +187,7 @@ export interface ElectronAPI {
   onIntelligenceError: (callback: (data: { error: string, mode: string }) => void) => () => void;
   // Session Management
   onSessionReset: (callback: () => void) => () => void;
+  onMeetingAudioError: (callback: (message: string) => void) => () => void;
 
   // Streaming listeners
   streamGeminiChat: (message: string, imagePaths?: string[], context?: string, options?: { skipSystemPrompt?: boolean, ignoreKnowledgeMode?: boolean, surface?: string }) => Promise<void>

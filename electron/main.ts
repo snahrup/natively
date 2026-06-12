@@ -1,4 +1,4 @@
-import { app, BrowserWindow, Tray, Menu, nativeImage, ipcMain, shell, systemPreferences, screen, desktopCapturer } from "electron"
+import { app, BrowserWindow, Tray, Menu, nativeImage, ipcMain, shell, systemPreferences, screen, desktopCapturer, powerMonitor, powerSaveBlocker } from "electron"
 import path from "path"
 import fs from "fs"
 import { autoUpdater } from "electron-updater"
@@ -335,6 +335,18 @@ export class AppState {
   private lastUserTranscriptText: string | null = null;
   private meetingSpeakerLabels: Map<string, string> = new Map();
   private selfSpeakerKeys: Set<string> = new Set();
+
+  // Audio-pipeline watchdog + power awareness (active only during meetings)
+  private audioWatchdogTimer: NodeJS.Timeout | null = null;
+  private audioRecoveryInProgress: boolean = false;
+  private audioRecoveryAttempts: number = 0;
+  private lastAudioRecoveryAt: number = 0;
+  private lastAudioErrorBroadcastAt: number = 0;
+  private powerSaveBlockerId: number | null = null;
+  private static readonly AUDIO_WATCHDOG_INTERVAL_MS = 15_000;
+  private static readonly AUDIO_STALL_THRESHOLD_MS = 30_000;
+  private static readonly AUDIO_RECOVERY_COOLDOWN_MS = 60_000;
+  private static readonly AUDIO_RECOVERY_MAX_ATTEMPTS = 3;
 
 
   // Processing events
@@ -937,6 +949,136 @@ export class AppState {
     this.lastAudioPipelineError = `${scope}: ${message}`;
   }
 
+  /**
+   * Push an audio/STT failure to the overlay UI, throttled so reconnect storms
+   * don't spam banners. Mid-meeting failures were previously invisible — the
+   * error landed in lastAudioPipelineError and nothing rendered it.
+   */
+  private broadcastAudioPipelineErrorThrottled(message: string): void {
+    const now = Date.now();
+    if (now - this.lastAudioErrorBroadcastAt < 30_000) return;
+    this.lastAudioErrorBroadcastAt = now;
+    this.broadcast('meeting-audio-error', message);
+  }
+
+  // ============================================
+  // Audio Pipeline Watchdog (active during meetings)
+  // ============================================
+
+  private startAudioWatchdog(): void {
+    this.stopAudioWatchdog();
+    this.audioRecoveryAttempts = 0;
+    this.lastAudioRecoveryAt = 0;
+    this.audioWatchdogTimer = setInterval(
+      () => this.checkAudioPipelineHealth(),
+      AppState.AUDIO_WATCHDOG_INTERVAL_MS
+    );
+    this.audioWatchdogTimer.unref?.();
+  }
+
+  private stopAudioWatchdog(): void {
+    if (this.audioWatchdogTimer) {
+      clearInterval(this.audioWatchdogTimer);
+      this.audioWatchdogTimer = null;
+    }
+  }
+
+  /**
+   * Capture devices emit PCM continuously (silence included), so stale chunk
+   * timestamps mean the capture is dead — a headset unplug, device switch, or
+   * native hiccup. Surface it and attempt automatic recovery.
+   */
+  private checkAudioPipelineHealth(): void {
+    if (!this.isMeetingActive || this.audioPipelineStartedAt === 0) return;
+    const now = Date.now();
+    // Grace period right after pipeline start
+    if (now - this.audioPipelineStartedAt < AppState.AUDIO_STALL_THRESHOLD_MS) return;
+
+    const stalled = (lastAt: number) =>
+      lastAt === 0 || now - lastAt > AppState.AUDIO_STALL_THRESHOLD_MS;
+    const systemStalled = Boolean(this.systemAudioCapture && this.googleSTT) && stalled(this.lastSystemAudioChunkAt);
+    const micStalled = Boolean(this.microphoneCapture && this.googleSTT_User) && stalled(this.lastMicAudioChunkAt);
+    if (!systemStalled && !micStalled) return;
+
+    const scope = [systemStalled ? 'system audio' : null, micStalled ? 'microphone' : null]
+      .filter(Boolean)
+      .join(' + ');
+    this.recordAudioPipelineError('Audio watchdog', `No ${scope} chunks for ${Math.round(AppState.AUDIO_STALL_THRESHOLD_MS / 1000)}s`);
+
+    if (this.audioRecoveryAttempts >= AppState.AUDIO_RECOVERY_MAX_ATTEMPTS) {
+      this.broadcastAudioPipelineErrorThrottled(
+        `Audio capture stalled (${scope}) — automatic recovery failed ${AppState.AUDIO_RECOVERY_MAX_ATTEMPTS} times. Check your audio devices, then stop and restart the meeting.`
+      );
+      return;
+    }
+
+    if (now - this.lastAudioRecoveryAt < AppState.AUDIO_RECOVERY_COOLDOWN_MS) return;
+
+    this.lastAudioRecoveryAt = now;
+    this.audioRecoveryAttempts += 1;
+    this.broadcast('meeting-audio-error', `Audio capture stalled (${scope}) — restarting capture (attempt ${this.audioRecoveryAttempts}/${AppState.AUDIO_RECOVERY_MAX_ATTEMPTS})...`);
+    this.restartAudioPipelineForRecovery(`watchdog: ${scope} stalled`);
+  }
+
+  /** Stop and restart captures + STT in place. Session/transcript state is untouched. */
+  private restartAudioPipelineForRecovery(reason: string): void {
+    if (!this.isMeetingActive || this.audioRecoveryInProgress) return;
+    this.audioRecoveryInProgress = true;
+    try {
+      console.warn(`[Main] Restarting audio pipeline (${reason})...`);
+      try { this.systemAudioCapture?.stop(); } catch { /* keep going */ }
+      try { this.microphoneCapture?.stop(); } catch { /* keep going */ }
+      try { this.googleSTT?.stop(); } catch { /* keep going */ }
+      try { this.googleSTT_User?.stop(); } catch { /* keep going */ }
+
+      this.setupSystemAudioPipeline();
+      this.systemAudioCapture?.start();
+      this.googleSTT?.start();
+      this.microphoneCapture?.start();
+      this.googleSTT_User?.start();
+
+      this.audioPipelineStartedAt = Date.now();
+      console.log('[Main] Audio pipeline restarted.');
+    } catch (err) {
+      console.error('[Main] Audio pipeline restart failed:', err);
+      this.recordAudioPipelineError('Audio pipeline restart', err);
+      this.broadcast('meeting-audio-error', `Audio pipeline restart failed: ${(err as Error).message || err}`);
+    } finally {
+      this.audioRecoveryInProgress = false;
+    }
+  }
+
+  // ============================================
+  // Power State Awareness
+  // ============================================
+
+  public handleSystemSuspend(): void {
+    console.log('[Main] System suspending');
+    if (!this.isMeetingActive) return;
+    this.recordAudioPipelineError('Power', 'System suspended mid-meeting');
+    // Persist the transcript before sleep — same rationale as before-quit.
+    try { this.intelligenceManager.flushActiveMeeting(); } catch { /* non-fatal */ }
+    // Stop captures/STT cleanly so half-open sockets don't strand through sleep.
+    try { this.systemAudioCapture?.stop(); } catch { /* keep going */ }
+    try { this.microphoneCapture?.stop(); } catch { /* keep going */ }
+    try { this.googleSTT?.stop(); } catch { /* keep going */ }
+    try { this.googleSTT_User?.stop(); } catch { /* keep going */ }
+  }
+
+  public handleSystemResume(): void {
+    console.log('[Main] System resumed');
+    if (!this.isMeetingActive) return;
+    this.broadcast('meeting-audio-error', 'System resumed — restarting meeting audio...');
+    this.restartAudioPipelineForRecovery('system resume');
+  }
+
+  /** After unlock the pipeline usually survived — only restart if actually stale. */
+  public handleScreenUnlock(): void {
+    console.log('[Main] Screen unlocked');
+    if (!this.isMeetingActive) return;
+    this.checkAudioPipelineHealth();
+  }
+
   private relativeMs(timestamp: number): number | null {
     return timestamp > 0 ? Math.max(0, Date.now() - timestamp) : null;
   }
@@ -1199,13 +1341,17 @@ export class AppState {
       });
     }
 
+    // Surface the last pipeline error in the chip details — previously captured
+    // but never rendered anywhere.
+    const lastErrorSuffix = audio.lastError ? ` Last error: ${audio.lastError}` : "";
+
     checks.push({
       id: "microphone",
       label: "Microphone",
       status: !this.isMeetingActive ? "warming" : audio.microphone.fresh ? "ready" : "warning",
       detail: audio.microphone.fresh
         ? `Mic audio flowing; last chunk ${Math.round((audio.microphone.lastChunkAgeMs || 0) / 1000)}s ago.`
-        : this.isMeetingActive ? "No fresh microphone audio observed." : "Waiting for a meeting or voice ask.",
+        : this.isMeetingActive ? `No fresh microphone audio observed.${lastErrorSuffix}` : "Waiting for a meeting or voice ask.",
     });
 
     checks.push({
@@ -1214,9 +1360,8 @@ export class AppState {
       status: !this.isMeetingActive ? "warming" : audio.system.fresh ? "ready" : "warning",
       detail: audio.system.fresh
         ? `System audio flowing; last chunk ${Math.round((audio.system.lastChunkAgeMs || 0) / 1000)}s ago.`
-        : this.isMeetingActive ? "No fresh system audio observed. Proactive coaching may miss other speakers." : "Waiting for a live meeting.",
+        : this.isMeetingActive ? `No fresh system audio observed. Proactive coaching may miss other speakers.${lastErrorSuffix}` : "Waiting for a live meeting.",
     });
-
     checks.push({
       id: "transcripts",
       label: "Transcripts",
@@ -1225,7 +1370,7 @@ export class AppState {
         ? "Meeting speech is becoming transcript context."
         : audio.microphone.transcriptFresh
           ? "Your speech is becoming transcript context."
-          : this.isMeetingActive ? "Audio is not producing fresh transcript context." : "No live transcript expected until a session starts.",
+          : this.isMeetingActive ? `Audio is not producing fresh transcript context.${lastErrorSuffix}` : "No live transcript expected until a session starts.",
     });
 
     const activeMode = this.intelligenceManager.getActiveMode();
@@ -1944,6 +2089,12 @@ export class AppState {
     stt.on('error', (err: Error) => {
       console.error(`[Main] STT (${speaker}) Error:`, err);
       this.recordAudioPipelineError(`STT ${speaker}`, err);
+      // Mid-meeting STT death was previously silent — surface it to the overlay.
+      if (this.isMeetingActive) {
+        this.broadcastAudioPipelineErrorThrottled(
+          `Transcription error (${speaker === 'user' ? 'microphone' : 'meeting audio'}): ${err.message || err}`
+        );
+      }
     });
 
     // Auto language detection: NativelyProSTT emits 'languageDetected' when the
@@ -2441,6 +2592,18 @@ export class AppState {
     this.lastUserTranscriptText = null;
     this.meetingSpeakerLabels.clear();
     this.selfSpeakerKeys.clear();
+    this.lastAudioErrorBroadcastAt = 0;
+
+    // Keep the OS from app-suspending us mid-meeting (lid still open, idle timers)
+    try {
+      if (this.powerSaveBlockerId === null || !powerSaveBlocker.isStarted(this.powerSaveBlockerId)) {
+        this.powerSaveBlockerId = powerSaveBlocker.start('prevent-app-suspension');
+        console.log(`[Main] powerSaveBlocker started (id=${this.powerSaveBlockerId})`);
+      }
+    } catch (e) {
+      console.warn('[Main] Failed to start powerSaveBlocker:', e);
+    }
+    this.startAudioWatchdog();
     this.broadcastMeetingState()
     this.pauseMicrosoftContextDuringMeeting();
     if (metadata) {
@@ -2525,6 +2688,11 @@ export class AppState {
     console.log('[Main] Ending Meeting...');
     this.isMeetingActive = false; // Block new data immediately
     this.audioPipelineStartedAt = 0;
+    this.stopAudioWatchdog();
+    if (this.powerSaveBlockerId !== null) {
+      try { powerSaveBlocker.stop(this.powerSaveBlockerId); } catch { /* non-fatal */ }
+      this.powerSaveBlockerId = null;
+    }
     this.broadcastMeetingState();
     this.resumeMicrosoftContextAfterMeeting();
     this.stopProactiveScreenContextIfOwned();
@@ -3927,6 +4095,15 @@ async function initializeApp() {
   } catch (e) {
     console.error('[Main] Failed to initialize MicrosoftLocalManager:', e);
   }
+
+  // Power state awareness: an all-day session crosses sleep/lock boundaries.
+  // suspend → flush transcript + stop captures cleanly; resume → restart the
+  // pipeline if a meeting is active; unlock → restart only if actually stale.
+  powerMonitor.on('suspend', () => appState.handleSystemSuspend());
+  powerMonitor.on('resume', () => appState.handleSystemResume());
+  powerMonitor.on('lock-screen', () => console.log('[Main] Screen locked'));
+  powerMonitor.on('unlock-screen', () => appState.handleScreenUnlock());
+  console.log('[Main] powerMonitor handlers registered');
 
   // Recovery always runs for DATA (finalize crashed meetings from their
   // incrementally-flushed transcripts — zero model calls). The LLM summary

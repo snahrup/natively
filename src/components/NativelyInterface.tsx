@@ -2948,9 +2948,26 @@ Provide only the answer, nothing else.`;
         return unsubscribe;
     }, []);
 
+    // Surface mid-meeting audio/STT failures pushed from the main process —
+    // these were previously invisible (no listener anywhere in the renderer).
+    const [audioError, setAudioError] = useState<string | null>(null);
+    const audioErrorTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+    useEffect(() => {
+        const unsubscribe = window.electronAPI?.onMeetingAudioError?.((message: string) => {
+            setAudioError(message);
+            if (audioErrorTimerRef.current) clearTimeout(audioErrorTimerRef.current);
+            audioErrorTimerRef.current = setTimeout(() => setAudioError(null), 20_000);
+        });
+        return () => {
+            unsubscribe?.();
+            if (audioErrorTimerRef.current) clearTimeout(audioErrorTimerRef.current);
+        };
+    }, []);
+
     const readinessChipTargets = [
         { id: 'microphone', label: 'Mic' },
         { id: 'meeting_audio', label: 'Audio' },
+        { id: 'transcripts', label: 'Transcript' },
         { id: 'prep', label: 'Prep' },
         { id: 'coach', label: 'Coach' },
     ];
@@ -3238,6 +3255,16 @@ Provide only the answer, nothing else.`;
                                             ))}
                                         </div>
                                         <span className="text-[10px] overlay-text-muted">Ask a question or click Ask AI</span>
+                                    </div>
+                                )}
+
+                                {audioError && (
+                                    <div className={`flex items-start gap-2 rounded-lg border px-2.5 py-2 text-[11px] leading-snug ${isLightTheme ? 'border-red-500/30 bg-red-500/10 text-red-700' : 'border-red-400/30 bg-red-400/10 text-red-300'}`}>
+                                        <span className="h-1.5 w-1.5 mt-1 rounded-full bg-red-400 animate-pulse shrink-0" />
+                                        <span className="flex-1">{audioError}</span>
+                                        <button onClick={() => setAudioError(null)} className="opacity-60 hover:opacity-100 shrink-0" title="Dismiss">
+                                            <X className="w-3 h-3" />
+                                        </button>
                                     </div>
                                 )}
 
