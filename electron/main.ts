@@ -1020,16 +1020,23 @@ export class AppState {
     this.restartAudioPipelineForRecovery(`watchdog: ${scope} stalled`);
   }
 
-  /** Stop and restart captures + STT in place. Session/transcript state is untouched. */
+  /** Tear down captures and rebuild the pipeline. Session/transcript state is untouched. */
   private restartAudioPipelineForRecovery(reason: string): void {
     if (!this.isMeetingActive || this.audioRecoveryInProgress) return;
     this.audioRecoveryInProgress = true;
     try {
       console.warn(`[Main] Restarting audio pipeline (${reason})...`);
-      try { this.systemAudioCapture?.stop(); } catch { /* keep going */ }
-      try { this.microphoneCapture?.stop(); } catch { /* keep going */ }
       try { this.googleSTT?.stop(); } catch { /* keep going */ }
       try { this.googleSTT_User?.stop(); } catch { /* keep going */ }
+
+      // DESTROY the captures rather than stop/start: the native monitor is
+      // created once and pinned to the device resolved at construction, so a
+      // stop/start would re-attach to a dead/unplugged device. Re-creating
+      // re-resolves the CURRENT default device (covers headset hot-plug).
+      try { this.systemAudioCapture?.destroy(); } catch { /* keep going */ }
+      this.systemAudioCapture = null;
+      try { this.microphoneCapture?.destroy(); } catch { /* keep going */ }
+      this.microphoneCapture = null;
 
       this.setupSystemAudioPipeline();
       this.systemAudioCapture?.start();
@@ -2177,6 +2184,9 @@ export class AppState {
         this.systemAudioCapture.on('error', (err: Error) => {
           console.error('[Main] SystemAudioCapture Error:', err);
           this.recordAudioPipelineError("System audio capture", err);
+          if (this.isMeetingActive) {
+            this.broadcastAudioPipelineErrorThrottled(`System audio capture error: ${err.message || err}`);
+          }
         });
       }
 
@@ -2197,6 +2207,9 @@ export class AppState {
         this.microphoneCapture.on('error', (err: Error) => {
           console.error('[Main] MicrophoneCapture Error:', err);
           this.recordAudioPipelineError("Microphone capture", err);
+          if (this.isMeetingActive) {
+            this.broadcastAudioPipelineErrorThrottled(`Microphone capture error: ${err.message || err}`);
+          }
         });
       }
 
