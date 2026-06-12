@@ -53,6 +53,9 @@ export class MeetingPersistence {
             });
         } catch (e) {
             console.error('[MeetingPersistence] Failed to create meeting row at start — incremental persistence disabled for this meeting:', e);
+            // Clear any id left over from a previous meeting so a quit-flush
+            // cannot write this session's segments into an old meeting row.
+            this.activeMeetingId = null;
             return null;
         }
         this.activeMeetingId = meetingId;
