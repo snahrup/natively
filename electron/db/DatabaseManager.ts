@@ -681,7 +681,74 @@ export class DatabaseManager {
             this.db.pragma('user_version = 12');
         }
 
+        // Version 12 → 13: Durable observation log. Live OCR/transcript/
+        // interaction observations previously lived only in a main-process
+        // array — restarts and session resets wiped all ambient memory.
+        if (version < 13) {
+            console.log('[DatabaseManager] Applying migration v12 → v13: observations table');
+            this.db.exec(`
+                CREATE TABLE IF NOT EXISTS observations (
+                    id TEXT PRIMARY KEY,
+                    source_type TEXT NOT NULL,
+                    created_at_ms INTEGER NOT NULL,
+                    expires_at_ms INTEGER,
+                    doc_json TEXT NOT NULL
+                );
+                CREATE INDEX IF NOT EXISTS idx_observations_expiry ON observations(expires_at_ms);
+                CREATE INDEX IF NOT EXISTS idx_observations_source ON observations(source_type);
+            `);
+            this.db.pragma('user_version = 13');
+        }
+
         console.log('[DatabaseManager] Migrations completed.');
+    }
+
+    // ============================================
+    // Durable Observation Log
+    // ============================================
+
+    public upsertObservation(doc: { id: string; sourceType: string; createdAt: string; expiresAt?: string }): void {
+        if (!this.db) return;
+        this.db.prepare(`
+            INSERT OR REPLACE INTO observations (id, source_type, created_at_ms, expires_at_ms, doc_json)
+            VALUES (?, ?, ?, ?, ?)
+        `).run(
+            doc.id,
+            doc.sourceType,
+            Date.parse(doc.createdAt) || Date.now(),
+            doc.expiresAt ? Date.parse(doc.expiresAt) || null : null,
+            JSON.stringify(doc)
+        );
+    }
+
+    /** Load all unexpired observation documents (startup rehydration). */
+    public loadObservations(): any[] {
+        if (!this.db) return [];
+        const rows = this.db.prepare(`
+            SELECT doc_json FROM observations
+            WHERE expires_at_ms IS NULL OR expires_at_ms > ?
+            ORDER BY created_at_ms ASC
+        `).all(Date.now()) as Array<{ doc_json: string }>;
+        const docs: any[] = [];
+        for (const row of rows) {
+            try {
+                docs.push(JSON.parse(row.doc_json));
+            } catch { /* skip corrupt rows */ }
+        }
+        return docs;
+    }
+
+    public deleteExpiredObservations(): number {
+        if (!this.db) return 0;
+        const info = this.db.prepare(
+            'DELETE FROM observations WHERE expires_at_ms IS NOT NULL AND expires_at_ms <= ?'
+        ).run(Date.now());
+        return info.changes;
+    }
+
+    public clearObservations(): void {
+        if (!this.db) return;
+        this.db.prepare('DELETE FROM observations').run();
     }
 
     // ============================================

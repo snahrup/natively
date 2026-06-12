@@ -1,10 +1,14 @@
 import crypto from "crypto";
 import { ContextDocument, ContextSourceType } from "./types";
 
+// Session-type TTLs cover a full working day: the ambient goal ("what did I
+// do today", "you have X due") needs the morning's observations available in
+// the evening. The old caps (OCR 10 min, interaction 2h, transcript 6h) made
+// all-day memory structurally impossible.
 const TTL_BY_SOURCE_MS: Record<ContextSourceType, number> = {
-  ocr_observation: 10 * 60 * 1000,
-  interaction: 2 * 60 * 60 * 1000,
-  live_transcript: 6 * 60 * 60 * 1000,
+  ocr_observation: 12 * 60 * 60 * 1000,
+  interaction: 12 * 60 * 60 * 1000,
+  live_transcript: 12 * 60 * 60 * 1000,
   meeting_transcript: 7 * 24 * 60 * 60 * 1000,
   meeting_summary: 30 * 24 * 60 * 60 * 1000,
   calendar_event: 7 * 24 * 60 * 60 * 1000,
@@ -21,12 +25,52 @@ const TTL_BY_SOURCE_MS: Record<ContextSourceType, number> = {
 export class ContextObservationStore {
   private static instance: ContextObservationStore;
   private documents: ContextDocument[] = [];
+  private rehydrated = false;
+  private lastDbPruneAt = 0;
 
   static getInstance(): ContextObservationStore {
     if (!ContextObservationStore.instance) {
       ContextObservationStore.instance = new ContextObservationStore();
     }
     return ContextObservationStore.instance;
+  }
+
+  /**
+   * Rehydrate the in-RAM working set from the durable SQLite log on first
+   * use — observations survive app restarts up to their TTLs. Lazy so module
+   * load order doesn't matter; non-fatal if the DB isn't up yet (we retry on
+   * the next call).
+   */
+  private ensureRehydrated(): void {
+    if (this.rehydrated) return;
+    try {
+      const { DatabaseManager } = require("../db/DatabaseManager");
+      const db = DatabaseManager.getInstance();
+      const persisted = db.loadObservations() as ContextDocument[];
+      if (persisted.length > 0) {
+        const known = new Set(this.documents.map((doc) => doc.id));
+        for (const doc of persisted) {
+          if (doc?.id && !known.has(doc.id)) {
+            this.documents.push(doc);
+          }
+        }
+        console.log(`[ContextObservationStore] Rehydrated ${persisted.length} observation(s) from SQLite`);
+      }
+      db.deleteExpiredObservations();
+      this.rehydrated = true;
+    } catch (error) {
+      // DB not ready yet — keep operating in-RAM and retry later.
+      console.warn("[ContextObservationStore] Rehydration unavailable:", (error as Error)?.message || error);
+    }
+  }
+
+  private persist(doc: ContextDocument): void {
+    try {
+      const { DatabaseManager } = require("../db/DatabaseManager");
+      DatabaseManager.getInstance().upsertObservation(doc);
+    } catch {
+      // Durable log unavailable — the in-RAM working set still serves.
+    }
   }
 
   recordOCRObservation(input: {
@@ -120,6 +164,7 @@ export class ContextObservationStore {
     sourceTypes?: ContextSourceType[];
     maxAgeMs?: number;
   }): ContextDocument[] {
+    this.ensureRehydrated();
     this.prune();
     const now = Date.now();
     return this.documents.filter((doc) => {
@@ -131,19 +176,31 @@ export class ContextObservationStore {
     });
   }
 
+  /**
+   * Session boundary hook. Observations are intentionally NOT deleted here
+   * anymore — the durable lane keeps the day's context across meetings and
+   * restarts, and TTLs do the forgetting. (This method used to wipe every
+   * interaction/transcript/OCR doc at meeting stop, which made ambient
+   * all-day memory impossible.)
+   */
   clearSessionArtifacts(): void {
     this.prune();
-    this.documents = this.documents.filter((doc) => {
-      return !["interaction", "live_transcript", "ocr_observation"].includes(doc.sourceType);
-    });
   }
 
   clearAll(): void {
     this.documents = [];
+    try {
+      const { DatabaseManager } = require("../db/DatabaseManager");
+      DatabaseManager.getInstance().clearObservations();
+    } catch {
+      // Durable log unavailable — RAM cleared regardless.
+    }
   }
 
   private upsertDocument(doc: ContextDocument): void {
+    this.ensureRehydrated();
     this.prune();
+    this.persist(doc);
     const idx = this.documents.findIndex((existing) => existing.id === doc.id);
     if (idx >= 0) {
       this.documents[idx] = doc;
@@ -158,6 +215,17 @@ export class ContextObservationStore {
       if (!doc.expiresAt) return true;
       return Date.parse(doc.expiresAt) > now;
     });
+
+    // Batch-prune the durable log at most once a minute.
+    if (now - this.lastDbPruneAt > 60_000) {
+      this.lastDbPruneAt = now;
+      try {
+        const { DatabaseManager } = require("../db/DatabaseManager");
+        DatabaseManager.getInstance().deleteExpiredObservations();
+      } catch {
+        // Durable log unavailable — RAM prune already done.
+      }
+    }
   }
 }
 
