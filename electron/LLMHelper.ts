@@ -434,6 +434,16 @@ export class LLMHelper {
       imagePaths,
       context,
       skipSystemPrompt ? "" : undefined,
+      // Only RAG uses this entry point. RAG prompts carry their own ranked
+      // meeting excerpt and instruct the model to answer ONLY from it — do not
+      // layer the broker retrieval pass or the raw screen-OCR dump on top
+      // (that silently blended other meetings/emails/screen into answers).
+      {
+        ignoreKnowledgeMode: true,
+        skipRetrievedContext: true,
+        skipScreenContext: true,
+        skipIPCorpSystemPrompt: true,
+      },
     );
   }
 
@@ -650,7 +660,9 @@ export class LLMHelper {
     if (!ocrContext) {
       return context;
     }
-    return context.trim() ? `${ocrContext}\n\n${context.trim()}` : ocrContext;
+    // Screen text goes BELOW the ranked/caller context, never above it —
+    // unranked OCR noise must not be the positionally dominant evidence.
+    return context.trim() ? `${context.trim()}\n\n${ocrContext}` : ocrContext;
   }
 
   private async applyKnowledgeMode(

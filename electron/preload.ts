@@ -884,6 +884,14 @@ contextBridge.exposeInMainWorld("electronAPI", {
     }
   },
 
+  onGeminiStreamSuperseded: (callback: (surface: string) => void) => {
+    const subscription = (_: any, surface: string) => callback(surface)
+    ipcRenderer.on("gemini-stream-superseded", subscription)
+    return () => {
+      ipcRenderer.removeListener("gemini-stream-superseded", subscription)
+    }
+  },
+
   // Model Management
   getDefaultModel: () => ipcRenderer.invoke('get-default-model'),
   setModel: (modelId: string) => ipcRenderer.invoke('set-model', modelId),

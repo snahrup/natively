@@ -639,10 +639,12 @@ export function initializeIpcHandlers(appState: AppState): void {
   });
 
   // Streaming IPC Handler
-  // SECURITY FIX (P0-1): Monotonic stream ID prevents interleaved tokens from concurrent stream requests.
-  // Each new invocation increments the ID; any in-flight iteration bails as soon as it detects
-  // that a newer stream has taken over.
-  let _chatStreamId = 0;
+  // Monotonic stream IDs scoped PER SURFACE: a new request supersedes only
+  // in-flight streams on the SAME surface. The previous single global slot
+  // meant a widget/proactive request silently froze the meeting overlay's
+  // answer mid-sentence with no terminal event. Superseded streams now always
+  // emit 'gemini-stream-superseded' so renderers can release their listeners.
+  const _chatStreamIds = new Map<string, number>();
 
   safeHandle("gemini-chat-stream", async (event, message: string, imagePaths?: string[], context?: string, options?: { skipSystemPrompt?: boolean, ignoreKnowledgeMode?: boolean, surface?: ChatDebugSurface }) => {
     const startedAt = Date.now();
@@ -654,8 +656,12 @@ export function initializeIpcHandlers(appState: AppState): void {
       console.log("[IPC] gemini-chat-stream started using LLMHelper.streamChat");
       const llmHelper = appState.processingHelper.getLLMHelper();
 
-      // Claim a new stream ID — any prior stream will detect this and stop emitting.
-      const myStreamId = ++_chatStreamId;
+      // Claim a new stream ID for this surface — any prior stream on the same
+      // surface will detect this and stop emitting. Other surfaces' streams
+      // are unaffected.
+      const myStreamId = (_chatStreamIds.get(surface) || 0) + 1;
+      _chatStreamIds.set(surface, myStreamId);
+      const isSuperseded = () => (_chatStreamIds.get(surface) || 0) !== myStreamId;
 
       // Update IntelligenceManager with USER message immediately
       const intelligenceManager = appState.getIntelligenceManager();
@@ -675,7 +681,12 @@ export function initializeIpcHandlers(appState: AppState): void {
       // If the user is asking for an Outlook / Teams / calendar action, return a
       // structured proposal instead of freeform chat text so the renderer can
       // show an embedded sendable card.
-      if (!imagePaths?.length) {
+      // Gated to the widget surface: it is the only surface that renders
+      // InlineActionProposalCard. On other surfaces (meeting/global overlay)
+      // the JSON payload broke chat, and the serial planner LLM call added
+      // seconds of pre-stream latency to any message containing words like
+      // 'meeting'/'schedule'/'send' — which is most live-meeting queries.
+      if (surface === 'widget' && !imagePaths?.length) {
         try {
           const { AgentActionPlanner } = require('./services/AgentActionPlanner');
           const proposal = await AgentActionPlanner.getInstance().maybeBuildProposal(message, llmHelper);
@@ -732,9 +743,13 @@ export function initializeIpcHandlers(appState: AppState): void {
         const stream = llmHelper.streamChat(message, imagePaths, context, options?.skipSystemPrompt ? "" : undefined, options?.ignoreKnowledgeMode);
 
         for await (const token of stream) {
-          // Bail if a newer stream has taken over (user triggered a new request)
-          if (_chatStreamId !== myStreamId) {
-            console.log(`[IPC] gemini-chat-stream ${myStreamId} superseded by ${_chatStreamId}, stopping.`);
+          // Bail if a newer stream on this surface has taken over
+          if (isSuperseded()) {
+            console.log(`[IPC] gemini-chat-stream ${myStreamId} (${surface}) superseded by ${_chatStreamIds.get(surface)}, stopping.`);
+            // ALWAYS emit a terminal event so the renderer can release its
+            // per-request listeners (previously they leaked forever and bled
+            // future tokens into old message bubbles).
+            event.sender.send("gemini-stream-superseded", surface);
             saveChatDebugEntry({
               surface,
               status: 'superseded',
@@ -759,7 +774,7 @@ export function initializeIpcHandlers(appState: AppState): void {
         }
 
         // Final check: only send done if we are still the active stream
-        if (_chatStreamId === myStreamId) {
+        if (!isSuperseded()) {
           event.sender.send("gemini-stream-done");
 
           // Update IntelligenceManager with ASSISTANT message after completion
@@ -783,13 +798,18 @@ export function initializeIpcHandlers(appState: AppState): void {
             ignoreKnowledgeMode: options?.ignoreKnowledgeMode,
             skipSystemPrompt: options?.skipSystemPrompt,
           });
+        } else {
+          // Completed after being superseded — still emit the terminal event.
+          event.sender.send("gemini-stream-superseded", surface);
         }
 
       } catch (streamError: any) {
         console.error("[IPC] Streaming error:", streamError);
         const sanitizedError = sanitizeErrorMessage(streamError.message || "Unknown streaming error");
-        if (_chatStreamId === myStreamId) {
+        if (!isSuperseded()) {
           event.sender.send("gemini-stream-error", sanitizedError);
+        } else {
+          event.sender.send("gemini-stream-superseded", surface);
         }
         saveChatDebugEntry({
           surface,

@@ -127,24 +127,31 @@ export class ContinuousOCRService {
   }
 
   /**
-   * Returns the rolling OCR context as a single string, newest first.
-   * Suitable for injection into LLMHelper context.
+   * Returns the newest screen capture(s) as a single string, hard-capped to
+   * the 2 newest frames within a 4KB character budget. Raw screen text must
+   * never dominate or drown ranked evidence (Guardrail 5) — the wider rolling
+   * window still reaches prompts via broker-ranked ocr_observation documents.
    */
   getContext(): string {
     this.pruneOldFrames();
     if (this.frames.length === 0) return "";
 
+    const MAX_FRAMES = 2;
+    const MAX_CHARS = 4000;
+
     const displayReferenceGuide = this.lastDisplayReferences.length > 0
       ? `Current display reference map:\n${this.lastDisplayReferences.map((line) => `- ${line}`).join("\n")}\n\n`
       : "";
 
-    const lines = this.frames
-      .slice()
-      .reverse()
-      .map(f => {
-        const ago = Math.round((Date.now() - f.capturedAt) / 1000);
-        return `[Screen content captured ${ago}s ago]\n${f.text}`;
-      });
+    const lines: string[] = [];
+    let budget = MAX_CHARS;
+    for (const f of this.frames.slice(-MAX_FRAMES).reverse()) {
+      if (budget <= 0) break;
+      const ago = Math.round((Date.now() - f.capturedAt) / 1000);
+      const text = f.text.length > budget ? `${f.text.slice(0, budget)}…` : f.text;
+      lines.push(`[Screen content captured ${ago}s ago]\n${text}`);
+      budget -= text.length;
+    }
 
     return `## Live Screen Context\n${displayReferenceGuide}${lines.join("\n\n")}`;
   }
