@@ -523,17 +523,23 @@ export class ScreenshotHelper {
     let image = selectedSource.thumbnail;
 
     if (area) {
-      // Crop rect: area is in absolute screen coordinates. The returned thumbnail
-      // is in native device pixels (Electron scales it up internally), so we
-      // must apply scaleFactor to map from logical screen coords to pixel coords.
-      const cropX = Math.round((area.x - displayBounds.x) * scaleFactor);
-      const cropY = Math.round((area.y - displayBounds.y) * scaleFactor);
+      // Crop rect: area is in absolute LOGICAL screen coordinates. Whether the
+      // captured image came back at logical or native-pixel size varies by
+      // platform/Electron version, so never assume scaleFactor — measure the
+      // actual ratio between the returned image and the display's logical
+      // bounds and scale crop coordinates by that (same approach as the
+      // stitched multi-display path).
+      const imgSize = image.getSize();
+      const ratioX = imgSize.width / displayBounds.width;
+      const ratioY = imgSize.height / displayBounds.height;
+      const cropX = Math.round((area.x - displayBounds.x) * ratioX);
+      const cropY = Math.round((area.y - displayBounds.y) * ratioY);
 
       const croppedArea = {
         x: Math.max(0, cropX),
         y: Math.max(0, cropY),
-        width: Math.round(area.width * scaleFactor),
-        height: Math.round(area.height * scaleFactor)
+        width: Math.round(area.width * ratioX),
+        height: Math.round(area.height * ratioY)
       };
       
       console.log(`[ScreenshotHelper] Cropping relative to display: ${JSON.stringify(croppedArea)}`);

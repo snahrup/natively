@@ -19,6 +19,10 @@ type ChatOptions = {
   skipScreenContext?: boolean;
   requestProfile?: "default" | "realtime";
   responseSchema?: Record<string, unknown>;
+  /** Real streaming: invoked with each incremental text delta as the CLI produces it. */
+  onToken?: (token: string) => void;
+  /** Cancellation: aborting kills the underlying CLI process tree immediately. */
+  abortSignal?: AbortSignal;
 };
 
 type ReviewInput = {
@@ -54,6 +58,8 @@ type CliRequest = {
   requestProfile?: "default" | "realtime";
   responseSchema?: Record<string, unknown>;
   reasoningEffort?: ReasoningEffort;
+  onDelta?: (delta: string) => void;
+  signal?: AbortSignal;
 };
 
 type CodexRequestProfile = {
@@ -537,15 +543,51 @@ export class LLMHelper {
     const options = typeof chatOptions === "boolean"
       ? { ignoreKnowledgeMode: chatOptions }
       : chatOptions;
-    const response = await this.chat(
+
+    // Real streaming: bridge the CLI's incremental deltas into this generator
+    // through an async queue. Previously this awaited the ENTIRE chat() and
+    // yielded once — every "token stream" in the app was one blob at the end.
+    const queue: string[] = [];
+    let wake: (() => void) | null = null;
+    let finished = false;
+    let streamedLength = 0;
+
+    const push = (token: string) => {
+      if (!token) return;
+      queue.push(token);
+      streamedLength += token.length;
+      wake?.();
+      wake = null;
+    };
+
+    const chatPromise = this.chat(
       message,
       imagePaths,
       context,
       systemPromptOverride,
-      options,
-    );
-    if (response) {
-      yield response;
+      { ...options, onToken: push },
+    ).finally(() => {
+      finished = true;
+      wake?.();
+      wake = null;
+    });
+    // Errors surface via `await chatPromise` below; this guard just prevents
+    // an unhandled-rejection crash if the consumer abandons the generator.
+    chatPromise.catch(() => {});
+
+    while (true) {
+      while (queue.length > 0) {
+        yield queue.shift()!;
+      }
+      if (finished) break;
+      await new Promise<void>((resolve) => { wake = resolve; });
+    }
+
+    const response = await chatPromise;
+    // Yield whatever the deltas didn't cover: short-circuit answers, providers
+    // whose output only arrived as a final blob, or a sanitized tail.
+    if (response && response.length > streamedLength) {
+      yield streamedLength > 0 ? response.slice(streamedLength) : response;
     }
   }
 
@@ -600,6 +642,8 @@ export class LLMHelper {
       imagePaths,
       requestProfile: options.requestProfile,
       responseSchema: options.responseSchema,
+      onDelta: options.onToken,
+      signal: options.abortSignal,
     });
   }
 
@@ -747,6 +791,8 @@ export class LLMHelper {
         requestProfile: request.requestProfile,
         responseSchema: request.responseSchema,
         reasoningEffort: request.reasoningEffort,
+        onDelta: request.onDelta,
+        signal: request.signal,
       });
     }
 
@@ -758,6 +804,9 @@ export class LLMHelper {
       imagePaths,
       requestProfile: request.requestProfile,
       responseSchema: request.responseSchema,
+      reasoningEffort: request.reasoningEffort,
+      onDelta: request.onDelta,
+      signal: request.signal,
     });
   }
 
@@ -770,6 +819,9 @@ export class LLMHelper {
       "text",
       "--output-format",
       "stream-json",
+      // Emit content_block_delta stream events so consumers get real
+      // token-level streaming instead of one blob at process exit.
+      "--include-partial-messages",
       "--disable-slash-commands",
       "--strict-mcp-config",
       "--permission-mode",
@@ -806,6 +858,7 @@ export class LLMHelper {
       "claude",
       request.prompt,
       profile.timeoutMs,
+      { onDelta: request.onDelta, signal: request.signal },
     );
     if (result.error) {
       throw new Error(result.error);
@@ -864,6 +917,7 @@ export class LLMHelper {
         "codex",
         prompt,
         profile.timeoutMs,
+        { onDelta: request.onDelta, signal: request.signal },
       );
       if (result.error) {
         throw new Error(result.error);
@@ -904,8 +958,16 @@ export class LLMHelper {
     provider: ActiveProvider,
     stdinText?: string,
     timeoutMs: number = DEFAULT_CLI_REQUEST_TIMEOUT_MS,
+    streamOptions?: { onDelta?: (delta: string) => void; signal?: AbortSignal },
   ): Promise<{ text: string; error?: string }> {
+    const onDelta = streamOptions?.onDelta;
+    const signal = streamOptions?.signal;
     return new Promise((resolve, reject) => {
+      if (signal?.aborted) {
+        resolve({ text: "", error: "Request cancelled." });
+        return;
+      }
+
       const child = spawn(command, args, {
         cwd: os.tmpdir(),
         env,
@@ -934,12 +996,43 @@ export class LLMHelper {
         finish({ text: finalText, error: explicitError });
       }, timeoutMs);
 
+      // Cancellation: kill the process tree IMMEDIATELY and settle. Superseded
+      // requests previously ran to completion (up to the full timeout) while a
+      // new heavyweight CLI process spawned alongside.
+      const onAbort = () => {
+        killProcessTree(child.pid);
+        finish({ text: finalText, error: "Request cancelled." });
+      };
+      signal?.addEventListener("abort", onAbort, { once: true });
+
       const finish = (value: { text: string; error?: string }) => {
         if (settled) return;
         settled = true;
         clearTimeout(timeout);
+        signal?.removeEventListener("abort", onAbort);
         console.log(`[LLMHelper] ${provider} CLI request finished in ${Date.now() - startedAt}ms${value.error ? " with error" : ""}`);
         resolve(value);
+      };
+
+      // Streaming delta emission. Two shapes arrive on stdout:
+      //  - direct deltas (claude stream_event content_block_delta, codex
+      //    agent_message_delta) — emitted as-is;
+      //  - cumulative full-text updates (assistant message events, codex
+      //    item/output_text) — the new suffix is emitted, which also makes the
+      //    two shapes consistent when both arrive for the same text.
+      let emittedText = "";
+      const emitDirectDelta = (delta: string) => {
+        if (!onDelta || !delta) return;
+        emittedText += delta;
+        try { onDelta(delta); } catch { /* consumer errors must not kill parsing */ }
+      };
+      const emitCumulativeText = (full: string) => {
+        if (!onDelta || !full) return;
+        if (full.length > emittedText.length && full.startsWith(emittedText)) {
+          const delta = full.slice(emittedText.length);
+          emittedText = full;
+          try { onDelta(delta); } catch { /* consumer errors must not kill parsing */ }
+        }
       };
 
       const handleJsonLine = (line: string) => {
@@ -960,24 +1053,38 @@ export class LLMHelper {
             if (turnFailedMessage) {
               explicitError = String(turnFailedMessage);
             }
+            if (parsed?.msg?.type === "agent_message_delta" && typeof parsed.msg.delta === "string") {
+              emitDirectDelta(parsed.msg.delta);
+            }
             const itemText = parsed?.item?.text;
             if (typeof itemText === "string" && itemText.trim()) {
               finalText = itemText;
+              emitCumulativeText(itemText);
             }
             const outputText = parsed?.output_text;
             if (typeof outputText === "string" && outputText.trim()) {
               finalText = outputText;
+              emitCumulativeText(outputText);
             }
             const resultText = parsed?.result;
             if (typeof resultText === "string" && resultText.trim()) {
               finalText = resultText;
+              emitCumulativeText(resultText);
             }
           } else {
+            if (
+              parsed?.type === "stream_event" &&
+              parsed?.event?.type === "content_block_delta" &&
+              typeof parsed?.event?.delta?.text === "string"
+            ) {
+              emitDirectDelta(parsed.event.delta.text);
+            }
             const messageText = parsed?.message?.content
               ?.map((part: any) => part?.text || "")
               .join("");
             if (typeof messageText === "string" && messageText.trim()) {
               finalText = messageText;
+              emitCumulativeText(messageText);
             }
             if (parsed?.type === "result" && parsed?.is_error) {
               explicitError = parsed?.result || "Claude CLI returned an error.";
@@ -1008,7 +1115,9 @@ export class LLMHelper {
 
       child.on("error", (error) => {
         if (settled) return;
+        settled = true;
         clearTimeout(timeout);
+        signal?.removeEventListener("abort", onAbort);
         reject(error);
       });
 

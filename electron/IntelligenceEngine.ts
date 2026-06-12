@@ -79,6 +79,14 @@ export class IntelligenceEngine extends EventEmitter {
     private assistCancellationToken: AbortController | null = null;
     private currentGenerationId: number = 0;
 
+    // Throttle for proactive-failure health events (one per 2 minutes)
+    private lastProactiveErrorEmitAt: number = 0;
+
+    // Abort controller for the in-flight what-to-say CLI request. Aborting
+    // kills the underlying CLI process tree immediately (superseded requests
+    // previously ran to completion, up to 180s, alongside their replacement).
+    private liveStreamController: AbortController | null = null;
+
     // Keep reference to LLMHelper for client access
     private llmHelper: LLMHelper;
 
@@ -315,6 +323,10 @@ export class IntelligenceEngine extends EventEmitter {
             console.log(`[IntelligenceEngine] Temporal RAG: ${temporalContext.previousResponses.length} responses, tone: ${temporalContext.toneSignals[0]?.type || 'neutral'}, intent: ${intentResult.intent}${imagePaths?.length ? `, with ${imagePaths.length} image(s)` : ''}`);
 
             const generationId = ++this.currentGenerationId;
+            // Kill any previous in-flight CLI request before starting a new one.
+            this.liveStreamController?.abort();
+            const streamController = new AbortController();
+            this.liveStreamController = streamController;
             let fullAnswer = "";
             const priorModel = this.llmHelper.getCurrentModel();
             const priorEffort = this.llmHelper.getReasoningEffort();
@@ -336,7 +348,8 @@ export class IntelligenceEngine extends EventEmitter {
                 intentResult,
                 imagePaths,
                 this.session.getPreparedMeetingContext(),
-                this.proactiveModeEnabled
+                this.proactiveModeEnabled,
+                streamController.signal
             );
             let streamAborted = false;
 
@@ -344,8 +357,9 @@ export class IntelligenceEngine extends EventEmitter {
                 for await (const token of stream) {
                     if (this.currentGenerationId !== generationId) {
                         console.log('[IntelligenceEngine] _what_to_say stream aborted by new generation');
-                        // RC-03 fix: .return() signals the generator to clean up and stops
-                        // the underlying network request (SDK generators honour this).
+                        // Abort kills the underlying CLI process tree immediately;
+                        // .return() then cleans up the generator.
+                        streamController.abort();
                         await stream.return(undefined);
                         streamAborted = true;
                         break;
@@ -381,6 +395,9 @@ export class IntelligenceEngine extends EventEmitter {
             } catch (error) {
                 throw error;
             } finally {
+                if (this.liveStreamController === streamController) {
+                    this.liveStreamController = null;
+                }
                 if (useProactiveCoachModel) {
                     this.llmHelper.setModel(priorModel);
                     this.llmHelper.setReasoningEffort(priorEffort);
@@ -424,12 +441,27 @@ export class IntelligenceEngine extends EventEmitter {
 
         } catch (error) {
             this.setMode('idle');
-            if (this.proactiveModeEnabled) {
-                console.warn('[IntelligenceEngine] Proactive suggestion suppressed after LLM failure:', error);
+            // Cancellation (reset/supersession aborted the CLI) is not a failure.
+            if (/cancelled/i.test(String((error as Error)?.message || ""))) {
                 return null;
             }
+            if (this.proactiveModeEnabled) {
+                // The coach going dark must be visible: previously a dead coach
+                // (expired CLI auth, timeouts) and "nothing useful to say" were
+                // indistinguishable for the rest of the meeting. Emit a visible
+                // health event, throttled so reflex-tick failures don't spam.
+                console.warn('[IntelligenceEngine] Proactive suggestion failed:', error);
+                const now = Date.now();
+                if (now - this.lastProactiveErrorEmitAt > 120_000) {
+                    this.lastProactiveErrorEmitAt = now;
+                    this.emit('error', new Error(`Live coach degraded: ${(error as Error)?.message || error}`), 'proactive');
+                }
+                return null;
+            }
+            // Surface the real failure instead of masking it with canned text —
+            // "Could you repeat that?" is reserved for genuinely empty answers.
             this.emit('error', error as Error, 'what_to_say');
-            return "Could you repeat that? I want to make sure I address your question properly.";
+            return null;
         }
     }
 
@@ -910,6 +942,12 @@ export class IntelligenceEngine extends EventEmitter {
         if (this.assistCancellationToken) {
             this.assistCancellationToken.abort();
             this.assistCancellationToken = null;
+        }
+        // Kill the in-flight what-to-say CLI process immediately — the
+        // generation-id check alone left it running to completion.
+        if (this.liveStreamController) {
+            this.liveStreamController.abort();
+            this.liveStreamController = null;
         }
     }
 }

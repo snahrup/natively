@@ -25,7 +25,8 @@ export class WhatToAnswerLLM {
         intentResult?: IntentResult,
         imagePaths?: string[],
         preparedMeetingContext?: string | null,
-        proactiveMode?: boolean
+        proactiveMode?: boolean,
+        abortSignal?: AbortSignal
     ): AsyncGenerator<string> {
         try {
             // Build a rich message context
@@ -82,9 +83,10 @@ Do not narrate reasoning. Do not wait for perfect context, but stay grounded in 
                         ignoreKnowledgeMode: true,
                         skipRetrievedContext: true,
                         skipIPCorpSystemPrompt: true,
-                        requestProfile: "realtime"
+                        requestProfile: "realtime",
+                        abortSignal
                     }
-                    : false
+                    : { abortSignal }
             );
 
         } catch (error) {
