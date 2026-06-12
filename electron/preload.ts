@@ -33,7 +33,8 @@ interface ElectronAPI {
 
   onUnauthorized: (callback: () => void) => () => void
   onDebugError: (callback: (error: string) => void) => () => void
-  takeScreenshot: () => Promise<void>
+  takeScreenshot: () => Promise<{ path: string; preview: string }>
+  takeContextScreenshot: () => Promise<{ path: string; preview: string }>
   getImagePreview: (path: string) => Promise<string | null>
   takeSelectiveScreenshot: () => Promise<{ path: string; preview: string; cancelled?: boolean }>
   moveWindowLeft: () => Promise<void>
@@ -72,7 +73,13 @@ interface ElectronAPI {
   testSttConnection: (provider: 'groq' | 'openai' | 'deepgram' | 'elevenlabs' | 'azure' | 'ibmwatson' | 'soniox', apiKey: string, region?: string) => Promise<{ success: boolean; error?: string }>
 
   // Native Audio Service Events
-  onNativeAudioTranscript: (callback: (transcript: { speaker: string; text: string; final: boolean }) => void) => () => void
+  onNativeAudioTranscript: (callback: (transcript: { speaker: string; sourceSpeaker?: string; speakerKey?: string; speakerLabel?: string | null; displaySpeakerLabel?: string; diarizedSpeaker?: string | null; speakerIdentity?: 'self' | 'other' | 'unknown'; text: string; final: boolean; timestamp?: number; confidence?: number }) => void) => () => void
+  getMeetingSpeakerLabels: () => Promise<Record<string, string>>
+  setMeetingSpeakerLabel: (speakerKey: string, label: string) => Promise<{ success: boolean; speakerKey: string; label: string | null; labels: Record<string, string> }>
+  onMeetingSpeakerLabelsChanged: (callback: (labels: Record<string, string>) => void) => () => void
+  getUserProfile: () => Promise<{ userDisplayName: string }>
+  setUserDisplayName: (name: string) => Promise<{ success: boolean; userDisplayName: string }>
+  onUserProfileChanged: (callback: (profile: { userDisplayName: string }) => void) => () => void
   onNativeAudioSuggestion: (callback: (suggestion: { context: string; lastQuestion: string; confidence: number }) => void) => () => void
   onNativeAudioConnected: (callback: () => void) => () => void
   onNativeAudioDisconnected: (callback: () => void) => () => void
@@ -80,6 +87,8 @@ interface ElectronAPI {
   onSuggestionProcessingStart: (callback: () => void) => () => void
   onSuggestionError: (callback: (error: { error: string }) => void) => () => void
   generateSuggestion: (context: string, lastQuestion: string) => Promise<{ suggestion: string }>
+  getNativeAudioStatus: () => Promise<any>
+  getMeetingReadinessStatus: () => Promise<any>
   getInputDevices: () => Promise<Array<{ id: string; name: string }>>
   getOutputDevices: () => Promise<Array<{ id: string; name: string }>>
   setRecognitionLanguage: (key: string) => Promise<{ success: boolean; error?: string }>
@@ -91,8 +100,12 @@ interface ElectronAPI {
 
   // Intelligence Mode IPC
   generateAssist: () => Promise<{ insight: string | null }>
-  generateWhatToSay: (question?: string, imagePaths?: string[]) => Promise<{ answer: string | null; question?: string; error?: string }>
+  generateWhatToSay: (question?: string, imagePaths?: string[], options?: { force?: boolean }) => Promise<{ answer: string | null; question?: string; error?: string }>
+  generateClarify: () => Promise<{ clarification: string | null }>
+  generateCodeHint: (imagePaths?: string[], problemStatement?: string) => Promise<{ hint: string | null }>
+  generateBrainstorm: (imagePaths?: string[], problemStatement?: string) => Promise<{ script: string | null }>
   generateFollowUp: (intent: string, userRequest?: string) => Promise<{ refined: string | null; intent: string }>
+  generateFollowUpQuestions: () => Promise<{ questions: string | null }>
   generateRecap: () => Promise<{ summary: string | null }>
   submitManualQuestion: (question: string) => Promise<{ answer: string | null; question: string }>
   getIntelligenceContext: () => Promise<{ context: string; lastAssistantMessage: string | null; activeMode: string }>
@@ -102,12 +115,15 @@ interface ElectronAPI {
   startMeeting: (metadata?: any) => Promise<{ success: boolean; error?: string }>
   endMeeting: () => Promise<{ success: boolean; error?: string }>
   finalizeMicSTT: () => Promise<void>
+  startMicSTT: () => Promise<{ success: boolean; error?: string }>
+  stopMicSTT: () => Promise<{ success: boolean; error?: string }>
   getRecentMeetings: () => Promise<Array<{ id: string; title: string; date: string; duration: string; summary: string; source?: 'manual' | 'calendar' | 'teams' | 'cluely' | 'imported'; importMetadata?: { sourceFormat?: 'cluely' | 'teams' | 'generic'; importedAt?: string; fidelity?: string } }>>
   getMeetingDetails: (id: string) => Promise<any>
   getChatDebugEntries: (limit?: number) => Promise<Array<{ id: number; meetingId?: string | null; type: string; timestamp: number; userQuery: string; aiResponse: string; metadata: any }>>
   onChatDebugIssue: (callback: (issue: { id: number; surface: string; surfaceLabel: string; status: string; timestamp: number; userQuery: string; aiResponse: string; error: string | null; provider: string | null; modelId: string | null }) => void) => () => void
   updateMeetingTitle: (id: string, title: string) => Promise<boolean>
-  updateMeetingSummary: (id: string, updates: { overview?: string, actionItems?: string[], keyPoints?: string[], actionItemsTitle?: string, keyPointsTitle?: string }) => Promise<boolean>
+  updateMeetingSummary: (id: string, updates: { overview?: string, actionItems?: string[], keyPoints?: string[], actionItemsTitle?: string, keyPointsTitle?: string, contextOverview?: any, userContextNotes?: any[] }) => Promise<boolean>
+  addMeetingContextNote: (meetingId: string, text: string, source?: 'manual' | 'meeting_chat') => Promise<{ success: boolean; requestedMeetingId?: string; meetingId: string; note: any; meeting?: any }>
   generateMeetingOverview: (meetingId: string, options?: { force?: boolean }) => Promise<any>
   startClaudeLogin: () => Promise<{ success: boolean; launched?: boolean; alreadyLoggedIn?: boolean; error?: string }>
   onMeetingsUpdated: (callback: () => void) => () => void
@@ -173,6 +189,9 @@ interface ElectronAPI {
   toggleOverlayMousePassthrough: () => Promise<{ success: boolean; enabled: boolean }>
   getOverlayMousePassthrough: () => Promise<boolean>
   onOverlayMousePassthroughChanged: (callback: (enabled: boolean) => void) => () => void
+  getProactiveMode: () => Promise<boolean>
+  setProactiveMode: (enabled: boolean) => Promise<{ success: boolean; error?: string }>
+  onProactiveModeChanged: (callback: (enabled: boolean) => void) => () => void
 
   // Streaming listeners
   streamGeminiChat: (message: string, imagePaths?: string[], context?: string, options?: { skipSystemPrompt?: boolean, ignoreKnowledgeMode?: boolean, surface?: string }) => Promise<void>
@@ -213,6 +232,7 @@ interface ElectronAPI {
     memoryHighlights: Array<{ title: string; excerpt: string; source: string; type: string; date?: string; score: number }>;
     prepChecklist: string[];
     openQuestions: string[];
+    contextCapsule?: { id: string; filePath: string; markdownPath: string; confidence: 'low' | 'medium' | 'high'; needsUserInput: boolean; updatedAt: string };
   } | null>
 
   // Local Microsoft Bridges
@@ -279,12 +299,17 @@ interface ElectronAPI {
   cluelyImportDiscover: (limit?: number) => Promise<{ candidates: Array<{ sessionId: string; meetingTitle: string; date?: string; hasTranscript: boolean; hasSummary: boolean; hasUsage: boolean; source: 'live' | 'cached' }>; mode: 'live' | 'cached' | 'unavailable'; warning?: string; sessionEmail?: string; tokenFresh?: boolean }>;
   cluelyImportIngest: (options?: { limit?: number; sessionIds?: string[] }) => Promise<{ importedMeetings: any[]; skippedArtifacts: Array<{ name: string; reason: string }>; totalArtifacts: number; attemptedSessions: number; discoveredCandidates: number; mode: 'live' | 'cached' | 'unavailable'; warning?: string }>;
   getContextHubStatus: () => Promise<any>;
+  listBrainActionProposals: (limit?: number) => Promise<any[]>;
+  recordBrainActionOutcome: (input: { proposalId: string; decision: string; editSummary?: string; finalPayload?: unknown; error?: string; learningSignals?: string[] }) => Promise<{ success: boolean; filePath?: string; error?: string }>;
+  executeBrainActionProposal: (input: { proposalId: string; payload?: Record<string, unknown> }) => Promise<{ success: boolean; summary?: string; result?: any; error?: string }>;
   getAutonomousOpsStatus: () => Promise<any>;
   refreshAutonomousOpsStatus: () => Promise<any>;
   startAutonomousWorkflow: (workflowId: string, options?: { goalId?: string; autonomyLevel?: 'observe' | 'assist' | 'bounded-auto' | 'approval-required' }) => Promise<any>;
   stopAutonomousWorkflow: (workflowId: string) => Promise<{ success: boolean; error?: string }>;
   invokeAutonomousWorkflowAction: (workflowId: string, actionId: string, payload?: Record<string, any>) => Promise<{ success: boolean; summary: string; output?: Record<string, any>; stdout?: string; stderr?: string }>;
   onAutonomousOpsUpdated: (callback: (status: any) => void) => () => void;
+  getDurableWorkflowStatus: (limit?: number) => Promise<any>;
+  listDurableWorkflowRuns: (limit?: number) => Promise<any[]>;
 
   // JD & Research API
   profileUploadJD: (filePath: string) => Promise<{ success: boolean; error?: string }>;
@@ -340,6 +365,7 @@ contextBridge.exposeInMainWorld("electronAPI", {
     ipcRenderer.invoke("update-content-dimensions", dimensions),
   getRecognitionLanguages: () => ipcRenderer.invoke("get-recognition-languages"),
   takeScreenshot: () => ipcRenderer.invoke("take-screenshot"),
+  takeContextScreenshot: () => ipcRenderer.invoke("take-context-screenshot"),
   getImagePreview: (path: string) => ipcRenderer.invoke("get-image-preview", path),
   takeSelectiveScreenshot: () => ipcRenderer.invoke("take-selective-screenshot"),
   getScreenshots: () => ipcRenderer.invoke("get-screenshots"),
@@ -505,6 +531,15 @@ contextBridge.exposeInMainWorld("electronAPI", {
   setOverlayMousePassthrough: (enabled: boolean) => ipcRenderer.invoke("set-overlay-mouse-passthrough", enabled),
   toggleOverlayMousePassthrough: () => ipcRenderer.invoke("toggle-overlay-mouse-passthrough"),
   getOverlayMousePassthrough: () => ipcRenderer.invoke("get-overlay-mouse-passthrough"),
+  getProactiveMode: () => ipcRenderer.invoke("get-proactive-mode"),
+  setProactiveMode: (enabled: boolean) => ipcRenderer.invoke("set-proactive-mode", enabled),
+  onProactiveModeChanged: (callback: (enabled: boolean) => void) => {
+    const subscription = (_: any, enabled: boolean) => callback(enabled)
+    ipcRenderer.on('proactive-mode-changed', subscription)
+    return () => {
+      ipcRenderer.removeListener('proactive-mode-changed', subscription)
+    }
+  },
   setOpenAtLogin: (open: boolean) => ipcRenderer.invoke("set-open-at-login", open),
   getOpenAtLogin: () => ipcRenderer.invoke("get-open-at-login"),
   setDisguise: (mode: 'terminal' | 'settings' | 'activity' | 'none') => ipcRenderer.invoke("set-disguise", mode),
@@ -557,11 +592,29 @@ contextBridge.exposeInMainWorld("electronAPI", {
   testSttConnection: (provider: 'groq' | 'openai' | 'deepgram' | 'elevenlabs' | 'azure' | 'ibmwatson' | 'soniox', apiKey: string, region?: string) => ipcRenderer.invoke("test-stt-connection", provider, apiKey, region),
 
   // Native Audio Service Events
-  onNativeAudioTranscript: (callback: (transcript: { speaker: string; text: string; final: boolean }) => void) => {
+  onNativeAudioTranscript: (callback: (transcript: { speaker: string; sourceSpeaker?: string; speakerKey?: string; speakerLabel?: string | null; displaySpeakerLabel?: string; diarizedSpeaker?: string | null; speakerIdentity?: 'self' | 'other' | 'unknown'; text: string; final: boolean; timestamp?: number; confidence?: number }) => void) => {
     const subscription = (_: any, data: any) => callback(data)
     ipcRenderer.on("native-audio-transcript", subscription)
     return () => {
       ipcRenderer.removeListener("native-audio-transcript", subscription)
+    }
+  },
+  getMeetingSpeakerLabels: () => ipcRenderer.invoke("meeting-speaker-labels:get"),
+  setMeetingSpeakerLabel: (speakerKey: string, label: string) => ipcRenderer.invoke("meeting-speaker-labels:set", speakerKey, label),
+  onMeetingSpeakerLabelsChanged: (callback: (labels: Record<string, string>) => void) => {
+    const subscription = (_: any, data: any) => callback(data)
+    ipcRenderer.on("meeting-speaker-labels-changed", subscription)
+    return () => {
+      ipcRenderer.removeListener("meeting-speaker-labels-changed", subscription)
+    }
+  },
+  getUserProfile: () => ipcRenderer.invoke("user-profile:get"),
+  setUserDisplayName: (name: string) => ipcRenderer.invoke("user-profile:set-name", name),
+  onUserProfileChanged: (callback: (profile: { userDisplayName: string }) => void) => {
+    const subscription = (_: any, data: any) => callback(data)
+    ipcRenderer.on("user-profile-changed", subscription)
+    return () => {
+      ipcRenderer.removeListener("user-profile-changed", subscription)
     }
   },
   onNativeAudioSuggestion: (callback: (suggestion: { context: string; lastQuestion: string; confidence: number }) => void) => {
@@ -610,6 +663,7 @@ contextBridge.exposeInMainWorld("electronAPI", {
     ipcRenderer.invoke("generate-suggestion", context, lastQuestion),
 
   getNativeAudioStatus: () => ipcRenderer.invoke("native-audio-status"),
+  getMeetingReadinessStatus: () => ipcRenderer.invoke("meeting-readiness:get-status"),
   getInputDevices: () => ipcRenderer.invoke("get-input-devices"),
   getOutputDevices: () => ipcRenderer.invoke("get-output-devices"),
   setRecognitionLanguage: (key: string) => ipcRenderer.invoke("set-recognition-language", key),
@@ -625,7 +679,7 @@ contextBridge.exposeInMainWorld("electronAPI", {
 
   // Intelligence Mode IPC
   generateAssist: () => ipcRenderer.invoke("generate-assist"),
-  generateWhatToSay: (question?: string, imagePaths?: string[]) => ipcRenderer.invoke("generate-what-to-say", question, imagePaths),
+  generateWhatToSay: (question?: string, imagePaths?: string[], options?: { force?: boolean }) => ipcRenderer.invoke("generate-what-to-say", question, imagePaths, options),
   generateClarify: () => ipcRenderer.invoke("generate-clarify"),
   generateCodeHint: (imagePaths?: string[], problemStatement?: string) => ipcRenderer.invoke("generate-code-hint", imagePaths, problemStatement),
   generateBrainstorm: (imagePaths?: string[], problemStatement?: string) => ipcRenderer.invoke("generate-brainstorm", imagePaths, problemStatement),
@@ -649,6 +703,8 @@ contextBridge.exposeInMainWorld("electronAPI", {
   startMeeting: (metadata?: any) => ipcRenderer.invoke("start-meeting", metadata),
   endMeeting: () => ipcRenderer.invoke("end-meeting"),
   finalizeMicSTT: () => ipcRenderer.invoke("finalize-mic-stt"),
+  startMicSTT: () => ipcRenderer.invoke("start-mic-stt"),
+  stopMicSTT: () => ipcRenderer.invoke("stop-mic-stt"),
   getRecentMeetings: () => ipcRenderer.invoke("get-recent-meetings"),
   getMeetingDetails: (id: string) => ipcRenderer.invoke("get-meeting-details", id),
   getChatDebugEntries: (limit?: number) => ipcRenderer.invoke("get-chat-debug-entries", limit),
@@ -661,6 +717,7 @@ contextBridge.exposeInMainWorld("electronAPI", {
   },
   updateMeetingTitle: (id: string, title: string) => ipcRenderer.invoke("update-meeting-title", { id, title }),
   updateMeetingSummary: (id: string, updates: any) => ipcRenderer.invoke("update-meeting-summary", { id, updates }),
+  addMeetingContextNote: (meetingId: string, text: string, source: 'manual' | 'meeting_chat' = 'manual') => ipcRenderer.invoke("add-meeting-context-note", { meetingId, text, source }),
   generateMeetingOverview: (meetingId: string, options?: { force?: boolean }) => ipcRenderer.invoke("generate-meeting-overview", { meetingId, force: options?.force }),
   startClaudeLogin: () => ipcRenderer.invoke("claude-auth-login"),
   deleteMeeting: (id: string) => ipcRenderer.invoke("delete-meeting", id),
@@ -994,7 +1051,7 @@ contextBridge.exposeInMainWorld("electronAPI", {
   ragQueryMeeting: (meetingId: string, query: string) => ipcRenderer.invoke('rag:query-meeting', { meetingId, query }),
   ragQueryLive: (query: string) => ipcRenderer.invoke('rag:query-live', { query }),
   ragQueryGlobal: (query: string) => ipcRenderer.invoke('rag:query-global', { query }),
-  ragCancelQuery: (options: { meetingId?: string; global?: boolean }) => ipcRenderer.invoke('rag:cancel-query', options),
+  ragCancelQuery: (options: { meetingId?: string; global?: boolean; live?: boolean }) => ipcRenderer.invoke('rag:cancel-query', options),
   ragIsMeetingProcessed: (meetingId: string) => ipcRenderer.invoke('rag:is-meeting-processed', meetingId),
   ragGetQueueStatus: () => ipcRenderer.invoke('rag:get-queue-status'),
   ragRetryEmbeddings: () => ipcRenderer.invoke('rag:retry-embeddings'),
@@ -1077,6 +1134,9 @@ contextBridge.exposeInMainWorld("electronAPI", {
   cluelyImportDiscover: (limit?: number) => ipcRenderer.invoke('cluely-import:discover', limit),
   cluelyImportIngest: (options?: { limit?: number; sessionIds?: string[] }) => ipcRenderer.invoke('cluely-import:ingest', options),
   getContextHubStatus: () => ipcRenderer.invoke('context-hub:get-status'),
+  listBrainActionProposals: (limit?: number) => ipcRenderer.invoke('brain-action-proposals:list', limit),
+  recordBrainActionOutcome: (input: { proposalId: string; decision: string; editSummary?: string; finalPayload?: unknown; error?: string; learningSignals?: string[] }) => ipcRenderer.invoke('brain-action-proposals:record-outcome', input),
+  executeBrainActionProposal: (input: { proposalId: string; payload?: Record<string, unknown> }) => ipcRenderer.invoke('brain-action-proposals:execute', input),
   getAutonomousOpsStatus: () => ipcRenderer.invoke('autonomous-ops:get-status'),
   refreshAutonomousOpsStatus: () => ipcRenderer.invoke('autonomous-ops:refresh'),
   startAutonomousWorkflow: (workflowId: string, options?: { goalId?: string; autonomyLevel?: 'observe' | 'assist' | 'bounded-auto' | 'approval-required' }) => ipcRenderer.invoke('autonomous-ops:start-workflow', workflowId, options),
@@ -1089,6 +1149,8 @@ contextBridge.exposeInMainWorld("electronAPI", {
       ipcRenderer.removeListener('autonomous-ops:updated', subscription)
     }
   },
+  getDurableWorkflowStatus: (limit?: number) => ipcRenderer.invoke('durable-workflows:get-status', limit),
+  listDurableWorkflowRuns: (limit?: number) => ipcRenderer.invoke('durable-workflows:list', limit),
 
   // JD & Research API
   profileUploadJD: (filePath: string) => ipcRenderer.invoke('profile:upload-jd', filePath),

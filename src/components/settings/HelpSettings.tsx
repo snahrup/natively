@@ -18,7 +18,7 @@ const MOCK_BUTTONS = [
     { icon: Pencil,        label: 'Draft Reply',        kbd: '⌘1', color: 'blue'    },
     { icon: MessageSquare, label: 'Clarify Context',    kbd: '⌘2', color: 'indigo'  },
     { icon: RefreshCw,     label: 'Summarize',          kbd: '⌘7', color: 'amber'   },
-    { icon: HelpCircle,    label: 'Suggest Follow-Up',  kbd: '⌘4', color: 'teal'    },
+    { icon: HelpCircle,    label: 'Help',               kbd: '⌘4', color: 'teal'    },
     { icon: Zap,           label: 'Voice Ask',          kbd: '⌘5', color: 'emerald' },
 ] as const;
 
@@ -1108,7 +1108,7 @@ export const HelpSettings: React.FC<{ onNavigate?: (tab: string) => void }> = ({
                                          <span>Claude CLI</span>
                                          <span className="text-[10px] text-text-tertiary">Local session</span>
                                      </h5>
-                                     <p className="text-[11px] opacity-80 mb-2">Uses your logged-in local Claude Code session. Supported models: <strong>claude-sonnet-4-6</strong> and <strong>claude-opus-4-6</strong>.</p>
+                                     <p className="text-[11px] opacity-80 mb-2">Uses your logged-in local Claude Code session. Supported models: <strong>claude-opus-4-8</strong> and <strong>claude-sonnet-4-6</strong>.</p>
                                      <span className={kbdClass}>claude</span>
                                  </div>
                                  <div className="p-3 rounded-xl border bg-bg-item-surface border-border-subtle hover:border-border-muted transition-colors">
@@ -1116,7 +1116,7 @@ export const HelpSettings: React.FC<{ onNavigate?: (tab: string) => void }> = ({
                                          <span>Codex CLI</span>
                                          <span className="text-[10px] text-text-tertiary">Local session</span>
                                      </h5>
-                                     <p className="text-[11px] opacity-80 mb-2">Uses your logged-in local Codex session. Supported models include <strong>gpt-5.4</strong>, <strong>gpt-5.4-mini</strong>, and Codex variants.</p>
+                                     <p className="text-[11px] opacity-80 mb-2">Uses your logged-in local Codex session. Supported models include <strong>gpt-5.5</strong>, <strong>gpt-5.4</strong>, and <strong>gpt-5.4-mini</strong>.</p>
                                      <span className={kbdClass}>codex</span>
                                  </div>
                              </div>
@@ -1191,7 +1191,7 @@ export const HelpSettings: React.FC<{ onNavigate?: (tab: string) => void }> = ({
                             {([
                                 { Icon: Pencil,        color: 'blue',   title: 'Draft Reply',       badge: null,           bc: '',                                                          kbd: ['⌘','1'],        desc: 'Builds a concise response you can say or send immediately based on the current context.' },
                                 { Icon: Lightbulb,     color: 'violet', title: 'Explore Options',   badge: 'Deep Mode ON',  bc: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30',  kbd: ['⌘','3'],        desc: 'When Deep Thinking is on, the summarize action becomes a deeper option-exploration pass.' },
-                                { Icon: HelpCircle,    color: 'teal',   title: 'Suggest Follow-Up', badge: null,           bc: '',                                                          kbd: ['⌘','4'],        desc: 'Suggests the most useful next question, follow-up, or prompt to keep momentum.' },
+                                { Icon: HelpCircle,    color: 'teal',   title: 'Help',              badge: null,           bc: '',                                                          kbd: ['⌘','4'],        desc: 'Answers the latest question or gives you a concise line to say when the conversation stalls.' },
                                 { Icon: Zap,           color: 'emerald',title: 'Voice Ask',         badge: null,           bc: '',                                                          kbd: ['⌘','5'],        desc: 'Records your mic plus current context and fires an immediate live query.' },
                                 { Icon: MessageSquare, color: 'indigo', title: 'Clarify Context',   badge: null,           bc: '',                                                          kbd: ['⌘','2'],        desc: 'Generates sharp clarifying prompts when the topic, ask, or speaker intent is ambiguous.' },
                                 { Icon: RefreshCw,     color: 'amber',  title: 'Summarize',         badge: 'Deep Mode OFF', bc: 'bg-red-500/10 text-red-400 border-red-500/30',              kbd: ['⌘','3'],        desc: 'Condenses the recent context into a compact summary when you need to get reoriented fast.' },

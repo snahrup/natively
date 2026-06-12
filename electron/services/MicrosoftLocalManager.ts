@@ -13,6 +13,9 @@ import type {
   TeamsSendResult,
 } from "./MicrosoftLocalTypes";
 
+const LIVE_MICROSOFT_CONTEXT_ENABLED = process.env.NATIVELY_ENABLE_LIVE_MICROSOFT_CONTEXT === "1";
+const OUTLOOK_CALENDAR_LOOKUP_ENABLED = process.env.NATIVELY_ENABLE_OUTLOOK_CALENDAR_LOOKUP !== "0";
+
 export interface MicrosoftLocalStatus {
   outlook: ComBridgeStatus;
   teams: TeamsBridgeInfo;
@@ -39,6 +42,11 @@ export class MicrosoftLocalManager {
   }
 
   public async start(): Promise<void> {
+    if (!LIVE_MICROSOFT_CONTEXT_ENABLED) {
+      console.log("[MicrosoftLocalManager] Live Microsoft context disabled. Set NATIVELY_ENABLE_LIVE_MICROSOFT_CONTEXT=1 to enable Outlook/Teams reads.");
+      return;
+    }
+
     if (this.startPromise) return this.startPromise;
 
     this.startPromise = (async () => {
@@ -58,6 +66,8 @@ export class MicrosoftLocalManager {
   }
 
   public async refreshConnections(): Promise<void> {
+    if (!LIVE_MICROSOFT_CONTEXT_ENABLED) return;
+
     await this.outlook.healthCheck().catch((error: any) => {
       console.warn("[MicrosoftLocalManager] Outlook health refresh failed:", error?.message || error);
     });
@@ -77,6 +87,26 @@ export class MicrosoftLocalManager {
   }
 
   public async getStatus(): Promise<MicrosoftLocalStatus> {
+    if (!LIVE_MICROSOFT_CONTEXT_ENABLED) {
+      if (!OUTLOOK_CALENDAR_LOOKUP_ENABLED) {
+        return getDisabledStatus();
+      }
+
+      const outlook = await this.outlook.healthCheck().catch((error: any) => ({
+        outlookRunning: false,
+        comAvailable: false,
+        lastError: error?.message || String(error),
+      }));
+
+      return {
+        outlook,
+        teams: {
+          status: "disconnected",
+          error: "Live Teams context is disabled.",
+        },
+      };
+    }
+
     const [outlook, teams] = await Promise.all([
       this.outlook.getStatus().catch((error: any) => ({
         outlookRunning: false,
@@ -90,6 +120,8 @@ export class MicrosoftLocalManager {
   }
 
   public async getOutlookCalendarEvents(hours = 48): Promise<OutlookCalendarEvent[]> {
+    if (!LIVE_MICROSOFT_CONTEXT_ENABLED && !OUTLOOK_CALENDAR_LOOKUP_ENABLED) return [];
+
     return this.outlook.getUpcoming(hours).catch((error: any): OutlookCalendarEvent[] => {
       console.warn("[MicrosoftLocalManager] Outlook calendar fetch failed:", error?.message || error);
       return [];
@@ -97,6 +129,8 @@ export class MicrosoftLocalManager {
   }
 
   public async getOutlookCalendarEventsInRange(startDate: string, endDate: string): Promise<OutlookCalendarEvent[]> {
+    if (!LIVE_MICROSOFT_CONTEXT_ENABLED && !OUTLOOK_CALENDAR_LOOKUP_ENABLED) return [];
+
     return this.outlook.getEvents(startDate, endDate).catch((error: any): OutlookCalendarEvent[] => {
       console.warn("[MicrosoftLocalManager] Outlook historical calendar fetch failed:", error?.message || error);
       return [];
@@ -104,6 +138,8 @@ export class MicrosoftLocalManager {
   }
 
   public async getRecentEmails(top = 25, unreadOnly = false): Promise<OutlookEmail[]> {
+    if (!LIVE_MICROSOFT_CONTEXT_ENABLED) return [];
+
     const result = await this.outlook.listEmails({ top, unreadOnly }).catch((error: any) => {
       console.warn("[MicrosoftLocalManager] Outlook email fetch failed:", error?.message || error);
       return { emails: [] as OutlookEmail[], totalCount: 0 };
@@ -112,6 +148,8 @@ export class MicrosoftLocalManager {
   }
 
   public async searchEmails(query: string, top = 25): Promise<OutlookEmail[]> {
+    if (!LIVE_MICROSOFT_CONTEXT_ENABLED) return [];
+
     const result = await this.outlook.searchEmails(query, top).catch((error: any) => {
       console.warn("[MicrosoftLocalManager] Outlook email search failed:", error?.message || error);
       return { emails: [] as OutlookEmail[], totalCount: 0 };
@@ -120,6 +158,8 @@ export class MicrosoftLocalManager {
   }
 
   public async getOutlookContacts(query?: string): Promise<OutlookContact[]> {
+    if (!LIVE_MICROSOFT_CONTEXT_ENABLED) return [];
+
     const contacts = await this.outlook.getContacts(query).catch((error: any) => {
       console.warn("[MicrosoftLocalManager] Outlook contact fetch failed:", error?.message || error);
       return [] as any[];
@@ -134,6 +174,8 @@ export class MicrosoftLocalManager {
   }
 
   public async getTeamsChats(limit = 25): Promise<TeamsChat[]> {
+    if (!LIVE_MICROSOFT_CONTEXT_ENABLED) return [];
+
     return this.teams.getChats(limit).catch((error: any): TeamsChat[] => {
       console.warn("[MicrosoftLocalManager] Teams chat fetch failed:", error?.message || error);
       return [];
@@ -141,6 +183,8 @@ export class MicrosoftLocalManager {
   }
 
   public async getTeamsMessages(chatId: string, limit = 50): Promise<TeamsMessage[]> {
+    if (!LIVE_MICROSOFT_CONTEXT_ENABLED) return [];
+
     return this.teams.getMessages(chatId, limit).catch((error: any): TeamsMessage[] => {
       console.warn("[MicrosoftLocalManager] Teams message fetch failed:", error?.message || error);
       return [];
@@ -153,6 +197,8 @@ export class MicrosoftLocalManager {
     date?: string;
     hasTranscript: boolean;
   }>> {
+    if (!LIVE_MICROSOFT_CONTEXT_ENABLED) return [];
+
     return this.teams.listMeetingTranscripts().catch((error: any): Array<{
       chatId: string;
       meetingTitle: string;
@@ -170,6 +216,13 @@ export class MicrosoftLocalManager {
     meetingTitle?: string;
     error?: string;
   }> {
+    if (!LIVE_MICROSOFT_CONTEXT_ENABLED) {
+      return {
+        success: false,
+        error: "Live Microsoft context is disabled. Use the brain repo import pipeline for Teams transcripts.",
+      };
+    }
+
     return this.teams.getMeetingTranscript(chatIdOrTitle).catch((error: any) => {
       console.warn("[MicrosoftLocalManager] Teams transcript fetch failed:", error?.message || error);
       return {
@@ -180,6 +233,10 @@ export class MicrosoftLocalManager {
   }
 
   public async getOutlookContextSummary(): Promise<string> {
+    if (!LIVE_MICROSOFT_CONTEXT_ENABLED) {
+      return "[OUTLOOK] Live Outlook context disabled. Use the brain repo import pipeline.";
+    }
+
     return this.outlook.getContextSummary().catch((error: any) => {
       console.warn("[MicrosoftLocalManager] Outlook context summary failed:", error?.message || error);
       return "[OUTLOOK] Local Outlook context unavailable.";
@@ -187,6 +244,10 @@ export class MicrosoftLocalManager {
   }
 
   public async getTeamsContextSummary(): Promise<string> {
+    if (!LIVE_MICROSOFT_CONTEXT_ENABLED) {
+      return "[TEAMS] Live Teams context disabled. Use the brain repo import pipeline.";
+    }
+
     return this.teams.getContextSummary().catch((error: any) => {
       console.warn("[MicrosoftLocalManager] Teams context summary failed:", error?.message || error);
       return "[TEAMS] Local Teams context unavailable.";
@@ -220,4 +281,18 @@ export class MicrosoftLocalManager {
   public getOutlookBridge(): OutlookComBridge {
     return this.outlook;
   }
+}
+
+function getDisabledStatus(): MicrosoftLocalStatus {
+  return {
+    outlook: {
+      outlookRunning: false,
+      comAvailable: false,
+      lastError: "Live Microsoft context disabled.",
+    },
+    teams: {
+      status: "disconnected",
+      error: "Live Microsoft context disabled.",
+    },
+  };
 }

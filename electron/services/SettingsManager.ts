@@ -12,6 +12,8 @@ export interface AppSettings {
     actionButtonMode?: 'recap' | 'brainstorm';
     groqFastTextMode?: boolean;
     knowledgeMode?: boolean;
+    proactiveModeEnabled?: boolean;
+    userDisplayName?: string;
 }
 
 export class SettingsManager {

@@ -24,7 +24,7 @@ export const DEFAULT_KEYBINDS: KeybindConfig[] = [
     { id: 'chat:whatToAnswer', label: 'Draft Reply', accelerator: 'CommandOrControl+1', isGlobal: true, defaultAccelerator: 'CommandOrControl+1' },
     { id: 'chat:clarify', label: 'Clarify', accelerator: 'CommandOrControl+2', isGlobal: true, defaultAccelerator: 'CommandOrControl+2' },
     { id: 'chat:dynamicAction4', label: 'Summarize / Brainstorm', accelerator: 'CommandOrControl+3', isGlobal: true, defaultAccelerator: 'CommandOrControl+3' },
-    { id: 'chat:followUp', label: 'Suggest Follow-Up', accelerator: 'CommandOrControl+4', isGlobal: true, defaultAccelerator: 'CommandOrControl+4' },
+    { id: 'chat:followUp', label: 'Help', accelerator: 'CommandOrControl+4', isGlobal: true, defaultAccelerator: 'CommandOrControl+4' },
     { id: 'chat:answer', label: 'Voice Ask', accelerator: 'CommandOrControl+5', isGlobal: true, defaultAccelerator: 'CommandOrControl+5' },
     { id: 'chat:codeHint', label: 'Technical Assist', accelerator: 'CommandOrControl+6', isGlobal: true, defaultAccelerator: 'CommandOrControl+6' },
     { id: 'chat:brainstorm', label: 'Explore Options', accelerator: 'CommandOrControl+7', isGlobal: true, defaultAccelerator: 'CommandOrControl+7' },

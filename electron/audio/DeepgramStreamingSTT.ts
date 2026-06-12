@@ -173,7 +173,11 @@ export class DeepgramStreamingSTT extends EventEmitter {
             `&sample_rate=${this.sampleRate}` +
             `&channels=${this.numChannels}` +
             langParam +
+            `&punctuate=true` +
             `&smart_format=true` +
+            `&diarize=true` +
+            `&endpointing=700` +
+            `&utterance_end_ms=1000` +
             `&interim_results=true` +
             `&keepalive=true`;
 
@@ -211,13 +215,16 @@ export class DeepgramStreamingSTT extends EventEmitter {
                 // { type: "Results", channel: { alternatives: [{ transcript, confidence }] }, is_final }
                 if (msg.type !== 'Results') return;
 
-                const transcript = msg.channel?.alternatives?.[0]?.transcript;
+                const alternative = msg.channel?.alternatives?.[0];
+                const transcript = alternative?.transcript;
                 if (!transcript) return;
+                const diarizedSpeaker = dominantDeepgramSpeaker(alternative?.words);
 
                 this.emit('transcript', {
                     text: transcript,
                     isFinal: msg.is_final ?? false,
-                    confidence: msg.channel?.alternatives?.[0]?.confidence ?? 1.0,
+                    confidence: alternative?.confidence ?? 1.0,
+                    diarizedSpeaker,
                 });
             } catch (err) {
                 console.error('[DeepgramStreaming] Parse error:', err);
@@ -303,4 +310,29 @@ export class DeepgramStreamingSTT extends EventEmitter {
             this.reconnectTimer = null;
         }
     }
+}
+
+function dominantDeepgramSpeaker(words: any[] | undefined): string | null {
+    if (!Array.isArray(words) || words.length === 0) return null;
+
+    const counts = new Map<string, number>();
+    for (const word of words) {
+        const rawSpeaker = word?.speaker;
+        if (rawSpeaker === null || rawSpeaker === undefined || rawSpeaker === '') {
+            continue;
+        }
+        const speakerId = `speaker_${rawSpeaker}`;
+        counts.set(speakerId, (counts.get(speakerId) || 0) + 1);
+    }
+
+    let bestSpeaker: string | null = null;
+    let bestCount = 0;
+    counts.forEach((count, speakerId) => {
+        if (count > bestCount) {
+            bestSpeaker = speakerId;
+            bestCount = count;
+        }
+    });
+
+    return bestSpeaker;
 }

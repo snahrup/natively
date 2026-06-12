@@ -26,7 +26,11 @@ import {
     Code,
     Copy,
     Check,
-    PointerOff
+    PointerOff,
+    Moon,
+    Sun,
+    Radio,
+    LayoutDashboard
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
@@ -52,6 +56,7 @@ interface Message {
     id: string;
     role: 'user' | 'system' | 'external';
     text: string;
+    createdAt?: number;
     chatDebugIssueId?: number;
     isStreaming?: boolean;
     hasScreenshot?: boolean;
@@ -84,7 +89,197 @@ interface NativelyInterfaceProps {
 
 const LIVE_TRANSCRIPT_KEY = 'natively_live_transcript';
 const LEGACY_TRANSCRIPT_KEY = ['natively_', 'inter', 'viewer_transcript'].join('');
+const RAG_PREFLIGHT_TIMEOUT_MS = 2500;
+const NO_SPEECH_WARNING_COOLDOWN_MS = 20_000;
 type ScreenshotAttachment = { path: string; preview: string };
+
+function resolveMessageCreatedAt(message: Message, fallbackNow: number): number {
+    if (typeof message.createdAt === 'number' && Number.isFinite(message.createdAt)) {
+        return message.createdAt;
+    }
+
+    const timestampFromId = Number(message.id);
+    if (
+        Number.isFinite(timestampFromId) &&
+        timestampFromId > 946684800000 &&
+        timestampFromId < fallbackNow + 60_000
+    ) {
+        return timestampFromId;
+    }
+
+    return fallbackNow;
+}
+
+function formatRelativeAge(createdAt: number, now: number): string {
+    const elapsedMs = Math.max(0, now - createdAt);
+    const elapsedSeconds = Math.floor(elapsedMs / 1000);
+
+    if (elapsedSeconds < 5) return 'now';
+    if (elapsedSeconds < 60) return `${elapsedSeconds}s ago`;
+
+    const elapsedMinutes = Math.floor(elapsedSeconds / 60);
+    if (elapsedMinutes < 60) return `${elapsedMinutes}m ago`;
+
+    const elapsedHours = Math.floor(elapsedMinutes / 60);
+    if (elapsedHours < 24) return `${elapsedHours}h ago`;
+
+    return `${Math.floor(elapsedHours / 24)}d ago`;
+}
+
+type RuntimeCheckStatus = 'ready' | 'warming' | 'warning' | 'failed';
+type TranscriptSpeakerIdentity = 'self' | 'other' | 'unknown';
+
+interface NativeAudioTranscriptPayload {
+    speaker: string;
+    sourceSpeaker?: string;
+    speakerKey?: string;
+    speakerLabel?: string | null;
+    displaySpeakerLabel?: string;
+    diarizedSpeaker?: string | null;
+    speakerIdentity?: TranscriptSpeakerIdentity;
+    text: string;
+    final: boolean;
+    timestamp?: number;
+    confidence?: number;
+}
+
+interface LiveTranscriptTurn {
+    id: string;
+    speakerKey: string;
+    speakerLabel: string;
+    speakerIdentity: TranscriptSpeakerIdentity;
+    sourceSpeaker: string;
+    text: string;
+    final: boolean;
+    timestamp: number;
+}
+
+interface RuntimeReadinessCheck {
+    id: string;
+    label: string;
+    status: RuntimeCheckStatus;
+    detail: string;
+}
+
+interface RuntimeReadinessStatus {
+    overall?: RuntimeCheckStatus;
+    generatedAt?: string;
+    checks?: RuntimeReadinessCheck[];
+    audio?: any;
+    prep?: any;
+    proactiveModeEnabled?: boolean;
+}
+
+function compactReadinessLabel(status?: RuntimeCheckStatus): string {
+    if (status === 'ready') return 'ok';
+    if (status === 'warming') return 'wait';
+    if (status === 'failed') return 'blocked';
+    return 'check';
+}
+
+function formatReadinessAge(iso?: string | null): string {
+    if (!iso) return 'status pending';
+    return formatRelativeAge(new Date(iso).getTime(), Date.now());
+}
+
+function getMessageLabel(message: Message): string {
+    if (message.role === 'user') return 'You';
+    if (message.role === 'external') return 'Context';
+    if (message.intent === 'what_to_answer') return 'Say this';
+    if (message.intent === 'clarify') return 'Clarify';
+    if (message.intent === 'follow_up_questions') return 'Follow up';
+    if (message.intent === 'recap') return 'Summary';
+    if (message.intent === 'brainstorm') return 'Brainstorm';
+    return 'Natively';
+}
+
+function makeMessageId(suffix = 'message'): string {
+    return `${Date.now()}-${suffix}-${Math.random().toString(36).slice(2, 8)}`;
+}
+
+function appendRollingTranscript(base: string, segment?: string): string {
+    const cleanBase = base.trim();
+    const cleanSegment = (segment || '').replace(/\s+/g, ' ').trim();
+    const combined = cleanSegment
+        ? cleanBase
+            ? `${cleanBase}  ·  ${cleanSegment}`
+            : cleanSegment
+        : cleanBase;
+
+    return combined.length > 1400 ? combined.slice(-1400) : combined;
+}
+
+function getTranscriptSpeakerKey(transcript: NativeAudioTranscriptPayload): string {
+    if (transcript.speakerKey?.trim()) return transcript.speakerKey.trim();
+    if (transcript.diarizedSpeaker) return `${transcript.speaker}:${transcript.diarizedSpeaker}`;
+    return transcript.speaker;
+}
+
+function formatDiarizedSpeakerLabel(diarizedSpeaker?: string | null): string | null {
+    if (!diarizedSpeaker) return null;
+    const numeric = String(diarizedSpeaker).match(/(\d+)$/)?.[1];
+    if (numeric !== undefined) return `Speaker ${Number(numeric) + 1}`;
+    return String(diarizedSpeaker)
+        .replace(/[_-]+/g, ' ')
+        .replace(/\b\w/g, char => char.toUpperCase());
+}
+
+function resolveTranscriptSpeakerLabel(
+    transcript: NativeAudioTranscriptPayload,
+    speakerLabels: Record<string, string>
+): string {
+    const speakerKey = getTranscriptSpeakerKey(transcript);
+    const assigned = speakerLabels[speakerKey] || transcript.speakerLabel || '';
+    if (assigned.trim()) return assigned.trim();
+    if (transcript.displaySpeakerLabel?.trim()) return transcript.displaySpeakerLabel.trim();
+    return formatDiarizedSpeakerLabel(transcript.diarizedSpeaker) || (transcript.speaker === 'external' ? 'Meeting' : 'Mic');
+}
+
+function updateTranscriptTurns(
+    previous: LiveTranscriptTurn[],
+    nextTurn: LiveTranscriptTurn
+): LiveTranscriptTurn[] {
+    const next = [...previous];
+    const lastIndex = next.length - 1;
+    const lastTurn = lastIndex >= 0 ? next[lastIndex] : null;
+
+    if (lastTurn && !lastTurn.final && lastTurn.speakerKey === nextTurn.speakerKey) {
+        next[lastIndex] = { ...nextTurn, id: lastTurn.id };
+    } else if (
+        nextTurn.final &&
+        lastTurn &&
+        !lastTurn.final &&
+        lastTurn.speakerKey === nextTurn.speakerKey
+    ) {
+        next[lastIndex] = { ...nextTurn, id: lastTurn.id, final: true };
+    } else {
+        next.push(nextTurn);
+    }
+
+    return next.slice(-16);
+}
+
+async function withFallbackTimeout<T>(
+    promise: Promise<T> | undefined,
+    timeoutMs: number,
+    fallback: T,
+    onTimeout?: () => void
+): Promise<T> {
+    if (!promise) return fallback;
+
+    let timeoutId: ReturnType<typeof setTimeout> | undefined;
+    return Promise.race([
+        promise,
+        new Promise<T>((resolve) => {
+            timeoutId = setTimeout(() => {
+                onTimeout?.();
+                resolve(fallback);
+            }, timeoutMs);
+        }),
+    ]).finally(() => {
+        if (timeoutId) clearTimeout(timeoutId);
+    });
+}
 
 const NativelyInterface: React.FC<NativelyInterfaceProps> = ({ onEndMeeting, overlayOpacity = OVERLAY_OPACITY_DEFAULT }) => {
     const isLightTheme = useResolvedTheme() === 'light';
@@ -92,10 +287,12 @@ const NativelyInterface: React.FC<NativelyInterfaceProps> = ({ onEndMeeting, ove
     const [inputValue, setInputValue] = useState('');
     const { shortcuts, isShortcutPressed } = useShortcuts();
     const [messages, setMessages] = useState<Message[]>([]);
+    const [relativeAgeNow, setRelativeAgeNow] = useState(() => Date.now());
     const [reviewingMessageId, setReviewingMessageId] = useState<string | null>(null);
     const [reviewingType, setReviewingType] = useState<'voice_pass' | 'technical_check' | null>(null);
     const [isConnected, setIsConnected] = useState(false);
     const [isProcessing, setIsProcessing] = useState(false);
+    const [processingStatus, setProcessingStatus] = useState('');
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
     const [conversationContext, setConversationContext] = useState<string>('');
     const [isManualRecording, setIsManualRecording] = useState(false);
@@ -121,9 +318,19 @@ const NativelyInterface: React.FC<NativelyInterfaceProps> = ({ onEndMeeting, ove
     }, []);
 
     const [rollingTranscript, setRollingTranscript] = useState('');
+    const rollingTranscriptFinalRef = useRef('');
+    const [liveTranscriptTurns, setLiveTranscriptTurns] = useState<LiveTranscriptTurn[]>([]);
+    const [speakerLabels, setSpeakerLabels] = useState<Record<string, string>>({});
+    const speakerLabelsRef = useRef<Record<string, string>>({});
+    const [userDisplayName, setUserDisplayName] = useState('Steve');
+    const userDisplayNameRef = useRef('Steve');
+    const [editingSpeakerKey, setEditingSpeakerKey] = useState<string | null>(null);
+    const [editingSpeakerValue, setEditingSpeakerValue] = useState('');
+    const [speakerLabelSavingKey, setSpeakerLabelSavingKey] = useState<string | null>(null);
     const [isContextSpeaking, setIsContextSpeaking] = useState(false);
     const [voiceInput, setVoiceInput] = useState('');  // Accumulated user voice input
     const voiceInputRef = useRef<string>('');  // Ref for capturing in async handlers
+    const lastNoSpeechWarningAtRef = useRef(0);
     const offeredWorkflowRecommendationSignaturesRef = useRef<Set<string>>(new Set());
     const dismissedWorkflowRecommendationSignaturesRef = useRef<Set<string>>(new Set());
     const notifiedWorkflowCompletionSignaturesRef = useRef<Set<string>>(new Set());
@@ -142,6 +349,8 @@ const NativelyInterface: React.FC<NativelyInterfaceProps> = ({ onEndMeeting, ove
 
     // Settings State with Persistence
     const [isUndetectable, setIsUndetectable] = useState(false);
+    const [isProactiveMode, setIsProactiveMode] = useState(false);
+    const [meetingReadiness, setMeetingReadiness] = useState<RuntimeReadinessStatus | null>(null);
     const [hideChatHidesWidget, setHideChatHidesWidget] = useState(() => {
         const stored = localStorage.getItem('natively_hideChatHidesWidget');
         return stored ? stored === 'true' : true;
@@ -180,6 +389,123 @@ const NativelyInterface: React.FC<NativelyInterfaceProps> = ({ onEndMeeting, ove
     const quickActionClass = 'overlay-chip-surface overlay-text-interactive';
     const inputClass = `${isLightTheme ? 'focus:ring-black/10' : 'focus:ring-white/10'} overlay-input-surface overlay-input-text`;
     const controlSurfaceClass = 'overlay-control-surface overlay-text-interactive';
+
+    useEffect(() => {
+        const intervalId = window.setInterval(() => {
+            setRelativeAgeNow(Date.now());
+        }, 1000);
+        return () => window.clearInterval(intervalId);
+    }, []);
+
+    useEffect(() => {
+        let mounted = true;
+        window.electronAPI?.getMeetingSpeakerLabels?.()
+            .then((labels) => {
+                if (mounted && labels) {
+                    speakerLabelsRef.current = labels;
+                    setSpeakerLabels(labels);
+                }
+            })
+            .catch(() => {});
+
+        const unsubscribe = window.electronAPI?.onMeetingSpeakerLabelsChanged?.((labels) => {
+            const nextLabels = labels || {};
+            speakerLabelsRef.current = nextLabels;
+            setSpeakerLabels(nextLabels);
+        });
+
+        return () => {
+            mounted = false;
+            unsubscribe?.();
+        };
+    }, []);
+
+    useEffect(() => {
+        let mounted = true;
+
+        window.electronAPI?.getUserProfile?.()
+            .then((profile) => {
+                const nextName = profile?.userDisplayName?.trim();
+                if (mounted && nextName) {
+                    userDisplayNameRef.current = nextName;
+                    setUserDisplayName(nextName);
+                }
+            })
+            .catch(() => {});
+
+        const unsubscribe = window.electronAPI?.onUserProfileChanged?.((profile) => {
+            const nextName = profile?.userDisplayName?.trim();
+            if (!nextName) return;
+            userDisplayNameRef.current = nextName;
+            setUserDisplayName(nextName);
+        });
+
+        return () => {
+            mounted = false;
+            unsubscribe?.();
+        };
+    }, []);
+
+    useEffect(() => {
+        setLiveTranscriptTurns(prev => prev.map(turn => ({
+            ...turn,
+            speakerLabel: speakerLabels[turn.speakerKey] || turn.speakerLabel
+        })));
+    }, [speakerLabels]);
+
+    useEffect(() => {
+        let mounted = true;
+        const refreshReadiness = async () => {
+            if (!window.electronAPI?.getMeetingReadinessStatus) return;
+            try {
+                const status = await window.electronAPI.getMeetingReadinessStatus();
+                if (mounted) {
+                    setMeetingReadiness(status || null);
+                }
+            } catch {
+                if (mounted) {
+                    setMeetingReadiness(null);
+                }
+            }
+        };
+
+        refreshReadiness();
+        const intervalId = window.setInterval(refreshReadiness, 5000);
+        return () => {
+            mounted = false;
+            window.clearInterval(intervalId);
+        };
+    }, []);
+
+    useEffect(() => {
+        setMessages(prev => {
+            let changed = false;
+            const now = Date.now();
+            const next = prev.map(message => {
+                if (typeof message.createdAt === 'number') {
+                    return message;
+                }
+                changed = true;
+                return {
+                    ...message,
+                    createdAt: resolveMessageCreatedAt(message, now)
+                };
+            });
+            return changed ? next : prev;
+        });
+    }, [messages.length]);
+
+    useLayoutEffect(() => {
+        const scrollContainer = scrollContainerRef.current;
+        if (!scrollContainer) return;
+
+        requestAnimationFrame(() => {
+            scrollContainer.scrollTo({
+                top: scrollContainer.scrollHeight,
+                behavior: 'smooth'
+            });
+        });
+    }, [messages, isManualRecording, isProcessing]);
 
     const isExplicitScreenReadRequest = (value: string): boolean => {
         const text = value.trim().toLowerCase();
@@ -224,7 +550,7 @@ const NativelyInterface: React.FC<NativelyInterfaceProps> = ({ onEndMeeting, ove
         }
 
         try {
-            const capture = await window.electronAPI.takeScreenshot();
+            const capture = await window.electronAPI.takeContextScreenshot();
             return capture ? [capture] : attachments;
         } catch (error) {
             console.error('[NativelyInterface] Failed to auto-capture screen for explicit screen-read request:', error);
@@ -232,15 +558,89 @@ const NativelyInterface: React.FC<NativelyInterfaceProps> = ({ onEndMeeting, ove
         }
     };
 
+    const recentSpeakerChips = useMemo(() => {
+        const byKey = new Map<string, LiveTranscriptTurn>();
+        liveTranscriptTurns.forEach(turn => {
+            byKey.set(turn.speakerKey, {
+                ...turn,
+                speakerLabel: speakerLabels[turn.speakerKey] || turn.speakerLabel
+            });
+        });
+        return Array.from(byKey.values()).slice(-4);
+    }, [liveTranscriptTurns, speakerLabels]);
+
+    const beginSpeakerLabelEdit = (turn: LiveTranscriptTurn) => {
+        setEditingSpeakerKey(turn.speakerKey);
+        const assignedLabel = speakerLabels[turn.speakerKey] || '';
+        const suggestedLabel = turn.sourceSpeaker === 'user' ? (userDisplayName || userDisplayNameRef.current) : '';
+        setEditingSpeakerValue(assignedLabel || suggestedLabel);
+    };
+
+    const cancelSpeakerLabelEdit = () => {
+        setEditingSpeakerKey(null);
+        setEditingSpeakerValue('');
+    };
+
+    const saveSpeakerLabel = async (speakerKey: string, nextLabel: string) => {
+        const cleanLabel = nextLabel.replace(/\s+/g, ' ').trim();
+        const nextLabels = { ...speakerLabelsRef.current };
+        if (cleanLabel) {
+            nextLabels[speakerKey] = cleanLabel;
+        } else {
+            delete nextLabels[speakerKey];
+        }
+
+        speakerLabelsRef.current = nextLabels;
+        setSpeakerLabels(nextLabels);
+        setSpeakerLabelSavingKey(speakerKey);
+
+        try {
+            const result = await window.electronAPI?.setMeetingSpeakerLabel?.(speakerKey, cleanLabel);
+            if (result?.labels) {
+                speakerLabelsRef.current = result.labels;
+                setSpeakerLabels(result.labels);
+            }
+            setEditingSpeakerKey(null);
+            setEditingSpeakerValue('');
+        } catch (error) {
+            setMessages(prev => [...prev, {
+                id: makeMessageId('speaker-label-error'),
+                role: 'system',
+                text: `Could not save speaker label: ${error instanceof Error ? error.message : String(error)}`
+            }]);
+        } finally {
+            setSpeakerLabelSavingKey(null);
+        }
+    };
+
+    const pushNoSpeechWarning = () => {
+        const now = Date.now();
+        if (now - lastNoSpeechWarningAtRef.current < NO_SPEECH_WARNING_COOLDOWN_MS) {
+            return;
+        }
+        lastNoSpeechWarningAtRef.current = now;
+        setMessages(prev => [...prev, {
+            id: Date.now().toString(),
+            role: 'system',
+            text: '⚠️ No speech detected. Try speaking closer to your microphone.'
+        }]);
+    };
+
     useEffect(() => {
-        // Load the persisted default model (not the runtime model)
-        // Each new meeting starts with the default from settings
+        // Load the persisted default model unless proactive mode is already active.
+        // Proactive mode owns the runtime model because it needs the fast coach lane.
         if (window.electronAPI?.getDefaultModel) {
             Promise.all([
                 window.electronAPI.getDefaultModel(),
                 window.electronAPI?.getStoredCredentials?.(),
+                window.electronAPI?.getProactiveMode?.(),
             ])
-                .then(([result, creds]: any) => {
+                .then(([result, creds, proactiveEnabled]: any) => {
+                    if (proactiveEnabled) {
+                        setCurrentModel('gpt-5.4-mini');
+                        return;
+                    }
+
                     const resolvedModel = resolvePreferredVisibleModelId(result?.model, creds);
                     if (resolvedModel) {
                         setCurrentModel(resolvedModel);
@@ -256,6 +656,40 @@ const NativelyInterface: React.FC<NativelyInterfaceProps> = ({ onEndMeeting, ove
         // Session-only: update runtime but don't persist as default
         window.electronAPI.setModel(modelId)
             .catch((err: any) => console.error("Failed to set model:", err));
+    };
+
+    const toggleThemeMode = () => {
+        const nextMode = isLightTheme ? 'dark' : 'light';
+        window.electronAPI?.setThemeMode?.(nextMode).catch((err: any) => {
+            console.error("Failed to set theme mode:", err);
+        });
+    };
+
+    const toggleProactiveMode = () => {
+        const nextState = !isProactiveMode;
+        setIsProactiveMode(nextState);
+        if (nextState) {
+            setCurrentModel('gpt-5.4-mini');
+            window.electronAPI?.setModel?.('gpt-5.4-mini').catch((err: any) => {
+                console.error("Failed to switch proactive mode to GPT 5.4 Mini:", err);
+            });
+            window.electronAPI?.setReasoningEffort?.('low').catch((err: any) => {
+                console.error("Failed to switch proactive reasoning effort:", err);
+            });
+        }
+        window.electronAPI?.setProactiveMode?.(nextState).catch((err: any) => {
+            console.error("Failed to set proactive mode:", err);
+            setIsProactiveMode(!nextState);
+        });
+    };
+
+    const toggleUndetectableMode = () => {
+        const nextState = !isUndetectable;
+        setIsUndetectable(nextState);
+        window.electronAPI?.setUndetectable?.(nextState).catch((err: any) => {
+            console.error("Failed to set undetectable mode:", err);
+            setIsUndetectable(!nextState);
+        });
     };
 
     // Listen for default model changes from Settings
@@ -282,6 +716,15 @@ const NativelyInterface: React.FC<NativelyInterfaceProps> = ({ onEndMeeting, ove
         }
     }, []);
 
+    // Proactive coaching mode
+    useEffect(() => {
+        window.electronAPI?.getProactiveMode?.().then(setIsProactiveMode).catch(() => {});
+        const unsubscribe = window.electronAPI?.onProactiveModeChanged?.((enabled) => {
+            setIsProactiveMode(enabled);
+        });
+        return () => unsubscribe?.();
+    }, []);
+
     // Persist Settings
     useEffect(() => {
         localStorage.setItem('natively_undetectable', String(isUndetectable));
@@ -295,6 +738,12 @@ const NativelyInterface: React.FC<NativelyInterfaceProps> = ({ onEndMeeting, ove
         const unsub = window.electronAPI?.onOverlayMousePassthroughChanged?.((v) => setIsMousePassthrough(v));
         return () => unsub?.();
     }, []);
+
+    useEffect(() => {
+        if (!isProcessing) {
+            setProcessingStatus('');
+        }
+    }, [isProcessing]);
 
     // Auto-resize Window
     useLayoutEffect(() => {
@@ -372,12 +821,16 @@ const NativelyInterface: React.FC<NativelyInterfaceProps> = ({ onEndMeeting, ove
             window.electronAPI.showWindow(isStealthRef.current);
             isStealthRef.current = false; // Reset back to default
         } else {
-            // Slight delay to allow animation to clean up if needed, though immediate is safer for click-through
-            // Using setTimeout to ensure the render cycle completes first
-            // Increased to 400ms to allow "contract to bottom" exit animation to finish
-            setTimeout(() => window.electronAPI.hideWindow(), 400);
+            requestAnimationFrame(() => {
+                if (!contentRef.current) return;
+                const rect = contentRef.current.getBoundingClientRect();
+                window.electronAPI?.updateContentDimensions({
+                    width: Math.ceil(rect.width),
+                    height: Math.ceil(rect.height),
+                });
+            });
         }
-    }, [isExpanded]);
+    }, []);
 
     // Keyboard shortcut to toggle expanded state (via Main Process)
     useEffect(() => {
@@ -411,6 +864,13 @@ const NativelyInterface: React.FC<NativelyInterfaceProps> = ({ onEndMeeting, ove
             setAttachedContext([]);
             setManualTranscript('');
             setVoiceInput('');
+            rollingTranscriptFinalRef.current = '';
+            setRollingTranscript('');
+            setLiveTranscriptTurns([]);
+            speakerLabelsRef.current = {};
+            setSpeakerLabels({});
+            setEditingSpeakerKey(null);
+            setEditingSpeakerValue('');
             setIsProcessing(false);
             // Optionally reset connection status if needed, but connection persists
 
@@ -450,7 +910,7 @@ const NativelyInterface: React.FC<NativelyInterfaceProps> = ({ onEndMeeting, ove
         }));
 
         // Real-time Transcripts
-        cleanups.push(window.electronAPI.onNativeAudioTranscript((transcript) => {
+        cleanups.push(window.electronAPI.onNativeAudioTranscript((transcript: NativeAudioTranscriptPayload) => {
             // When Answer button is active, capture USER transcripts for voice input
             // Use ref to avoid stale closure issue
             if (isRecordingRef.current && transcript.speaker === 'user') {
@@ -471,24 +931,35 @@ const NativelyInterface: React.FC<NativelyInterfaceProps> = ({ onEndMeeting, ove
                 return;  // Don't add to messages while recording
             }
 
-            // Ignore user mic transcripts when not recording.
-            // External/system audio is what powers the live context bar.
-            if (transcript.speaker === 'user') {
-                return;  // Skip user mic input - only relevant when Answer button is active
-            }
-
-            if (transcript.speaker !== 'external') {
+            if (transcript.speaker !== 'external' && transcript.speaker !== 'user') {
                 return;  // Safety check for any other speaker types
             }
+
+            const speakerKey = getTranscriptSpeakerKey(transcript);
+            const speakerLabel = resolveTranscriptSpeakerLabel(transcript, speakerLabelsRef.current);
+            const transcriptLine = `${speakerLabel}: ${transcript.text}`;
+            const timestamp = transcript.timestamp || Date.now();
+
+            setLiveTranscriptTurns(prev => updateTranscriptTurns(prev, {
+                id: `${timestamp}-${speakerKey}-${Math.random().toString(36).slice(2, 6)}`,
+                speakerKey,
+                speakerLabel,
+                speakerIdentity: transcript.speakerIdentity || (transcript.speaker === 'external' ? 'other' : 'unknown'),
+                sourceSpeaker: transcript.sourceSpeaker || transcript.speaker,
+                text: transcript.text,
+                final: transcript.final,
+                timestamp
+            }));
 
             // Route to rolling transcript bar - accumulate text continuously
             setIsContextSpeaking(!transcript.final);
 
             if (transcript.final) {
                 // Append finalized text to accumulated transcript
-                setRollingTranscript(prev => {
-                    const separator = prev ? '  ·  ' : '';
-                    return prev + separator + transcript.text;
+                setRollingTranscript(() => {
+                    const next = appendRollingTranscript(rollingTranscriptFinalRef.current, transcriptLine);
+                    rollingTranscriptFinalRef.current = next;
+                    return next;
                 });
 
                 // Clear speaking indicator after pause
@@ -496,13 +967,9 @@ const NativelyInterface: React.FC<NativelyInterfaceProps> = ({ onEndMeeting, ove
                     setIsContextSpeaking(false);
                 }, 3000);
             } else {
-                // For partial transcripts, show current segment appended to accumulated
-                setRollingTranscript(prev => {
-                    // Find where previous finalized content ends (look for last separator)
-                    const lastSeparator = prev.lastIndexOf('  ·  ');
-                    const accumulated = lastSeparator >= 0 ? prev.substring(0, lastSeparator + 5) : '';
-                    return accumulated + transcript.text;
-                });
+                // For partial transcripts, append the current live segment to the
+                // finalized base without corrupting prior finalized lines.
+                setRollingTranscript(() => appendRollingTranscript(rollingTranscriptFinalRef.current, transcriptLine));
             }
         }));
 
@@ -778,7 +1245,7 @@ const NativelyInterface: React.FC<NativelyInterfaceProps> = ({ onEndMeeting, ove
 
 
         return () => cleanups.forEach(fn => fn());
-    }, [isExpanded]);
+    }, []);
 
     // Stable mount-only effect for clarify streaming listeners.
     // These MUST NOT be inside the [isExpanded] effect — if the user
@@ -906,6 +1373,7 @@ const NativelyInterface: React.FC<NativelyInterfaceProps> = ({ onEndMeeting, ove
     const handleWhatToSay = async () => {
         setIsExpanded(true);
         setIsProcessing(true);
+        setProcessingStatus('Drafting what to say...');
         analytics.trackCommandExecuted('what_to_say');
 
         // Capture and clear attached image context.
@@ -921,7 +1389,7 @@ const NativelyInterface: React.FC<NativelyInterfaceProps> = ({ onEndMeeting, ove
             setAttachedContext([]);
             // Show the attached image in chat
             setMessages(prev => [...prev, {
-                id: Date.now().toString(),
+                id: makeMessageId('user-screenshot'),
                 role: 'user',
                 text: 'What should I say about this?',
                 hasScreenshot: true,
@@ -935,93 +1403,186 @@ const NativelyInterface: React.FC<NativelyInterfaceProps> = ({ onEndMeeting, ove
 
         try {
             // Pass imagePath if attached
-            await window.electronAPI.generateWhatToSay(undefined, currentAttachments.length > 0 ? currentAttachments.map(s => s.path) : undefined);
+            const result = await window.electronAPI.generateWhatToSay(undefined, currentAttachments.length > 0 ? currentAttachments.map(s => s.path) : undefined);
+            if (!result?.answer) {
+                setMessages(prev => [...prev, {
+                    id: makeMessageId('what-to-say-empty'),
+                    role: 'system',
+                    text: currentAttachments.length > 0
+                        ? 'I could not generate a reply from that screenshot yet. Try again, or ask in the text box with one sentence of what you need.'
+                        : 'No fresh meeting context is available yet. Start listening, wait for transcript text to appear, or ask a direct question in the box.'
+                }]);
+            }
         } catch (err) {
             setMessages(prev => [...prev, {
-                id: Date.now().toString(),
+                id: makeMessageId('what-to-say-error'),
                 role: 'system',
                 text: `Error: ${err}`
             }]);
         } finally {
             setIsProcessing(false);
+            setProcessingStatus('');
+        }
+    };
+
+    const handleLiveHelp = async () => {
+        setIsExpanded(true);
+        setIsProcessing(true);
+        setProcessingStatus('Reading the room...');
+        analytics.trackCommandExecuted('live_help');
+
+        const pending = pendingCaptureRef.current;
+        let currentAttachments = attachedContext;
+        if (pending && !currentAttachments.some(s => s.path === pending.path)) {
+            currentAttachments = [...currentAttachments, pending].slice(-5);
+        }
+
+        if (currentAttachments.length === 0) {
+            const capture = await withFallbackTimeout<ScreenshotAttachment | null>(
+                window.electronAPI.takeContextScreenshot?.(),
+                900,
+                null
+            );
+            if (capture) {
+                currentAttachments = [capture];
+            }
+        }
+
+        if (currentAttachments.length > 0) {
+            setAttachedContext([]);
+        }
+
+        try {
+            const result = await window.electronAPI.generateWhatToSay(
+                'Help me answer the latest question or fill the silence with the most useful thing I can say now. Use the live transcript first and the current screen only when it adds useful context.',
+                currentAttachments.length > 0 ? currentAttachments.map(s => s.path) : undefined,
+                { force: true }
+            );
+            if (!result?.answer) {
+                setMessages(prev => [...prev, {
+                    id: makeMessageId('live-help-empty'),
+                    role: 'system',
+                    text: 'I need a little more live context. Let the transcript run for a few seconds, or ask one sentence in the box.'
+                }]);
+            }
+        } catch (err) {
+            setMessages(prev => [...prev, {
+                id: makeMessageId('live-help-error'),
+                role: 'system',
+                text: `Error: ${err}`
+            }]);
+        } finally {
+            setIsProcessing(false);
+            setProcessingStatus('');
         }
     };
 
     const handleFollowUp = async (intent: string = 'rephrase') => {
         setIsExpanded(true);
         setIsProcessing(true);
+        setProcessingStatus('Refining the last answer...');
         analytics.trackCommandExecuted('follow_up_' + intent);
 
         try {
-            await window.electronAPI.generateFollowUp(intent);
+            const result = await window.electronAPI.generateFollowUp(intent);
+            if (!result?.refined) {
+                setMessages(prev => [...prev, {
+                    id: makeMessageId('follow-up-empty'),
+                    role: 'system',
+                    text: 'There is not a previous Natively answer to refine yet.'
+                }]);
+            }
         } catch (err) {
             setMessages(prev => [...prev, {
-                id: Date.now().toString(),
+                id: makeMessageId('follow-up-error'),
                 role: 'system',
                 text: `Error: ${err}`
             }]);
         } finally {
             setIsProcessing(false);
+            setProcessingStatus('');
         }
     };
 
     const handleRecap = async () => {
         setIsExpanded(true);
         setIsProcessing(true);
+        setProcessingStatus('Summarizing live context...');
         analytics.trackCommandExecuted('recap');
 
         try {
-            await window.electronAPI.generateRecap();
+            const result = await window.electronAPI.generateRecap();
+            if (!result?.summary) {
+                setMessages(prev => [...prev, {
+                    id: makeMessageId('recap-empty'),
+                    role: 'system',
+                    text: 'There is not enough live transcript context to summarize yet.'
+                }]);
+            }
         } catch (err) {
             setMessages(prev => [...prev, {
-                id: Date.now().toString(),
+                id: makeMessageId('recap-error'),
                 role: 'system',
                 text: `Error: ${err}`
             }]);
         } finally {
             setIsProcessing(false);
+            setProcessingStatus('');
         }
     };
 
     const handleFollowUpQuestions = async () => {
         setIsExpanded(true);
         setIsProcessing(true);
+        setProcessingStatus('Finding useful follow-up questions...');
         analytics.trackCommandExecuted('suggest_questions');
 
         try {
-            await window.electronAPI.generateFollowUpQuestions();
+            const result = await window.electronAPI.generateFollowUpQuestions();
+            if (!result?.questions) {
+                setMessages(prev => [...prev, {
+                    id: makeMessageId('follow-up-questions-empty'),
+                    role: 'system',
+                    text: 'No meeting context has landed yet, so there are no useful follow-up questions to suggest.'
+                }]);
+            }
         } catch (err) {
             setMessages(prev => [...prev, {
-                id: Date.now().toString(),
+                id: makeMessageId('follow-up-questions-error'),
                 role: 'system',
                 text: `Error: ${err}`
             }]);
         } finally {
             setIsProcessing(false);
+            setProcessingStatus('');
         }
     };
 
     const handleClarify = async () => {
         setIsExpanded(true);
         setIsProcessing(true);
+        setProcessingStatus('Preparing a clarifying question...');
         analytics.trackCommandExecuted('clarify');
 
         try {
-            await window.electronAPI.generateClarify();
+            const result = await window.electronAPI.generateClarify();
+            void result;
         } catch (err) {
             setMessages(prev => [...prev, {
-                id: Date.now().toString(),
+                id: makeMessageId('clarify-error'),
                 role: 'system',
                 text: `Error: ${err}`
             }]);
         } finally {
             setIsProcessing(false);
+            setProcessingStatus('');
         }
     };
 
     const handleCodeHint = async () => {
         setIsExpanded(true);
         setIsProcessing(true);
+        setProcessingStatus('Looking at code context...');
         analytics.trackCommandExecuted('code_hint');
 
         const currentAttachments = attachedContext;
@@ -1029,7 +1590,7 @@ const NativelyInterface: React.FC<NativelyInterfaceProps> = ({ onEndMeeting, ove
             setAttachedContext([]);
             // Show the attached image in chat
             setMessages(prev => [...prev, {
-                id: Date.now().toString(),
+                id: makeMessageId('code-hint-user'),
                 role: 'user',
                 text: 'Give me a code hint for this',
                 hasScreenshot: true,
@@ -1042,21 +1603,30 @@ const NativelyInterface: React.FC<NativelyInterfaceProps> = ({ onEndMeeting, ove
         }
 
         try {
-            await window.electronAPI.generateCodeHint(currentAttachments.length > 0 ? currentAttachments.map(s => s.path) : undefined);
+            const result = await window.electronAPI.generateCodeHint(currentAttachments.length > 0 ? currentAttachments.map(s => s.path) : undefined);
+            if (!result?.hint) {
+                setMessages(prev => [...prev, {
+                    id: makeMessageId('code-hint-empty'),
+                    role: 'system',
+                    text: 'I could not generate a code hint from the available screen or transcript context.'
+                }]);
+            }
         } catch (err) {
             setMessages(prev => [...prev, {
-                id: Date.now().toString(),
+                id: makeMessageId('code-hint-error'),
                 role: 'system',
                 text: `Error: ${err}`
             }]);
         } finally {
             setIsProcessing(false);
+            setProcessingStatus('');
         }
     };
 
     const handleBrainstorm = async () => {
         setIsExpanded(true);
         setIsProcessing(true);
+        setProcessingStatus('Exploring options...');
         analytics.trackCommandExecuted('brainstorm');
 
         const currentAttachments = attachedContext;
@@ -1064,7 +1634,7 @@ const NativelyInterface: React.FC<NativelyInterfaceProps> = ({ onEndMeeting, ove
             setAttachedContext([]);
             // Show the attached image in chat
             setMessages(prev => [...prev, {
-                id: Date.now().toString(),
+                id: makeMessageId('brainstorm-user'),
                 role: 'user',
                 text: 'Brainstorm with this context',
                 hasScreenshot: true,
@@ -1077,15 +1647,23 @@ const NativelyInterface: React.FC<NativelyInterfaceProps> = ({ onEndMeeting, ove
         }
 
         try {
-            await window.electronAPI.generateBrainstorm(currentAttachments.length > 0 ? currentAttachments.map(s => s.path) : undefined);
+            const result = await window.electronAPI.generateBrainstorm(currentAttachments.length > 0 ? currentAttachments.map(s => s.path) : undefined);
+            if (!result?.script) {
+                setMessages(prev => [...prev, {
+                    id: makeMessageId('brainstorm-empty'),
+                    role: 'system',
+                    text: 'I could not explore options yet because there is not enough screen or transcript context.'
+                }]);
+            }
         } catch (err) {
             setMessages(prev => [...prev, {
-                id: Date.now().toString(),
+                id: makeMessageId('brainstorm-error'),
                 role: 'system',
                 text: `Error: ${err}`
             }]);
         } finally {
             setIsProcessing(false);
+            setProcessingStatus('');
         }
     };
 
@@ -1345,13 +1923,15 @@ const NativelyInterface: React.FC<NativelyInterfaceProps> = ({ onEndMeeting, ove
 
     const handleAnswerNow = async () => {
         if (isManualRecording) {
-            // Stop recording - send accumulated voice input to Gemini
-            isRecordingRef.current = false;  // Update ref immediately
-            setIsManualRecording(false);
-            setManualTranscript('');  // Clear live preview
+            // Ask the STT provider to flush before we close the capture window.
+            // Some providers emit the final segment shortly after finalize().
+            await window.electronAPI.finalizeMicSTT().catch(err => console.error('[NativelyInterface] Failed to send finalizeMicSTT:', err));
+            await new Promise(resolve => setTimeout(resolve, 350));
 
-            // Send manual finalization signal to STT Providers
-            window.electronAPI.finalizeMicSTT().catch(err => console.error('[NativelyInterface] Failed to send finalizeMicSTT:', err));
+            isRecordingRef.current = false;
+            setIsManualRecording(false);
+            setManualTranscript('');
+            window.electronAPI.stopMicSTT?.().catch(err => console.error('[NativelyInterface] Failed to stop mic STT:', err));
 
             let currentAttachments = attachedContext;
             setAttachedContext([]); // Clear context immediately on send
@@ -1367,11 +1947,7 @@ const NativelyInterface: React.FC<NativelyInterfaceProps> = ({ onEndMeeting, ove
 
             if (!question && currentAttachments.length === 0) {
                 // No voice input and no image
-                setMessages(prev => [...prev, {
-                    id: Date.now().toString(),
-                    role: 'system',
-                    text: '⚠️ No speech detected. Try speaking closer to your microphone.'
-                }]);
+                pushNoSpeechWarning();
                 return;
             }
 
@@ -1425,13 +2001,20 @@ Instructions:
                     }
                 } else {
                     // JIT RAG pre-flight: try to use indexed meeting context first
-                    const ragResult = await window.electronAPI.ragQueryLive?.(question);
+                    setProcessingStatus('Checking prepared meeting context...');
+                    const ragResult = await withFallbackTimeout(
+                        window.electronAPI.ragQueryLive?.(question),
+                        RAG_PREFLIGHT_TIMEOUT_MS,
+                        { fallback: true },
+                        () => window.electronAPI.ragCancelQuery?.({ live: true }).catch(() => {})
+                    );
                     if (ragResult?.success) {
                         // JIT RAG handled it — response streamed via rag:stream-chunk events
                         return;
                     }
 
                     // Voice Only (Smart Extract) — fallback
+                    setProcessingStatus(`Asking ${getDisplayModelName(currentModel) || 'the selected model'}...`);
                     prompt = `You are a real-time meeting coach. The user just repeated or paraphrased a question from the live conversation.
 Instructions:
 1. Extract the core question being asked
@@ -1468,20 +2051,24 @@ Provide only the answer, nothing else.`;
                 });
             }
         } else {
-            // Start recording - reset voice input state
             setVoiceInput('');
             voiceInputRef.current = '';
             setManualTranscript('');
-            isRecordingRef.current = true;  // Update ref immediately
-            setIsManualRecording(true);
-
-
-            // Ensure native audio is connected
             try {
-                // Native audio is now managed by main process
-                // await window.electronAPI.invoke('native-audio-connect');
+                const result = await window.electronAPI.startMicSTT?.();
+                if (result && result.success === false) {
+                    throw new Error(result.error || 'Unable to start microphone capture.');
+                }
+                isRecordingRef.current = true;
+                setIsManualRecording(true);
             } catch (err) {
-                // Already connected, that's fine
+                isRecordingRef.current = false;
+                setIsManualRecording(false);
+                setMessages(prev => [...prev, {
+                    id: Date.now().toString(),
+                    role: 'system',
+                    text: `⚠️ Microphone did not start: ${err instanceof Error ? err.message : String(err)}`
+                }]);
             }
         }
     };
@@ -1512,21 +2099,27 @@ Provide only the answer, nothing else.`;
             messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
         }, 50);
 
-        // Add placeholder for streaming response
-        setMessages(prev => [...prev, {
-            id: Date.now().toString(),
-            role: 'system',
-            text: '',
+            // Add placeholder for streaming response
+            setMessages(prev => [...prev, {
+                id: Date.now().toString(),
+                role: 'system',
+                text: '',
             isStreaming: true
         }]);
 
         setIsExpanded(true);
         setIsProcessing(true);
+        setProcessingStatus('Checking prepared meeting context...');
 
         try {
             // JIT RAG pre-flight: try to use indexed meeting context first
             if (currentAttachments.length === 0) {
-                const ragResult = await window.electronAPI.ragQueryLive?.(userText || '');
+                const ragResult = await withFallbackTimeout(
+                    window.electronAPI.ragQueryLive?.(userText || ''),
+                    RAG_PREFLIGHT_TIMEOUT_MS,
+                    { fallback: true },
+                    () => window.electronAPI.ragCancelQuery?.({ live: true }).catch(() => {})
+                );
                 if (ragResult?.success) {
                     // JIT RAG handled it — response streamed via rag:stream-chunk events
                     return;
@@ -1535,6 +2128,7 @@ Provide only the answer, nothing else.`;
 
             // Pass imagePath if attached, AND conversation context
             requestStartTimeRef.current = Date.now();
+            setProcessingStatus(`Asking ${getDisplayModelName(currentModel) || 'the selected model'}...`);
             await window.electronAPI.streamGeminiChat(
                 userText || 'Analyze this screenshot',
                 currentAttachments.length > 0 ? currentAttachments.map(s => s.path) : undefined,
@@ -2089,6 +2683,7 @@ Provide only the answer, nothing else.`;
     const handlersRef = useRef({
         handleWhatToSay,
         handleFollowUp,
+        handleLiveHelp,
         handleFollowUpQuestions,
         handleRecap,
         handleAnswerNow,
@@ -2101,6 +2696,7 @@ Provide only the answer, nothing else.`;
     handlersRef.current = {
         handleWhatToSay,
         handleFollowUp,
+        handleLiveHelp,
         handleFollowUpQuestions,
         handleRecap,
         handleAnswerNow,
@@ -2111,7 +2707,7 @@ Provide only the answer, nothing else.`;
 
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
-            const { handleWhatToSay, handleFollowUp, handleFollowUpQuestions, handleRecap, handleAnswerNow, handleClarify, handleCodeHint, handleBrainstorm } = handlersRef.current;
+            const { handleWhatToSay, handleLiveHelp, handleRecap, handleAnswerNow, handleClarify, handleCodeHint, handleBrainstorm } = handlersRef.current;
 
             // Chat Shortcuts (Scope: Local to Chat/Overlay usually, but we allow them here if focused)
             if (isShortcutPressed(e, 'whatToAnswer')) {
@@ -2122,7 +2718,7 @@ Provide only the answer, nothing else.`;
                 handleClarify();
             } else if (isShortcutPressed(e, 'followUp')) {
                 e.preventDefault();
-                handleFollowUpQuestions();
+                handleLiveHelp();
             } else if (isShortcutPressed(e, 'dynamicAction4')) {
                 e.preventDefault();
                 if (actionButtonMode === 'brainstorm') {
@@ -2331,7 +2927,7 @@ Provide only the answer, nothing else.`;
 
             if (action === 'whatToAnswer') handlers.handleWhatToSay();
             else if (action === 'shorten') handlers.handleFollowUp('shorten');
-            else if (action === 'followUp') handlers.handleFollowUpQuestions();
+            else if (action === 'followUp') handlers.handleLiveHelp();
             else if (action === 'recap') handlers.handleRecap();
             else if (action === 'dynamicAction4') {
                 if (actionButtonMode === 'brainstorm') handlers.handleBrainstorm();
@@ -2352,8 +2948,42 @@ Provide only the answer, nothing else.`;
         return unsubscribe;
     }, []);
 
+    const readinessChipTargets = [
+        { id: 'microphone', label: 'Mic' },
+        { id: 'meeting_audio', label: 'Audio' },
+        { id: 'prep', label: 'Prep' },
+        { id: 'coach', label: 'Coach' },
+    ];
+    const readinessChipClass = (status?: RuntimeCheckStatus) => {
+        if (status === 'ready') {
+            return isLightTheme
+                ? 'border-emerald-500/25 bg-emerald-500/10 text-emerald-700'
+                : 'border-emerald-400/25 bg-emerald-400/10 text-emerald-300';
+        }
+        if (status === 'warming') {
+            return isLightTheme
+                ? 'border-sky-500/25 bg-sky-500/10 text-sky-700'
+                : 'border-sky-400/25 bg-sky-400/10 text-sky-300';
+        }
+        if (status === 'failed') {
+            return isLightTheme
+                ? 'border-red-500/25 bg-red-500/10 text-red-700'
+                : 'border-red-400/25 bg-red-400/10 text-red-300';
+        }
+        return isLightTheme
+            ? 'border-amber-500/25 bg-amber-500/10 text-amber-700'
+            : 'border-amber-400/25 bg-amber-400/10 text-amber-300';
+    };
+
     return (
         <div ref={contentRef} className="flex flex-col items-center w-fit mx-auto h-fit min-h-0 bg-transparent p-0 rounded-[24px] font-sans gap-2 overlay-text-primary">
+            <TopPill
+                expanded={isExpanded}
+                onToggle={() => setIsExpanded(!isExpanded)}
+                onQuit={() => onEndMeeting ? onEndMeeting() : window.electronAPI.quitApp()}
+                appearance={appearance}
+                onLogoClick={() => window.electronAPI?.setWindowMode?.('launcher')}
+            />
 
             <AnimatePresence>
                 {isExpanded && (
@@ -2364,13 +2994,6 @@ Provide only the answer, nothing else.`;
                         transition={{ duration: 0.3, ease: "easeInOut" }}
                         className="flex flex-col items-center gap-2 w-full"
                     >
-                        <TopPill
-                            expanded={isExpanded}
-                            onToggle={() => setIsExpanded(!isExpanded)}
-                            onQuit={() => onEndMeeting ? onEndMeeting() : window.electronAPI.quitApp()}
-                            appearance={appearance}
-                            onLogoClick={() => window.electronAPI?.setWindowMode?.('launcher')}
-                        />
                         <div
                             className={`relative w-[600px] max-w-full backdrop-blur-2xl border rounded-[24px] overflow-hidden flex flex-col overlay-shell-surface ${overlayPanelClass}`}
                             style={appearance.shellStyle}
@@ -2391,7 +3014,11 @@ Provide only the answer, nothing else.`;
                             {/* Chat History - Only show if there are messages OR active states */}
                             {(messages.length > 0 || isManualRecording || isProcessing) && (
                                 <div ref={scrollContainerRef} className="flex-1 overflow-y-auto p-4 space-y-3 max-h-[clamp(300px,35vh,450px)] no-drag" style={{ scrollbarWidth: 'none' }}>
-                                    {messages.map((msg) => (
+                                    {messages.map((msg) => {
+                                        const messageCreatedAt = resolveMessageCreatedAt(msg, relativeAgeNow);
+                                        const messageAge = formatRelativeAge(messageCreatedAt, relativeAgeNow);
+                                        const isStaleMessage = relativeAgeNow - messageCreatedAt > 2 * 60 * 1000;
+                                        return (
                                         <div key={msg.id} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'} animate-fade-in-up`}>
                                             <div className={`
                       ${msg.role === 'user' ? 'max-w-[72.25%] px-[13.6px] py-[10.2px]' : 'max-w-[85%] px-4 py-3'} text-[14px] leading-relaxed relative group whitespace-pre-wrap
@@ -2405,17 +3032,18 @@ Provide only the answer, nothing else.`;
                                                     ? 'overlay-text-primary font-normal'
                                                     : ''
                                                 }
-                      ${msg.role === 'external'
+                                                  ${msg.role === 'external'
                                                     ? 'overlay-text-muted italic pl-0 text-[13px]'
                                                     : ''
                                                 }
                     `}>
-                                                {msg.role === 'external' && (
-                                                    <div className="flex items-center gap-1.5 mb-1 text-[10px] font-medium uppercase tracking-wider overlay-text-muted">
-                                                        Context
+                                                <div className={`mb-1 flex items-center justify-between gap-3 text-[10px] font-medium uppercase tracking-wider ${msg.role === 'user' ? (isLightTheme ? 'text-blue-900/55' : 'text-blue-100/60') : 'overlay-text-muted'}`}>
+                                                    <span className="inline-flex items-center gap-1.5">
+                                                        {getMessageLabel(msg)}
                                                         {msg.isStreaming && <span className="w-1 h-1 bg-green-500 rounded-full animate-pulse" />}
-                                                    </div>
-                                                )}
+                                                    </span>
+                                                    <span className={isStaleMessage ? 'text-amber-400/90' : ''}>{messageAge}</span>
+                                                </div>
                                                 {msg.role === 'user' && msg.hasScreenshot && (
                                                     <div className={`flex items-center gap-1 text-[10px] opacity-70 mb-1 border-b pb-1 ${isLightTheme ? 'border-black/10' : 'border-white/10'}`}>
                                                         <Image className="w-2.5 h-2.5" />
@@ -2426,7 +3054,8 @@ Provide only the answer, nothing else.`;
                                                 {renderMessageText(msg)}
                                             </div>
                                         </div>
-                                    ))}
+                                        );
+                                    })}
 
                                     {/* Active Recording State with Live Transcription */}
                                     {isManualRecording && (
@@ -2450,14 +3079,89 @@ Provide only the answer, nothing else.`;
 
                                     {isProcessing && (
                                         <div className="flex justify-start">
-                                            <div className="px-3 py-2 flex gap-1.5">
-                                                <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                                                <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                                                <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                                            <div className="px-3 py-2 flex items-center gap-2 overlay-text-muted">
+                                                <div className="flex gap-1.5">
+                                                    <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                                                    <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                                                    <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                                                </div>
+                                                <span className="text-[11px]">
+                                                    {processingStatus || `Asking ${getDisplayModelName(currentModel) || 'the selected model'}...`}
+                                                </span>
                                             </div>
                                         </div>
                                     )}
                                     <div ref={messagesEndRef} />
+                                </div>
+                            )}
+
+                            {recentSpeakerChips.length > 0 && (
+                                <div className="flex items-center gap-1.5 px-4 pt-2 pb-1 overflow-x-auto no-drag">
+                                    {recentSpeakerChips.map((turn) => {
+                                        const isEditing = editingSpeakerKey === turn.speakerKey;
+                                        const isAssigned = Boolean(speakerLabels[turn.speakerKey]);
+                                        const identityTint =
+                                            turn.speakerIdentity === 'self'
+                                                ? (isLightTheme ? 'text-blue-700 border-blue-500/25 bg-blue-500/10' : 'text-blue-200 border-blue-400/25 bg-blue-400/10')
+                                                : turn.speakerIdentity === 'other'
+                                                    ? (isLightTheme ? 'text-emerald-700 border-emerald-500/25 bg-emerald-500/10' : 'text-emerald-200 border-emerald-400/25 bg-emerald-400/10')
+                                                    : (isLightTheme ? 'text-slate-700 border-slate-300 bg-slate-100/70' : 'text-slate-200 border-white/15 bg-white/10');
+
+                                        if (isEditing) {
+                                            return (
+                                                <div key={turn.speakerKey} className={`flex items-center gap-1 rounded-full border px-2 py-1 ${identityTint}`}>
+                                                    <input
+                                                        value={editingSpeakerValue}
+                                                        onChange={(event) => setEditingSpeakerValue(event.target.value)}
+                                                        onKeyDown={(event) => {
+                                                            if (event.key === 'Enter') {
+                                                                event.preventDefault();
+                                                                saveSpeakerLabel(turn.speakerKey, editingSpeakerValue);
+                                                            }
+                                                            if (event.key === 'Escape') {
+                                                                event.preventDefault();
+                                                                cancelSpeakerLabelEdit();
+                                                            }
+                                                        }}
+                                                        placeholder="Name"
+                                                        autoFocus
+                                                        className="w-20 bg-transparent text-[11px] font-semibold outline-none placeholder:opacity-50"
+                                                    />
+                                                    <button
+                                                        onClick={() => saveSpeakerLabel(turn.speakerKey, editingSpeakerValue)}
+                                                        className="rounded-full p-0.5 hover:bg-white/10"
+                                                        title="Save speaker label"
+                                                    >
+                                                        <Check className="w-3 h-3" />
+                                                    </button>
+                                                    <button
+                                                        onClick={cancelSpeakerLabelEdit}
+                                                        className="rounded-full p-0.5 hover:bg-white/10"
+                                                        title="Cancel"
+                                                    >
+                                                        <X className="w-3 h-3" />
+                                                    </button>
+                                                </div>
+                                            );
+                                        }
+
+                                        return (
+                                            <button
+                                                key={turn.speakerKey}
+                                                onClick={() => beginSpeakerLabelEdit(turn)}
+                                                className={`flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-semibold transition-all hover:scale-[1.02] ${identityTint}`}
+                                                title={isAssigned ? 'Rename this speaker for this meeting' : 'Name this speaker for this meeting'}
+                                            >
+                                                <Mic className="w-3 h-3 opacity-70" />
+                                                <span>{turn.speakerLabel}</span>
+                                                {speakerLabelSavingKey === turn.speakerKey ? (
+                                                    <RefreshCw className="w-3 h-3 animate-spin opacity-70" />
+                                                ) : (
+                                                    <Edit3 className="w-3 h-3 opacity-50" />
+                                                )}
+                                            </button>
+                                        );
+                                    })}
                                 </div>
                             )}
 
@@ -2475,8 +3179,8 @@ Provide only the answer, nothing else.`;
                                         : <><RefreshCw className="w-3 h-3 opacity-70" /> Summarize</>
                                     }
                                 </button>
-                                <button onClick={handleFollowUpQuestions} className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-medium border transition-all active:scale-95 duration-200 interaction-base interaction-press whitespace-nowrap shrink-0 ${quickActionClass}`} style={appearance.chipStyle}>
-                                    <HelpCircle className="w-3 h-3 opacity-70" /> Suggest Follow-Up
+                                <button onClick={handleLiveHelp} className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-medium border transition-all active:scale-95 duration-200 interaction-base interaction-press whitespace-nowrap shrink-0 ${quickActionClass}`} style={appearance.chipStyle}>
+                                    <HelpCircle className="w-3 h-3 opacity-70" /> Help
                                 </button>
                                 <button
                                     onClick={handleAnswerNow}
@@ -2537,13 +3241,40 @@ Provide only the answer, nothing else.`;
                                     </div>
                                 )}
 
+                                {meetingReadiness && (
+                                    <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
+                                        {readinessChipTargets.map((target) => {
+                                            const check = meetingReadiness.checks?.find((item) => item.id === target.id);
+                                            return (
+                                                <div
+                                                    key={target.id}
+                                                    className={`inline-flex items-center gap-1.5 rounded-lg border px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] ${readinessChipClass(check?.status)}`}
+                                                    title={check?.detail || target.label}
+                                                >
+                                                    <span className={`h-1.5 w-1.5 rounded-full ${check?.status === 'ready' ? 'bg-emerald-400' : check?.status === 'failed' ? 'bg-red-400' : check?.status === 'warming' ? 'bg-sky-400 animate-pulse' : 'bg-amber-400'}`} />
+                                                    <span>{target.label}</span>
+                                                    <span className="opacity-75">{compactReadinessLabel(check?.status)}</span>
+                                                </div>
+                                            );
+                                        })}
+                                        <span className="ml-auto text-[10px] overlay-text-muted whitespace-nowrap">
+                                            {formatReadinessAge(meetingReadiness.generatedAt)}
+                                        </span>
+                                    </div>
+                                )}
+
                                 <div className="relative group">
                                     <input
                                         ref={textInputRef}
                                         type="text"
                                         value={inputValue}
                                         onChange={(e) => setInputValue(e.target.value)}
-                                        onKeyDown={(e) => e.key === 'Enter' && handleManualSubmit()}
+                                        onKeyDown={(e) => {
+                                            if (e.key === 'Enter' && !e.shiftKey) {
+                                                e.preventDefault();
+                                                void handleManualSubmit();
+                                            }
+                                        }}
 
                                         className={`w-full border focus:ring-1 rounded-xl pl-3 pr-10 py-2.5 focus:outline-none transition-all duration-200 ease-sculpted text-[13px] leading-relaxed ${inputClass}`}
                                         style={appearance.inputStyle}
@@ -2578,13 +3309,11 @@ Provide only the answer, nothing else.`;
                                         <button
                                             onClick={(e) => {
                                                 // Calculate position for detached window
-                                                if (!contentRef.current) return;
-                                                const contentRect = contentRef.current.getBoundingClientRect();
                                                 const buttonRect = e.currentTarget.getBoundingClientRect();
                                                 const GAP = 8;
 
                                                 const x = window.screenX + buttonRect.left;
-                                                const y = window.screenY + contentRect.bottom + GAP;
+                                                const y = window.screenY + buttonRect.bottom + GAP;
 
                                                 window.electronAPI.toggleModelSelector({ x, y });
                                             }}
@@ -2602,6 +3331,27 @@ Provide only the answer, nothing else.`;
                                             </span>
                                             <ChevronDown size={14} className="shrink-0 transition-transform" />
                                         </button>
+
+                                        <div className="w-px h-3 mx-1" style={appearance.dividerStyle} />
+
+                                        {/* Dashboard Button */}
+                                        <div className="relative">
+                                            <button
+                                                onClick={() => window.electronAPI?.setWindowMode?.('launcher')}
+                                                className={`
+                                                    flex items-center gap-1.5 px-2.5 py-1.5
+                                                    border rounded-lg transition-colors
+                                                    text-xs font-medium
+                                                    interaction-base interaction-press
+                                                    ${controlSurfaceClass}
+                                                `}
+                                                style={appearance.controlStyle}
+                                                title="Open Natively dashboard"
+                                            >
+                                                <LayoutDashboard className="w-3.5 h-3.5 shrink-0" />
+                                                <span>Dashboard</span>
+                                            </button>
+                                        </div>
 
                                         <div className="w-px h-3 mx-1" style={appearance.dividerStyle} />
 
@@ -2646,6 +3396,66 @@ Provide only the answer, nothing else.`;
 
                                         <div className="w-px h-3 mx-1" style={appearance.dividerStyle} />
 
+                                        {/* Theme Toggle */}
+                                        <div className="relative">
+                                            <button
+                                                onClick={toggleThemeMode}
+                                                className="
+                                                    w-7 h-7 flex items-center justify-center rounded-lg
+                                                    interaction-base interaction-press
+                                                    overlay-icon-surface overlay-icon-surface-hover overlay-text-interactive
+                                                "
+                                                style={appearance.iconStyle}
+                                                title={isLightTheme ? 'Switch to dark mode' : 'Switch to light mode'}
+                                            >
+                                                {isLightTheme
+                                                    ? <Moon className="w-3.5 h-3.5" />
+                                                    : <Sun className="w-3.5 h-3.5" />}
+                                            </button>
+                                        </div>
+
+                                        {/* Proactive Coaching Toggle */}
+                                        <div className="relative">
+                                            <button
+                                                onClick={toggleProactiveMode}
+                                                className={`
+                                                    w-7 h-7 flex items-center justify-center rounded-lg
+                                                    interaction-base interaction-press
+                                                    overlay-icon-surface overlay-icon-surface-hover
+                                                    ${isProactiveMode ? 'text-emerald-500 opacity-100' : 'overlay-text-interactive'}
+                                                `}
+                                                style={{
+                                                    ...appearance.iconStyle,
+                                                    ...(isProactiveMode ? { boxShadow: isLightTheme ? '0 0 0 1px rgba(16, 185, 129, 0.35)' : '0 0 0 1px rgba(52, 211, 153, 0.35)' } : {})
+                                                }}
+                                                title={isProactiveMode ? 'Proactive meeting coaching is on' : 'Turn on proactive meeting coaching'}
+                                            >
+                                                <Radio className="w-3.5 h-3.5" />
+                                            </button>
+                                        </div>
+
+                                        {/* Undetectable Toggle */}
+                                        <div className="relative">
+                                            <button
+                                                onClick={toggleUndetectableMode}
+                                                className={`
+                                                    w-7 h-7 flex items-center justify-center rounded-lg
+                                                    interaction-base interaction-press
+                                                    overlay-icon-surface overlay-icon-surface-hover
+                                                    ${isUndetectable ? 'text-cyan-500 opacity-100' : 'overlay-text-interactive'}
+                                                `}
+                                                style={{
+                                                    ...appearance.iconStyle,
+                                                    ...(isUndetectable ? { boxShadow: isLightTheme ? '0 0 0 1px rgba(6, 182, 212, 0.34)' : '0 0 0 1px rgba(34, 211, 238, 0.35)' } : {})
+                                                }}
+                                                title={isUndetectable ? 'Screen-share hiding is on' : 'Hide Natively from screen captures'}
+                                            >
+                                                <Ghost className="w-3.5 h-3.5" />
+                                            </button>
+                                        </div>
+
+                                        <div className="w-px h-3 mx-1" style={appearance.dividerStyle} />
+
                                         {/* Mouse Passthrough Toggle */}
                                         <div className="relative">
                                             <button
@@ -2672,16 +3482,16 @@ Provide only the answer, nothing else.`;
 
                                     <button
                                         onClick={handleManualSubmit}
-                                        disabled={!inputValue.trim()}
+                                        disabled={!inputValue.trim() && attachedContext.length === 0}
                                     className={`
                                     w-7 h-7 rounded-full flex items-center justify-center
                                     interaction-base interaction-press
-                                    ${inputValue.trim()
+                                    ${inputValue.trim() || attachedContext.length > 0
                                                 ? 'bg-[#007AFF] text-white shadow-lg shadow-blue-500/20 hover:bg-[#0071E3]'
                                                 : 'overlay-icon-surface overlay-text-muted cursor-not-allowed'
                                             }
                                 `}
-                                    style={inputValue.trim() ? undefined : appearance.iconStyle}
+                                    style={inputValue.trim() || attachedContext.length > 0 ? undefined : appearance.iconStyle}
                                     >
                                         <ArrowRight className="w-3.5 h-3.5" />
                                     </button>

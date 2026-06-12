@@ -20,6 +20,9 @@ earlyTrace(`module-load packaged=${String(app?.isPackaged)} nodeEnv=${process.en
 // This fork currently ships via local installers, not a managed release feed.
 // Keep in-app auto-updates disabled unless a real update channel is configured.
 const AUTO_UPDATES_ENABLED = process.env.NATIVELY_ENABLE_AUTO_UPDATES === '1';
+const AUTONOMOUS_OPS_ENABLED = process.env.NATIVELY_ENABLE_AUTONOMOUS_OPS === '1';
+const CONTEXT_STACK_BOOTSTRAP_ENABLED = process.env.NATIVELY_BOOTSTRAP_CONTEXT_STACK === '1';
+const STARTUP_MEETING_RECOVERY_ENABLED = process.env.NATIVELY_ENABLE_STARTUP_MEETING_RECOVERY === '1';
 
 const isDevelopmentElectronApp = !app.isPackaged && process.env.NODE_ENV === 'development';
 
@@ -211,6 +214,17 @@ type STTProvider = (GoogleSTT | RestSTT | DeepgramStreamingSTT | SonioxStreaming
   notifySpeechEnded?: () => void;
 };
 
+type TranscriptSpeakerIdentity = "self" | "other" | "unknown";
+
+type STTTranscriptSegment = {
+  text: string;
+  isFinal: boolean;
+  confidence: number;
+  diarizedSpeaker?: string | number | null;
+  speakerId?: string | number | null;
+  speakerLabel?: string | null;
+};
+
 type ScreenshotWindowMode = 'launcher' | 'overlay';
 type ScreenshotCaptureKind = 'full' | 'selective';
 
@@ -245,6 +259,7 @@ import { ContextRetrievalBroker } from "./context"
 import { SemanticaBridgeService } from "./services/SemanticaBridgeService"
 import { SemanticaMeetingIndexer } from "./services/SemanticaMeetingIndexer"
 import { AutonomousOpsService } from "./autonomy"
+import { RealtimeReflexPipeline } from "./services/RealtimeReflexPipeline"
 
 export class AppState {
   private static instance: AppState | null = null
@@ -261,6 +276,7 @@ export class AppState {
   private themeManager: ThemeManager
   private ragManager: RAGManager | null = null
   private knowledgeOrchestrator: any = null
+  private readonly reflexPipeline = new RealtimeReflexPipeline()
   private tray: Tray | null = null
   private updateAvailable: boolean = false
   private disguiseMode: 'terminal' | 'settings' | 'activity' | 'none' = 'none'
@@ -287,6 +303,38 @@ export class AppState {
   private _ollamaBootstrapPromise: Promise<void> | null = null;
   private _semanticaBootstrapPromise: Promise<void> | null = null;
   private screenshotCaptureInProgress: boolean = false;
+  private lastProactiveSuggestionAt: number = 0;
+  private lastProactiveSuggestionSignature: string | null = null;
+  private lastProactiveSuggestionKey: string | null = null;
+  private lastProactiveSuggestionKeyAt: number = 0;
+  private lastWakeWordVoiceAskAt: number = 0;
+  private lastWakeWordVoiceAskSignature: string | null = null;
+  private readonly proactiveSuggestionCooldownMs: number = 18_000;
+  private readonly aggressiveProactiveSuggestionCooldownMs: number = 5_000;
+  private readonly wakeWordVoiceAskCooldownMs: number = 4_000;
+  private proactiveModeEnabled: boolean = false;
+  private proactiveStartedContinuousOcr: boolean = false;
+  private meetingPrepInterval: NodeJS.Timeout | null = null;
+  private meetingPrepInFlight: boolean = false;
+  private readinessEventsCache: any[] = [];
+  private readinessEventsCachedAt: number = 0;
+  private meetingStartedAt: number = 0;
+  private audioPipelineStartedAt: number = 0;
+  private lastAudioPipelineError: string | null = null;
+  private lastSystemAudioChunkAt: number = 0;
+  private systemAudioChunkCount: number = 0;
+  private systemAudioBytes: number = 0;
+  private lastMicAudioChunkAt: number = 0;
+  private micAudioChunkCount: number = 0;
+  private micAudioBytes: number = 0;
+  private lastExternalTranscriptAt: number = 0;
+  private externalTranscriptCount: number = 0;
+  private lastExternalTranscriptText: string | null = null;
+  private lastUserTranscriptAt: number = 0;
+  private userTranscriptCount: number = 0;
+  private lastUserTranscriptText: string | null = null;
+  private meetingSpeakerLabels: Map<string, string> = new Map();
+  private selfSpeakerKeys: Set<string> = new Set();
 
 
   // Processing events
@@ -313,8 +361,9 @@ export class AppState {
     this.isUndetectable = settingsManager.get('isUndetectable') ?? false;
     this.disguiseMode = settingsManager.get('disguiseMode') ?? 'none';
     this._verboseLogging = settingsManager.get('verboseLogging') ?? false;
+    this.proactiveModeEnabled = settingsManager.get('proactiveModeEnabled') ?? false;
     setVerboseLoggingFlag(this._verboseLogging);
-    console.log(`[AppState] Initialized with isUndetectable=${this.isUndetectable}, disguiseMode=${this.disguiseMode}, verboseLogging=${this._verboseLogging}`);
+    console.log(`[AppState] Initialized with isUndetectable=${this.isUndetectable}, disguiseMode=${this.disguiseMode}, verboseLogging=${this._verboseLogging}, proactiveMode=${this.proactiveModeEnabled}`);
 
     // 2. Initialize Helpers with loaded state
     this.windowHelper = new WindowHelper(this)
@@ -471,6 +520,10 @@ export class AppState {
 
     // Initialize IntelligenceManager with LLMHelper
     this.intelligenceManager = new IntelligenceManager(this.processingHelper.getLLMHelper())
+    this.intelligenceManager.setProactiveModeEnabled(this.proactiveModeEnabled);
+    if (this.proactiveModeEnabled) {
+      this.applyProactiveCoachModel();
+    }
 
     // Wire ContradictionDetector with LLMHelper for post-meeting processing
     ContradictionDetector.getInstance().setLLMHelper(this.processingHelper.getLLMHelper());
@@ -493,12 +546,34 @@ export class AppState {
       }
     }
 
+    {
+      try {
+        const { BrainMeetingIngestionService } = require('./services/BrainMeetingIngestionService');
+        BrainMeetingIngestionService.getInstance().start(DatabaseManager.getInstance());
+      } catch (e: any) {
+        console.warn('[AppState] Brain meeting ingestion unavailable:', e?.message || e);
+      }
+    }
+
     // Initialize ThemeManager
     this.themeManager = ThemeManager.getInstance()
 
     // Initialize RAGManager (requires database to be ready)
     this.initializeRAGManager()
-    this.initializeSemanticaContext()
+    try {
+      const { MeetingTranscriptBackfillService } = require('./services/MeetingTranscriptBackfillService');
+      MeetingTranscriptBackfillService.getInstance().schedule({
+        llmHelper: this.processingHelper.getLLMHelper(),
+        ragManager: this.ragManager,
+      });
+    } catch (e: any) {
+      console.warn('[AppState] Meeting transcript backfill unavailable:', e?.message || e);
+    }
+    if (process.env.NATIVELY_ENABLE_SEMANTICA_CONTEXT === "1") {
+      this.initializeSemanticaContext()
+    } else {
+      console.log("[AppState] Semantica context disabled. Natively reads IP Corp brain repo read models instead.");
+    }
     
     // Check and prep Ollama embedding model
     this.bootstrapOllamaEmbeddings()
@@ -544,6 +619,781 @@ export class AppState {
     this.broadcast('meeting-state-changed', { isActive: this.isMeetingActive });
   }
 
+  private maybeTriggerProactiveSuggestion(text: string, confidence: number = 0.8, source: "interim" | "final" = "final"): void {
+    const cleaned = text.replace(/\s+/g, " ").trim();
+    if (!this.isMeetingActive) {
+      return;
+    }
+
+    const shouldTrigger = this.proactiveModeEnabled
+      ? source === "interim"
+        ? this.shouldTriggerInterimProactiveSuggestion(cleaned)
+        : this.shouldTriggerAggressiveProactiveSuggestion(cleaned)
+      : this.shouldTriggerProactiveSuggestion(cleaned);
+
+    if (!shouldTrigger) {
+      return;
+    }
+
+    const activeMode = this.intelligenceManager.getActiveMode();
+    if (activeMode !== 'idle' && activeMode !== 'assist') {
+      return;
+    }
+
+    const now = Date.now();
+    const cooldownMs = source === "interim" && this.proactiveModeEnabled
+      ? 12_000
+      : this.proactiveModeEnabled
+      ? this.aggressiveProactiveSuggestionCooldownMs
+      : this.proactiveSuggestionCooldownMs;
+    if (now - this.lastProactiveSuggestionAt < cooldownMs) {
+      return;
+    }
+
+    const signature = cleaned.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim().slice(-180);
+    if (signature && signature === this.lastProactiveSuggestionSignature) {
+      return;
+    }
+
+    const suggestionKey = this.buildProactiveSuggestionKey(cleaned);
+    if (
+      this.proactiveModeEnabled &&
+      suggestionKey &&
+      this.lastProactiveSuggestionKey &&
+      now - this.lastProactiveSuggestionKeyAt < 60_000 &&
+      this.areProactiveSuggestionKeysSimilar(suggestionKey, this.lastProactiveSuggestionKey)
+    ) {
+      return;
+    }
+
+    this.lastProactiveSuggestionAt = now;
+    this.lastProactiveSuggestionSignature = signature;
+    if (suggestionKey) {
+      this.lastProactiveSuggestionKey = suggestionKey;
+      this.lastProactiveSuggestionKeyAt = now;
+    }
+    this.getWindowHelper().getOverlayWindow()?.webContents.send('ensure-expanded');
+    console.log(`[Main] Proactive meeting suggestion fired (${source}): ${cleaned.slice(0, 120)}`);
+
+    void this.intelligenceManager.handleSuggestionTrigger({
+      context: this.intelligenceManager.getFormattedContext(180),
+      lastQuestion: cleaned,
+      confidence: Math.max(this.proactiveModeEnabled ? (source === "interim" ? 0.5 : 0.55) : 0.7, Math.min(1, confidence || 0.8))
+    }).catch((error: any) => {
+      console.warn('[Main] Proactive meeting suggestion failed:', error?.message || error);
+    });
+  }
+
+  private maybeTriggerWakeWordVoiceAsk(text: string, confidence: number = 0.8, isFinal: boolean = false): void {
+    if (!this.proactiveModeEnabled) {
+      return;
+    }
+
+    const cleaned = text.replace(/\s+/g, " ").trim();
+    const wakeRequest = this.extractWakeWordRequest(cleaned);
+    if (!wakeRequest) {
+      return;
+    }
+
+    if (this.isSetupVoiceTestUtterance(wakeRequest)) {
+      console.log('[Main] Wake-word setup/test utterance ignored.');
+      return;
+    }
+
+    if (!isFinal && wakeRequest.length < 12) {
+      return;
+    }
+
+    const activeMode = this.intelligenceManager.getActiveMode();
+    if (activeMode !== 'idle' && activeMode !== 'assist') {
+      console.log(`[Main] Wake-word voice ask suppressed; active mode=${activeMode}`);
+      return;
+    }
+
+    const now = Date.now();
+    if (now - this.lastWakeWordVoiceAskAt < this.wakeWordVoiceAskCooldownMs) {
+      return;
+    }
+
+    const signature = wakeRequest.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim().slice(-180);
+    if (signature && signature === this.lastWakeWordVoiceAskSignature) {
+      return;
+    }
+
+    this.lastWakeWordVoiceAskAt = now;
+    this.lastWakeWordVoiceAskSignature = signature;
+    this.getWindowHelper().getOverlayWindow()?.webContents.send('ensure-expanded');
+    console.log(`[Main] Wake-word proactive voice ask fired: ${wakeRequest.slice(0, 120)}`);
+
+    void this.runWakeWordVoiceAsk(wakeRequest, confidence).catch((error: any) => {
+      console.warn('[Main] Wake-word proactive voice ask failed:', error?.message || error);
+    });
+  }
+
+  private async runWakeWordVoiceAsk(wakeRequest: string, confidence: number = 0.8): Promise<void> {
+    const normalizedConfidence = Math.max(0.72, Math.min(1, confidence || 0.8));
+
+    if (this.isScreenReadRequest(wakeRequest)) {
+      const imagePaths: string[] = [];
+      try {
+        const screenshotPath = await this.takeContextScreenshot(false);
+        if (screenshotPath) {
+          imagePaths.push(screenshotPath);
+        }
+      } catch (error: any) {
+        console.warn('[Main] Wake-word screen capture failed; falling back to OCR context:', error?.message || error);
+      }
+
+      await this.intelligenceManager.runWhatShouldISay(
+        wakeRequest,
+        normalizedConfidence,
+        imagePaths.length ? imagePaths : undefined,
+        { force: true }
+      );
+      return;
+    }
+
+    await this.intelligenceManager.handleSuggestionTrigger({
+      context: this.intelligenceManager.getFormattedContext(180),
+      lastQuestion: wakeRequest,
+      confidence: normalizedConfidence,
+    });
+  }
+
+  private extractWakeWordRequest(text: string): string | null {
+    const cleaned = text.replace(/\s+/g, " ").trim();
+    if (!cleaned) return null;
+
+    const wakeMatch = cleaned.match(/\b(?:hey\s+)?(?:natively|native\s+lee|native\s+ly|nativeley)\b[\s,.:;!-]*/i);
+    if (!wakeMatch || wakeMatch.index === undefined) {
+      return null;
+    }
+
+    const beforeWake = cleaned.slice(0, wakeMatch.index).trim();
+    const afterWake = cleaned.slice(wakeMatch.index + wakeMatch[0].length).trim();
+    const request = (afterWake || beforeWake).replace(/^[,.:;!-]+|[,.:;!-]+$/g, "").trim();
+    return request || "What should I say right now based on the current meeting?";
+  }
+
+  private isSetupVoiceTestUtterance(text: string): boolean {
+    const lower = text.toLowerCase().replace(/[^a-z0-9\s]+/g, " ").replace(/\s+/g, " ").trim();
+    return /^(can you hear me|do you hear me|are you listening|testing|test test|mic check|microphone check)$/.test(lower);
+  }
+
+  private isScreenReadRequest(text: string): boolean {
+    const lower = text.trim().toLowerCase();
+    return [
+      /what(?:'s| is) on my screen/,
+      /what am i looking at/,
+      /what do you see/,
+      /what(?:'s| is) visible/,
+      /describe (?:my|the) screen/,
+      /analy(?:s|z)e (?:my|the|this) screen/,
+      /summari(?:s|z)e (?:my|the|this) screen/,
+      /read (?:my|the|this) screen/,
+      /what(?:'s| is) happening on (?:my|the) screen/,
+    ].some((pattern) => pattern.test(lower));
+  }
+
+  private shouldTriggerProactiveSuggestion(text: string): boolean {
+    if (text.length < 12 || text.length > 700) {
+      return false;
+    }
+
+    const lower = text.toLowerCase();
+    const questionLike =
+      text.includes('?') ||
+      /\b(what|why|how|when|where|who|which|can|could|would|should|do|does|did|is|are|was|were)\b/.test(lower);
+    const directedAtSteve =
+      /\b(steve|any thoughts|what do you think|what's your take|what is your take|do you have thoughts|can you walk|could you walk|can you explain|could you explain|would you recommend|how would you|does that make sense)\b/.test(lower);
+    const ipCorpCue =
+      /\b(ip corp|interplastic|molding products|fabric|purview|m3|mes|mdm|citrine|batch id|batch|lakehouse|warehouse|semantic model|power bi|source system|medallion|data product|governance)\b/.test(lower);
+    const decisionCue =
+      /\b(should we|can we|could we|would we|do we|how do we|what if|what about|recommend|approach|decision|risk|timeline|scope)\b/.test(lower);
+
+    return questionLike && (directedAtSteve || ipCorpCue || decisionCue);
+  }
+
+  private shouldTriggerAggressiveProactiveSuggestion(text: string): boolean {
+    if (text.length < 10 || text.length > 900) {
+      return false;
+    }
+
+    const lower = text.toLowerCase();
+    if (/^(yeah|yes|yep|ok|okay|right|sure|thanks|thank you|mmhmm|uh huh)[\s.!?]*$/.test(lower)) {
+      return false;
+    }
+
+    const questionLike =
+      text.includes('?') ||
+      /\b(what|why|how|when|where|who|which|can|could|would|should|do|does|did|is|are|was|were)\b/.test(lower);
+    const directedAtSteve =
+      /\b(steve|any thoughts|what do you think|what's your take|what is your take|do you have thoughts|can you walk|could you walk|can you explain|could you explain|would you recommend|how would you|does that make sense)\b/.test(lower);
+    const ipCorpCue =
+      /\b(ip corp|interplastic|molding products|fabric|purview|m3|mes|mdm|citrine|batch id|batch|lakehouse|warehouse|semantic model|power bi|source system|medallion|data product|governance|steward|stewardship|policy|exception|ownership)\b/.test(lower);
+    const decisionCue =
+      /\b(should we|can we|could we|would we|do we|how do we|what if|what about|recommend|approach|decision|risk|timeline|scope|tradeoff|owner|approval|next step)\b/.test(lower);
+    const actionCue =
+      /\b(action item|follow up|blocker|dependency|deadline|commit|commitment|need from|walk away with|decide today|align on|proposal|recommendation)\b/.test(lower);
+
+    return questionLike || directedAtSteve || ipCorpCue || decisionCue || actionCue;
+  }
+
+  private shouldTriggerInterimProactiveSuggestion(text: string): boolean {
+    if (text.length < 28 || text.length > 700) {
+      return false;
+    }
+
+    const lower = text.toLowerCase();
+    if (/^(yeah|yes|yep|ok|okay|right|sure|thanks|thank you|mmhmm|uh huh)[\s.!?]*$/.test(lower)) {
+      return false;
+    }
+
+    const questionLike =
+      text.includes('?') ||
+      /\b(what|why|how|when|where|who|which|can|could|would|should)\b/.test(lower);
+    const directedAtSteve =
+      /\b(steve|any thoughts|what do you think|what's your take|what is your take|do you have thoughts|can you walk|could you walk|can you explain|could you explain|would you recommend|how would you)\b/.test(lower);
+    const explicitDecisionAsk =
+      /\b(should we|what should|what would|how would|recommend|recommendation|need to decide|decision we need|decision do we|walk out with|decide today|align on|approval boundary|who owns|named owner)\b/.test(lower);
+
+    return directedAtSteve || explicitDecisionAsk || (questionLike && /\b(decision|owner|approval|recommend|risk|next step|follow up|policy|exception|steward)\b/.test(lower));
+  }
+
+  private buildProactiveSuggestionKey(text: string): string {
+    const stopWords = new Set([
+      "about", "after", "again", "also", "because", "being", "could", "from", "have",
+      "into", "just", "like", "make", "more", "need", "really", "should", "that",
+      "their", "there", "these", "they", "this", "those", "what", "when", "where",
+      "which", "with", "would", "your"
+    ]);
+
+    return text
+      .toLowerCase()
+      .replace(/[^a-z0-9\s]+/g, " ")
+      .split(/\s+/)
+      .filter(word => word.length > 3 && !stopWords.has(word))
+      .slice(-36)
+      .join(" ");
+  }
+
+  private areProactiveSuggestionKeysSimilar(nextKey: string, previousKey: string): boolean {
+    if (!nextKey || !previousKey) {
+      return false;
+    }
+
+    if (nextKey.includes(previousKey) || previousKey.includes(nextKey)) {
+      return true;
+    }
+
+    const nextTokens = new Set(nextKey.split(/\s+/).filter(Boolean));
+    const previousTokens = new Set(previousKey.split(/\s+/).filter(Boolean));
+    if (nextTokens.size < 4 || previousTokens.size < 4) {
+      return false;
+    }
+
+    let overlap = 0;
+    nextTokens.forEach(token => {
+      if (previousTokens.has(token)) {
+        overlap += 1;
+      }
+    });
+
+    return overlap / Math.min(nextTokens.size, previousTokens.size) >= 0.72;
+  }
+
+  private recordAudioChunk(source: "system" | "microphone", byteLength: number): void {
+    const now = Date.now();
+    if (source === "system") {
+      this.lastSystemAudioChunkAt = now;
+      this.systemAudioChunkCount += 1;
+      this.systemAudioBytes += byteLength;
+      return;
+    }
+
+    this.lastMicAudioChunkAt = now;
+    this.micAudioChunkCount += 1;
+    this.micAudioBytes += byteLength;
+  }
+
+  private recordTranscriptFrame(speaker: "external" | "user", text: string, timestamp: number): void {
+    const cleanText = (text || "").replace(/\s+/g, " ").trim();
+    if (!cleanText) return;
+
+    if (speaker === "external") {
+      this.lastExternalTranscriptAt = timestamp;
+      this.externalTranscriptCount += 1;
+      this.lastExternalTranscriptText = cleanText.slice(-240);
+      return;
+    }
+
+    this.lastUserTranscriptAt = timestamp;
+    this.userTranscriptCount += 1;
+    this.lastUserTranscriptText = cleanText.slice(-240);
+  }
+
+  private recordAudioPipelineError(scope: string, error: unknown): void {
+    const message = error instanceof Error ? error.message : String(error);
+    this.lastAudioPipelineError = `${scope}: ${message}`;
+  }
+
+  private relativeMs(timestamp: number): number | null {
+    return timestamp > 0 ? Math.max(0, Date.now() - timestamp) : null;
+  }
+
+  private isFresh(timestamp: number, windowMs: number): boolean {
+    return timestamp > 0 && Date.now() - timestamp <= windowMs;
+  }
+
+  private normalizeDiarizedSpeaker(segment: STTTranscriptSegment): string | null {
+    const candidate = segment.diarizedSpeaker ?? segment.speakerId ?? null;
+    if (candidate === null || candidate === undefined || candidate === "") {
+      return null;
+    }
+    return String(candidate).replace(/\s+/g, "_").trim();
+  }
+
+  private defaultDiarizedSpeakerLabel(diarizedSpeaker: string | null): string | null {
+    if (!diarizedSpeaker) return null;
+    const numeric = diarizedSpeaker.match(/(\d+)$/)?.[1];
+    if (numeric !== undefined) {
+      return `Speaker ${Number(numeric) + 1}`;
+    }
+    return diarizedSpeaker
+      .replace(/[_-]+/g, " ")
+      .replace(/\b\w/g, (char) => char.toUpperCase());
+  }
+
+  private normalizeSpeakerLabel(label: string): string {
+    return (label || "").replace(/\s+/g, " ").trim().slice(0, 60);
+  }
+
+  public getUserDisplayName(): string {
+    const configured = SettingsManager.getInstance().get('userDisplayName');
+    const cleanName = this.normalizeSpeakerLabel(configured || "");
+    return cleanName || "Steve";
+  }
+
+  public setUserDisplayName(name: string): { success: boolean; userDisplayName: string } {
+    const cleanName = this.normalizeSpeakerLabel(name);
+    if (!cleanName) {
+      throw new Error("Name is required.");
+    }
+    SettingsManager.getInstance().set('userDisplayName', cleanName);
+    this._broadcastToAllWindows("user-profile-changed", { userDisplayName: cleanName });
+    return { success: true, userDisplayName: cleanName };
+  }
+
+  private maybeRememberUserDisplayName(label: string): void {
+    const cleanLabel = this.normalizeSpeakerLabel(label);
+    if (!cleanLabel || /^(me|myself|self|you)$/i.test(cleanLabel)) {
+      return;
+    }
+    SettingsManager.getInstance().set('userDisplayName', cleanLabel);
+    this._broadcastToAllWindows("user-profile-changed", { userDisplayName: cleanLabel });
+  }
+
+  private isSelfSpeakerLabel(label: string): boolean {
+    const cleanLabel = this.normalizeSpeakerLabel(label).toLowerCase();
+    const userName = this.getUserDisplayName().toLowerCase();
+    return /^(me|myself|self|you)$/i.test(cleanLabel) || cleanLabel === userName;
+  }
+
+  private resolveSpeakerIdentity(
+    speaker: "external" | "user",
+    speakerKey: string,
+    speakerLabel: string | null
+  ): TranscriptSpeakerIdentity {
+    if (speaker === "external") return "other";
+    if (this.selfSpeakerKeys.has(speakerKey)) return "self";
+    if (speakerLabel && this.isSelfSpeakerLabel(speakerLabel)) return "self";
+    if (speakerLabel) return "other";
+    return "unknown";
+  }
+
+  private getSpeakerLabelSnapshot(): Record<string, string> {
+    return Object.fromEntries(this.meetingSpeakerLabels.entries());
+  }
+
+  public getMeetingSpeakerLabels(): Record<string, string> {
+    return this.getSpeakerLabelSnapshot();
+  }
+
+  public setMeetingSpeakerLabel(speakerKey: string, label: string): {
+    success: boolean;
+    speakerKey: string;
+    label: string | null;
+    labels: Record<string, string>;
+  } {
+    const key = this.normalizeSpeakerLabel(speakerKey);
+    if (!key) {
+      throw new Error("Speaker key is required.");
+    }
+
+    const cleanLabel = this.normalizeSpeakerLabel(label);
+    if (cleanLabel) {
+      this.meetingSpeakerLabels.set(key, cleanLabel);
+      if (this.isSelfSpeakerLabel(cleanLabel)) {
+        this.selfSpeakerKeys.add(key);
+        this.maybeRememberUserDisplayName(cleanLabel);
+      } else {
+        this.selfSpeakerKeys.delete(key);
+      }
+    } else {
+      this.meetingSpeakerLabels.delete(key);
+      this.selfSpeakerKeys.delete(key);
+    }
+
+    const labels = this.getSpeakerLabelSnapshot();
+    this._broadcastToAllWindows("meeting-speaker-labels-changed", labels);
+    return { success: true, speakerKey: key, label: cleanLabel || null, labels };
+  }
+
+  private isContinuousOcrRunning(): boolean {
+    try {
+      const { ContinuousOCRService } = require('./services/ContinuousOCRService');
+      return Boolean(ContinuousOCRService.getInstance().isRunning());
+    } catch {
+      return false;
+    }
+  }
+
+  private startProactiveScreenContext(): void {
+    if (!this.proactiveModeEnabled || !this.isMeetingActive) {
+      return;
+    }
+
+    try {
+      const { ContinuousOCRService } = require('./services/ContinuousOCRService');
+      const service = ContinuousOCRService.getInstance();
+      if (service.isRunning()) {
+        return;
+      }
+
+      this.processingHelper.getLLMHelper().startContinuousOCR();
+      this.proactiveStartedContinuousOcr = true;
+      console.log('[Main] Proactive screen context started for active meeting.');
+    } catch (error) {
+      this.recordAudioPipelineError('Proactive screen context', error);
+      console.warn('[Main] Failed to start proactive screen context:', error);
+    }
+  }
+
+  private stopProactiveScreenContextIfOwned(): void {
+    if (!this.proactiveStartedContinuousOcr) {
+      return;
+    }
+
+    try {
+      this.processingHelper.getLLMHelper().stopContinuousOCR();
+    } catch (error) {
+      console.warn('[Main] Failed to stop proactive screen context:', error);
+    } finally {
+      this.proactiveStartedContinuousOcr = false;
+    }
+  }
+
+  public rememberReadinessEvents(events: any[]): void {
+    if (!Array.isArray(events)) return;
+    this.readinessEventsCache = events;
+    this.readinessEventsCachedAt = Date.now();
+  }
+
+  public getNativeAudioRuntimeStatus(): any {
+    const now = Date.now();
+    const systemFresh = this.isFresh(this.lastSystemAudioChunkAt, 10_000);
+    const micFresh = this.isFresh(this.lastMicAudioChunkAt, 10_000);
+    const externalTranscriptFresh = this.isFresh(this.lastExternalTranscriptAt, 30_000);
+    const userTranscriptFresh = this.isFresh(this.lastUserTranscriptAt, 30_000);
+    const ocrRunning = this.isContinuousOcrRunning();
+
+    return {
+      connected: Boolean(this.googleSTT || this.googleSTT_User),
+      meetingActive: this.isMeetingActive,
+      pipelineStarted: this.audioPipelineStartedAt > 0,
+      pipelineStartedAt: this.audioPipelineStartedAt ? new Date(this.audioPipelineStartedAt).toISOString() : null,
+      lastError: this.lastAudioPipelineError,
+      system: {
+        active: Boolean(this.systemAudioCapture && this.googleSTT),
+        chunks: this.systemAudioChunkCount,
+        bytes: this.systemAudioBytes,
+        lastChunkAt: this.lastSystemAudioChunkAt ? new Date(this.lastSystemAudioChunkAt).toISOString() : null,
+        lastChunkAgeMs: this.relativeMs(this.lastSystemAudioChunkAt),
+        fresh: systemFresh,
+        transcriptCount: this.externalTranscriptCount,
+        lastTranscriptAt: this.lastExternalTranscriptAt ? new Date(this.lastExternalTranscriptAt).toISOString() : null,
+        lastTranscriptAgeMs: this.relativeMs(this.lastExternalTranscriptAt),
+        transcriptFresh: externalTranscriptFresh,
+        lastTranscriptText: this.lastExternalTranscriptText,
+      },
+      microphone: {
+        active: Boolean(this.microphoneCapture && this.googleSTT_User),
+        chunks: this.micAudioChunkCount,
+        bytes: this.micAudioBytes,
+        lastChunkAt: this.lastMicAudioChunkAt ? new Date(this.lastMicAudioChunkAt).toISOString() : null,
+        lastChunkAgeMs: this.relativeMs(this.lastMicAudioChunkAt),
+        fresh: micFresh,
+        transcriptCount: this.userTranscriptCount,
+        lastTranscriptAt: this.lastUserTranscriptAt ? new Date(this.lastUserTranscriptAt).toISOString() : null,
+        lastTranscriptAgeMs: this.relativeMs(this.lastUserTranscriptAt),
+        transcriptFresh: userTranscriptFresh,
+        lastTranscriptText: this.lastUserTranscriptText,
+      },
+      screen: {
+        ocrRunning,
+        startedByProactiveMode: this.proactiveStartedContinuousOcr,
+      },
+      generatedAt: new Date(now).toISOString(),
+    };
+  }
+
+  public async getMeetingReadinessStatus(): Promise<any> {
+    const checks: Array<{ id: string; label: string; status: "ready" | "warming" | "warning" | "failed"; detail: string }> = [];
+    const audio = this.getNativeAudioRuntimeStatus();
+
+    let events: any[] = this.readinessEventsCache;
+    let prep: any = null;
+    try {
+      const { MeetingPrepService } = require("./services/MeetingPrepService");
+      const cacheFresh = this.readinessEventsCachedAt > 0 && Date.now() - this.readinessEventsCachedAt < 60_000;
+      if (!this.isMeetingActive && !cacheFresh) {
+        const { CalendarManager } = require("./services/CalendarManager");
+        events = await CalendarManager.getInstance().getUpcomingEvents();
+        this.rememberReadinessEvents(events);
+      }
+      prep = MeetingPrepService.getInstance().getReadinessSnapshot(events);
+    } catch (error: any) {
+      prep = {
+        cachedPacketCount: 0,
+        nextMeeting: null,
+        nextPacketReady: false,
+        lastWarmError: error?.message || "Calendar/prep status unavailable",
+      };
+    }
+
+    const brainRoot = path.join(app.getPath("home"), "CascadeProjects", "ipcorp-architecture-brain");
+    const brainReady = fs.existsSync(brainRoot);
+    checks.push({
+      id: "brain",
+      label: "IP Corp Brain",
+      status: brainReady ? "ready" : "failed",
+      detail: brainReady ? "Architecture brain repo is reachable." : "Architecture brain repo was not found.",
+    });
+
+    if (prep?.nextMeeting) {
+      const startsIn = prep.nextMeeting.startsInMinutes;
+      checks.push({
+        id: "prep",
+        label: "Meeting Prep",
+        status: prep.nextPacketReady ? "ready" : prep.inAutoPrepWindow || this.meetingPrepInFlight ? "warming" : startsIn <= 60 ? "warning" : "ready",
+        detail: prep.nextPacketReady
+          ? `${prep.nextMeeting.title} packet ready.`
+          : `${prep.nextMeeting.title} starts in ${startsIn} min; prep packet not ready yet.`,
+      });
+    } else {
+      checks.push({
+        id: "prep",
+        label: "Meeting Prep",
+        status: "ready",
+        detail: "No upcoming calendar meeting needs prep right now.",
+      });
+    }
+
+    checks.push({
+      id: "microphone",
+      label: "Microphone",
+      status: !this.isMeetingActive ? "warming" : audio.microphone.fresh ? "ready" : "warning",
+      detail: audio.microphone.fresh
+        ? `Mic audio flowing; last chunk ${Math.round((audio.microphone.lastChunkAgeMs || 0) / 1000)}s ago.`
+        : this.isMeetingActive ? "No fresh microphone audio observed." : "Waiting for a meeting or voice ask.",
+    });
+
+    checks.push({
+      id: "meeting_audio",
+      label: "Meeting Audio",
+      status: !this.isMeetingActive ? "warming" : audio.system.fresh ? "ready" : "warning",
+      detail: audio.system.fresh
+        ? `System audio flowing; last chunk ${Math.round((audio.system.lastChunkAgeMs || 0) / 1000)}s ago.`
+        : this.isMeetingActive ? "No fresh system audio observed. Proactive coaching may miss other speakers." : "Waiting for a live meeting.",
+    });
+
+    checks.push({
+      id: "transcripts",
+      label: "Transcripts",
+      status: !this.isMeetingActive ? "warming" : audio.system.transcriptFresh || audio.microphone.transcriptFresh ? "ready" : "warning",
+      detail: audio.system.transcriptFresh
+        ? "Meeting speech is becoming transcript context."
+        : audio.microphone.transcriptFresh
+          ? "Your speech is becoming transcript context."
+          : this.isMeetingActive ? "Audio is not producing fresh transcript context." : "No live transcript expected until a session starts.",
+    });
+
+    const activeMode = this.intelligenceManager.getActiveMode();
+    const coachFresh = this.isFresh(this.lastProactiveSuggestionAt, 90_000) || this.isFresh(this.lastWakeWordVoiceAskAt, 90_000);
+    checks.push({
+      id: "coach",
+      label: "Proactive Coach",
+      status: !this.proactiveModeEnabled ? "warning" : !this.isMeetingActive ? "warming" : coachFresh ? "ready" : "warming",
+      detail: !this.proactiveModeEnabled
+        ? "Proactive mode is off."
+        : coachFresh
+          ? "Recent coaching response was generated."
+          : activeMode === "idle" || activeMode === "assist"
+            ? "Listening for coachable moments."
+            : `Coach is busy in ${activeMode} mode.`,
+    });
+
+    const proactiveScreenExpected = this.proactiveModeEnabled && this.isMeetingActive;
+    checks.push({
+      id: "screen",
+      label: "Screen Context",
+      status: proactiveScreenExpected
+        ? audio.screen.ocrRunning
+          ? "ready"
+          : "warning"
+        : this.screenshotCaptureInProgress
+          ? "warming"
+          : "ready",
+      detail: proactiveScreenExpected
+        ? audio.screen.ocrRunning
+          ? "Live screen context is feeding proactive coaching."
+          : "Proactive mode is on, but live screen context is not running."
+        : this.screenshotCaptureInProgress
+          ? "Screen capture is in progress."
+          : "Screen ask and selective screenshot are available.",
+    });
+
+    const overall = checks.some((check) => check.status === "failed")
+      ? "failed"
+      : checks.some((check) => check.status === "warning")
+        ? "warning"
+        : checks.some((check) => check.status === "warming")
+          ? "warming"
+          : "ready";
+
+    const llmHelper = this.processingHelper.getLLMHelper();
+    return {
+      generatedAt: new Date().toISOString(),
+      overall,
+      meetingActive: this.isMeetingActive,
+      meetingStartedAt: this.meetingStartedAt ? new Date(this.meetingStartedAt).toISOString() : null,
+      proactiveModeEnabled: this.proactiveModeEnabled,
+      activeMode,
+      model: llmHelper.getCurrentModel?.() ?? null,
+      reasoningEffort: llmHelper.getReasoningEffort?.() ?? null,
+      audio,
+      prep,
+      checks,
+    };
+  }
+
+  public startMeetingPrepScheduler(): void {
+    if (this.meetingPrepInterval) {
+      return;
+    }
+
+    const run = () => {
+      this.warmUpcomingMeetingPrep().catch((error: any) => {
+        console.warn('[Main] Meeting prep scheduler failed:', error?.message || error);
+      });
+    };
+
+    this.meetingPrepInterval = setInterval(run, 2 * 60 * 1000);
+    setTimeout(run, 15_000);
+  }
+
+  public stopMeetingPrepScheduler(): void {
+    if (this.meetingPrepInterval) {
+      clearInterval(this.meetingPrepInterval);
+      this.meetingPrepInterval = null;
+    }
+  }
+
+  private async warmUpcomingMeetingPrep(): Promise<void> {
+    if (this.isMeetingActive || this.meetingPrepInFlight) {
+      return;
+    }
+
+    this.meetingPrepInFlight = true;
+    try {
+      const { CalendarManager } = require('./services/CalendarManager');
+      const { MeetingPrepService } = require('./services/MeetingPrepService');
+      const events = await CalendarManager.getInstance().getUpcomingEvents();
+      this.rememberReadinessEvents(events);
+      await MeetingPrepService.getInstance().warmPackets(events, this.getKnowledgeOrchestrator());
+    } finally {
+      this.meetingPrepInFlight = false;
+    }
+  }
+
+  private applyPreparedMeetingContext(metadata?: any): void {
+    if (!metadata?.calendarEventId) {
+      this.intelligenceManager.setPreparedMeetingContext(null);
+      return;
+    }
+
+    try {
+      const { MeetingPrepService } = require('./services/MeetingPrepService');
+      const { MeetingContextCapsuleService } = require('./services/MeetingContextCapsuleService');
+      const packet = MeetingPrepService.getInstance().getCachedPacket(metadata.calendarEventId);
+      const capsule = MeetingContextCapsuleService.getInstance().getCapsuleForEvent(metadata.calendarEventId);
+      this.intelligenceManager.setPreparedMeetingContext(
+        capsule?.contextMarkdown
+          ? capsule.contextMarkdown
+          : packet ? this.formatMeetingPrepContext(packet) : null
+      );
+    } catch (error: any) {
+      console.warn('[Main] Failed to attach prepared meeting context:', error?.message || error);
+      this.intelligenceManager.setPreparedMeetingContext(null);
+    }
+  }
+
+  private formatMeetingPrepContext(packet: any): string {
+    const event = packet.event || {};
+    const lines = [
+      `MEETING PREP PACKET: ${event.title || 'Untitled meeting'}`,
+      `Generated: ${packet.generatedAt || 'unknown'}`,
+      packet.summary ? `Summary: ${packet.summary}` : '',
+      Array.isArray(packet.contextBullets) && packet.contextBullets.length
+        ? `Context bullets:\n${packet.contextBullets.map((line: string) => `- ${line}`).join('\n')}`
+        : '',
+      Array.isArray(packet.openCommitments) && packet.openCommitments.length
+        ? `Open commitments:\n${packet.openCommitments.map((line: string) => `- ${line}`).join('\n')}`
+        : '',
+      Array.isArray(packet.openQuestions) && packet.openQuestions.length
+        ? `Open questions:\n${packet.openQuestions.map((line: string) => `- ${line}`).join('\n')}`
+        : '',
+      Array.isArray(packet.memoryHighlights) && packet.memoryHighlights.length
+        ? `Relevant memory:\n${packet.memoryHighlights.map((item: any) => `- ${item.title}: ${item.excerpt}`).join('\n')}`
+        : ''
+    ];
+    return lines.filter(Boolean).join('\n\n');
+  }
+
+  private pauseMicrosoftContextDuringMeeting(): void {
+    try {
+      const { MicrosoftLocalManager } = require('./services/MicrosoftLocalManager');
+      MicrosoftLocalManager.getInstance().stop();
+    } catch (error: any) {
+      console.warn('[Main] Failed to pause Microsoft context bridges:', error?.message || error);
+    }
+  }
+
+  private resumeMicrosoftContextAfterMeeting(): void {
+    if (this._isQuitting) {
+      return;
+    }
+
+    try {
+      const { MicrosoftLocalManager } = require('./services/MicrosoftLocalManager');
+      MicrosoftLocalManager.getInstance().start().catch((error: any) => {
+        console.warn('[Main] Failed to resume Microsoft context bridges:', error?.message || error);
+      });
+    } catch (error: any) {
+      console.warn('[Main] Failed to resume Microsoft context bridges:', error?.message || error);
+    }
+  }
+
   private async bootstrapOllamaEmbeddings() {
     this._ollamaBootstrapPromise = (async () => {
       try {
@@ -582,6 +1432,11 @@ export class AppState {
         await SemanticaBridgeService.getInstance().ensureReady();
         const synced = await SemanticaMeetingIndexer.getInstance().start(DatabaseManager.getInstance());
         console.log(`[AppState] Semantica sidecar ready. Initial meeting sync count=${synced}`);
+        BrowserWindow.getAllWindows().forEach((win) => {
+          if (!win.isDestroyed()) {
+            win.webContents.send("meetings-updated");
+          }
+        });
       } catch (error: any) {
         console.warn('[AppState] Semantica initialization unavailable:', error?.message || error);
       }
@@ -887,6 +1742,7 @@ export class AppState {
   private _audioTestStarting = false;               // P2-12: in-flight guard against concurrent calls
   private googleSTT: STTProvider | null = null; // External/system audio
   private googleSTT_User: STTProvider | null = null; // User
+  private manualVoiceCaptureActive = false;
 
   private createSTTProvider(speaker: 'external' | 'user'): STTProvider {
     const { CredentialsManager } = require('./services/CredentialsManager');
@@ -974,51 +1830,120 @@ export class AppState {
     stt.setRecognitionLanguage(sttLanguage);
 
     // Wire Transcript Events
-    stt.on('transcript', (segment: { text: string, isFinal: boolean, confidence: number }) => {
-      if (!this.isMeetingActive) {
+    stt.on('transcript', (segment: STTTranscriptSegment) => {
+      const timestamp = Date.now();
+      this.recordTranscriptFrame(speaker, segment.text, timestamp);
+      const diarizedSpeaker = this.normalizeDiarizedSpeaker(segment);
+      const speakerKey = diarizedSpeaker ? `${speaker}:${diarizedSpeaker}` : speaker;
+      const assignedSpeakerLabel = this.meetingSpeakerLabels.get(speakerKey) || segment.speakerLabel || null;
+      const defaultSpeakerLabel =
+        assignedSpeakerLabel ||
+        this.defaultDiarizedSpeakerLabel(diarizedSpeaker) ||
+        (speaker === "external" ? "Meeting" : this.getUserDisplayName());
+      const speakerIdentity = this.resolveSpeakerIdentity(
+        speaker,
+        speakerKey,
+        assignedSpeakerLabel
+      );
+      const transcriptSpeaker =
+        speakerIdentity === "self"
+          ? "user"
+          : assignedSpeakerLabel || (diarizedSpeaker ? defaultSpeakerLabel : speaker);
+      const decision = this.reflexPipeline.ingestTranscriptFrame({
+        speaker,
+        speakerKey,
+        speakerLabel: assignedSpeakerLabel || defaultSpeakerLabel,
+        speakerIdentity,
+        text: segment.text,
+        isFinal: segment.isFinal,
+        confidence: segment.confidence,
+        timestamp,
+        meetingActive: this.isMeetingActive,
+        manualVoiceCaptureActive: this.manualVoiceCaptureActive,
+        proactiveModeEnabled: this.proactiveModeEnabled,
+        liveCoachAvailable: ['idle', 'assist'].includes(this.intelligenceManager.getActiveMode()),
+      });
+
+      if (!decision.shouldRouteTranscript) {
         return;
       }
 
-      this.intelligenceManager.handleTranscript({
-        speaker: speaker,
-        text: segment.text,
-        timestamp: Date.now(),
-        final: segment.isFinal,
-        confidence: segment.confidence
-      });
-
-      // Feed final transcript to JIT RAG indexer
-      if (segment.isFinal && this.ragManager) {
-        this.ragManager.feedLiveTranscript([{
-          speaker: speaker,
-          text: segment.text,
-          timestamp: Date.now()
-        }]);
-      }
-
-      const helper = this.getWindowHelper();
       const payload = {
         speaker: speaker,
-        text: segment.text,
-        timestamp: Date.now(),
+        sourceSpeaker: speaker,
+        speakerKey,
+        speakerLabel: assignedSpeakerLabel,
+        displaySpeakerLabel: defaultSpeakerLabel,
+        diarizedSpeaker,
+        speakerIdentity,
+        text: decision.text,
+        timestamp,
         final: segment.isFinal,
         confidence: segment.confidence
       };
+
+      if (decision.routeToSession) {
+        this.intelligenceManager.handleTranscript({
+          ...payload,
+          speaker: transcriptSpeaker,
+        });
+
+        // Feed final transcript to JIT RAG indexer
+        if (decision.routeToRag && this.ragManager) {
+          this.ragManager.feedLiveTranscript([{
+            speaker: transcriptSpeaker,
+            text: decision.text,
+            timestamp
+          }]);
+        }
+      }
+
+      if (decision.captureToBrain) {
+        this.appendBrainLiveCapture({
+          capturedAt: new Date(timestamp).toISOString(),
+          mode: this.isMeetingActive
+            ? (this.manualVoiceCaptureActive ? "meeting_voice_ask" : "meeting")
+            : "voice_ask",
+          speaker: transcriptSpeaker,
+          text: decision.text,
+          confidence: segment.confidence,
+        });
+      }
+
+      const helper = this.getWindowHelper();
       helper.getLauncherWindow()?.webContents.send('native-audio-transcript', payload);
       helper.getOverlayWindow()?.webContents.send('native-audio-transcript', payload);
 
-      // Feed final external/system-audio transcripts to negotiation tracking when available.
-      if (segment.isFinal && speaker === 'external') {
-        const feedExternalUtterance =
-          this.knowledgeOrchestrator?.feedExternalUtterance ??
-          this.knowledgeOrchestrator?.feedMeetingUtterance ??
-          this.knowledgeOrchestrator?.[['feed', 'Inter', 'viewerUtterance'].join('')];
-        feedExternalUtterance?.call(this.knowledgeOrchestrator, segment.text);
+      if (speaker === 'user') {
+        this.maybeTriggerWakeWordVoiceAsk(
+          decision.text,
+          segment.confidence,
+          segment.isFinal
+        );
+      }
+
+      // Feed external/system-audio transcripts to the live coaching lane as early as possible.
+      if (decision.proactiveCandidate) {
+        if (decision.proactiveCandidate.source === "final") {
+          const feedExternalUtterance =
+            this.knowledgeOrchestrator?.feedExternalUtterance ??
+            this.knowledgeOrchestrator?.feedMeetingUtterance ??
+            this.knowledgeOrchestrator?.[['feed', 'Inter', 'viewerUtterance'].join('')];
+          if (speakerIdentity !== "self") {
+            feedExternalUtterance?.call(this.knowledgeOrchestrator, decision.text);
+          }
+        }
+        this.maybeTriggerProactiveSuggestion(
+          decision.proactiveCandidate.text,
+          decision.proactiveCandidate.confidence,
+          decision.proactiveCandidate.source
+        );
       }
     });
 
     stt.on('error', (err: Error) => {
       console.error(`[Main] STT (${speaker}) Error:`, err);
+      this.recordAudioPipelineError(`STT ${speaker}`, err);
     });
 
     // Auto language detection: NativelyProSTT emits 'languageDetected' when the
@@ -1036,6 +1961,42 @@ export class AppState {
     return stt;
   }
 
+  private appendBrainLiveCapture(entry: {
+    capturedAt: string;
+    mode: string;
+    speaker: string;
+    text: string;
+    confidence?: number;
+  }): void {
+    const text = entry.text.replace(/\s+/g, " ").trim();
+    if (!text) return;
+
+    try {
+      const brainRoot = path.join(app.getPath("home"), "CascadeProjects", "ipcorp-architecture-brain");
+      if (!fs.existsSync(brainRoot)) return;
+
+      const captureDir = path.join(brainRoot, "natively", "live-captures");
+      fs.mkdirSync(captureDir, { recursive: true });
+
+      const day = entry.capturedAt.slice(0, 10);
+      const filePath = path.join(captureDir, `${day}-natively-live.jsonl`);
+      const line = JSON.stringify({
+        ...entry,
+        text,
+        source: "natively",
+        schemaVersion: 1,
+      }) + "\n";
+
+      fs.appendFile(filePath, line, (error) => {
+        if (error) {
+          console.warn("[Main] Failed to append brain live capture:", error.message);
+        }
+      });
+    } catch (error: any) {
+      console.warn("[Main] Brain live capture unavailable:", error?.message || error);
+    }
+  }
+
   private setupSystemAudioPipeline(): void {
     // REMOVED EARLY RETURN: if (this.systemAudioCapture && this.microphoneCapture) return; // Already initialized
 
@@ -1047,6 +2008,7 @@ export class AppState {
         // Wire Capture -> STT
         let _sysChunkCount = 0;
         this.systemAudioCapture.on('data', (chunk: Buffer) => {
+          this.recordAudioChunk("system", chunk.length);
           _sysChunkCount++;
           if (_sysChunkCount <= 3 || _sysChunkCount % 500 === 0) {
             console.log(`[Main] SystemAudio->STT: chunk #${_sysChunkCount}, ${chunk.length}B, googleSTT=${this.googleSTT ? 'active' : 'NULL'}`);
@@ -1063,12 +2025,14 @@ export class AppState {
         });
         this.systemAudioCapture.on('error', (err: Error) => {
           console.error('[Main] SystemAudioCapture Error:', err);
+          this.recordAudioPipelineError("System audio capture", err);
         });
       }
 
       if (!this.microphoneCapture) {
         this.microphoneCapture = new MicrophoneCapture();
         this.microphoneCapture.on('data', (chunk: Buffer) => {
+          this.recordAudioChunk("microphone", chunk.length);
           this.googleSTT_User?.write(chunk);
         });
         this.microphoneCapture.on('sample_rate_changed', (rate: number) => {
@@ -1081,6 +2045,7 @@ export class AppState {
         });
         this.microphoneCapture.on('error', (err: Error) => {
           console.error('[Main] MicrophoneCapture Error:', err);
+          this.recordAudioPipelineError("Microphone capture", err);
         });
       }
 
@@ -1118,6 +2083,7 @@ export class AppState {
 
     } catch (err) {
       console.error('[Main] Failed to setup System Audio Pipeline:', err);
+      this.recordAudioPipelineError("Audio pipeline setup", err);
     }
   }
 
@@ -1142,6 +2108,7 @@ export class AppState {
 
       let _rcfgSysChunkCount = 0;
       this.systemAudioCapture.on('data', (chunk: Buffer) => {
+        this.recordAudioChunk("system", chunk.length);
         _rcfgSysChunkCount++;
         if (_rcfgSysChunkCount <= 3 || _rcfgSysChunkCount % 500 === 0) {
           console.log(`[Main] (Reconfigured) SystemAudio->STT: chunk #${_rcfgSysChunkCount}, ${chunk.length}B, googleSTT=${this.googleSTT ? 'active' : 'NULL'}`);
@@ -1157,10 +2124,12 @@ export class AppState {
       });
       this.systemAudioCapture.on('error', (err: Error) => {
         console.error('[Main] SystemAudioCapture Error:', err);
+        this.recordAudioPipelineError("System audio capture", err);
       });
       console.log('[Main] SystemAudioCapture initialized.');
     } catch (err) {
       console.warn('[Main] Failed to initialize SystemAudioCapture with preferred ID. Falling back to default.', err);
+      this.recordAudioPipelineError("System audio capture preferred init", err);
       try {
         this.systemAudioCapture = new SystemAudioCapture(); // Default
         const rate = this.systemAudioCapture.getSampleRate();
@@ -1169,6 +2138,7 @@ export class AppState {
 
         let _dfltSysChunkCount = 0;
         this.systemAudioCapture.on('data', (chunk: Buffer) => {
+          this.recordAudioChunk("system", chunk.length);
           _dfltSysChunkCount++;
           if (_dfltSysChunkCount <= 3 || _dfltSysChunkCount % 500 === 0) {
             console.log(`[Main] (Default) SystemAudio->STT: chunk #${_dfltSysChunkCount}, ${chunk.length}B, googleSTT=${this.googleSTT ? 'active' : 'NULL'}`);
@@ -1184,9 +2154,11 @@ export class AppState {
         });
         this.systemAudioCapture.on('error', (err: Error) => {
           console.error('[Main] SystemAudioCapture (Default) Error:', err);
+          this.recordAudioPipelineError("System audio capture default", err);
         });
       } catch (err2) {
         console.error('[Main] Failed to initialize SystemAudioCapture (Default):', err2);
+        this.recordAudioPipelineError("System audio capture default init", err2);
       }
     }
 
@@ -1206,6 +2178,7 @@ export class AppState {
 
       this.microphoneCapture.on('data', (chunk: Buffer) => {
         // console.log('[Main] Mic chunk', chunk.length);
+        this.recordAudioChunk("microphone", chunk.length);
         this.googleSTT_User?.write(chunk);
       });
       this.microphoneCapture.on('sample_rate_changed', (rate: number) => {
@@ -1217,10 +2190,12 @@ export class AppState {
       });
       this.microphoneCapture.on('error', (err: Error) => {
         console.error('[Main] MicrophoneCapture Error:', err);
+        this.recordAudioPipelineError("Microphone capture", err);
       });
       console.log('[Main] MicrophoneCapture initialized.');
     } catch (err) {
       console.warn('[Main] Failed to initialize MicrophoneCapture with preferred ID. Falling back to default.', err);
+      this.recordAudioPipelineError("Microphone capture preferred init", err);
       try {
         this.microphoneCapture = new MicrophoneCapture(); // Default
         const rate = this.microphoneCapture.getSampleRate();
@@ -1228,6 +2203,7 @@ export class AppState {
         this.googleSTT_User?.setSampleRate(rate);
 
         this.microphoneCapture.on('data', (chunk: Buffer) => {
+          this.recordAudioChunk("microphone", chunk.length);
           this.googleSTT_User?.write(chunk);
         });
         this.microphoneCapture.on('sample_rate_changed', (rate: number) => {
@@ -1239,9 +2215,11 @@ export class AppState {
         });
         this.microphoneCapture.on('error', (err: Error) => {
           console.error('[Main] MicrophoneCapture (Default) Error:', err);
+          this.recordAudioPipelineError("Microphone capture default", err);
         });
       } catch (err2) {
         console.error('[Main] Failed to initialize MicrophoneCapture (Default):', err2);
+        this.recordAudioPipelineError("Microphone capture default init", err2);
       }
     }
   }
@@ -1379,6 +2357,42 @@ export class AppState {
     }
   }
 
+  public async startManualVoiceCapture(): Promise<void> {
+    if (this.manualVoiceCaptureActive) return;
+
+    if (!(await ensureMacMicrophoneAccess('voice ask'))) {
+      throw new Error('Microphone access denied. Please allow microphone access in System Settings and try again.');
+    }
+
+    this.manualVoiceCaptureActive = true;
+    try {
+      this.setupSystemAudioPipeline();
+
+      if (!this.isMeetingActive) {
+        this.microphoneCapture?.start();
+        this.googleSTT_User?.start();
+      }
+
+      this.broadcast('native-audio-connected');
+    } catch (error) {
+      this.manualVoiceCaptureActive = false;
+      throw error;
+    }
+  }
+
+  public stopManualVoiceCapture(): void {
+    if (!this.manualVoiceCaptureActive) return;
+
+    this.finalizeMicSTT();
+    this.manualVoiceCaptureActive = false;
+
+    if (!this.isMeetingActive) {
+      this.microphoneCapture?.stop();
+      this.googleSTT_User?.stop();
+      this.broadcast('native-audio-disconnected');
+    }
+  }
+
   public async startMeeting(metadata?: any): Promise<void> {
     console.log('[Main] Starting Meeting...', metadata);
 
@@ -1410,10 +2424,30 @@ export class AppState {
     }
 
     this.isMeetingActive = true;
+    this.meetingStartedAt = Date.now();
+    this.audioPipelineStartedAt = 0;
+    this.lastAudioPipelineError = null;
+    this.lastSystemAudioChunkAt = 0;
+    this.systemAudioChunkCount = 0;
+    this.systemAudioBytes = 0;
+    this.lastMicAudioChunkAt = 0;
+    this.micAudioChunkCount = 0;
+    this.micAudioBytes = 0;
+    this.lastExternalTranscriptAt = 0;
+    this.externalTranscriptCount = 0;
+    this.lastExternalTranscriptText = null;
+    this.lastUserTranscriptAt = 0;
+    this.userTranscriptCount = 0;
+    this.lastUserTranscriptText = null;
+    this.meetingSpeakerLabels.clear();
+    this.selfSpeakerKeys.clear();
     this.broadcastMeetingState()
+    this.pauseMicrosoftContextDuringMeeting();
     if (metadata) {
       this.intelligenceManager.setMeetingMetadata(metadata);
     }
+    this.applyPreparedMeetingContext(metadata);
+    this.startProactiveScreenContext();
 
     // Reset overlay position to default center so each new meeting starts
     // with the overlay in a predictable centered position, regardless of where
@@ -1435,6 +2469,7 @@ export class AppState {
       // do NOT boot the audio pipeline — it would run forever with no stop signal.
       if (!this.isMeetingActive) {
         console.warn('[Main] Meeting was cancelled before audio pipeline could start — aborting init.');
+        this.recordAudioPipelineError("Audio pipeline startup", "Meeting was cancelled before audio pipeline could start");
         return;
       }
       try {
@@ -1467,9 +2502,12 @@ export class AppState {
           const micRate = this.microphoneCapture?.getSampleRate() || 48000;
           console.log(`[Main][debug] Audio pipeline: input=${requestedInput} output=${requestedOutput} backend=${backend} sysRate=${sysRate}Hz micRate=${micRate}Hz`);
         }
+        this.audioPipelineStartedAt = Date.now();
+        this.lastAudioPipelineError = null;
         console.log('[Main] Audio pipeline started successfully.');
       } catch (err) {
         console.error('[Main] Error initializing audio pipeline:', err);
+        this.recordAudioPipelineError("Audio pipeline startup", err);
         // Notify UI so user knows microphone/audio failed to start
         this.broadcast('meeting-audio-error', (err as Error).message || 'Audio pipeline failed to start');
       }
@@ -1479,7 +2517,10 @@ export class AppState {
   public async endMeeting(): Promise<void> {
     console.log('[Main] Ending Meeting...');
     this.isMeetingActive = false; // Block new data immediately
+    this.audioPipelineStartedAt = 0;
     this.broadcastMeetingState();
+    this.resumeMicrosoftContextAfterMeeting();
+    this.stopProactiveScreenContextIfOwned();
 
     // Reset Mouse Passthrough so the next meeting overlay starts fresh and focusable
     if (this.overlayMousePassthrough) {
@@ -1562,12 +2603,23 @@ export class AppState {
       const meeting = DatabaseManager.getInstance().getMeetingDetails(meetingId);
       if (!meeting || !meeting.transcript || meeting.transcript.length === 0) return;
 
-      // Convert transcript to RAG format
-      const segments = meeting.transcript.map(t => ({
-        speaker: t.speaker,
-        text: t.text,
-        timestamp: t.timestamp
-      }));
+      // Convert transcript to RAG format. Prefer GPT-reconstructed turns when
+      // available so retrieval indexes coherent speaker turns instead of noisy
+      // live-STT fragments.
+      const reconstructedTurns = meeting.detailedSummary?.reconstructedTranscript?.turns;
+      const segments = Array.isArray(reconstructedTurns) && reconstructedTurns.length > 0
+        ? reconstructedTurns.map((t: any, index: number) => ({
+          speaker: t.speaker,
+          text: t.text,
+          timestamp: Number.isFinite(Number(t.startTimestamp))
+            ? Number(t.startTimestamp)
+            : (new Date(meeting.date).getTime() + index * 15_000)
+        }))
+        : meeting.transcript.map(t => ({
+          speaker: t.speaker,
+          text: t.text,
+          timestamp: t.timestamp
+        }));
 
       // Generate summary from detailedSummary if available
       let summary: string | undefined;
@@ -1588,115 +2640,87 @@ export class AppState {
 
   private setupIntelligenceEvents(): void {
     const mainWindow = this.getMainWindow.bind(this)
+    const sendToIntelligenceWindows = (channel: string, payload?: unknown) => {
+      const helper = this.getWindowHelper();
+      const targets = [
+        helper.getLauncherWindow(),
+        helper.getOverlayWindow(),
+        mainWindow(),
+      ];
+      const sent = new Set<number>();
+
+      for (const win of targets) {
+        if (!win || win.isDestroyed() || sent.has(win.id)) {
+          continue;
+        }
+        sent.add(win.id);
+        win.webContents.send(channel, payload);
+      }
+    };
 
     // Forward intelligence events to renderer
     this.intelligenceManager.on('assist_update', (insight: string) => {
-      // Send to both if both exist, though mostly overlay needs it
-      const helper = this.getWindowHelper();
-      helper.getLauncherWindow()?.webContents.send('intelligence-assist-update', { insight });
-      helper.getOverlayWindow()?.webContents.send('intelligence-assist-update', { insight });
+      sendToIntelligenceWindows('intelligence-assist-update', { insight });
     })
 
     this.intelligenceManager.on('suggested_answer', (answer: string, question: string, confidence: number) => {
-      const win = mainWindow()
-      if (win) {
-        win.webContents.send('intelligence-suggested-answer', { answer, question, confidence })
-      }
+      sendToIntelligenceWindows('intelligence-suggested-answer', { answer, question, confidence });
 
     })
 
     this.intelligenceManager.on('suggested_answer_token', (token: string, question: string, confidence: number) => {
-      const win = mainWindow()
-      if (win) {
-        win.webContents.send('intelligence-suggested-answer-token', { token, question, confidence })
-      }
+      sendToIntelligenceWindows('intelligence-suggested-answer-token', { token, question, confidence });
     })
 
     this.intelligenceManager.on('refined_answer_token', (token: string, intent: string) => {
-      const win = mainWindow()
-      if (win) {
-        win.webContents.send('intelligence-refined-answer-token', { token, intent })
-      }
+      sendToIntelligenceWindows('intelligence-refined-answer-token', { token, intent })
     })
 
     this.intelligenceManager.on('refined_answer', (answer: string, intent: string) => {
-      const win = mainWindow()
-      if (win) {
-        win.webContents.send('intelligence-refined-answer', { answer, intent })
-      }
+      sendToIntelligenceWindows('intelligence-refined-answer', { answer, intent })
 
     })
 
     this.intelligenceManager.on('recap', (summary: string) => {
-      const win = mainWindow()
-      if (win) {
-        win.webContents.send('intelligence-recap', { summary })
-      }
+      sendToIntelligenceWindows('intelligence-recap', { summary })
     })
 
     this.intelligenceManager.on('recap_token', (token: string) => {
-      const win = mainWindow()
-      if (win) {
-        win.webContents.send('intelligence-recap-token', { token })
-      }
+      sendToIntelligenceWindows('intelligence-recap-token', { token })
     })
 
     this.intelligenceManager.on('clarify', (clarification: string) => {
-      const win = mainWindow()
-      if (win) {
-        win.webContents.send('intelligence-clarify', { clarification })
-      }
+      sendToIntelligenceWindows('intelligence-clarify', { clarification })
     })
 
     this.intelligenceManager.on('clarify_token', (token: string) => {
-      const win = mainWindow()
-      if (win) {
-        win.webContents.send('intelligence-clarify-token', { token })
-      }
+      sendToIntelligenceWindows('intelligence-clarify-token', { token })
     })
 
     this.intelligenceManager.on('follow_up_questions_update', (questions: string) => {
-      const win = mainWindow()
-      if (win) {
-        win.webContents.send('intelligence-follow-up-questions-update', { questions })
-      }
+      sendToIntelligenceWindows('intelligence-follow-up-questions-update', { questions })
     })
 
     this.intelligenceManager.on('follow_up_questions_token', (token: string) => {
-      const win = mainWindow()
-      if (win) {
-        win.webContents.send('intelligence-follow-up-questions-token', { token })
-      }
+      sendToIntelligenceWindows('intelligence-follow-up-questions-token', { token })
     })
 
     this.intelligenceManager.on('manual_answer_started', () => {
-      const win = mainWindow()
-      if (win) {
-        win.webContents.send('intelligence-manual-started')
-      }
+      sendToIntelligenceWindows('intelligence-manual-started')
     })
 
     this.intelligenceManager.on('manual_answer_result', (answer: string, question: string) => {
-      const win = mainWindow()
-      if (win) {
-        win.webContents.send('intelligence-manual-result', { answer, question })
-      }
+      sendToIntelligenceWindows('intelligence-manual-result', { answer, question })
 
     })
 
     this.intelligenceManager.on('mode_changed', (mode: string) => {
-      const win = mainWindow()
-      if (win) {
-        win.webContents.send('intelligence-mode-changed', { mode })
-      }
+      sendToIntelligenceWindows('intelligence-mode-changed', { mode })
     })
 
     this.intelligenceManager.on('error', (error: Error, mode: string) => {
       console.error(`[IntelligenceManager] Error in ${mode}:`, error)
-      const win = mainWindow()
-      if (win) {
-        win.webContents.send('intelligence-error', { error: error.message, mode })
-      }
+      sendToIntelligenceWindows('intelligence-error', { error: error.message, mode })
     })
   }
 
@@ -2002,11 +3026,45 @@ export class AppState {
     }
   }
 
+  private setTransientScreenshotCaptureProtection(enable: boolean): void {
+    const state = enable || this.isUndetectable;
+    this.windowHelper.setTransientCaptureProtection(enable);
+    this.settingsWindowHelper.setContentProtection(state);
+    this.modelSelectorWindowHelper.setContentProtection(state);
+    this.chatLogViewerWindowHelper.setContentProtection(state);
+    this.cropperWindowHelper.setContentProtection(state);
+  }
+
   // Screenshot management methods
   public async takeScreenshot(restoreFocus: boolean = true): Promise<string> {
     return this.withScreenshotCaptureSession('full', restoreFocus, (session) =>
       this.screenshotHelper.takeScreenshot(this.getTargetDisplayForFullScreenshot(session))
     )
+  }
+
+  public async takeContextScreenshot(restoreFocus: boolean = false): Promise<string> {
+    if (!this.getMainWindow()) {
+      throw new Error("No main window available");
+    }
+
+    if (this.screenshotCaptureInProgress) {
+      throw new Error("Screenshot capture already in progress");
+    }
+
+    const session = this.createScreenshotCaptureSession('full', restoreFocus);
+    this.screenshotCaptureInProgress = true;
+
+    try {
+      this.setTransientScreenshotCaptureProtection(true);
+      await new Promise(resolve => setTimeout(resolve, process.platform === 'win32' ? 80 : 40));
+      return await this.screenshotHelper.takeScreenshot(this.getTargetDisplayForFullScreenshot(session));
+    } finally {
+      try {
+        this.setTransientScreenshotCaptureProtection(false);
+      } finally {
+        this.screenshotCaptureInProgress = false;
+      }
+    }
   }
 
   public async takeSelectiveScreenshot(restoreFocus: boolean = true): Promise<string> {
@@ -2304,6 +3362,42 @@ export class AppState {
     return this.isUndetectable
   }
 
+  public getProactiveModeEnabled(): boolean {
+    return this.proactiveModeEnabled;
+  }
+
+  private applyProactiveCoachModel(): void {
+    const llmHelper = this.processingHelper.getLLMHelper();
+    llmHelper.setModel('gpt-5.4-mini');
+    llmHelper.setReasoningEffort('low');
+    this._broadcastToAllWindows('model-changed', llmHelper.getCurrentModel());
+    this._broadcastToAllWindows('reasoning-effort-changed', llmHelper.getReasoningEffort());
+  }
+
+  public setProactiveModeEnabled(state: boolean): void {
+    if (this.proactiveModeEnabled === state) {
+      if (state) {
+        this.applyProactiveCoachModel();
+        this.startProactiveScreenContext();
+      } else {
+        this.stopProactiveScreenContextIfOwned();
+      }
+      return;
+    }
+
+    this.proactiveModeEnabled = state;
+    SettingsManager.getInstance().set('proactiveModeEnabled', state);
+    if (state) {
+      this.applyProactiveCoachModel();
+      this.startProactiveScreenContext();
+    } else {
+      this.stopProactiveScreenContextIfOwned();
+    }
+    this.intelligenceManager.setProactiveModeEnabled(state);
+    this._broadcastToAllWindows('proactive-mode-changed', state);
+    console.log(`[Main] Proactive mode ${state ? 'enabled' : 'disabled'}`);
+  }
+
   // --- Mouse Passthrough (Adapted from public PR #113 — verify premium interaction) ---
   private overlayMousePassthrough: boolean = false;
 
@@ -2439,8 +3533,10 @@ export class AppState {
 
     // 3. Update App User Model ID (Windows Taskbar grouping)
     if (isWin) {
-      // Use unique AUMID per disguise to avoid grouping with the real app
-      app.setAppUserModelId(`com.natively.assistant.${mode}`);
+      const appUserModelId = mode === 'none'
+        ? 'com.natively.assistant'
+        : `com.natively.assistant.${mode}`;
+      app.setAppUserModelId(appUserModelId);
     }
 
     // 4. Update Icons
@@ -2603,12 +3699,18 @@ async function initializeApp() {
 
   // Explicitly load credentials into helpers
   appState.processingHelper.loadStoredCredentials();
+  if (appState.getProactiveModeEnabled()) {
+    appState.setProactiveModeEnabled(true);
+  }
 
   // Initialize IPC handlers before window creation
   initializeIpcHandlers(appState)
 
-  // Start autonomous workflow discovery after Electron and app state are ready.
-  AutonomousOpsService.getInstance().start();
+  if (AUTONOMOUS_OPS_ENABLED) {
+    AutonomousOpsService.getInstance().start();
+  } else {
+    console.log('[Init] Autonomous workflow supervision disabled by default. Set NATIVELY_ENABLE_AUTONOMOUS_OPS=1 to enable repo workflow monitoring.');
+  }
 
   // Apply the full disguise payload (names, dock icon, AUMID) early
   appState.applyInitialDisguise();
@@ -2646,8 +3748,7 @@ async function initializeApp() {
   try {
     const llmHelper = appState.processingHelper.getLLMHelper();
     llmHelper.setIPCorpMode(true);
-    llmHelper.startContinuousOCR();
-    console.log('[Init] Meeting AI defaults enabled (IP Corp mode + Continuous OCR)');
+    console.log('[Init] Meeting AI defaults enabled (IP Corp mode; Continuous OCR disabled by default)');
   } catch (error) {
     console.warn('[Init] Failed to enable Meeting AI defaults:', error);
   }
@@ -2697,26 +3798,30 @@ async function initializeApp() {
   // Pre-create settings window in background for faster first open
   appState.settingsWindowHelper.preloadWindow()
 
-  try {
-    const { ContextStackBootstrapService } = require('./services/ContextStackBootstrapService');
-    ContextStackBootstrapService.getInstance()
-      .ensureRunning()
-      .then((status: any) => {
-        console.log('[Main] Context stack bootstrap complete:', status);
-        try {
-          const { MicrosoftLocalManager } = require('./services/MicrosoftLocalManager');
-          MicrosoftLocalManager.getInstance().refreshConnections().catch((error: any) => {
-            console.warn('[Main] MicrosoftLocalManager refresh after bootstrap failed:', error?.message || error);
-          });
-        } catch (e) {
-          console.warn('[Main] Failed to refresh MicrosoftLocalManager after bootstrap:', e);
-        }
-      })
-      .catch((error: any) => {
-        console.warn('[Main] Context stack bootstrap failed:', error?.message || error);
-      });
-  } catch (e) {
-    console.error('[Main] Failed to initialize ContextStackBootstrapService:', e);
+  if (CONTEXT_STACK_BOOTSTRAP_ENABLED) {
+    try {
+      const { ContextStackBootstrapService } = require('./services/ContextStackBootstrapService');
+      ContextStackBootstrapService.getInstance()
+        .ensureRunning()
+        .then((status: any) => {
+          console.log('[Main] Context stack bootstrap complete:', status);
+          try {
+            const { MicrosoftLocalManager } = require('./services/MicrosoftLocalManager');
+            MicrosoftLocalManager.getInstance().refreshConnections().catch((error: any) => {
+              console.warn('[Main] MicrosoftLocalManager refresh after bootstrap failed:', error?.message || error);
+            });
+          } catch (e) {
+            console.warn('[Main] Failed to refresh MicrosoftLocalManager after bootstrap:', e);
+          }
+        })
+        .catch((error: any) => {
+          console.warn('[Main] Context stack bootstrap failed:', error?.message || error);
+        });
+    } catch (e) {
+      console.error('[Main] Failed to initialize ContextStackBootstrapService:', e);
+    }
+  } else {
+    console.log('[Init] Context stack bootstrap disabled by default; Outlook, Teams, and Cluely will not be launched on Natively startup.');
   }
 
   // One-time macOS screen recording permission prompt.
@@ -2786,6 +3891,7 @@ async function initializeApp() {
     });
 
     console.log('[Main] CalendarManager initialized');
+    appState.startMeetingPrepScheduler();
   } catch (e) {
     console.error('[Main] Failed to initialize CalendarManager:', e);
   }
@@ -2815,10 +3921,13 @@ async function initializeApp() {
     console.error('[Main] Failed to initialize MicrosoftLocalManager:', e);
   }
 
-  // Recover unprocessed meetings (persistence check)
-  appState.getIntelligenceManager().recoverUnprocessedMeetings().catch(err => {
-    console.error('[Main] Failed to recover unprocessed meetings:', err);
-  });
+  if (STARTUP_MEETING_RECOVERY_ENABLED) {
+    appState.getIntelligenceManager().recoverUnprocessedMeetings().catch(err => {
+      console.error('[Main] Failed to recover unprocessed meetings:', err);
+    });
+  } else {
+    console.log('[Init] Startup meeting recovery disabled by default to avoid automatic model calls on launch.');
+  }
 
   // Note: We do NOT force dock show here anymore, respecting stealth mode.
 
@@ -2856,6 +3965,7 @@ async function initializeApp() {
     earlyTrace('before-quit');
     console.log("App is quitting, cleaning up resources...");
     appState.setQuitting(true);
+    appState.stopMeetingPrepScheduler();
 
     // Dispose CropperWindowHelper to clean up IPC listeners and prevent memory leaks
     // This is critical to prevent resource leaks and ensure proper cleanup

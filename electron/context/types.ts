@@ -9,7 +9,10 @@ export type ContextSourceType =
   | "task_or_commitment"
   | "manual_import"
   | "interaction"
-  | "live_transcript";
+  | "live_transcript"
+  | "brain_prep_packet"
+  | "cortex_insight"
+  | "action_proposal";
 
 export type ContextTrustTier = "authoritative" | "durable" | "observed";
 export type ContextVisibility = "private" | "workspace" | "external";
@@ -50,6 +53,8 @@ export interface ContextRetrievalRequest {
   excludeSourceTypes?: ContextSourceType[];
   limit?: number;
   maxAgeMs?: number;
+  includeLiveMicrosoftSources?: boolean;
+  includeSemantica?: boolean;
 }
 
 export interface ContextScoreBreakdown {

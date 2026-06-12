@@ -48,8 +48,8 @@ const ModelSelectorWindow = () => {
     };
 
     const panelClass = isLight
-        ? 'bg-[#F7F8FA]/98 border-black/10 shadow-black/10'
-        : 'bg-[#151821]/97 border-white/10 shadow-black/50';
+        ? 'bg-white text-slate-950 border-slate-200 shadow-[0_24px_80px_rgba(15,23,42,0.22)]'
+        : 'bg-[#10131A] text-white border-white/20 shadow-[0_24px_90px_rgba(0,0,0,0.78)]';
 
     const providerLabelClass = isLight ? 'text-slate-500' : 'text-slate-400';
 
@@ -59,8 +59,8 @@ const ModelSelectorWindow = () => {
     };
 
     return (
-        <div className="w-fit h-fit bg-transparent flex flex-col">
-            <div className={`w-[280px] max-h-[360px] backdrop-blur-md border rounded-[16px] overflow-hidden shadow-2xl p-2 flex flex-col animate-scale-in origin-top-left ${panelClass}`}>
+        <div className="w-fit h-fit bg-transparent flex flex-col p-2">
+            <div className={`w-[312px] max-h-[392px] border rounded-xl overflow-hidden p-2 flex flex-col animate-scale-in origin-top-left ${panelClass}`}>
                 {isLoading ? (
                     <div className={`flex items-center justify-center py-6 ${providerLabelClass}`}>
                         <Loader2 className="w-4 h-4 animate-spin mr-2" />
@@ -128,7 +128,7 @@ const ModelGroup = ({
                     key={model.id}
                     onClick={() => onSelect(model.id)}
                     className={[
-                        'w-full text-left px-3 py-2.5 flex items-center justify-between rounded-xl transition-colors duration-200',
+                        'w-full text-left px-3 py-2.5 flex items-center justify-between rounded-lg transition-colors duration-200',
                         isSelected
                             ? (isLight ? 'bg-black/[0.07] text-slate-900' : 'bg-white/10 text-white')
                             : (isLight ? 'text-slate-600 hover:bg-black/[0.04] hover:text-slate-900' : 'text-slate-300 hover:bg-white/5 hover:text-white'),

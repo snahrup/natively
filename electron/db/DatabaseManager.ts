@@ -43,6 +43,37 @@ export interface MeetingContextOverview {
     model?: string;
 }
 
+export interface MeetingContextNote {
+    id: string;
+    text: string;
+    createdAt: string;
+    source: 'manual' | 'meeting_chat';
+}
+
+export interface MeetingReconstructedTranscriptTurn {
+    speaker: string;
+    text: string;
+    startTimestamp?: number;
+    endTimestamp?: number;
+    confidence?: 'low' | 'medium' | 'high';
+}
+
+export interface MeetingTranscriptReconstruction {
+    generatedAt: string;
+    model: string;
+    reasoningEffort: string;
+    sourceRawSegments: number;
+    cleanedTurns: number;
+    reconstructedTurns: number;
+    summaryNotes: string[];
+    speakerMap: Array<{
+        source: string;
+        resolved: string;
+        reason?: string;
+    }>;
+    turns: MeetingReconstructedTranscriptTurn[];
+}
+
 export interface MeetingDetailedSummary {
     overview?: string;
     actionItems: string[];
@@ -50,6 +81,17 @@ export interface MeetingDetailedSummary {
     actionItemsTitle?: string;
     keyPointsTitle?: string;
     contextOverview?: MeetingContextOverview;
+    userContextNotes?: MeetingContextNote[];
+    reconstructedTranscript?: MeetingTranscriptReconstruction;
+    transcriptCleanup?: {
+        rawSegments: number;
+        cleanTurns: number;
+        rawCharacters: number;
+        cleanCharacters: number;
+        compressionRatio: number;
+        generatedAt: string;
+        strategy: string;
+    };
 }
 
 export interface Meeting {
@@ -999,7 +1041,10 @@ export class DatabaseManager {
         keyPoints?: string[],
         actionItemsTitle?: string,
         keyPointsTitle?: string,
-        contextOverview?: MeetingContextOverview
+        contextOverview?: MeetingContextOverview,
+        userContextNotes?: MeetingContextNote[],
+        reconstructedTranscript?: MeetingTranscriptReconstruction,
+        transcriptCleanup?: MeetingDetailedSummary['transcriptCleanup']
     }): boolean {
         if (!this.db) return false;
 
@@ -1049,6 +1094,62 @@ export class DatabaseManager {
         } catch (error) {
             console.error(`[DatabaseManager] Failed to update summary for meeting ${id}:`, error);
             return false;
+        }
+    }
+
+    public addMeetingContextNote(id: string, text: string, source: 'manual' | 'meeting_chat' = 'manual'): {
+        success: boolean;
+        note?: MeetingContextNote;
+        meeting?: Meeting;
+        error?: string;
+    } {
+        if (!this.db) return { success: false, error: 'Database unavailable.' };
+
+        const cleaned = String(text || '').replace(/\s+/g, ' ').trim();
+        if (!cleaned) return { success: false, error: 'Context note is empty.' };
+
+        try {
+            const row = this.db.prepare('SELECT summary_json FROM meetings WHERE id = ?').get(id) as any;
+            if (!row) return { success: false, error: `Meeting not found: ${id}` };
+
+            const existingData = JSON.parse(row.summary_json || '{}');
+            const currentDetailed = existingData.detailedSummary || {};
+            const currentNotes = Array.isArray(currentDetailed.userContextNotes)
+                ? currentDetailed.userContextNotes
+                : [];
+            const now = new Date().toISOString();
+            const note: MeetingContextNote = {
+                id: `ctx-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+                text: cleaned,
+                createdAt: now,
+                source,
+            };
+
+            const newData = {
+                ...existingData,
+                detailedSummary: {
+                    ...currentDetailed,
+                    userContextNotes: [...currentNotes, note],
+                    contextOverview: undefined,
+                },
+            };
+
+            const info = this.db.prepare('UPDATE meetings SET summary_json = ? WHERE id = ?').run(JSON.stringify(newData), id);
+            if (info.changes <= 0) return { success: false, error: 'Meeting context note was not saved.' };
+
+            const meeting = this.getMeetingDetails(id) || undefined;
+            if (meeting) {
+                this.notifyMeetingChange({
+                    type: 'upsert',
+                    meetingId: id,
+                    meeting,
+                });
+            }
+
+            return { success: true, note, meeting };
+        } catch (error: any) {
+            console.error(`[DatabaseManager] Failed to add context note for meeting ${id}:`, error);
+            return { success: false, error: error?.message || 'Failed to save meeting context note.' };
         }
     }
 
@@ -1157,6 +1258,7 @@ export class DatabaseManager {
                 calendarEventId: row.calendar_event_id,
                 source: row.source as any,
                 importMetadata: summaryData.importMetadata || undefined,
+                isProcessed: row.is_processed !== 0,
                 // We don't load full transcript/usage for list view to keep it light
                 transcript: [] as any[],
                 usage: [] as any[]
@@ -1248,6 +1350,7 @@ export class DatabaseManager {
             calendarEventId: meetingRow.calendar_event_id,
             source: meetingRow.source,
             importMetadata: summaryData.importMetadata || undefined,
+            isProcessed: meetingRow.is_processed !== 0,
             transcript: transcript,
             usage: usage
         };

@@ -1,6 +1,6 @@
 {
   "name": "natively",
-  "version": "2.3.7",
+  "version": "2.3.12",
   "main": "dist-electron/electron/bootstrap.js",
   "description": "Local-first proactive meeting and workflow companion.",
   "scripts": {

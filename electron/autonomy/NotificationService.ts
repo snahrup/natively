@@ -8,6 +8,7 @@ const NOTIFIABLE_STATES = new Set<WorkflowRuntimeState>([
   "blocked",
   "completed",
 ]);
+const LEGACY_APP_MONITORS_ENABLED = process.env.NATIVELY_ENABLE_LEGACY_APP_MONITORS === "1";
 
 export class NotificationService {
   private static instance: NotificationService;
@@ -30,6 +31,7 @@ export class NotificationService {
 
   public maybeNotify(previous: WorkflowSnapshot | undefined, next: WorkflowSnapshot): void {
     if (!NOTIFIABLE_STATES.has(next.state)) return;
+    if (isLegacyWorkflow(next) && !LEGACY_APP_MONITORS_ENABLED) return;
     if (previous?.state === next.state && previous.summary === next.summary) return;
 
     const runId = stringifyStateValue(next.structuredState, "currentRunId")
@@ -49,6 +51,10 @@ export class NotificationService {
       console.warn("[AutonomousOps] Failed to show notification:", error);
     }
   }
+}
+
+function isLegacyWorkflow(snapshot: WorkflowSnapshot): boolean {
+  return snapshot.adapterId === "fmd" || snapshot.workflowId.startsWith("fmd.");
 }
 
 function stringifyStateValue(state: Record<string, unknown> | undefined, key: string): string {

@@ -1,6 +1,7 @@
 import {
   getCalendarDocuments,
   getEmailDocuments,
+  getMeetingMemoryDocuments,
   getObservationDocuments,
   getProfileDocuments,
   getTeamsDocuments,
@@ -13,6 +14,7 @@ import {
   ScoredContextDocument,
 } from "./types";
 import { SemanticaBridgeService } from "../services/SemanticaBridgeService";
+import { BrainReadModelService } from "../services/BrainReadModelService";
 
 const TRUST_SCORES: Record<ContextDocument["trustTier"], number> = {
   authoritative: 1,
@@ -54,30 +56,54 @@ export class ContextRetrievalBroker {
       };
     }
 
-    const [calendarDocs, emailDocs, teamsDocs] = await Promise.all([
-      getCalendarDocuments(),
-      getEmailDocuments(query),
-      getTeamsDocuments(),
-    ]);
+    const memoryDocs = await withTimeout(
+      getMeetingMemoryDocuments(query, request.surface === "prep" ? 14 : 10),
+      2_500,
+      [] as ContextDocument[],
+      "meeting memory"
+    );
+    const brainDocs = BrainReadModelService.getInstance().getContextDocuments(
+      query,
+      request.surface === "prep" ? 24 : 16
+    );
+
+    let microsoftDocs: ContextDocument[] = [];
+    if (request.includeLiveMicrosoftSources === true) {
+      const [calendarDocs, emailDocs, teamsDocs] = await Promise.all([
+        withTimeout(getCalendarDocuments(), 1_500, [] as ContextDocument[], "calendar"),
+        withTimeout(getEmailDocuments(query), 1_500, [] as ContextDocument[], "email"),
+        withTimeout(getTeamsDocuments(), 1_500, [] as ContextDocument[], "teams"),
+      ]);
+      microsoftDocs = [...calendarDocs, ...emailDocs, ...teamsDocs];
+    }
 
     let semanticaDocs: ContextDocument[] = [];
-    try {
-      semanticaDocs = await SemanticaBridgeService.getInstance().queryMeetingContext({
-        query,
-        activeMeetingId: request.activeMeetingId,
-        participantHints: request.participantHints,
-        limit: request.surface === "prep" ? 14 : 10,
-        surface: request.surface,
-      });
-    } catch (error) {
-      console.warn("[ContextRetrievalBroker] Semantica query failed:", error);
+    if (request.includeSemantica === true) {
+      try {
+        semanticaDocs = await withTimeout(
+          SemanticaBridgeService.getInstance().queryMeetingContext({
+            query,
+            activeMeetingId: request.activeMeetingId,
+            participantHints: request.participantHints,
+            limit: request.surface === "prep" ? 14 : 10,
+            surface: request.surface,
+            startIfNeeded: false,
+            timeoutMs: 1_200,
+          }),
+          1_300,
+          [] as ContextDocument[],
+          "semantica"
+        );
+      } catch (error) {
+        console.warn("[ContextRetrievalBroker] Semantica query failed:", error);
+      }
     }
 
     const candidates = dedupeDocuments([
+      ...brainDocs,
       ...getObservationDocuments(request.maxAgeMs),
-      ...calendarDocs,
-      ...emailDocs,
-      ...teamsDocs,
+      ...memoryDocs,
+      ...microsoftDocs,
       ...getProfileDocuments(this.knowledgeOrchestrator),
       ...semanticaDocs,
     ]);
@@ -157,6 +183,15 @@ export class ContextRetrievalBroker {
     if (request.surface === "prep" && doc.sourceType === "calendar_event") {
       boost += 0.5;
     }
+    if (doc.sourceSystem === "ipcorp_architecture_brain") {
+      boost += request.surface === "prep" ? 0.7 : 0.45;
+    }
+    if (request.surface === "meeting" && doc.sourceType === "cortex_insight") {
+      boost += 0.35;
+    }
+    if (request.surface === "proactive" && doc.sourceType === "action_proposal") {
+      boost += 0.3;
+    }
     if (request.surface === "meeting" && (doc.sourceType === "live_transcript" || doc.sourceType === "ocr_observation")) {
       boost += 0.45;
     }
@@ -232,6 +267,26 @@ function overlapRatio(left: string[], right: string[]): number {
 function isOlderThan(doc: ContextDocument, maxAgeMs: number): boolean {
   const createdAtMs = Date.parse(doc.updatedAt || doc.createdAt);
   return Number.isFinite(createdAtMs) && (Date.now() - createdAtMs) > maxAgeMs;
+}
+
+async function withTimeout<T>(promise: Promise<T>, timeoutMs: number, fallback: T, label: string): Promise<T> {
+  let timer: NodeJS.Timeout | null = null;
+  try {
+    return await Promise.race([
+      promise,
+      new Promise<T>((resolve) => {
+        timer = setTimeout(() => {
+          console.warn(`[ContextRetrievalBroker] ${label} context timed out after ${timeoutMs}ms`);
+          resolve(fallback);
+        }, timeoutMs);
+      }),
+    ]);
+  } catch (error) {
+    console.warn(`[ContextRetrievalBroker] ${label} context failed:`, error);
+    return fallback;
+  } finally {
+    if (timer) clearTimeout(timer);
+  }
 }
 
 function clamp(value: number, min: number, max: number): number {

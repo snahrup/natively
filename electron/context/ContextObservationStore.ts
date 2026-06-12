@@ -13,6 +13,9 @@ const TTL_BY_SOURCE_MS: Record<ContextSourceType, number> = {
   profile_fact: 365 * 24 * 60 * 60 * 1000,
   task_or_commitment: 180 * 24 * 60 * 60 * 1000,
   manual_import: 365 * 24 * 60 * 60 * 1000,
+  brain_prep_packet: 365 * 24 * 60 * 60 * 1000,
+  cortex_insight: 365 * 24 * 60 * 60 * 1000,
+  action_proposal: 365 * 24 * 60 * 60 * 1000,
 };
 
 export class ContextObservationStore {

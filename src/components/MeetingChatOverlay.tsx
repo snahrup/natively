@@ -23,12 +23,20 @@ interface Message {
     isStreaming?: boolean;
 }
 
+interface MeetingContextNote {
+    id: string;
+    text: string;
+    createdAt: string;
+    source: 'manual' | 'meeting_chat';
+}
+
 interface MeetingContext {
     id?: string;  // Required for RAG queries
     title: string;
     summary?: string;
     keyPoints?: string[];
     actionItems?: string[];
+    userContextNotes?: MeetingContextNote[];
     transcript?: Array<{ speaker: string; text: string; timestamp: number }>;
 }
 
@@ -38,6 +46,7 @@ interface MeetingChatOverlayProps {
     meetingContext: MeetingContext;
     initialQuery?: string;
     onNewQuery: (query: string) => void;
+    onContextNoteSaved?: (note: MeetingContextNote, meeting?: any) => void;
 }
 
 type ChatState = 'idle' | 'opening' | 'waiting_for_llm' | 'streaming_response' | 'error' | 'closing';
@@ -65,6 +74,19 @@ const TypingIndicator: React.FC = () => (
         </div>
     </div>
 );
+
+const isLikelyMeetingContextNote = (value: string): boolean => {
+    const text = value.trim();
+    if (!text) return false;
+
+    return [
+        /^\s*(context|note|correction|remember|for context)\s*:/i,
+        /\b(this|that) meeting\s+(was|is|included|had)\b/i,
+        /\b(update|add|save|remember|record)\b.*\b(this|that) meeting\b/i,
+        /\b(this|that) meeting\b.*\b(between|with|participant|attendee|actually)\b/i,
+        /\b(participants|attendees)\b.*\b(were|are|included|include)\b/i,
+    ].some((pattern) => pattern.test(text));
+};
 
 // ============================================
 // Message Components
@@ -187,6 +209,7 @@ const MeetingChatOverlay: React.FC<MeetingChatOverlayProps> = ({
     onClose,
     meetingContext,
     initialQuery = '',
+    onContextNoteSaved,
     // onNewQuery
 }) => {
     const [messages, setMessages] = useState<Message[]>([]);
@@ -264,6 +287,10 @@ const MeetingChatOverlay: React.FC<MeetingChatOverlayProps> = ({
             parts.push(`\nACTION ITEMS:\n${meetingContext.actionItems.map(a => `- ${a}`).join('\n')}`);
         }
 
+        if (meetingContext.userContextNotes?.length) {
+            parts.push(`\nUSER-SUPPLIED CONTEXT:\n${meetingContext.userContextNotes.map(note => `- ${note.text}`).join('\n')}`);
+        }
+
         if (meetingContext.transcript?.length) {
             const recentTranscript = meetingContext.transcript.slice(-20);
             const transcriptText = recentTranscript
@@ -292,6 +319,31 @@ const MeetingChatOverlay: React.FC<MeetingChatOverlayProps> = ({
         setTimeout(() => {
             messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
         }, 50);
+
+        const meetingId = meetingContext.id;
+        if (meetingId && isLikelyMeetingContextNote(question) && window.electronAPI?.addMeetingContextNote) {
+            try {
+                setChatState('waiting_for_llm');
+                const result = await window.electronAPI.addMeetingContextNote(meetingId, question, 'meeting_chat');
+                if (!result?.success || !result.note) {
+                    throw new Error('Context note was not saved.');
+                }
+
+                onContextNoteSaved?.(result.note, result.meeting);
+                setMessages(prev => [...prev, {
+                    id: `assistant-${Date.now()}`,
+                    role: 'assistant',
+                    content: 'Saved as meeting context. I am refreshing the brief so the participants and analysis use that correction.',
+                }]);
+                setChatState('idle');
+                return;
+            } catch (error: any) {
+                console.error('[MeetingChat] Failed to save context note:', error);
+                setErrorMessage(error?.message || "Couldn't save that as meeting context.");
+                setChatState('error');
+                return;
+            }
+        }
 
         const assistantMessageId = `assistant-${Date.now()}`;
 
@@ -346,9 +398,6 @@ const MeetingChatOverlay: React.FC<MeetingChatOverlayProps> = ({
                 errorCleanup?.();
             });
 
-            // Get meeting ID from context for RAG queries
-            const meetingId = meetingContext.id;
-
             if (meetingId) {
                 // Use RAG-powered meeting query
                 const result = await window.electronAPI?.ragQueryMeeting(meetingId, question);
@@ -386,6 +435,7 @@ ${contextString}`;
                                 ? { ...msg, content: finalContent, isStreaming: false }
                                 : msg
                         ));
+                        setChatState('idle');
                         streamBuffer.reset();
                         oldTokenCleanup?.();
                         oldDoneCleanup?.();
@@ -469,7 +519,7 @@ ${contextString}`;
             setErrorMessage("Something went wrong. Please try again.");
             setChatState('error');
         }
-    }, [chatState, buildContextString, meetingContext]);
+    }, [chatState, buildContextString, meetingContext, onContextNoteSaved]);
 
     return (
         <AnimatePresence>

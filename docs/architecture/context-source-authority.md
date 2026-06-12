@@ -1,66 +1,64 @@
 # Context Source Authority
 
-Last updated: 2026-04-12
+Last updated: 2026-05-12
 
 ## Decision
 
-Natively is the authoritative context engine.
+The IP Corp architecture brain repo is the authoritative context source for IP Corp meeting guidance and Cortex-style intelligence.
 
-ClawMem is not treated as a required live source of truth for meeting guidance, prep assembly, or prompt-time context injection.
+Natively is the local touchpoint. It reads prepared brain read models, displays guidance, captures decisions/outcomes, and executes explicitly approved actions. It is not the canonical analyzer, crawler, or prompt-time live-source aggregator.
 
 ## Why
 
-ClawMem is currently not reliable enough to serve as the single authority:
+The previous direction let too many systems compete for authority:
 
-- the live Windows service was previously observed running against a different vault path than the user-profile vault with actual session rows
-- the running service corpus was dominated by imported markdown extracts rather than current Natively runtime context
-- Natively was still pointed at legacy ClawMem API assumptions that did not line up with the live server state
-- even when auxiliary tools are down, Natively still needs to continue delivering guidance from its own durable store and structured local sources
+- Semantica was briefly treated as a canonical substrate, but the project moved toward `ipcorp-architecture-brain` as the durable working memory.
+- Teams, Outlook, Notion, Cluely, and transcripts are already being consolidated by external/background processes before Natively needs them.
+- Live widget-time calls to Microsoft or other source systems slow the app down and create unpredictable behavior.
+- The long-term product objective is a learning operating model: every observation, proposal, approval, rejection, edit, and outcome should feed durable improvement over time.
 
-That combination makes ClawMem unsafe as a primary source for real-time context injection.
+That makes the brain repo the right source of truth, and Natively the right interaction layer.
 
 ## Authoritative Order
 
-### Tier 1. Natively-Owned Durable Memory
+### Tier 1. IP Corp Brain Read Models
 
-- Natively meeting records
-- transcripts
-- summaries
-- usage logs
-- commitments
-- contradictions
-- imported Cluely history
-- imported Teams history
-- background reference documents
-- any promoted durable observations
+- `natively/status.json`
+- `natively/meeting-index.json`
+- `natively/prep-packets/*.packet.json`
+- `natively/cortex/latest-run.json`
+- `natively/cortex/insights/*.json`
+- `natively/action-proposals/*.json`
+- `natively/outcomes/*.jsonl`
 
-Tier 1 is the default truth source for prep, memory recall, and historical grounding.
+Tier 1 is the default truth source for prep, memory recall, historical grounding, Cortex-style observations, and action cards.
 
-### Tier 2. Structured Live Local Sources
+### Tier 2. Natively Session State
 
-- Outlook Desktop email and calendar
-- Teams Desktop messages and meeting-adjacent signals
 - current meeting/session state
-- model/provider runtime state when needed for operational debugging
+- current chat interaction turns
+- microphone transcript fragments
+- explicit user-entered notes
+- model/provider runtime state for operational debugging
 
-Tier 2 can outrank stale Tier 1 artifacts when the question is explicitly about current live state.
+Tier 2 can support current interaction ergonomics, but it must not silently become IP Corp durable truth without promotion through the brain pipeline.
 
 ### Tier 3. Ephemeral Live Observations
 
 - OCR screen observations
 - live transcript segments
-- current chat interaction turns
 - transient UI state
 
-Tier 3 is highly useful for "what is on my screen right now" or "what is happening in this meeting right now," but it should not silently become durable truth without promotion.
+Tier 3 is useful for "what is on my screen right now" or "what is happening in this meeting right now," but it is not authoritative.
 
-### Tier 4. Optional Secondary Enrichment
+### Tier 4. Approved Action Execution
 
-- Nexus / Conductor session bus
-- ClawMem
-- future MCP-connected systems
+- send approved email draft
+- send approved Teams message
+- create approved calendar event
+- write approved task/note/follow-up artifact
 
-Tier 4 may enrich retrieval, but it must not override Tier 1 or Tier 2 unless the product explicitly declares a new authority policy.
+Tier 4 is write-side only. It must not be used as a context-reading path during widget use.
 
 ## Same-Meeting Conflict Resolution
 
@@ -88,9 +86,9 @@ For usage / assistant interaction logs:
 
 ## Operational Rules
 
-### Rule 1. Do Not Block Core Product Behavior On ClawMem Health
+### Rule 1. Do Not Block Core Product Behavior On Live Source Health
 
-Meeting AI, prep packets, context assembly, and import flows must continue even if ClawMem, Nexus, or Conductor is unavailable.
+Meeting AI, prep packets, context assembly, and action proposal display must continue even if Teams, Outlook, Notion, Cluely, Semantica, Nexus, or Conductor is unavailable.
 
 ### Rule 2. Do Not Report Success Without Durable Persistence
 
@@ -100,13 +98,21 @@ If SQLite is unavailable, imports and other persistence-dependent flows must fai
 
 OCR can influence live assistance, but it should not overrule stronger structured or durable evidence unless the request is explicitly about visible on-screen state.
 
-### Rule 4. Internal Analysis Jobs Must Stay Narrow
+### Rule 4. Widget-Time Context Must Be Brain-First
 
-Background contradiction detection or cleanup jobs should default to the local meeting/job evidence they are processing and not pull broad mailbox/calendar context unless explicitly requested.
+During widget use, prep and chat retrieval should read the brain repo first. Live Microsoft, Notion, Cluely, and Semantica calls are not allowed for context gathering.
 
-## Re-entry Criteria For ClawMem
+### Rule 5. Approved Writes Are Not Context Gathering
 
-ClawMem can only be reconsidered as an authoritative source if all of the following are true:
+Natively may touch Outlook, Teams, or calendar APIs only after Steve approves a visible action proposal. Those calls execute the approved action; they do not gather context.
+
+### Rule 6. Outcome Feedback Is Product Data
+
+Every approval, rejection, edit, snooze, override, and execution outcome should become durable learning signal in the brain repo. The system cannot earn autonomy without that ledger.
+
+## Re-entry Criteria For Any Secondary Context System
+
+Any secondary context system can only be reconsidered as authoritative if all of the following are true:
 
 1. one deterministic vault path on Windows
 2. one live service using that same vault
@@ -115,4 +121,4 @@ ClawMem can only be reconsidered as an authoritative source if all of the follow
 5. source provenance and freshness verified in practice
 6. clear evidence that it improves retrieval quality instead of introducing ambiguity
 
-Until then, Natively owns the context engine.
+Until then, the IP Corp architecture brain owns context authority and Natively reads from it.

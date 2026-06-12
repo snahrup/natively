@@ -121,7 +121,7 @@ const MockupNativelyInterface = ({ opacity }: { opacity: number }) => {
                                 <RefreshCw className="w-3 h-3 opacity-70" /> Summarize
                             </div>
                             <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-medium border shrink-0 overlay-chip-surface overlay-text-interactive" style={appearance.chipStyle}>
-                                <HelpCircle className="w-3 h-3 opacity-70" /> Suggest Follow-Up
+                                <HelpCircle className="w-3 h-3 opacity-70" /> Help
                             </div>
                             <div className="flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-medium min-w-[74px] shrink-0 border overlay-chip-surface overlay-text-interactive" style={appearance.chipStyle}>
                                 <Zap className="w-3 h-3 opacity-70" /> Voice Ask
@@ -2149,7 +2149,7 @@ const SettingsOverlay: React.FC<SettingsOverlayProps> = ({ isOpen, onClose, init
                                                 {[
                                                     { id: 'whatToAnswer', label: 'Draft Reply', icon: <Sparkles size={14} /> },
                                                     { id: 'clarify', label: 'Clarify Context', icon: <MessageSquare size={14} /> },
-                                                    { id: 'followUp', label: 'Suggest Follow-Up', icon: <MessageSquare size={14} /> },
+                                                    { id: 'followUp', label: 'Help', icon: <MessageSquare size={14} /> },
                                                     { id: 'dynamicAction4', label: 'Summarize / Brainstorm', icon: <RefreshCw size={14} /> },
                                                     { id: 'answer', label: 'Voice Ask', icon: <Mic size={14} /> },
                                                     { id: 'codeHint', label: 'Technical Assist', icon: <Zap size={14} /> },

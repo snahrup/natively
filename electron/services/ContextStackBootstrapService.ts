@@ -161,18 +161,8 @@ export class ContextStackBootstrapService {
   }
 
   private async ensureDesktopProcess(imageNames: string[], launchCandidates: string[]): Promise<boolean> {
-    if (this.isProcessRunning(imageNames)) return true;
-
-    const launchPath = launchCandidates.find((candidate) => candidate && exists(candidate));
-    if (!launchPath) return false;
-
-    try {
-      this.startDetached(launchPath);
-      await delay(2500);
-      return this.isProcessRunning(imageNames);
-    } catch {
-      return false;
-    }
+    void launchCandidates;
+    return this.isProcessRunning(imageNames);
   }
 
   private async ensureConductor(): Promise<boolean> {

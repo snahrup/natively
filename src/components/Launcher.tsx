@@ -1,17 +1,16 @@
-import React, { useState, useEffect } from 'react';
-import { ToggleLeft, ToggleRight, Search, Zap, Calendar, ArrowRight, ArrowLeft, MoreHorizontal, Globe, Clock, ChevronRight, Settings, RefreshCw, Eye, EyeOff, Ghost, Plus, Mail, Link as LinkIcon, ChevronDown, Trash2, Bell, Check, Download, DownloadCloud, CheckCircle, AlertCircle, MessageSquare, Monitor, Activity } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { ToggleLeft, ToggleRight, Search, Zap, Calendar, ArrowRight, ArrowLeft, MoreHorizontal, Globe, Clock, ChevronRight, Settings, RefreshCw, Eye, EyeOff, Ghost, Plus, Mail, Link as LinkIcon, ChevronDown, Trash2, Bell, Check, Download, DownloadCloud, CheckCircle, AlertCircle, MessageSquare, Monitor, Activity, Mic, Speaker } from 'lucide-react';
 import { generateMeetingPDF } from '../utils/pdfGenerator';
 import icon from "./icon.png";
-import ConnectCalendarButton from './ui/ConnectCalendarButton';
 import MeetingDetails from './MeetingDetails';
 import TopSearchPill from './TopSearchPill';
 import GlobalChatOverlay from './GlobalChatOverlay';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FeatureSpotlight } from './FeatureSpotlight';
 import { analytics } from '../lib/analytics/analytics.service'; // Added analytics import
 import { useShortcuts } from '../hooks/useShortcuts';
 import { useResolvedTheme } from '../hooks/useResolvedTheme';
 import { isMac } from '../utils/platformUtils';
+import { getDisplayModelName } from '../utils/modelUtils';
 import WindowControls from './WindowControls';
 
 interface Meeting {
@@ -98,6 +97,40 @@ interface MeetingPrepPacket {
     openCommitments: string[];
 }
 
+interface BrainActionProposal {
+    id: string;
+    type: string;
+    title: string;
+    summary: string;
+    status: string;
+    createdAt: string;
+    updatedAt?: string;
+    payload?: Record<string, any>;
+    evidenceRefs?: string[];
+    relatedInsightIds?: string[];
+    workflowRun?: {
+        id: string;
+        state: string;
+        updatedAt?: string;
+    };
+}
+
+const prepHealthLabels: Record<keyof MeetingPrepPacket['sourceHealth'], string> = {
+    calendar: 'Calendar',
+    memory: 'Memory',
+    backgroundContext: 'Background',
+    roleBrief: 'Role Brief',
+    liveResearch: 'Live Research',
+};
+
+const prepHealthKeys: Array<keyof MeetingPrepPacket['sourceHealth']> = [
+    'calendar',
+    'memory',
+    'backgroundContext',
+    'roleBrief',
+    'liveResearch',
+];
+
 interface LauncherProps {
     onStartMeeting: () => void;
     onOpenSettings: (tab?: string) => void;
@@ -150,6 +183,24 @@ const formatFreshness = (dateStr?: string | null) => {
     return `${diffDays} day${diffDays === 1 ? '' : 's'} ago`;
 };
 
+const formatPrepTimestamp = (dateStr?: string | null) => {
+    if (!dateStr) return 'Just now';
+    const value = new Date(dateStr);
+    if (Number.isNaN(value.getTime())) return 'Just now';
+
+    return value.toLocaleString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        hour: 'numeric',
+        minute: '2-digit',
+    });
+};
+
+const formatPrepSourceLabel = (value: string) =>
+    value
+        .replace(/_/g, ' ')
+        .replace(/\b\w/g, (char) => char.toUpperCase());
+
 const getMeetingSourceBadge = (meeting: Meeting) => {
     switch (meeting.source) {
         case 'calendar':
@@ -165,6 +216,108 @@ const getMeetingSourceBadge = (meeting: Meeting) => {
     }
 };
 
+type ReadinessCheckStatus = 'ready' | 'warming' | 'warning' | 'failed';
+
+interface MeetingReadinessStatus {
+    generatedAt?: string;
+    overall?: ReadinessCheckStatus;
+    meetingActive?: boolean;
+    proactiveModeEnabled?: boolean;
+    model?: string | null;
+    reasoningEffort?: string | null;
+    prep?: any;
+    audio?: any;
+    checks?: Array<{
+        id: string;
+        label: string;
+        status: ReadinessCheckStatus;
+        detail: string;
+    }>;
+}
+
+interface AudioDeviceOption {
+    id: string;
+    name: string;
+}
+
+const readinessLabel = (status?: ReadinessCheckStatus) => {
+    switch (status) {
+        case 'ready':
+            return 'Ready';
+        case 'warming':
+            return 'Warming';
+        case 'failed':
+            return 'Blocked';
+        case 'warning':
+        default:
+            return 'Needs attention';
+    }
+};
+
+const readinessStyles = (status?: ReadinessCheckStatus, isLight = false) => {
+    if (status === 'ready') {
+        return isLight
+            ? 'border-emerald-500/25 bg-emerald-500/8 text-emerald-700'
+            : 'border-emerald-400/25 bg-emerald-400/10 text-emerald-300';
+    }
+    if (status === 'warming') {
+        return isLight
+            ? 'border-sky-500/25 bg-sky-500/8 text-sky-700'
+            : 'border-sky-400/25 bg-sky-400/10 text-sky-300';
+    }
+    if (status === 'failed') {
+        return isLight
+            ? 'border-red-500/25 bg-red-500/8 text-red-700'
+            : 'border-red-400/25 bg-red-400/10 text-red-300';
+    }
+    return isLight
+        ? 'border-amber-500/25 bg-amber-500/10 text-amber-700'
+        : 'border-amber-400/25 bg-amber-400/10 text-amber-300';
+};
+
+const formatReadinessAge = (iso?: string | null) => {
+    if (!iso) return 'never';
+    const elapsedMs = Math.max(0, Date.now() - new Date(iso).getTime());
+    const seconds = Math.floor(elapsedMs / 1000);
+    if (seconds < 5) return 'now';
+    if (seconds < 60) return `${seconds}s ago`;
+    const minutes = Math.floor(seconds / 60);
+    if (minutes < 60) return `${minutes}m ago`;
+    const hours = Math.floor(minutes / 60);
+    return `${hours}h ago`;
+};
+
+const readinessActionGuides: Record<string, { meaning: string; fix: string }> = {
+    brain: {
+        meaning: 'This is the durable IP Corp context Natively should use before it answers or prepares for a meeting.',
+        fix: 'Reload the brain context. If it is blocked, confirm the IP Corp brain repo exists on this machine and then refresh this panel.',
+    },
+    prep: {
+        meaning: 'This shows whether Natively has already built the short meeting packet it should use in the next live session.',
+        fix: 'Refresh the meeting list, then prepare the upcoming meeting so the live coach does not have to scan broad context during the call.',
+    },
+    microphone: {
+        meaning: 'This proves Natively can hear you. Green means recent microphone audio reached the app.',
+        fix: 'Select the microphone you actually want, run a voice check, and confirm Windows or your headset has not muted the device.',
+    },
+    meeting_audio: {
+        meaning: 'This proves Natively can hear the other people or system audio in the meeting.',
+        fix: 'Select the output device Teams or Zoom is using. If this changes during a meeting, restart the widget so capture rebinds cleanly.',
+    },
+    transcripts: {
+        meaning: 'This proves audio is turning into usable text. Proactive guidance depends on this more than raw audio alone.',
+        fix: 'Open audio settings and confirm the speech provider/key is saved, then start the widget and watch for transcript activity.',
+    },
+    coach: {
+        meaning: 'This tells you whether the proactive coach is enabled and recently generated something useful.',
+        fix: 'Turn proactive mode on, start the widget, and keep the mic/transcript checks green for real-time guidance.',
+    },
+    screen: {
+        meaning: 'This confirms Natively can attach or read screen context when you ask about what is visible.',
+        fix: 'Run a quick screen check or open Meeting AI settings to enable always-on screen watch.',
+    },
+};
+
 const Launcher: React.FC<LauncherProps> = ({ onStartMeeting, onOpenSettings, onPageChange, ollamaPullStatus = 'idle', ollamaPullPercent = 0, ollamaPullMessage = '' }) => {
     const [meetings, setMeetings] = useState<Meeting[]>([]);
     const [isDetectable, setIsDetectable] = useState(false);
@@ -176,11 +329,24 @@ const Launcher: React.FC<LauncherProps> = ({ onStartMeeting, onOpenSettings, onP
     const [preparedPacket, setPreparedPacket] = useState<MeetingPrepPacket | null>(null);
     const [isPreparing, setIsPreparing] = useState(false);
     const [prepareError, setPrepareError] = useState('');
-    const [isCalendarConnected, setIsCalendarConnected] = useState(false);
     const [isRefreshing, setIsRefreshing] = useState(false);
     const [showNotification, setShowNotification] = useState(false);
     const [contextHubOverview, setContextHubOverview] = useState<any>(null);
     const [contextHubBusy, setContextHubBusy] = useState(false);
+    const [meetingReadiness, setMeetingReadiness] = useState<MeetingReadinessStatus | null>(null);
+    const [readinessBusy, setReadinessBusy] = useState(false);
+    const [selectedReadinessCheckId, setSelectedReadinessCheckId] = useState<string | null>(null);
+    const [inputDeviceOptions, setInputDeviceOptions] = useState<AudioDeviceOption[]>([]);
+    const [outputDeviceOptions, setOutputDeviceOptions] = useState<AudioDeviceOption[]>([]);
+    const [selectedInputDeviceId, setSelectedInputDeviceId] = useState(() => localStorage.getItem('preferredInputDeviceId') || '');
+    const [selectedOutputDeviceId, setSelectedOutputDeviceId] = useState(() => localStorage.getItem('preferredOutputDeviceId') || '');
+    const [audioDeviceBusy, setAudioDeviceBusy] = useState(false);
+    const [voiceCheckActive, setVoiceCheckActive] = useState(false);
+    const [readinessActionMessage, setReadinessActionMessage] = useState('');
+    const [brainActionProposals, setBrainActionProposals] = useState<BrainActionProposal[]>([]);
+    const [proposalBusyId, setProposalBusyId] = useState<string | null>(null);
+    const [proposalNotice, setProposalNotice] = useState('');
+    const prepBriefRef = useRef<HTMLElement | null>(null);
 
     // Global search state (for AI chat overlay)
     const [isGlobalChatOpen, setIsGlobalChatOpen] = useState(false);
@@ -204,10 +370,76 @@ const Launcher: React.FC<LauncherProps> = ({ onStartMeeting, onOpenSettings, onP
             setContextHubBusy(true);
             const status = await window.electronAPI.getContextHubStatus();
             setContextHubOverview(status || null);
+            if (window.electronAPI?.listBrainActionProposals) {
+                const proposals = await window.electronAPI.listBrainActionProposals(8);
+                setBrainActionProposals((proposals || [])
+                    .filter((proposal: BrainActionProposal) => ['proposed', 'snoozed'].includes(proposal.status || 'proposed'))
+                    .slice(0, 4));
+            }
         } catch (err) {
             console.error("Failed to fetch context hub overview:", err);
         } finally {
             setContextHubBusy(false);
+        }
+    };
+
+    const fetchMeetingReadiness = async () => {
+        if (!window.electronAPI?.getMeetingReadinessStatus) return;
+        try {
+            setReadinessBusy(true);
+            const status = await window.electronAPI.getMeetingReadinessStatus();
+            setMeetingReadiness(status || null);
+        } catch (err) {
+            console.error("Failed to fetch meeting readiness:", err);
+        } finally {
+            setReadinessBusy(false);
+        }
+    };
+
+    const handleBrainProposalDecision = async (proposal: BrainActionProposal, decision: 'approved' | 'rejected' | 'snoozed') => {
+        if (!window.electronAPI?.recordBrainActionOutcome) return;
+        setProposalBusyId(proposal.id);
+        setProposalNotice('');
+        try {
+            await window.electronAPI.recordBrainActionOutcome({
+                proposalId: proposal.id,
+                decision,
+                finalPayload: proposal.payload,
+                learningSignals: [
+                    `Steve ${decision} ${proposal.type} proposal ${proposal.id}.`,
+                ],
+            });
+            setProposalNotice(`${proposal.title}: ${decision} recorded to the brain outcome ledger.`);
+            setBrainActionProposals((current) => current.filter((item) => item.id !== proposal.id));
+            fetchContextHubOverview().catch(() => { });
+        } catch (error) {
+            console.error('Failed to record brain action outcome:', error);
+            setProposalNotice(`${proposal.title}: failed to record outcome.`);
+        } finally {
+            setProposalBusyId(null);
+        }
+    };
+
+    const handleBrainProposalExecute = async (proposal: BrainActionProposal) => {
+        if (!window.electronAPI?.executeBrainActionProposal) return;
+        setProposalBusyId(proposal.id);
+        setProposalNotice('');
+        try {
+            const result = await window.electronAPI.executeBrainActionProposal({
+                proposalId: proposal.id,
+                payload: proposal.payload,
+            });
+            if (!result?.success) {
+                throw new Error(result?.error || 'Action execution failed.');
+            }
+            setProposalNotice(`${proposal.title}: ${result.summary || 'executed'}`);
+            setBrainActionProposals((current) => current.filter((item) => item.id !== proposal.id));
+            fetchContextHubOverview().catch(() => { });
+        } catch (error: any) {
+            console.error('Failed to execute brain action proposal:', error);
+            setProposalNotice(`${proposal.title}: ${error?.message || 'execution failed.'}`);
+        } finally {
+            setProposalBusyId(null);
         }
     };
 
@@ -221,6 +453,7 @@ const Launcher: React.FC<LauncherProps> = ({ onStartMeeting, onOpenSettings, onP
                 fetchEvents();
                 fetchMeetings();
                 fetchContextHubOverview().catch(() => { });
+                fetchMeetingReadiness().catch(() => { });
                 setTimeout(() => {
                     setShowNotification(false);
                 }, 3000);
@@ -245,6 +478,111 @@ const Launcher: React.FC<LauncherProps> = ({ onStartMeeting, onOpenSettings, onP
     // Keybinds
     const { isShortcutPressed } = useShortcuts();
     const isLight = useResolvedTheme() === 'light';
+    const readinessActionButtonClass = `rounded-full border px-3 py-1.5 text-[11px] font-semibold transition-colors ${
+        isLight
+            ? 'border-black/10 bg-white/80 text-text-primary hover:bg-black/[0.04]'
+            : 'border-white/10 bg-white/6 text-text-primary hover:bg-white/10'
+    }`;
+    const readinessPrimaryButtonClass = 'rounded-full border border-blue-500/30 bg-blue-500 px-3 py-1.5 text-[11px] font-semibold text-white shadow-sm shadow-blue-500/20 transition-colors hover:bg-blue-400';
+
+    const setTimedReadinessMessage = (message: string) => {
+        setReadinessActionMessage(message);
+        window.setTimeout(() => setReadinessActionMessage(''), 3500);
+    };
+
+    const loadAudioDevices = async () => {
+        if (!window.electronAPI) return;
+        setAudioDeviceBusy(true);
+        try {
+            const [inputs, outputs] = await Promise.all([
+                window.electronAPI.getInputDevices?.() || Promise.resolve([]),
+                window.electronAPI.getOutputDevices?.() || Promise.resolve([]),
+            ]);
+            setInputDeviceOptions(inputs || []);
+            setOutputDeviceOptions(outputs || []);
+
+            const savedInput = localStorage.getItem('preferredInputDeviceId') || '';
+            const savedOutput = localStorage.getItem('preferredOutputDeviceId') || '';
+            setSelectedInputDeviceId(savedInput || inputs?.[0]?.id || '');
+            setSelectedOutputDeviceId(savedOutput || outputs?.[0]?.id || '');
+        } catch (error) {
+            console.error('Failed to load audio devices:', error);
+            setTimedReadinessMessage('Could not load audio devices from Windows right now.');
+        } finally {
+            setAudioDeviceBusy(false);
+        }
+    };
+
+    const handleReadinessCardClick = (checkId: string) => {
+        setSelectedReadinessCheckId((current) => current === checkId ? null : checkId);
+        setReadinessActionMessage('');
+        if (checkId === 'microphone' || checkId === 'meeting_audio') {
+            loadAudioDevices().catch(() => { });
+        }
+    };
+
+    const savePreferredAudioDevice = (kind: 'input' | 'output', deviceId: string) => {
+        if (kind === 'input') {
+            setSelectedInputDeviceId(deviceId);
+            localStorage.setItem('preferredInputDeviceId', deviceId);
+            setTimedReadinessMessage('Microphone saved. The widget will use it the next time listening starts.');
+        } else {
+            setSelectedOutputDeviceId(deviceId);
+            localStorage.setItem('preferredOutputDeviceId', deviceId);
+            setTimedReadinessMessage('Meeting audio device saved. Restart the widget if a meeting is already running.');
+        }
+        fetchMeetingReadiness().catch(() => { });
+    };
+
+    const toggleVoiceCheck = async () => {
+        try {
+            if (voiceCheckActive) {
+                await window.electronAPI?.stopMicSTT?.();
+                setVoiceCheckActive(false);
+                setTimedReadinessMessage('Voice check stopped.');
+            } else {
+                const result = await window.electronAPI?.startMicSTT?.();
+                if (result?.success === false) throw new Error(result.error || 'Voice check failed.');
+                setVoiceCheckActive(true);
+                setTimedReadinessMessage('Voice check started. Speak normally and watch the microphone status refresh.');
+            }
+            window.setTimeout(() => fetchMeetingReadiness().catch(() => { }), 800);
+        } catch (error: any) {
+            setTimedReadinessMessage(error?.message || 'Voice check could not start.');
+        }
+    };
+
+    const reloadBrainForReadiness = async () => {
+        try {
+            const result = await window.electronAPI?.reloadMeetingMemory?.();
+            if (result?.success === false) throw new Error(result.error || 'Brain reload failed.');
+            setTimedReadinessMessage(result?.chunks ? `Brain reloaded with ${result.chunks} context chunks.` : 'Brain context reloaded.');
+            await Promise.all([fetchContextHubOverview(), fetchMeetingReadiness()]);
+        } catch (error: any) {
+            setTimedReadinessMessage(error?.message || 'Brain reload failed.');
+        }
+    };
+
+    const enableProactiveCoach = async () => {
+        try {
+            const result = await window.electronAPI?.setProactiveMode?.(true);
+            if (result?.success === false) throw new Error(result.error || 'Could not enable proactive mode.');
+            setTimedReadinessMessage('Proactive mode is on. Start the widget for live coaching.');
+            fetchMeetingReadiness().catch(() => { });
+        } catch (error: any) {
+            setTimedReadinessMessage(error?.message || 'Could not enable proactive mode.');
+        }
+    };
+
+    const runScreenCheck = async () => {
+        try {
+            await window.electronAPI?.takeContextScreenshot?.();
+            setTimedReadinessMessage('Screen check captured. The widget can attach current screen context.');
+            fetchMeetingReadiness().catch(() => { });
+        } catch (error: any) {
+            setTimedReadinessMessage(error?.message || 'Screen capture failed.');
+        }
+    };
 
     useEffect(() => {
         let mounted = true;
@@ -272,6 +610,7 @@ const Launcher: React.FC<LauncherProps> = ({ onStartMeeting, onOpenSettings, onP
         fetchMeetings();
         fetchEvents();
         fetchContextHubOverview().catch(() => { });
+        fetchMeetingReadiness().catch(() => { });
 
         // Sync initial meeting active state — guarded so unmounted component isn't written to
         if (window.electronAPI?.getMeetingActive) {
@@ -285,6 +624,7 @@ const Launcher: React.FC<LauncherProps> = ({ onStartMeeting, onOpenSettings, onP
         if (window.electronAPI?.onMeetingStateChanged) {
             removeMeetingStateListener = window.electronAPI.onMeetingStateChanged(({ isActive }) => {
                 setIsMeetingActive(isActive);
+                fetchMeetingReadiness().catch(() => { });
             });
         }
 
@@ -293,6 +633,7 @@ const Launcher: React.FC<LauncherProps> = ({ onStartMeeting, onOpenSettings, onP
             console.log("Received meetings-updated event");
             fetchMeetings();
             fetchContextHubOverview().catch(() => { });
+            fetchMeetingReadiness().catch(() => { });
         });
 
         // Simple polling for events every minute
@@ -302,12 +643,17 @@ const Launcher: React.FC<LauncherProps> = ({ onStartMeeting, onOpenSettings, onP
             fetchContextHubOverview().catch(() => { });
         }, 60000);
 
+        const readinessInterval = setInterval(() => {
+            fetchMeetingReadiness().catch(() => { });
+        }, 5000);
+
         return () => {
             mounted = false;
             if (removeMeetingsListener) removeMeetingsListener();
             if (removeUndetectableListener) removeUndetectableListener();
             if (removeMeetingStateListener) removeMeetingStateListener();
             clearInterval(interval);
+            clearInterval(readinessInterval);
         };
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []); // Mount-only: stable setup that must run exactly once
@@ -343,6 +689,50 @@ const Launcher: React.FC<LauncherProps> = ({ onStartMeeting, onOpenSettings, onP
         const diff = new Date(e.startTime).getTime() - Date.now();
         return diff > -5 * 60000 && diff < 60 * 60000; // -5 min to +60 min
     });
+    const readinessChecks = meetingReadiness?.checks || [];
+    const readinessLastUpdated = formatReadinessAge(meetingReadiness?.generatedAt);
+    const readinessCheckById = (id: string) => readinessChecks.find((check) => check.id === id);
+    const selectedReadinessCheck = selectedReadinessCheckId
+        ? readinessChecks.find((check) => check.id === selectedReadinessCheckId) || null
+        : null;
+    const selectedReadinessGuide = selectedReadinessCheck
+        ? readinessActionGuides[selectedReadinessCheck.id]
+        : null;
+    const readinessBlockingChecks = readinessChecks.filter((check) => check.status === 'failed');
+    const prepCheck = readinessCheckById('prep');
+    const brainCheck = readinessCheckById('brain');
+    const audioCheck = readinessCheckById('meeting_audio');
+    const transcriptCheck = readinessCheckById('transcripts');
+    const isLiveRuntime = !!meetingReadiness?.meetingActive;
+    const startGuidance = readinessBlockingChecks.length > 0
+        ? {
+            status: 'failed' as ReadinessCheckStatus,
+            title: 'Do not rely on it yet',
+            detail: `${readinessBlockingChecks[0].label} is blocked. Fix that before using Natively in a real meeting.`,
+        }
+        : !isLiveRuntime
+            ? prepCheck?.status === 'warning' || brainCheck?.status !== 'ready'
+                ? {
+                    status: 'warning' as ReadinessCheckStatus,
+                    title: 'You can start the widget, but prep is degraded',
+                    detail: 'The live widget can still listen and answer, but meeting-specific context may be thin until prep/brain checks are ready.',
+                }
+                : {
+                    status: 'ready' as ReadinessCheckStatus,
+                    title: 'Safe to start the widget',
+                    detail: 'Before a meeting, audio and transcript checks may stay blue because they only prove themselves after the widget is listening.',
+                }
+            : audioCheck?.status === 'warning' || transcriptCheck?.status === 'warning'
+                ? {
+                    status: 'warning' as ReadinessCheckStatus,
+                    title: 'Widget is running, but live capture is degraded',
+                    detail: 'Natively may answer manual asks, but proactive coaching will be unreliable until audio/transcript checks turn green.',
+                }
+                : {
+                    status: 'ready' as ReadinessCheckStatus,
+                    title: 'Widget is running and usable',
+                    detail: 'Live capture, transcript, prep, and coach signals are either ready or in expected warm-up state.',
+                };
 
     const indexedMeetingsPreview = meetings.slice(0, 6);
     const contextCounts = {
@@ -374,18 +764,11 @@ const Launcher: React.FC<LauncherProps> = ({ onStartMeeting, onOpenSettings, onP
             icon: MessageSquare,
         },
         {
-            label: 'Background Memory',
-            value: contextHubOverview?.profile?.loaded ? 'Loaded' : 'Not loaded',
-            meta: `${contextHubOverview?.profile?.nodeCount || 0} structured nodes`,
-            active: !!contextHubOverview?.profile?.loaded,
+            label: 'IP Corp Brain',
+            value: contextHubOverview?.brain?.available ? 'Ready' : 'Missing',
+            meta: `${contextHubOverview?.brain?.prepPacketsReady || 0} prep packets • ${contextHubOverview?.brain?.cortexInsights || 0} Cortex insights • ${contextHubOverview?.brain?.openActionProposals || 0} proposals`,
+            active: !!contextHubOverview?.brain?.available,
             icon: Globe,
-        },
-        {
-            label: 'Semantica',
-            value: contextHubOverview?.semantica?.ready ? 'Ready' : 'Offline',
-            meta: `${contextHubOverview?.semantica?.meetingCount || 0} meetings • ${contextHubOverview?.semantica?.nodeCount || 0} nodes`,
-            active: !!contextHubOverview?.semantica?.ready,
-            icon: Activity,
         },
         {
             label: 'Live Watch',
@@ -415,8 +798,8 @@ const Launcher: React.FC<LauncherProps> = ({ onStartMeeting, onOpenSettings, onP
             icon: Bell,
         },
         {
-            label: 'Other Imports',
-            value: contextCounts.imported,
+            label: 'Prep Packets',
+            value: contextHubOverview?.brain?.prepPacketsReady || 0,
             accent: 'from-violet-500/25 via-violet-400/10 to-transparent',
             icon: Monitor,
         },
@@ -430,6 +813,7 @@ const Launcher: React.FC<LauncherProps> = ({ onStartMeeting, onOpenSettings, onP
             setPreparedEvent(event);
             setPreparedPacket(packet || null);
             setIsPrepared(true);
+            fetchMeetingReadiness().catch(() => { });
         } catch (error: any) {
             console.error("Failed to build meeting prep packet", error);
             setPrepareError(error?.message || 'Prep packet failed to load.');
@@ -452,6 +836,7 @@ const Launcher: React.FC<LauncherProps> = ({ onStartMeeting, onOpenSettings, onP
                 audio: { inputDeviceId, outputDeviceId }
             });
             setIsPrepared(false);
+            setPreparedEvent(null);
             setPreparedPacket(null);
         } catch (e) {
             console.error("Failed to start prepared meeting", e);
@@ -504,6 +889,14 @@ const Launcher: React.FC<LauncherProps> = ({ onStartMeeting, onOpenSettings, onP
         window.addEventListener('click', handleClickOutside);
         return () => window.removeEventListener('click', handleClickOutside);
     }, []);
+
+    useEffect(() => {
+        if (!isPrepared || !preparedEvent) return;
+        const rafId = window.requestAnimationFrame(() => {
+            prepBriefRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+        return () => window.cancelAnimationFrame(rafId);
+    }, [isPrepared, preparedEvent, preparedPacket]);
 
     // Notify parent if we are on the main launcher list view
     useEffect(() => {
@@ -650,7 +1043,7 @@ const Launcher: React.FC<LauncherProps> = ({ onStartMeeting, onOpenSettings, onP
                 </div>
             </header>
 
-            <div className="relative flex-1 flex flex-col overflow-hidden">
+            <div className="relative flex-1 min-h-0 flex flex-col overflow-hidden">
                 {!isDetectable && (
                     <div className={`absolute inset-1 border-2 border-dashed rounded-2xl pointer-events-none z-[100] ${isLight ? 'border-black/15' : 'border-white/20'}`} />
                 )}
@@ -658,7 +1051,7 @@ const Launcher: React.FC<LauncherProps> = ({ onStartMeeting, onOpenSettings, onP
                     {selectedMeeting ? (
                         <motion.div
                             key="details"
-                            className="flex-1 overflow-hidden"
+                            className="flex-1 min-h-0 overflow-hidden"
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
@@ -673,18 +1066,15 @@ const Launcher: React.FC<LauncherProps> = ({ onStartMeeting, onOpenSettings, onP
                     ) : (
                         <motion.div
                             key="launcher"
-                            className="flex-1 flex flex-col overflow-hidden"
+                            className="flex-1 min-h-0 overflow-y-auto custom-scrollbar bg-bg-primary"
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
                             transition={{ duration: 0.15 }}
                         >
 
-                            {/* Main Area - Fixed Top, Scrollable Bottom */}
-                            {/* Top Section is now effectively static due to parent flex col */}
-
-                            {/* TOP SECTION: Grey Background (Scrolls with content) */}
-                            <section className={`${isLight ? 'bg-bg-primary' : 'bg-bg-elevated'} px-8 pt-6 pb-8 border-b border-border-subtle shrink-0`}>
+                            {/* Main Area */}
+                            <section className={`${isLight ? 'bg-bg-primary' : 'bg-bg-elevated'} px-8 pt-6 pb-8 border-b border-border-subtle`}>
                                 <div className="max-w-4xl mx-auto space-y-6">
                                     {/* 1.5. Hero Header (Title + Controls + CTA) */}
                                     <div className="flex items-center justify-between">
@@ -854,8 +1244,275 @@ const Launcher: React.FC<LauncherProps> = ({ onStartMeeting, onOpenSettings, onP
                                         </motion.button>
                                     </div>
 
-                                    {/* 2. Hero Section Cards */}
-                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3 h-[198px]">
+                                    {/* Readiness Preflight */}
+                                    <div className={`rounded-2xl border p-4 ${isLight ? 'bg-bg-elevated border-border-muted shadow-sm' : 'bg-[#10141c] border-white/10'}`}>
+                                        <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+                                            <div className="min-w-0">
+                                                <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.2em] text-text-secondary">
+                                                    <Activity size={13} className={readinessBusy ? 'animate-pulse text-sky-400' : ''} />
+                                                    Preflight guidance
+                                                </div>
+                                                <h2 className="mt-1 text-xl font-semibold text-text-primary">
+                                                    {startGuidance.title}
+                                                </h2>
+                                                <p className="mt-1 text-sm text-text-secondary leading-relaxed">
+                                                    {startGuidance.detail}
+                                                </p>
+                                            </div>
+                                            <div className="flex flex-col items-start md:items-end gap-2 shrink-0">
+                                                <span className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-semibold ${readinessStyles(startGuidance.status, isLight)}`}>
+                                                    {startGuidance.status === 'ready' ? <CheckCircle size={14} /> : startGuidance.status === 'failed' ? <AlertCircle size={14} /> : <Clock size={14} />}
+                                                    {readinessLabel(startGuidance.status)}
+                                                </span>
+                                                <span className="text-[11px] text-text-secondary">
+                                                    Updated {readinessLastUpdated}
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        <div className="mt-4 grid grid-cols-2 lg:grid-cols-6 gap-2">
+                                            {readinessChecks.slice(0, 6).map((check) => (
+                                                <button
+                                                    type="button"
+                                                    key={check.id}
+                                                    onClick={() => handleReadinessCardClick(check.id)}
+                                                    aria-pressed={selectedReadinessCheckId === check.id}
+                                                    className={`rounded-xl border px-3 py-2 min-h-[86px] text-left transition-all hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-blue-400/40 ${readinessStyles(check.status, isLight)} ${selectedReadinessCheckId === check.id ? 'ring-2 ring-blue-400/50 shadow-sm' : ''}`}
+                                                    title={check.detail}
+                                                >
+                                                    <div className="flex items-center justify-between gap-2">
+                                                        <span className="text-[10px] font-bold uppercase tracking-[0.14em] opacity-80 truncate">{check.label}</span>
+                                                        {check.status === 'ready' ? <Check size={13} /> : check.status === 'failed' ? <AlertCircle size={13} /> : <Clock size={13} />}
+                                                    </div>
+                                                    <div className="mt-2 text-sm font-semibold">{readinessLabel(check.status)}</div>
+                                                    <p className="mt-1 text-[11px] leading-snug opacity-80 line-clamp-2">{check.detail}</p>
+                                                </button>
+                                            ))}
+                                        </div>
+
+                                        <AnimatePresence initial={false}>
+                                            {selectedReadinessCheck && (
+                                                <motion.div
+                                                    key={selectedReadinessCheck.id}
+                                                    initial={{ opacity: 0, y: -6 }}
+                                                    animate={{ opacity: 1, y: 0 }}
+                                                    exit={{ opacity: 0, y: -6 }}
+                                                    transition={{ duration: 0.18, ease: 'easeOut' }}
+                                                    className={`mt-3 rounded-2xl border p-4 ${isLight ? 'border-blue-500/20 bg-blue-500/[0.045]' : 'border-blue-400/20 bg-blue-400/[0.08]'}`}
+                                                >
+                                                    <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+                                                        <div className="min-w-0">
+                                                            <div className="flex flex-wrap items-center gap-2">
+                                                                <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-text-tertiary">Action panel</span>
+                                                                <span className={`inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-[10px] font-semibold ${readinessStyles(selectedReadinessCheck.status, isLight)}`}>
+                                                                    {selectedReadinessCheck.status === 'ready' ? <Check size={11} /> : selectedReadinessCheck.status === 'failed' ? <AlertCircle size={11} /> : <Clock size={11} />}
+                                                                    {readinessLabel(selectedReadinessCheck.status)}
+                                                                </span>
+                                                            </div>
+                                                            <h3 className="mt-1 text-base font-semibold text-text-primary">{selectedReadinessCheck.label}</h3>
+                                                            <p className="mt-1 text-xs leading-relaxed text-text-secondary">{selectedReadinessCheck.detail}</p>
+                                                        </div>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => setSelectedReadinessCheckId(null)}
+                                                            className={readinessActionButtonClass}
+                                                        >
+                                                            Close
+                                                        </button>
+                                                    </div>
+
+                                                    <div className="mt-4 grid grid-cols-1 gap-3 lg:grid-cols-[0.9fr_1.1fr]">
+                                                        <div className={`rounded-xl border px-3 py-3 ${isLight ? 'border-black/8 bg-white/60' : 'border-white/10 bg-black/10'}`}>
+                                                            <div className="text-[10px] font-bold uppercase tracking-[0.16em] text-text-tertiary">What this means</div>
+                                                            <p className="mt-2 text-sm leading-relaxed text-text-secondary">
+                                                                {selectedReadinessGuide?.meaning || 'This is one of the checks Natively uses to decide whether the widget is ready for a live meeting.'}
+                                                            </p>
+                                                        </div>
+                                                        <div className={`rounded-xl border px-3 py-3 ${isLight ? 'border-black/8 bg-white/60' : 'border-white/10 bg-black/10'}`}>
+                                                            <div className="text-[10px] font-bold uppercase tracking-[0.16em] text-text-tertiary">Fix path</div>
+                                                            <p className="mt-2 text-sm leading-relaxed text-text-secondary">
+                                                                {selectedReadinessGuide?.fix || 'Use the actions below, then refresh readiness.'}
+                                                            </p>
+
+                                                            {selectedReadinessCheck.id === 'microphone' && (
+                                                                <div className="mt-3 space-y-3">
+                                                                    <label className="block text-[11px] font-semibold uppercase tracking-[0.12em] text-text-tertiary">
+                                                                        Microphone
+                                                                    </label>
+                                                                    <div className="flex flex-col gap-2 sm:flex-row">
+                                                                        <select
+                                                                            value={selectedInputDeviceId}
+                                                                            onChange={(event) => savePreferredAudioDevice('input', event.target.value)}
+                                                                            className={`min-w-0 flex-1 rounded-xl border px-3 py-2 text-sm outline-none ${isLight ? 'border-black/10 bg-white text-text-primary' : 'border-white/10 bg-bg-input text-text-primary'}`}
+                                                                        >
+                                                                            {inputDeviceOptions.length === 0 ? (
+                                                                                <option value="">No microphones found</option>
+                                                                            ) : inputDeviceOptions.map((device) => (
+                                                                                <option key={device.id} value={device.id}>{device.name || 'Unnamed microphone'}</option>
+                                                                            ))}
+                                                                        </select>
+                                                                        <button type="button" onClick={() => loadAudioDevices()} className={readinessActionButtonClass} disabled={audioDeviceBusy}>
+                                                                            <RefreshCw size={12} className={audioDeviceBusy ? 'inline animate-spin' : 'inline'} /> Refresh
+                                                                        </button>
+                                                                    </div>
+                                                                    <div className="flex flex-wrap gap-2">
+                                                                        <button type="button" onClick={toggleVoiceCheck} className={readinessPrimaryButtonClass}>
+                                                                            <Mic size={12} className="inline" /> {voiceCheckActive ? 'Stop voice check' : 'Start voice check'}
+                                                                        </button>
+                                                                        <button type="button" onClick={() => onOpenSettings('audio')} className={readinessActionButtonClass}>
+                                                                            <Settings size={12} className="inline" /> Audio settings
+                                                                        </button>
+                                                                    </div>
+                                                                    <p className="text-[11px] leading-relaxed text-text-tertiary">
+                                                                        If the headset or Windows has muted this device, unmute it in Windows sound controls or on the hardware.
+                                                                    </p>
+                                                                </div>
+                                                            )}
+
+                                                            {selectedReadinessCheck.id === 'meeting_audio' && (
+                                                                <div className="mt-3 space-y-3">
+                                                                    <label className="block text-[11px] font-semibold uppercase tracking-[0.12em] text-text-tertiary">
+                                                                        Meeting audio output
+                                                                    </label>
+                                                                    <div className="flex flex-col gap-2 sm:flex-row">
+                                                                        <select
+                                                                            value={selectedOutputDeviceId}
+                                                                            onChange={(event) => savePreferredAudioDevice('output', event.target.value)}
+                                                                            className={`min-w-0 flex-1 rounded-xl border px-3 py-2 text-sm outline-none ${isLight ? 'border-black/10 bg-white text-text-primary' : 'border-white/10 bg-bg-input text-text-primary'}`}
+                                                                        >
+                                                                            {outputDeviceOptions.length === 0 ? (
+                                                                                <option value="">No output devices found</option>
+                                                                            ) : outputDeviceOptions.map((device) => (
+                                                                                <option key={device.id} value={device.id}>{device.name || 'Unnamed output device'}</option>
+                                                                            ))}
+                                                                        </select>
+                                                                        <button type="button" onClick={() => loadAudioDevices()} className={readinessActionButtonClass} disabled={audioDeviceBusy}>
+                                                                            <RefreshCw size={12} className={audioDeviceBusy ? 'inline animate-spin' : 'inline'} /> Refresh
+                                                                        </button>
+                                                                    </div>
+                                                                    <div className="flex flex-wrap gap-2">
+                                                                        <button type="button" onClick={() => onOpenSettings('audio')} className={readinessActionButtonClass}>
+                                                                            <Speaker size={12} className="inline" /> Audio settings
+                                                                        </button>
+                                                                        <button type="button" onClick={onStartMeeting} className={readinessPrimaryButtonClass}>
+                                                                            <ArrowRight size={12} className="inline" /> Start widget
+                                                                        </button>
+                                                                    </div>
+                                                                </div>
+                                                            )}
+
+                                                            {selectedReadinessCheck.id === 'prep' && (
+                                                                <div className="mt-3 flex flex-wrap gap-2">
+                                                                    <button type="button" onClick={handleRefresh} className={readinessActionButtonClass} disabled={isRefreshing}>
+                                                                        <RefreshCw size={12} className={isRefreshing ? 'inline animate-spin' : 'inline'} /> Refresh meetings
+                                                                    </button>
+                                                                    {nextMeeting && (
+                                                                        <button type="button" onClick={() => handlePrepare(nextMeeting)} className={readinessPrimaryButtonClass} disabled={isPreparing}>
+                                                                            <Zap size={12} className="inline" /> {isPreparing ? 'Preparing...' : 'Prepare next meeting'}
+                                                                        </button>
+                                                                    )}
+                                                                </div>
+                                                            )}
+
+                                                            {selectedReadinessCheck.id === 'brain' && (
+                                                                <div className="mt-3 flex flex-wrap gap-2">
+                                                                    <button type="button" onClick={reloadBrainForReadiness} className={readinessPrimaryButtonClass}>
+                                                                        <RefreshCw size={12} className="inline" /> Reload brain context
+                                                                    </button>
+                                                                    <button type="button" onClick={() => onOpenSettings('profile')} className={readinessActionButtonClass}>
+                                                                        <Globe size={12} className="inline" /> Context hub
+                                                                    </button>
+                                                                </div>
+                                                            )}
+
+                                                            {selectedReadinessCheck.id === 'transcripts' && (
+                                                                <div className="mt-3 flex flex-wrap gap-2">
+                                                                    <button type="button" onClick={() => onOpenSettings('audio')} className={readinessPrimaryButtonClass}>
+                                                                        <Settings size={12} className="inline" /> Open speech settings
+                                                                    </button>
+                                                                    <button type="button" onClick={toggleVoiceCheck} className={readinessActionButtonClass}>
+                                                                        <Mic size={12} className="inline" /> {voiceCheckActive ? 'Stop voice check' : 'Test transcription'}
+                                                                    </button>
+                                                                </div>
+                                                            )}
+
+                                                            {selectedReadinessCheck.id === 'coach' && (
+                                                                <div className="mt-3 flex flex-wrap gap-2">
+                                                                    <button type="button" onClick={enableProactiveCoach} className={readinessPrimaryButtonClass}>
+                                                                        <Zap size={12} className="inline" /> Enable proactive mode
+                                                                    </button>
+                                                                    <button type="button" onClick={onStartMeeting} className={readinessActionButtonClass}>
+                                                                        <ArrowRight size={12} className="inline" /> Start widget
+                                                                    </button>
+                                                                    <button type="button" onClick={() => onOpenSettings('meeting-ai')} className={readinessActionButtonClass}>
+                                                                        <Settings size={12} className="inline" /> Meeting AI settings
+                                                                    </button>
+                                                                </div>
+                                                            )}
+
+                                                            {selectedReadinessCheck.id === 'screen' && (
+                                                                <div className="mt-3 flex flex-wrap gap-2">
+                                                                    <button type="button" onClick={runScreenCheck} className={readinessPrimaryButtonClass}>
+                                                                        <Monitor size={12} className="inline" /> Run screen check
+                                                                    </button>
+                                                                    <button type="button" onClick={() => onOpenSettings('meeting-ai')} className={readinessActionButtonClass}>
+                                                                        <Settings size={12} className="inline" /> Screen watch settings
+                                                                    </button>
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    </div>
+
+                                                    {readinessActionMessage && (
+                                                        <div className={`mt-3 rounded-xl border px-3 py-2 text-xs ${isLight ? 'border-emerald-500/20 bg-emerald-500/8 text-emerald-700' : 'border-emerald-400/20 bg-emerald-400/10 text-emerald-300'}`}>
+                                                            {readinessActionMessage}
+                                                        </div>
+                                                    )}
+                                                </motion.div>
+                                            )}
+                                        </AnimatePresence>
+
+                                        <div className={`mt-3 rounded-xl border px-3 py-2 ${isLight ? 'border-border-subtle bg-black/[0.025]' : 'border-white/10 bg-black/10'}`}>
+                                            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-[11px] text-text-secondary">
+                                                <span className="inline-flex items-center gap-1.5">
+                                                    <span className="h-2 w-2 rounded-full bg-emerald-400" />
+                                                    Green means working now
+                                                </span>
+                                                <span className="inline-flex items-center gap-1.5">
+                                                    <span className="h-2 w-2 rounded-full bg-sky-400" />
+                                                    Blue means waiting or warming
+                                                </span>
+                                                <span className="inline-flex items-center gap-1.5">
+                                                    <span className="h-2 w-2 rounded-full bg-amber-400" />
+                                                    Amber means usable but degraded
+                                                </span>
+                                                <span className="inline-flex items-center gap-1.5">
+                                                    <span className="h-2 w-2 rounded-full bg-red-400" />
+                                                    Red means do not rely yet
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-[11px] text-text-secondary">
+                                            <span>
+                                                Next meeting: {meetingReadiness?.prep?.nextMeeting?.title || nextMeeting?.title || 'none in range'}
+                                            </span>
+                                            <span>
+                                                Prep packets: {meetingReadiness?.prep?.cachedPacketCount ?? 0}
+                                            </span>
+                                            <span>
+                                                Model: {getDisplayModelName(meetingReadiness?.model || '') || 'not selected'}
+                                                {meetingReadiness?.reasoningEffort ? ` / ${meetingReadiness.reasoningEffort}` : ''}
+                                            </span>
+                                            <span>
+                                                Proactive: {meetingReadiness?.proactiveModeEnabled ? 'on' : 'off'}
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    {/* Meeting prep card. Hidden when there is no actionable meeting context. */}
+                                    {(isPrepared && preparedEvent) || nextMeeting ? (
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                                         {/* PREPARED STATE CARD */}
                                         {isPrepared && preparedEvent ? (
                                             <div className={`md:col-span-3 relative group rounded-xl overflow-hidden border border-emerald-500/30 ${isLight ? 'bg-bg-elevated' : 'bg-bg-secondary'} p-5 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-emerald-900/40 ${isLight ? 'via-bg-elevated to-bg-elevated' : 'via-bg-secondary to-bg-secondary'}`}>
@@ -893,6 +1550,7 @@ const Launcher: React.FC<LauncherProps> = ({ onStartMeeting, onOpenSettings, onP
                                                             <button
                                                                 onClick={() => {
                                                                     setIsPrepared(false);
+                                                                    setPreparedEvent(null);
                                                                     setPreparedPacket(null);
                                                                     setPrepareError('');
                                                                 }}
@@ -942,7 +1600,7 @@ const Launcher: React.FC<LauncherProps> = ({ onStartMeeting, onOpenSettings, onP
                                         ) : (
                                             /* Dynamic Next Meeting OR Default Intro */
                                             nextMeeting ? (
-                                                <div className={`md:col-span-2 relative group rounded-xl overflow-hidden ${isLight ? 'bg-bg-elevated' : 'bg-bg-secondary'} flex flex-col shadow-[0_1px_3px_rgba(0,0,0,0.07),0_1px_2px_rgba(0,0,0,0.04)]`}>
+                                                <div className={`md:col-span-3 relative group rounded-xl overflow-hidden ${isLight ? 'bg-bg-elevated' : 'bg-bg-secondary'} flex flex-col shadow-[0_1px_3px_rgba(0,0,0,0.07),0_1px_2px_rgba(0,0,0,0.04)]`}>
                                                     {/* Header */}
                                                     <div className="p-5 flex-1 relative z-10">
                                                         <div className="flex items-center gap-2 mb-2">
@@ -995,62 +1653,238 @@ const Launcher: React.FC<LauncherProps> = ({ onStartMeeting, onOpenSettings, onP
                                                     {/* Background Decoration */}
                                                     <div className="absolute top-0 right-0 w-[150px] h-[150px] bg-emerald-500/10 blur-[60px] pointer-events-none" />
                                                 </div>
-                                            ) : (
-                                                <div className="md:col-span-2 h-full">
-                                                    <FeatureSpotlight />
-                                                </div>
-                                            )
+                                            ) : null
                                         )}
-
-
-
-                                        {/* Right Secondary Card */}
-                                        <div className={`md:col-span-1 relative overflow-hidden rounded-[24px] border ${isLight ? 'bg-[linear-gradient(180deg,rgba(255,255,255,0.96),rgba(246,248,252,0.92))] border-black/8 shadow-[0_18px_48px_rgba(15,23,42,0.08)]' : 'bg-[linear-gradient(180deg,rgba(18,26,38,0.94),rgba(10,14,22,0.9))] border-white/10 shadow-[0_24px_60px_rgba(0,0,0,0.4)]'} p-5`}>
-                                            <div className="absolute inset-0 pointer-events-none">
-                                                <div className="absolute -right-8 top-0 h-28 w-28 rounded-full bg-sky-500/12 blur-3xl" />
-                                                <div className="absolute bottom-0 left-0 h-24 w-24 rounded-full bg-emerald-500/10 blur-3xl" />
-                                            </div>
-
-                                            <div className="relative z-10 flex h-full flex-col justify-between">
-                                                <div>
-                                                    <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.22em] text-sky-400">
-                                                        <Calendar size={12} />
-                                                        Calendar Signal
-                                                    </div>
-                                                    <h3 className="mt-4 text-xl font-semibold leading-tight text-text-primary">
-                                                        {isCalendarConnected ? 'Events are flowing into Natively' : 'Link your calendar for just-in-time prep'}
-                                                    </h3>
-                                                    <p className="mt-2 text-sm leading-relaxed text-text-secondary">
-                                                        {isCalendarConnected
-                                                            ? 'Upcoming events, timing windows, and meeting context are already feeding the launcher surfaces.'
-                                                            : 'Bring upcoming meetings into the launcher so prep packets, context recall, and trace review all stay in one place.'}
-                                                    </p>
-                                                </div>
-
-                                                <div className="mt-5 flex items-end justify-between gap-3">
-                                                    <div className={`rounded-2xl border px-4 py-3 ${isLight ? 'bg-white/75 border-black/8' : 'bg-white/5 border-white/10'}`}>
-                                                        <div className="text-[10px] uppercase tracking-[0.18em] text-text-tertiary">Status</div>
-                                                        <div className="mt-1 inline-flex items-center gap-2 text-sm font-semibold text-text-primary">
-                                                            <span className={`h-2 w-2 rounded-full ${isCalendarConnected ? 'bg-emerald-400' : 'bg-amber-400'}`} />
-                                                            {isCalendarConnected ? 'Connected' : 'Waiting'}
-                                                        </div>
-                                                    </div>
-
-                                                    <ConnectCalendarButton
-                                                        className="-translate-x-0.5"
-                                                        onConnect={() => setIsCalendarConnected(true)}
-                                                    />
-                                                </div>
-                                            </div>
-                                        </div>
                                     </div>
+                                    ) : null}
                                 </div>
                             </section>
 
-                            {/* BOTTOM SECTION: Black Background (Scrollable content) */}
-                            <main className="flex-1 overflow-y-auto custom-scrollbar bg-bg-primary">
-                                <section className="px-8 py-8 min-h-full">
+                            <main className="bg-bg-primary">
+                                <section className="px-8 py-8">
                                     <div className="max-w-4xl mx-auto space-y-8">
+                                        {isPrepared && preparedEvent && (
+                                            <section
+                                                ref={prepBriefRef}
+                                                className={`relative overflow-hidden rounded-[28px] border ${isLight ? 'bg-[linear-gradient(180deg,rgba(255,255,255,0.97),rgba(244,250,247,0.93))] border-emerald-500/15 shadow-[0_24px_80px_rgba(16,185,129,0.08)]' : 'bg-[linear-gradient(180deg,rgba(17,31,28,0.94),rgba(9,18,17,0.9))] border-emerald-500/20 shadow-[0_30px_90px_rgba(0,0,0,0.45)]'} p-5 md:p-6`}
+                                            >
+                                                <div className="absolute inset-0 pointer-events-none">
+                                                    <div className="absolute -top-12 right-8 h-40 w-40 rounded-full bg-emerald-500/10 blur-3xl" />
+                                                    <div className="absolute bottom-0 left-0 h-36 w-36 rounded-full bg-sky-500/10 blur-3xl" />
+                                                </div>
+
+                                                <div className="relative z-10 space-y-5">
+                                                    <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+                                                        <div className="max-w-2xl">
+                                                            <div className="inline-flex items-center gap-2 rounded-full border border-emerald-500/15 bg-emerald-500/8 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.22em] text-emerald-400">
+                                                                <Zap size={12} />
+                                                                Meeting Prep Brief
+                                                            </div>
+                                                            <h3 className="mt-3 text-2xl font-semibold tracking-tight text-text-primary">{preparedEvent.title}</h3>
+                                                            <p className="mt-2 max-w-2xl text-sm leading-relaxed text-text-secondary">
+                                                                {preparedPacket?.summary || 'Prep is ready. Review the context below before you join the call.'}
+                                                            </p>
+                                                        </div>
+
+                                                        <div className={`rounded-2xl border px-4 py-3 ${isLight ? 'bg-white/80 border-black/8' : 'bg-white/5 border-white/10'}`}>
+                                                            <div className="text-[10px] uppercase tracking-[0.18em] text-text-tertiary">Prep Generated</div>
+                                                            <div className="mt-1 text-sm font-semibold text-text-primary">{formatPrepTimestamp(preparedPacket?.generatedAt)}</div>
+                                                            <div className="text-[11px] text-text-secondary">
+                                                                Starts in {preparedPacket?.timing.startsInMinutes ?? Math.max(0, Math.ceil((new Date(preparedEvent.startTime).getTime() - Date.now()) / 60000))} min
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    {preparedPacket && (
+                                                        <div className="flex flex-wrap gap-2">
+                                                            {prepHealthKeys.map((key) => {
+                                                                const active = preparedPacket.sourceHealth[key];
+                                                                return (
+                                                                    <div
+                                                                        key={key}
+                                                                        className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-[11px] font-medium ${active
+                                                                            ? 'border-emerald-500/20 bg-emerald-500/10 text-emerald-400'
+                                                                            : isLight
+                                                                                ? 'border-black/8 bg-white/70 text-text-secondary'
+                                                                                : 'border-white/10 bg-white/5 text-text-secondary'
+                                                                            }`}
+                                                                    >
+                                                                        {active ? <CheckCircle size={12} /> : <AlertCircle size={12} />}
+                                                                        {prepHealthLabels[key]}
+                                                                    </div>
+                                                                );
+                                                            })}
+                                                        </div>
+                                                    )}
+
+                                                    <div className="grid grid-cols-1 gap-4 xl:grid-cols-[1.05fr_0.95fr]">
+                                                        <div className={`rounded-[22px] border ${isLight ? 'bg-white/75 border-black/8' : 'bg-white/5 border-white/10'} p-4`}>
+                                                            <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-sky-400">
+                                                                <Activity size={13} />
+                                                                Context To Carry In
+                                                            </div>
+                                                            <div className="mt-4 space-y-3">
+                                                                {(preparedPacket?.contextBullets || []).length > 0 ? (
+                                                                    (preparedPacket?.contextBullets || []).map((bullet, index) => (
+                                                                        <div key={`${bullet}-${index}`} className="flex gap-3 text-sm leading-relaxed text-text-secondary">
+                                                                            <span className="mt-1 text-emerald-400">•</span>
+                                                                            <span>{bullet}</span>
+                                                                        </div>
+                                                                    ))
+                                                                ) : (
+                                                                    <p className="text-sm leading-relaxed text-text-secondary">
+                                                                        No extra context was ranked for this event yet, so this prep stays lightweight.
+                                                                    </p>
+                                                                )}
+                                                            </div>
+
+                                                            {preparedPacket?.profileSnapshot?.length ? (
+                                                                <div className="mt-5 border-t border-border-subtle pt-4">
+                                                                    <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-text-tertiary">Profile Snapshot</div>
+                                                                    <div className="mt-2 space-y-2">
+                                                                        {preparedPacket.profileSnapshot.map((entry, index) => (
+                                                                            <div key={`${entry}-${index}`} className="text-sm leading-relaxed text-text-secondary">
+                                                                                {entry}
+                                                                            </div>
+                                                                        ))}
+                                                                    </div>
+                                                                </div>
+                                                            ) : null}
+                                                        </div>
+
+                                                        <div className={`rounded-[22px] border ${isLight ? 'bg-white/75 border-black/8' : 'bg-white/5 border-white/10'} p-4`}>
+                                                            <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-400">
+                                                                <CheckCircle size={13} />
+                                                                Before You Join
+                                                            </div>
+                                                            <div className="mt-4 space-y-3">
+                                                                {(preparedPacket?.prepChecklist || []).length > 0 ? (
+                                                                    (preparedPacket?.prepChecklist || []).map((item, index) => (
+                                                                        <div key={`${item}-${index}`} className="flex gap-3 text-sm leading-relaxed text-text-secondary">
+                                                                            <CheckCircle size={14} className="mt-0.5 shrink-0 text-emerald-400" />
+                                                                            <span>{item}</span>
+                                                                        </div>
+                                                                    ))
+                                                                ) : (
+                                                                    <p className="text-sm leading-relaxed text-text-secondary">
+                                                                        No specific checklist yet. Join ready to set the objective and decision path in the first minute.
+                                                                    </p>
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                                                        <div className={`rounded-[22px] border ${isLight ? 'bg-white/75 border-black/8' : 'bg-white/5 border-white/10'} p-4`}>
+                                                            <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-amber-400">
+                                                                <AlertCircle size={13} />
+                                                                Open Questions
+                                                            </div>
+                                                            <div className="mt-4 space-y-3">
+                                                                {(preparedPacket?.openQuestions || []).length > 0 ? (
+                                                                    (preparedPacket?.openQuestions || []).map((question, index) => (
+                                                                        <div key={`${question}-${index}`} className="flex gap-3 text-sm leading-relaxed text-text-secondary">
+                                                                            <span className="mt-0.5 shrink-0 text-amber-400">?</span>
+                                                                            <span>{question}</span>
+                                                                        </div>
+                                                                    ))
+                                                                ) : (
+                                                                    <p className="text-sm leading-relaxed text-text-secondary">
+                                                                        No unresolved questions were surfaced from nearby context.
+                                                                    </p>
+                                                                )}
+                                                            </div>
+                                                        </div>
+
+                                                        <div className={`rounded-[22px] border ${isLight ? 'bg-white/75 border-black/8' : 'bg-white/5 border-white/10'} p-4`}>
+                                                            <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-violet-400">
+                                                                <Clock size={13} />
+                                                                Open Commitments
+                                                            </div>
+                                                            <div className="mt-4 space-y-3">
+                                                                {(preparedPacket?.openCommitments || []).length > 0 ? (
+                                                                    (preparedPacket?.openCommitments || []).map((commitment, index) => (
+                                                                        <div key={`${commitment}-${index}`} className="flex gap-3 text-sm leading-relaxed text-text-secondary">
+                                                                            <span className="mt-0.5 shrink-0 text-violet-400">•</span>
+                                                                            <span>{commitment}</span>
+                                                                        </div>
+                                                                    ))
+                                                                ) : (
+                                                                    <p className="text-sm leading-relaxed text-text-secondary">
+                                                                        No open commitments were linked to this meeting context.
+                                                                    </p>
+                                                                )}
+                                                            </div>
+                                                        </div>
+
+                                                        <div className={`rounded-[22px] border ${isLight ? 'bg-white/75 border-black/8' : 'bg-white/5 border-white/10'} p-4`}>
+                                                            <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-sky-400">
+                                                                <Calendar size={13} />
+                                                                Related Meetings
+                                                            </div>
+                                                            <div className="mt-4 space-y-3">
+                                                                {(preparedPacket?.relatedMeetings || []).length > 0 ? (
+                                                                    (preparedPacket?.relatedMeetings || []).map((meeting) => (
+                                                                        <div
+                                                                            key={meeting.id}
+                                                                            className={`rounded-2xl border p-3 ${isLight ? 'bg-white/80 border-black/8' : 'bg-white/5 border-white/10'}`}
+                                                                        >
+                                                                            <div className="flex items-start justify-between gap-3">
+                                                                                <div>
+                                                                                    <div className="text-sm font-semibold text-text-primary">{meeting.title}</div>
+                                                                                    <div className="mt-1 text-[11px] uppercase tracking-[0.16em] text-text-tertiary">{formatFreshness(meeting.date)}</div>
+                                                                                </div>
+                                                                                <div className="text-[11px] font-medium text-sky-400">{formatPrepTimestamp(meeting.date)}</div>
+                                                                            </div>
+                                                                            <p className="mt-2 text-sm leading-relaxed text-text-secondary">{meeting.summary}</p>
+                                                                        </div>
+                                                                    ))
+                                                                ) : (
+                                                                    <p className="text-sm leading-relaxed text-text-secondary">
+                                                                        No close prior meetings were matched to this invite.
+                                                                    </p>
+                                                                )}
+                                                            </div>
+                                                        </div>
+
+                                                        <div className={`rounded-[22px] border ${isLight ? 'bg-white/75 border-black/8' : 'bg-white/5 border-white/10'} p-4`}>
+                                                            <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-400">
+                                                                <MessageSquare size={13} />
+                                                                Ranked Memory
+                                                            </div>
+                                                            <div className="mt-4 space-y-3">
+                                                                {(preparedPacket?.memoryHighlights || []).length > 0 ? (
+                                                                    (preparedPacket?.memoryHighlights || []).map((item, index) => (
+                                                                        <div
+                                                                            key={`${item.title}-${index}`}
+                                                                            className={`rounded-2xl border p-3 ${isLight ? 'bg-white/80 border-black/8' : 'bg-white/5 border-white/10'}`}
+                                                                        >
+                                                                            <div className="flex items-start justify-between gap-3">
+                                                                                <div>
+                                                                                    <div className="text-sm font-semibold text-text-primary">{item.title}</div>
+                                                                                    <div className="mt-1 text-[11px] uppercase tracking-[0.16em] text-text-tertiary">
+                                                                                        {formatPrepSourceLabel(item.type)} • {item.source}
+                                                                                    </div>
+                                                                                </div>
+                                                                                {item.date && (
+                                                                                    <div className="text-[11px] font-medium text-emerald-400">{formatFreshness(item.date)}</div>
+                                                                                )}
+                                                                            </div>
+                                                                            <p className="mt-2 text-sm leading-relaxed text-text-secondary">{item.excerpt}</p>
+                                                                        </div>
+                                                                    ))
+                                                                ) : (
+                                                                    <p className="text-sm leading-relaxed text-text-secondary">
+                                                                        No ranked memory highlights were returned for this meeting yet.
+                                                                    </p>
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </section>
+                                        )}
+
                                         <section className={`relative overflow-hidden rounded-[28px] border ${isLight ? 'bg-[linear-gradient(180deg,rgba(255,255,255,0.96),rgba(246,248,252,0.92))] border-black/8 shadow-[0_24px_80px_rgba(15,23,42,0.08)]' : 'bg-[linear-gradient(180deg,rgba(16,23,35,0.92),rgba(10,14,24,0.88))] border-white/10 shadow-[0_30px_90px_rgba(0,0,0,0.45)]'} p-5 md:p-6`}>
                                             <div className="absolute inset-0 pointer-events-none">
                                                 <div className="absolute -top-16 left-1/3 h-40 w-40 rounded-full bg-sky-500/15 blur-3xl" />
@@ -1074,8 +1908,8 @@ const Launcher: React.FC<LauncherProps> = ({ onStartMeeting, onOpenSettings, onP
                                                     <div className="flex items-center gap-3 self-start">
                                                         <div className={`rounded-2xl border px-4 py-3 ${isLight ? 'bg-white/75 border-black/8' : 'bg-white/5 border-white/10'}`}>
                                                             <div className="text-[10px] uppercase tracking-[0.18em] text-text-tertiary">Freshness</div>
-                                                            <div className="mt-1 text-sm font-semibold text-text-primary">{formatFreshness(contextHubOverview?.meetings?.lastMeetingAt || contextHubOverview?.live?.lastObservedAt)}</div>
-                                                            <div className="text-[11px] text-text-secondary">Last indexed or observed signal</div>
+                                                            <div className="mt-1 text-sm font-semibold text-text-primary">{formatFreshness(contextHubOverview?.brain?.latestRunAt || contextHubOverview?.meetings?.lastMeetingAt || contextHubOverview?.live?.lastObservedAt)}</div>
+                                                            <div className="text-[11px] text-text-secondary">Latest brain or indexed signal</div>
                                                         </div>
                                                         <button
                                                             onClick={handleOpenChatLogViewer}
@@ -1116,6 +1950,92 @@ const Launcher: React.FC<LauncherProps> = ({ onStartMeeting, onOpenSettings, onP
                                                         );
                                                     })}
                                                 </div>
+
+                                                {brainActionProposals.length > 0 && (
+                                                    <div className={`rounded-[24px] border ${isLight ? 'bg-white/70 border-black/8' : 'bg-white/5 border-white/10'} p-4`}>
+                                                        <div className="flex items-start justify-between gap-3">
+                                                            <div>
+                                                                <div className="text-[10px] uppercase tracking-[0.18em] text-text-tertiary">Brain Action Queue</div>
+                                                                <div className="mt-1 text-lg font-semibold text-text-primary">Proposals waiting for your signal</div>
+                                                            </div>
+                                                            <div className="text-[11px] text-text-secondary">
+                                                                {brainActionProposals.length} visible
+                                                            </div>
+                                                        </div>
+                                                        {proposalNotice && (
+                                                            <div className={`mt-3 rounded-2xl border px-3 py-2 text-[11px] ${isLight ? 'bg-black/[0.025] border-black/8 text-slate-700' : 'bg-black/10 border-white/8 text-text-secondary'}`}>
+                                                                {proposalNotice}
+                                                            </div>
+                                                        )}
+                                                        <div className="mt-4 grid grid-cols-1 gap-3 xl:grid-cols-2">
+                                                            {brainActionProposals.map((proposal) => (
+                                                                <div
+                                                                    key={proposal.id}
+                                                                    className={`rounded-[20px] border px-4 py-3 ${isLight ? 'bg-black/[0.025] border-black/8' : 'bg-black/10 border-white/8'}`}
+                                                                >
+                                                                    <div className="flex items-start justify-between gap-3">
+                                                                        <div className="min-w-0">
+                                                                            <div className="text-sm font-semibold text-text-primary">{proposal.title}</div>
+                                                                            <div className="mt-1 text-[11px] uppercase tracking-[0.16em] text-text-tertiary">
+                                                                                {proposal.type} • {formatFreshness(proposal.updatedAt || proposal.createdAt)}
+                                                                            </div>
+                                                                        </div>
+                                                                        <span className="rounded-full bg-amber-500/10 px-2 py-0.5 text-[10px] font-semibold text-amber-400">
+                                                                            {proposal.status || 'proposed'}
+                                                                        </span>
+                                                                    </div>
+                                                                    <p className="mt-2 text-sm leading-relaxed text-text-secondary">{proposal.summary || 'No summary provided.'}</p>
+                                                                    {proposal.workflowRun && (
+                                                                        <div className="mt-2 text-[11px] text-text-tertiary">
+                                                                            Run {proposal.workflowRun.id} • {proposal.workflowRun.state}
+                                                                        </div>
+                                                                    )}
+                                                                    {proposal.payload && (
+                                                                        <div className="mt-3 rounded-2xl border border-border-subtle bg-bg-input/60 px-3 py-2 text-[11px] text-text-secondary">
+                                                                            {Object.entries(proposal.payload).slice(0, 4).map(([key, value]) => (
+                                                                                <div key={key} className="truncate">
+                                                                                    <span className="text-text-tertiary">{key}:</span> {typeof value === 'string' ? value : JSON.stringify(value)}
+                                                                                </div>
+                                                                            ))}
+                                                                        </div>
+                                                                    )}
+                                                                    <div className="mt-3 flex flex-wrap gap-2">
+                                                                        <button
+                                                                            onClick={() => handleBrainProposalExecute(proposal)}
+                                                                            disabled={proposalBusyId === proposal.id || !proposal.payload}
+                                                                            className="inline-flex items-center gap-1.5 rounded-full bg-accent-primary px-3 py-1.5 text-[11px] font-semibold text-white hover:opacity-90 disabled:opacity-50"
+                                                                        >
+                                                                            <Zap size={12} />
+                                                                            Approve & Execute
+                                                                        </button>
+                                                                        <button
+                                                                            onClick={() => handleBrainProposalDecision(proposal, 'approved')}
+                                                                            disabled={proposalBusyId === proposal.id}
+                                                                            className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/12 px-3 py-1.5 text-[11px] font-semibold text-emerald-400 hover:bg-emerald-500/18 disabled:opacity-50"
+                                                                        >
+                                                                            <Check size={12} />
+                                                                            Approve Signal
+                                                                        </button>
+                                                                        <button
+                                                                            onClick={() => handleBrainProposalDecision(proposal, 'snoozed')}
+                                                                            disabled={proposalBusyId === proposal.id}
+                                                                            className="rounded-full bg-bg-input px-3 py-1.5 text-[11px] font-semibold text-text-secondary hover:text-text-primary disabled:opacity-50"
+                                                                        >
+                                                                            Snooze
+                                                                        </button>
+                                                                        <button
+                                                                            onClick={() => handleBrainProposalDecision(proposal, 'rejected')}
+                                                                            disabled={proposalBusyId === proposal.id}
+                                                                            className="rounded-full bg-red-500/10 px-3 py-1.5 text-[11px] font-semibold text-red-400 hover:bg-red-500/15 disabled:opacity-50"
+                                                                        >
+                                                                            Reject
+                                                                        </button>
+                                                                    </div>
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+                                                )}
 
                                                 <div className="grid grid-cols-1 gap-4 xl:grid-cols-[1.1fr_0.9fr]">
                                                     <div className={`rounded-[24px] border ${isLight ? 'bg-white/70 border-black/8' : 'bg-white/5 border-white/10'} p-4`}>
@@ -1170,15 +2090,15 @@ const Launcher: React.FC<LauncherProps> = ({ onStartMeeting, onOpenSettings, onP
                                                                 </div>
                                                                 <div className={`rounded-2xl border px-4 py-3 ${isLight ? 'bg-black/[0.025] border-black/8' : 'bg-black/10 border-white/8'}`}>
                                                                     <div className="flex items-center justify-between gap-3">
-                                                                        <span className="text-sm font-medium text-text-primary">Last live observation</span>
-                                                                        <span className="text-[11px] font-medium text-emerald-400">{formatFreshness(contextHubOverview?.live?.lastObservedAt)}</span>
+                                                                        <span className="text-sm font-medium text-text-primary">Latest brain run</span>
+                                                                        <span className="text-[11px] font-medium text-emerald-400">{formatFreshness(contextHubOverview?.brain?.latestRunAt)}</span>
                                                                     </div>
-                                                                    <div className="mt-1 text-[11px] text-text-secondary">{lastObservedAt}</div>
+                                                                    <div className="mt-1 text-[11px] text-text-secondary">{contextHubOverview?.brain?.latestRunAt ? new Date(contextHubOverview.brain.latestRunAt).toLocaleString() : lastObservedAt}</div>
                                                                 </div>
                                                                 <div className={`rounded-2xl border px-4 py-3 ${isLight ? 'bg-black/[0.025] border-black/8' : 'bg-black/10 border-white/8'}`}>
-                                                                    <div className="text-sm font-medium text-text-primary">Reference footprint</div>
+                                                                    <div className="text-sm font-medium text-text-primary">Brain footprint</div>
                                                                     <div className="mt-1 text-[11px] text-text-secondary">
-                                                                        {`${contextHubOverview?.profile?.experienceCount || 0} experience records • ${contextHubOverview?.profile?.projectCount || 0} projects • ${contextHubOverview?.profile?.nodeCount || 0} total nodes`}
+                                                                        {`${contextHubOverview?.brain?.prepPacketsReady || 0} prep packets • ${contextHubOverview?.brain?.cortexInsights || 0} Cortex insights • ${contextHubOverview?.brain?.openActionProposals || 0} open proposals`}
                                                                     </div>
                                                                 </div>
                                                             </div>

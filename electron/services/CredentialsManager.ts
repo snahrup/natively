@@ -5,9 +5,29 @@
 
 import { app, safeStorage } from 'electron';
 import fs from 'fs';
+import os from 'os';
 import path from 'path';
 
 const CREDENTIALS_PATH = path.join(app.getPath('userData'), 'credentials.enc');
+
+function loadCascadeProjectsEnv(): void {
+    const envPath = path.join(os.homedir(), 'CascadeProjects', '.env');
+    if (!fs.existsSync(envPath)) return;
+    try {
+        for (const rawLine of fs.readFileSync(envPath, 'utf8').split(/\r?\n/)) {
+            const line = rawLine.trim();
+            if (!line || line.startsWith('#') || !line.includes('=')) continue;
+            const [rawKey, ...rawValueParts] = line.split('=');
+            const key = rawKey.trim();
+            if (!key || process.env[key]) continue;
+            process.env[key] = rawValueParts.join('=').trim().replace(/^["']|["']$/g, '');
+        }
+    } catch (error) {
+        console.warn('[CredentialsManager] Failed to load CascadeProjects AI defaults:', error);
+    }
+}
+
+loadCascadeProjectsEnv();
 
 export interface StoredCredentials {
     googleServiceAccountPath?: string;
@@ -75,7 +95,22 @@ export class CredentialsManager {
     }
 
     public getSttProvider(): 'google' | 'groq' | 'openai' | 'deepgram' | 'elevenlabs' | 'azure' | 'ibmwatson' | 'soniox' | 'natively' {
-        return this.credentials.sttProvider || 'google';
+        const configured = this.credentials.sttProvider;
+        if (configured && configured !== 'google') return configured;
+
+        // Google is the weakest fallback for Steve's meeting use case. If a
+        // higher-quality provider key is saved, promote it automatically unless
+        // the user has explicitly selected another non-Google provider.
+        if (this.credentials.nativelyApiKey) return 'natively';
+        if (this.credentials.deepgramApiKey) return 'deepgram';
+        if (this.credentials.sonioxApiKey) return 'soniox';
+        if (this.credentials.openAiSttApiKey) return 'openai';
+        if (this.credentials.elevenLabsApiKey) return 'elevenlabs';
+        if (this.credentials.groqSttApiKey) return 'groq';
+        if (this.credentials.azureApiKey) return 'azure';
+        if (this.credentials.ibmWatsonApiKey) return 'ibmwatson';
+
+        return configured || 'google';
     }
 
     public getDeepgramApiKey(): string | undefined {
@@ -438,31 +473,41 @@ export class CredentialsManager {
 }
 
 function normalizeDefaultModel(model?: string): string {
-    if (!model) return 'claude-sonnet-4-6';
+    const defaultClaudeModel = process.env.AI_CLAUDE_MODEL?.trim() || 'claude-opus-4-8';
+    if (!model) return defaultClaudeModel;
     switch (model) {
         case 'claude':
         case 'claude-max':
+        case 'claude-max-opus':
+        case 'claude-max-opus-4-8':
+        case 'claude-opus-4-8':
+        case 'claude-max-opus-4-7':
+        case 'claude-opus-4-7':
+        case 'claude-max-opus-4-6':
+        case 'claude-opus-4-6':
+            return defaultClaudeModel;
         case 'claude-max-sonnet':
         case 'claude-max-sonnet-4-6':
             return 'claude-sonnet-4-6';
-        case 'claude-max-opus':
-        case 'claude-max-opus-4-6':
-            return 'claude-opus-4-6';
         case 'codex':
+        case 'codex-gpt-5.5':
+        case 'codex-gpt-5.2':
+        case 'gpt-5.2':
+            return 'gpt-5.5';
         case 'codex-gpt-5.4':
             return 'gpt-5.4';
         case 'codex-gpt-5.4-mini':
             return 'gpt-5.4-mini';
         case 'codex-gpt-5.3-codex':
-            return 'gpt-5.3-codex';
         case 'codex-gpt-5.3-codex-spark':
-            return 'gpt-5.3-codex-spark';
-        case 'codex-gpt-5.2':
-            return 'gpt-5.2';
+        case 'gpt-5-codex':
+        case 'gpt-5.3-codex':
+        case 'gpt-5.3-codex-spark':
+            return 'gpt-5.5';
         default:
             if (model.startsWith('claude-') || model.startsWith('gpt-5')) {
                 return model;
             }
-            return 'claude-sonnet-4-6';
+            return defaultClaudeModel;
     }
 }

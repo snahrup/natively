@@ -15,6 +15,10 @@ import {
 // Mode types
 export type IntelligenceMode = 'idle' | 'assist' | 'what_to_say' | 'follow_up' | 'recap' | 'clarify' | 'manual' | 'follow_up_questions' | 'code_hint' | 'brainstorm';
 
+const PROACTIVE_LIVE_COACH_MODEL = "gpt-5.4-mini";
+const PROACTIVE_LIVE_COACH_EFFORT = "low";
+const NO_USEFUL_COACHING_SIGNAL = "NO_USEFUL_COACHING_SIGNAL";
+
 // Refinement intent detection (refined to avoid false positives)
 function detectRefinementIntent(userText: string): { isRefinement: boolean; intent: string } {
     const lowercased = userText.toLowerCase().trim();
@@ -85,6 +89,7 @@ export class IntelligenceEngine extends EventEmitter {
     private lastTranscriptTime: number = 0;
     private lastTriggerTime: number = 0;
     private readonly triggerCooldown: number = 3000; // 3 seconds
+    private proactiveModeEnabled: boolean = false;
 
     constructor(llmHelper: LLMHelper, session: SessionTracker) {
         super();
@@ -99,6 +104,10 @@ export class IntelligenceEngine extends EventEmitter {
 
     getRecapLLM(): RecapLLM | null {
         return this.recapLLM;
+    }
+
+    setProactiveModeEnabled(enabled: boolean): void {
+        this.proactiveModeEnabled = enabled;
     }
 
     // ============================================
@@ -154,7 +163,8 @@ export class IntelligenceEngine extends EventEmitter {
      * This is the primary auto-trigger path
      */
     async handleSuggestionTrigger(trigger: SuggestionTrigger): Promise<void> {
-        if (trigger.confidence < 0.5) {
+        const minimumConfidence = this.proactiveModeEnabled ? 0.3 : 0.5;
+        if (trigger.confidence < minimumConfidence) {
             return;
         }
         await this.runWhatShouldISay(trigger.lastQuestion, trigger.confidence);
@@ -219,13 +229,18 @@ export class IntelligenceEngine extends EventEmitter {
      * Manual trigger - uses clean transcript pipeline for question inference
      * NEVER returns null - always provides a usable response
      */
-    async runWhatShouldISay(question?: string, confidence: number = 0.8, imagePaths?: string[]): Promise<string | null> {
+    async runWhatShouldISay(
+        question?: string,
+        confidence: number = 0.8,
+        imagePaths?: string[],
+        options?: { force?: boolean }
+    ): Promise<string | null> {
         const now = Date.now();
 
         // Bypass cooldown when the user explicitly attached images (capture-and-process intent).
         // The cooldown exists to debounce auto-triggers, not explicit shortcuts with context.
         const hasImages = imagePaths && imagePaths.length > 0;
-        if (!hasImages && now - this.lastTriggerTime < this.triggerCooldown) {
+        if (!hasImages && !options?.force && now - this.lastTriggerTime < this.triggerCooldown) {
             return null;
         }
 
@@ -279,7 +294,10 @@ export class IntelligenceEngine extends EventEmitter {
                 timestamp: item.timestamp
             }));
 
-            const preparedTranscript = prepareTranscriptForWhatToAnswer(transcriptTurns, 12);
+            const preparedTranscript = prepareTranscriptForWhatToAnswer(
+                transcriptTurns,
+                this.proactiveModeEnabled ? 5 : 12
+            );
 
             const temporalContext = buildTemporalContext(
                 contextItems,
@@ -298,22 +316,75 @@ export class IntelligenceEngine extends EventEmitter {
 
             const generationId = ++this.currentGenerationId;
             let fullAnswer = "";
+            const priorModel = this.llmHelper.getCurrentModel();
+            const priorEffort = this.llmHelper.getReasoningEffort();
+            const useProactiveCoachModel = this.proactiveModeEnabled && !hasImages;
+
+            if (useProactiveCoachModel) {
+                this.llmHelper.setModel(PROACTIVE_LIVE_COACH_MODEL);
+                this.llmHelper.setReasoningEffort(PROACTIVE_LIVE_COACH_EFFORT);
+            }
             // RC-03 fix: hold a reference to the generator so we can call .return()
             // to properly terminate the network request when a new generation starts.
-            const stream = this.whatToAnswerLLM.generateStream(preparedTranscript, temporalContext, intentResult, imagePaths);
+            const quickActionRequest = question?.trim()
+                ? `${preparedTranscript}\n\n<quick_action_request>\n${question.trim()}\n</quick_action_request>`
+                : preparedTranscript;
+
+            const stream = this.whatToAnswerLLM.generateStream(
+                quickActionRequest,
+                temporalContext,
+                intentResult,
+                imagePaths,
+                this.session.getPreparedMeetingContext(),
+                this.proactiveModeEnabled
+            );
             let streamAborted = false;
 
-            for await (const token of stream) {
-                if (this.currentGenerationId !== generationId) {
-                    console.log('[IntelligenceEngine] _what_to_say stream aborted by new generation');
-                    // RC-03 fix: .return() signals the generator to clean up and stops
-                    // the underlying network request (SDK generators honour this).
-                    await stream.return(undefined);
-                    streamAborted = true;
-                    break;
+            try {
+                for await (const token of stream) {
+                    if (this.currentGenerationId !== generationId) {
+                        console.log('[IntelligenceEngine] _what_to_say stream aborted by new generation');
+                        // RC-03 fix: .return() signals the generator to clean up and stops
+                        // the underlying network request (SDK generators honour this).
+                        await stream.return(undefined);
+                        streamAborted = true;
+                        break;
+                    }
+                    const nextAnswer = fullAnswer + token;
+                    if (this.proactiveModeEnabled) {
+                        const compactNext = nextAnswer.trim();
+                        if (compactNext && NO_USEFUL_COACHING_SIGNAL.startsWith(compactNext)) {
+                            fullAnswer = nextAnswer;
+                            continue;
+                        }
+                        if (compactNext.includes(NO_USEFUL_COACHING_SIGNAL)) {
+                            fullAnswer = nextAnswer;
+                            continue;
+                        }
+
+                        const compactPrevious = fullAnswer.trim();
+                        this.emit(
+                            'suggested_answer_token',
+                            compactPrevious && NO_USEFUL_COACHING_SIGNAL.startsWith(compactPrevious)
+                                ? nextAnswer
+                                : token,
+                            question || 'inferred',
+                            confidence
+                        );
+                        fullAnswer = nextAnswer;
+                        continue;
+                    }
+
+                    this.emit('suggested_answer_token', token, question || 'inferred', confidence);
+                    fullAnswer = nextAnswer;
                 }
-                this.emit('suggested_answer_token', token, question || 'inferred', confidence);
-                fullAnswer += token;
+            } catch (error) {
+                throw error;
+            } finally {
+                if (useProactiveCoachModel) {
+                    this.llmHelper.setModel(priorModel);
+                    this.llmHelper.setReasoningEffort(priorEffort);
+                }
             }
 
             if (streamAborted) {
@@ -322,7 +393,16 @@ export class IntelligenceEngine extends EventEmitter {
                 return null;
             }
 
+            if (this.proactiveModeEnabled && fullAnswer.includes(NO_USEFUL_COACHING_SIGNAL)) {
+                this.setMode('idle');
+                return null;
+            }
+
             if (!fullAnswer || fullAnswer.trim().length < 5) {
+                if (this.proactiveModeEnabled) {
+                    this.setMode('idle');
+                    return null;
+                }
                 fullAnswer = "Could you repeat that? I want to make sure I address your question properly.";
             }
 
@@ -343,8 +423,12 @@ export class IntelligenceEngine extends EventEmitter {
             return fullAnswer;
 
         } catch (error) {
-            this.emit('error', error as Error, 'what_to_say');
             this.setMode('idle');
+            if (this.proactiveModeEnabled) {
+                console.warn('[IntelligenceEngine] Proactive suggestion suppressed after LLM failure:', error);
+                return null;
+            }
+            this.emit('error', error as Error, 'what_to_say');
             return "Could you repeat that? I want to make sure I address your question properly.";
         }
     }

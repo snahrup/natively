@@ -23,7 +23,9 @@ export class WhatToAnswerLLM {
         cleanedTranscript: string,
         temporalContext?: TemporalContext,
         intentResult?: IntentResult,
-        imagePaths?: string[]
+        imagePaths?: string[],
+        preparedMeetingContext?: string | null,
+        proactiveMode?: boolean
     ): AsyncGenerator<string> {
         try {
             // Build a rich message context
@@ -46,6 +48,21 @@ ANSWER SHAPE: ${intentResult.answerShape}
                 contextParts.push(`PREVIOUS RESPONSES (Avoid Repetition):\n${history}`);
             }
 
+            if (preparedMeetingContext?.trim()) {
+                contextParts.push(`<prepared_meeting_context>\n${preparedMeetingContext.trim()}\n</prepared_meeting_context>`);
+            }
+
+            if (proactiveMode) {
+                contextParts.push(`<proactive_live_coaching>
+Live reflex mode. Write only what Steve can say out loud immediately.
+Keep it to 1-3 compact sentences. No sections unless the transcript explicitly asks for a list.
+Use concrete details from the live transcript, prepared meeting context, or visible screen context.
+Do not use generic meeting advice, canned decision language, or reusable filler.
+If the recent audio is only setup chatter, mic checks, wake-word tests, acknowledgements, or there is no answerable meeting signal, output exactly: NO_USEFUL_COACHING_SIGNAL
+Do not narrate reasoning. Do not wait for perfect context, but stay grounded in what is actually present.
+</proactive_live_coaching>`);
+            }
+
             const extraContext = contextParts.join('\n\n');
             const fullMessage = extraContext
                 ? `${extraContext}\n\nCONVERSATION:\n${cleanedTranscript}`
@@ -55,11 +72,24 @@ ANSWER SHAPE: ${intentResult.answerShape}
             // Note: WhatToAnswer has a very specific prompt. 
             // We should use UNIVERSAL_WHAT_TO_ANSWER_PROMPT as override
 
-            yield* this.llmHelper.streamChat(fullMessage, imagePaths, undefined, UNIVERSAL_WHAT_TO_ANSWER_PROMPT);
+            yield* this.llmHelper.streamChat(
+                fullMessage,
+                imagePaths,
+                undefined,
+                UNIVERSAL_WHAT_TO_ANSWER_PROMPT,
+                proactiveMode
+                    ? {
+                        ignoreKnowledgeMode: true,
+                        skipRetrievedContext: true,
+                        skipIPCorpSystemPrompt: true,
+                        requestProfile: "realtime"
+                    }
+                    : false
+            );
 
         } catch (error) {
             console.error("[WhatToAnswerLLM] Stream failed:", error);
-            yield "Could you repeat that? I want to make sure I address your question properly.";
+            throw error;
         }
     }
 }

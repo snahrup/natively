@@ -1,6 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Activity, Bot, Calendar, ExternalLink, MessageSquare, Monitor, RefreshCw, Trash2, Upload } from 'lucide-react';
-import { MicrosoftActionPanel } from './MicrosoftActionPanel';
 
 interface ChatDebugEntry {
   id: number;
@@ -370,14 +369,14 @@ export const ContextHubSettings: React.FC<ContextHubSettingsProps> = ({
             icon: <Calendar size={16} />,
           },
           {
-            label: 'Semantica Substrate',
-            active: !!contextHubStatus?.semantica?.ready,
-            detail: contextHubStatus?.semantica?.ready
-              ? `${contextHubStatus?.semantica?.meetingCount || 0} meetings • ${contextHubStatus?.semantica?.nodeCount || 0} nodes`
-              : (contextHubStatus?.semantica?.available ? 'Starting…' : 'Offline'),
-            meta: contextHubStatus?.semantica?.stateDir
-              ? `${contextHubStatus?.semantica?.recordCount || 0} records • ${contextHubStatus?.semantica?.edgeCount || 0} edges`
-              : (contextHubStatus?.semantica?.error || 'Semantica sidecar has not reported status yet'),
+            label: 'IP Corp Brain',
+            active: !!contextHubStatus?.brain?.available,
+            detail: contextHubStatus?.brain?.available
+              ? `${contextHubStatus?.brain?.prepPacketsReady || 0} prep packets • ${contextHubStatus?.brain?.cortexInsights || 0} Cortex insights`
+              : 'Missing',
+            meta: contextHubStatus?.brain?.available
+              ? `${contextHubStatus?.brain?.openActionProposals || 0} open proposals • ${contextHubStatus?.brain?.rootPath || 'brain repo'}`
+              : (contextHubStatus?.brain?.warning || 'Brain read models are not available yet'),
             icon: <Bot size={16} />,
           },
           {
@@ -445,7 +444,7 @@ export const ContextHubSettings: React.FC<ContextHubSettingsProps> = ({
             Last live observation: {contextHubStatus?.live?.lastObservedAt ? new Date(contextHubStatus.live.lastObservedAt).toLocaleString() : 'No live observations captured yet'}
           </div>
           <div className="mt-1">
-            Semantica: {contextHubStatus?.semantica?.ready ? 'Active durable substrate' : (contextHubStatus?.semantica?.error || 'Still booting')}
+            Brain run: {contextHubStatus?.brain?.latestRunAt ? new Date(contextHubStatus.brain.latestRunAt).toLocaleString() : 'No brain run visible yet'}
           </div>
         </div>
         <div className="rounded-xl border border-border-subtle bg-bg-item-surface px-4 py-3 text-xs text-text-secondary leading-relaxed">
@@ -466,7 +465,7 @@ export const ContextHubSettings: React.FC<ContextHubSettingsProps> = ({
           <div>
             <h4 className="text-sm font-bold text-text-primary">Autonomous Ops</h4>
             <p className="text-xs text-text-secondary mt-1 max-w-[640px]">
-              Resident workflow supervision for repo-local systems. Natively keeps the FMD watchdog state visible, preserves artifacts, and only escalates controls that need explicit confirmation.
+              Resident workflow supervision for opted-in repo-local systems. IP Corp mode keeps legacy monitors disabled by default, preserves artifacts when enabled, and only escalates controls that need explicit confirmation.
             </p>
           </div>
           <button
@@ -509,7 +508,7 @@ export const ContextHubSettings: React.FC<ContextHubSettingsProps> = ({
 
         {autonomousWorkflows.length === 0 ? (
           <div className="rounded-lg border border-border-subtle bg-bg-input/50 px-4 py-4 text-xs text-text-secondary">
-            No repo-local autonomous workflows are currently registered in this session.
+            No repo-local autonomous workflows are currently registered. Legacy app monitors stay off unless explicitly enabled.
           </div>
         ) : (
           <div className="space-y-3">
@@ -1171,10 +1170,6 @@ export const ContextHubSettings: React.FC<ContextHubSettingsProps> = ({
         </div>
       </div>
 
-      <MicrosoftActionPanel
-        outlookConnected={!!calendarStatus?.providers?.outlook}
-        teamsConnected={microsoftLocalStatus?.teams?.status === 'connected'}
-      />
     </div>
   );
 };

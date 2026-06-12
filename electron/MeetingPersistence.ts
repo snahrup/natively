@@ -5,8 +5,12 @@
 import { SessionTracker, TranscriptSegment } from './SessionTracker';
 import { LLMHelper } from './LLMHelper';
 import { DatabaseManager, Meeting } from './db/DatabaseManager';
-import { GROQ_TITLE_PROMPT, GROQ_SUMMARY_JSON_PROMPT } from './llm';
+import { GROQ_SUMMARY_JSON_PROMPT } from './llm';
 import { ContradictionDetector } from './services/ContradictionDetector';
+import { NotebookLmMeetingArtifactService } from './services/NotebookLmMeetingArtifactService';
+import { buildMeetingAnalysisContext, cleanTranscriptForAnalysis } from './services/TranscriptCleanupService';
+import { reconstructTranscriptWithCodex } from './services/TranscriptReconstructionService';
+import { generateMeetingTitleWithCodex, isPlaceholderMeetingTitle } from './services/MeetingTitleService';
 const crypto = require('crypto');
 
 export class MeetingPersistence {
@@ -95,33 +99,78 @@ export class MeetingPersistence {
         metadata?: { title?: string; calendarEventId?: string; source?: 'manual' | 'calendar' } | null
     ): Promise<void> {
         let title = "Untitled Session";
-        let summaryData: { actionItems: string[], keyPoints: string[] } = { actionItems: [], keyPoints: [] };
+        let summaryData: { actionItems: string[], keyPoints: string[], overview?: string, transcriptCleanup?: any, reconstructedTranscript?: any } = { actionItems: [], keyPoints: [] };
 
         // Use passed-in metadata snapshot (NOT this.session.getMeetingMetadata() which is already cleared)
         let calendarEventId: string | undefined;
         let source: 'manual' | 'calendar' = 'manual';
 
         if (metadata) {
-            if (metadata.title) title = metadata.title;
+            if (metadata.title && !isPlaceholderMeetingTitle(metadata.title)) title = metadata.title;
             if (metadata.calendarEventId) calendarEventId = metadata.calendarEventId;
             if (metadata.source) source = metadata.source;
         }
 
-        try {
-            // Generate Title (only if not set by calendar)
-            if (!metadata || !metadata.title) {
-                const titlePrompt = `Generate a concise 3-6 word title for this meeting context. Output ONLY the title text. Do not use quotes or conversational filler.`;
-                const groqTitlePrompt = GROQ_TITLE_PROMPT;
+        const cleanedTranscript = cleanTranscriptForAnalysis(data.transcript, { maxChars: 28_000 });
+        summaryData.transcriptCleanup = {
+            rawSegments: cleanedTranscript.stats.rawSegments,
+            cleanTurns: cleanedTranscript.stats.cleanTurns,
+            rawCharacters: cleanedTranscript.stats.rawCharacters,
+            cleanCharacters: cleanedTranscript.stats.cleanCharacters,
+            compressionRatio: cleanedTranscript.stats.compressionRatio,
+            generatedAt: new Date().toISOString(),
+            strategy: "merge-same-speaker-filter-filler-analysis-context",
+        };
+        const durationForAnalysis = `${Math.floor(data.durationMs / 60000)}:${Number(((data.durationMs % 60000) / 1000).toFixed(0)) < 10 ? '0' : ''}${((data.durationMs % 60000) / 1000).toFixed(0)}`;
+        const analysisDate = new Date(data.startTime || Date.now()).toISOString();
+        const reconstructionSeedMeeting = {
+            title,
+            date: analysisDate,
+            duration: durationForAnalysis,
+            summary: "",
+            detailedSummary: { actionItems: [] as string[], keyPoints: [] as string[] },
+            transcript: data.transcript,
+        };
 
-                const generatedTitle = await this.llmHelper.generateMeetingSummary(titlePrompt, data.context.substring(0, 5000), groqTitlePrompt);
-                if (generatedTitle) title = generatedTitle.replace(/["*]/g, '').trim();
+        if (cleanedTranscript.turns.length > 1) {
+            try {
+                const reconstruction = await reconstructTranscriptWithCodex(this.llmHelper, reconstructionSeedMeeting);
+                if (reconstruction) {
+                    summaryData.reconstructedTranscript = reconstruction;
+                }
+            } catch (error) {
+                console.warn('[MeetingPersistence] Transcript reconstruction failed; using cleaned transcript fallback:', error);
+            }
+        }
+
+        const analysisMeeting = {
+            ...reconstructionSeedMeeting,
+            detailedSummary: {
+                actionItems: [] as string[],
+                keyPoints: [] as string[],
+                reconstructedTranscript: summaryData.reconstructedTranscript,
+            },
+        };
+        const analysisContext = buildMeetingAnalysisContext(analysisMeeting, { maxChars: 28_000 });
+
+        try {
+            // Generate title when there is no real calendar title, or the title is
+            // still a placeholder such as "Untitled Session".
+            if (isPlaceholderMeetingTitle(title)) {
+                const generatedTitle = await generateMeetingTitleWithCodex(this.llmHelper, {
+                    ...analysisMeeting,
+                    title,
+                });
+                if (generatedTitle) title = generatedTitle;
             }
 
             // Generate Structured Summary
-            if (data.transcript.length > 2) {
+            if (cleanedTranscript.turns.length > 1) {
                 const summaryPrompt = `You are a silent meeting summarizer. Convert this conversation into concise internal meeting notes.
     
     RULES:
+    - Use the CLEANED TRANSCRIPT as the primary evidence
+    - User-supplied context is authoritative when present
     - Do NOT invent information not present in the context
     - You MAY infer implied action items or next steps if they are logical consequences of the discussion
     - Do NOT explain or define concepts mentioned
@@ -141,17 +190,20 @@ export class MeetingPersistence {
 
                 const groqSummaryPrompt = GROQ_SUMMARY_JSON_PROMPT;
 
-                const generatedSummary = await this.llmHelper.generateMeetingSummary(summaryPrompt, data.context.substring(0, 10000), groqSummaryPrompt);
+                const generatedSummary = await this.llmHelper.generateMeetingSummary(summaryPrompt, analysisContext, groqSummaryPrompt);
 
                 if (generatedSummary) {
                     const jsonMatch = generatedSummary.match(/```json\n([\s\S]*?)\n```/) || [null, generatedSummary];
                     const jsonStr = (jsonMatch[1] || generatedSummary).trim();
                     try {
-                        summaryData = JSON.parse(jsonStr);
+                        summaryData = {
+                            ...summaryData,
+                            ...JSON.parse(jsonStr),
+                        };
                     } catch (e) { console.error("Failed to parse summary JSON", e); }
                 }
             } else {
-                console.log("Transcript too short for summary generation.");
+                console.log("Cleaned transcript too short for summary generation.");
             }
         } catch (e) {
             console.error("Error generating meeting metadata", e);
@@ -183,6 +235,7 @@ export class MeetingPersistence {
             // Run contradiction detection in the background (fire-and-forget)
             const fullTranscript = data.transcript.map(s => s.text ?? '').join('\n');
             ContradictionDetector.getInstance().processTranscript(meetingId, title, fullTranscript).catch(() => {});
+            NotebookLmMeetingArtifactService.getInstance().queueMeetingInfographic(meetingData, data.durationMs);
 
             // Notify Frontend to refresh list
             const wins = require('electron').BrowserWindow.getAllWindows();

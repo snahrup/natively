@@ -33,11 +33,26 @@ function uniqueStrings(values: string[]): string[] {
   return [...new Set(values.filter(Boolean))];
 }
 
-function extensionRank(candidate: string): number {
-  if (/\.exe$/i.test(candidate)) return 0;
-  if (!path.extname(candidate)) return 1;
-  if (/\.cmd$/i.test(candidate)) return 2;
-  if (/\.bat$/i.test(candidate)) return 3;
+function executableRank(provider: LocalCliProvider, candidate: string): number {
+  const normalized = candidate.toLowerCase();
+
+  // Windows Store execution aliases under WindowsApps can exist on disk but
+  // Node's child_process.spawn can fail with EPERM when launching them directly.
+  // Prefer real shims from the Node installation when available.
+  const windowsAppsPenalty = process.platform === "win32" && normalized.includes("\\windowsapps\\") ? 100 : 0;
+
+  if (
+    process.platform === "win32" &&
+    provider === "codex" &&
+    normalized === "c:\\nodejs\\current\\codex.cmd"
+  ) {
+    return -10;
+  }
+
+  if (/\.cmd$/i.test(candidate)) return 0 + windowsAppsPenalty;
+  if (/\.bat$/i.test(candidate)) return 1 + windowsAppsPenalty;
+  if (/\.exe$/i.test(candidate)) return 2 + windowsAppsPenalty;
+  if (!path.extname(candidate)) return process.platform === "win32" ? 3 + windowsAppsPenalty : 1;
   return 4;
 }
 
@@ -97,6 +112,9 @@ function fallbackCandidates(provider: LocalCliProvider): string[] {
       path.join(homeDir, ".local", "bin", "claude.exe"),
       path.join(homeDir, ".local", "bin", "claude"),
       path.join(homeDir, "AppData", "Local", "Programs", "Claude", "claude.exe"),
+      "C:\\nodejs\\current\\claude.exe",
+      "C:\\nodejs\\current\\claude.cmd",
+      "C:\\nodejs\\current\\claude",
     ];
   }
 
@@ -131,7 +149,7 @@ export function resolveLocalCliPath(provider: LocalCliProvider, refresh: boolean
     ...fallbackCandidates(provider),
   ])
     .filter(existingFile)
-    .sort((left, right) => extensionRank(left) - extensionRank(right))[0] ?? null;
+    .sort((left, right) => executableRank(provider, left) - executableRank(provider, right))[0] ?? null;
 
   resolveCache.set(provider, {
     checkedAt: Date.now(),

@@ -8,8 +8,12 @@ import {
   type MeetingContextOverviewEvidence,
 } from "../db/DatabaseManager";
 import { CalendarManager, type CalendarEvent } from "./CalendarManager";
+import { buildMeetingAnalysisContext, cleanTranscriptForAnalysis } from "./TranscriptCleanupService";
+import { reconstructTranscriptWithCodex } from "./TranscriptReconstructionService";
+import { generateMeetingTitleWithCodex, isPlaceholderMeetingTitle } from "./MeetingTitleService";
 
-const OVERVIEW_MODEL = "claude-sonnet-4-6";
+const OVERVIEW_MODEL = "gpt-5.5";
+const OVERVIEW_REASONING_EFFORT = "xhigh";
 const MAX_EVIDENCE_ITEMS = 6;
 const MAX_CONTEXT_DOCS = 8;
 const RETRIEVAL_WINDOW_MS = 540 * 24 * 60 * 60 * 1000;
@@ -32,7 +36,7 @@ interface OverviewPayload {
 export class MeetingOverviewService {
   static async generate(options: GenerateMeetingOverviewOptions): Promise<MeetingContextOverview> {
     const db = DatabaseManager.getInstance();
-    const meeting = db.getMeetingDetails(options.meetingId);
+    const meeting = resolveMeetingForOverview(db, options.meetingId);
     if (!meeting) {
       throw new Error(`Meeting not found: ${options.meetingId}`);
     }
@@ -42,22 +46,66 @@ export class MeetingOverviewService {
       return existing;
     }
 
-    const retrieval = await this.retrieveContext(meeting, options.knowledgeOrchestrator);
-    const relatedDocs = selectRelatedDocuments(retrieval, meeting.id);
-    const upcomingMatches = await findUpcomingSignals(meeting);
+    let workingMeeting = meeting;
+    if (!workingMeeting.detailedSummary?.reconstructedTranscript && (workingMeeting.transcript?.length || 0) > 5) {
+      try {
+        const reconstruction = await reconstructTranscriptWithCodex(options.llmHelper, workingMeeting);
+        if (reconstruction) {
+          workingMeeting = {
+            ...workingMeeting,
+            detailedSummary: {
+              ...workingMeeting.detailedSummary,
+              actionItems: workingMeeting.detailedSummary?.actionItems || [],
+              keyPoints: workingMeeting.detailedSummary?.keyPoints || [],
+              reconstructedTranscript: reconstruction,
+              contextOverview: undefined,
+            },
+          };
+          db.updateMeetingSummary(workingMeeting.id, {
+            reconstructedTranscript: reconstruction,
+            contextOverview: undefined,
+          });
+        }
+      } catch (error) {
+        console.warn("[MeetingOverviewService] Transcript reconstruction failed; using cleaned transcript fallback:", error);
+      }
+    }
+
+    if (isPlaceholderMeetingTitle(workingMeeting.title) && (workingMeeting.transcript?.length || 0) > 2) {
+      try {
+        const generatedTitle = await generateMeetingTitleWithCodex(options.llmHelper, workingMeeting);
+        if (generatedTitle) {
+          db.updateMeetingTitle(workingMeeting.id, generatedTitle);
+          workingMeeting = { ...workingMeeting, title: generatedTitle };
+        }
+      } catch (error) {
+        console.warn("[MeetingOverviewService] Meeting title generation failed:", error);
+      }
+    }
+
+    const retrieval = await this.retrieveContext(workingMeeting, options.knowledgeOrchestrator);
+    const relatedDocs = selectRelatedDocuments(retrieval, workingMeeting.id);
+    const upcomingMatches = await findUpcomingSignals(workingMeeting);
 
     const systemPrompt = [
       "You write concise executive meeting overviews for a desktop app called Natively.",
       "Use only the provided meeting and context evidence.",
+      "Use the cleaned transcript context as the primary source for what happened in the meeting.",
+      "Treat user-supplied post-meeting context as authoritative corrections or clarifications.",
       "Explain what the meeting was about, why it mattered, what value it created, and how it connects to prior or upcoming work.",
       "Do not mention AI, transcripts, context engines, or missing data.",
       "Return strict JSON with this shape and no markdown fences:",
       '{"synopsis":"", "significance":"", "value":"", "continuity":[""], "upcomingSignals":[""]}',
     ].join("\n");
 
-    const userPrompt = buildOverviewPrompt(meeting, retrieval, relatedDocs, upcomingMatches);
-    const raw = await options.llmHelper.generateWithLocalClaude(userPrompt, systemPrompt, OVERVIEW_MODEL);
-    const parsed = sanitizeOverviewPayload(parseOverviewPayload(raw), meeting, relatedDocs, upcomingMatches);
+    const userPrompt = buildOverviewPrompt(workingMeeting, retrieval, relatedDocs, upcomingMatches);
+    const raw = await options.llmHelper.generateWithLocalCodex(
+      userPrompt,
+      systemPrompt,
+      OVERVIEW_MODEL,
+      OVERVIEW_REASONING_EFFORT,
+    );
+    const parsed = sanitizeOverviewPayload(parseOverviewPayload(raw), workingMeeting, relatedDocs, upcomingMatches);
 
     const overview: MeetingContextOverview = {
       synopsis: parsed.synopsis!,
@@ -86,22 +134,44 @@ export class MeetingOverviewService {
       participantHints: buildParticipantHints(meeting),
       limit: MAX_CONTEXT_DOCS,
       maxAgeMs: RETRIEVAL_WINDOW_MS,
+      includeLiveMicrosoftSources: false,
+      includeSemantica: false,
     });
   }
 }
 
+function resolveMeetingForOverview(db: DatabaseManager, meetingId: string): Meeting | null {
+  const direct = db.getMeetingDetails(meetingId);
+  if (direct) return direct;
+
+  try {
+    const { BrainReadModelService } = require("./BrainReadModelService");
+    const brainMeetings = BrainReadModelService.getInstance().getRecentMeetings(500);
+    const brainRecord = brainMeetings.find((meeting: any) => meeting?.id === meetingId);
+    const sourceMeetingId = brainRecord?.importMetadata?.sourceMeetingId;
+    if (sourceMeetingId && sourceMeetingId !== meetingId) {
+      return db.getMeetingDetails(sourceMeetingId);
+    }
+  } catch (error) {
+    console.warn("[MeetingOverviewService] Failed to resolve brain meeting id:", error);
+  }
+
+  return null;
+}
+
 function buildMeetingQuery(meeting: Meeting): string {
-  const transcriptExcerpt = (meeting.transcript || [])
-    .slice(0, 12)
-    .map((segment) => segment.text)
-    .join(" ");
+  const transcriptExcerpt = cleanTranscriptForAnalysis(meeting.transcript || [], {
+    maxChars: 1_200,
+    includeTimestamps: false,
+  }).analysisText;
 
   return [
     meeting.title,
     meeting.detailedSummary?.overview || meeting.summary,
+    ...getUserContextNoteTexts(meeting),
     ...(meeting.detailedSummary?.keyPoints || []).slice(0, 5),
     ...(meeting.detailedSummary?.actionItems || []).slice(0, 4),
-    transcriptExcerpt.slice(0, 600),
+    transcriptExcerpt.slice(0, 1_200),
   ]
     .filter(Boolean)
     .join(" ");
@@ -113,7 +183,11 @@ function buildParticipantHints(meeting: Meeting): string[] {
     .map((speaker) => speaker.trim())
     .filter((speaker) => speaker && !["user", "assistant", "them", "me", "external"].includes(speaker.toLowerCase()));
 
-  return dedupeStrings(speakers).slice(0, 6);
+  const noteNames = getUserContextNoteTexts(meeting)
+    .flatMap((note) => Array.from(note.matchAll(/\b[A-Z][a-z]+(?:\s+[A-Z][a-z]+){0,2}\b/g)).map((match) => match[0]))
+    .filter((name) => !["This", "That", "Meeting", "Can"].includes(name));
+
+  return dedupeStrings([...speakers, ...noteNames]).slice(0, 8);
 }
 
 function selectRelatedDocuments(retrieval: ContextRetrievalResult, meetingId: string): ScoredContextDocument[] {
@@ -170,10 +244,12 @@ function buildOverviewPrompt(
     `ACTION ITEMS: ${(meeting.detailedSummary?.actionItems || []).join(" | ") || "None"}`,
   ].join("\n");
 
-  const transcriptBlock = (meeting.transcript || [])
-    .slice(0, 16)
-    .map((segment) => `${segment.speaker || "Speaker"}: ${compactWhitespace(segment.text)}`)
-    .join("\n");
+  const userContextBlock = formatUserContextNotes(meeting);
+
+  const transcriptBlock = buildMeetingAnalysisContext(meeting, {
+    maxChars: 18_000,
+    includeTimestamps: true,
+  });
 
   const relatedBlock = relatedDocs.length
     ? relatedDocs.slice(0, 5).map((doc, index) => [
@@ -195,7 +271,10 @@ function buildOverviewPrompt(
     "CURRENT MEETING",
     meetingBlock,
     "",
-    "TRANSCRIPT EXCERPT",
+    "USER-SUPPLIED POST-MEETING CONTEXT",
+    userContextBlock || "None",
+    "",
+    "CLEANED TRANSCRIPT AND ANALYSIS CONTEXT",
     transcriptBlock || "None",
     "",
     "RANKED SUPPORTING CONTEXT",
@@ -207,6 +286,30 @@ function buildOverviewPrompt(
     `RETRIEVAL CONFIDENCE: ${retrieval.confidence}`,
     `RETRIEVAL SITUATION: ${retrieval.situation}`,
   ].join("\n");
+}
+
+function getUserContextNoteTexts(meeting: Meeting): string[] {
+  const notes = meeting.detailedSummary?.userContextNotes;
+  if (!Array.isArray(notes)) return [];
+  return notes
+    .map((note: any) => compactWhitespace(note?.text || ""))
+    .filter(Boolean)
+    .slice(-10);
+}
+
+function formatUserContextNotes(meeting: Meeting): string {
+  const notes = meeting.detailedSummary?.userContextNotes;
+  if (!Array.isArray(notes) || notes.length === 0) return "";
+
+  return notes
+    .slice(-10)
+    .map((note: any, index) => {
+      const createdAt = compactWhitespace(note?.createdAt || "");
+      const text = compactWhitespace(note?.text || "");
+      return text ? `${index + 1}. ${createdAt ? `[${createdAt}] ` : ""}${text}` : "";
+    })
+    .filter(Boolean)
+    .join("\n");
 }
 
 function buildEvidence(

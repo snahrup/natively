@@ -30,6 +30,7 @@ export interface ElectronAPI {
   onUnauthorized: (callback: () => void) => () => void
   onDebugError: (callback: (error: string) => void) => () => void
   takeScreenshot: () => Promise<{ path: string; preview: string }>
+  takeContextScreenshot: () => Promise<{ path: string; preview: string }>
   getImagePreview: (path: string) => Promise<string | null>
   takeSelectiveScreenshot: () => Promise<{ path: string; preview: string; cancelled?: boolean }>
   moveWindowLeft: () => Promise<void>
@@ -59,6 +60,9 @@ export interface ElectronAPI {
   toggleOverlayMousePassthrough: () => Promise<{ success: boolean; enabled: boolean }>
   getOverlayMousePassthrough: () => Promise<boolean>
   onOverlayMousePassthroughChanged: (callback: (enabled: boolean) => void) => () => void
+  getProactiveMode: () => Promise<boolean>
+  setProactiveMode: (enabled: boolean) => Promise<{ success: boolean; error?: string }>
+  onProactiveModeChanged: (callback: (enabled: boolean) => void) => () => void
   setDisguise: (mode: 'terminal' | 'settings' | 'activity' | 'none') => Promise<{ success: boolean; error?: string }>
   getDisguise: () => Promise<'none' | 'terminal' | 'settings' | 'activity'>
   onDisguiseChanged: (callback: (mode: 'terminal' | 'settings' | 'activity' | 'none') => void) => () => void
@@ -96,7 +100,13 @@ export interface ElectronAPI {
   testSttConnection: (provider: 'groq' | 'openai' | 'deepgram' | 'elevenlabs' | 'azure' | 'ibmwatson' | 'soniox', apiKey: string, region?: string) => Promise<{ success: boolean; error?: string }>
 
   // Native Audio Service Events
-  onNativeAudioTranscript: (callback: (transcript: { speaker: string; text: string; final: boolean }) => void) => () => void
+  onNativeAudioTranscript: (callback: (transcript: { speaker: string; sourceSpeaker?: string; speakerKey?: string; speakerLabel?: string | null; displaySpeakerLabel?: string; diarizedSpeaker?: string | null; speakerIdentity?: 'self' | 'other' | 'unknown'; text: string; final: boolean; timestamp?: number; confidence?: number }) => void) => () => void
+  getMeetingSpeakerLabels: () => Promise<Record<string, string>>
+  setMeetingSpeakerLabel: (speakerKey: string, label: string) => Promise<{ success: boolean; speakerKey: string; label: string | null; labels: Record<string, string> }>
+  onMeetingSpeakerLabelsChanged: (callback: (labels: Record<string, string>) => void) => () => void
+  getUserProfile: () => Promise<{ userDisplayName: string }>
+  setUserDisplayName: (name: string) => Promise<{ success: boolean; userDisplayName: string }>
+  onUserProfileChanged: (callback: (profile: { userDisplayName: string }) => void) => () => void
   onNativeAudioSuggestion: (callback: (suggestion: { context: string; lastQuestion: string; confidence: number }) => void) => () => void
   onNativeAudioConnected: (callback: () => void) => () => void
   onNativeAudioDisconnected: (callback: () => void) => () => void
@@ -113,11 +123,12 @@ export interface ElectronAPI {
   getAiResponseLanguage: () => Promise<string>
   onSttLanguageAutoDetected: (callback: (bcp47: string) => void) => () => void
 
-  getNativeAudioStatus: () => Promise<{ connected: boolean }>
+  getNativeAudioStatus: () => Promise<any>
+  getMeetingReadinessStatus: () => Promise<any>
 
   // Intelligence Mode IPC
   generateAssist: () => Promise<{ insight: string | null }>
-  generateWhatToSay: (question?: string, imagePaths?: string[]) => Promise<{ answer: string | null; question?: string; error?: string }>
+  generateWhatToSay: (question?: string, imagePaths?: string[], options?: { force?: boolean }) => Promise<{ answer: string | null; question?: string; error?: string }>
   generateClarify: () => Promise<{ clarification: string | null }>
   generateCodeHint: (imagePaths?: string[], problemStatement?: string) => Promise<{ hint: string | null }>
   generateBrainstorm: (imagePaths?: string[], problemStatement?: string) => Promise<{ script: string | null }>
@@ -143,13 +154,16 @@ export interface ElectronAPI {
   startMeeting: (metadata?: any) => Promise<{ success: boolean; error?: string }>
   endMeeting: () => Promise<{ success: boolean; error?: string }>
   finalizeMicSTT: () => Promise<void>
+  startMicSTT: () => Promise<{ success: boolean; error?: string }>
+  stopMicSTT: () => Promise<{ success: boolean; error?: string }>
   getRecentMeetings: () => Promise<Array<{ id: string; title: string; date: string; duration: string; summary: string; source?: 'manual' | 'calendar' | 'teams' | 'cluely' | 'imported'; importMetadata?: { sourceFormat?: 'cluely' | 'teams' | 'generic'; importedAt?: string; fidelity?: string } }>>
   getMeetingDetails: (id: string) => Promise<any>
   getChatDebugEntries: (limit?: number) => Promise<Array<{ id: number; meetingId?: string | null; type: string; timestamp: number; userQuery: string; aiResponse: string; metadata: any }>>
   onChatDebugIssue: (callback: (issue: { id: number; surface: string; surfaceLabel: string; status: string; timestamp: number; userQuery: string; aiResponse: string; error: string | null; provider: string | null; modelId: string | null }) => void) => () => void
   getDisplayLayout: () => Promise<Array<{ id: number; label: string; bounds: { x: number; y: number; width: number; height: number }; scaleFactor: number; isPrimary: boolean }>>
   updateMeetingTitle: (id: string, title: string) => Promise<boolean>
-  updateMeetingSummary: (id: string, updates: { overview?: string, actionItems?: string[], keyPoints?: string[], actionItemsTitle?: string, keyPointsTitle?: string }) => Promise<boolean>
+  updateMeetingSummary: (id: string, updates: { overview?: string, actionItems?: string[], keyPoints?: string[], actionItemsTitle?: string, keyPointsTitle?: string, contextOverview?: any, userContextNotes?: any[] }) => Promise<boolean>
+  addMeetingContextNote: (meetingId: string, text: string, source?: 'manual' | 'meeting_chat') => Promise<{ success: boolean; requestedMeetingId?: string; meetingId: string; note: any; meeting?: any }>
   generateMeetingOverview: (meetingId: string, options?: { force?: boolean }) => Promise<any>
   startClaudeLogin: () => Promise<{ success: boolean; launched?: boolean; alreadyLoggedIn?: boolean; error?: string }>
   deleteMeeting: (id: string) => Promise<boolean>
@@ -246,6 +260,7 @@ export interface ElectronAPI {
     prepChecklist: string[];
     openQuestions: string[];
     openCommitments: string[];
+    contextCapsule?: { id: string; filePath: string; markdownPath: string; confidence: 'low' | 'medium' | 'high'; needsUserInput: boolean; updatedAt: string };
   } | null>
 
   // Local Microsoft Bridges
@@ -276,13 +291,13 @@ export interface ElectronAPI {
   ragQueryMeeting: (meetingId: string, query: string) => Promise<{ success?: boolean; fallback?: boolean; error?: string }>
   ragQueryLive: (query: string) => Promise<{ success?: boolean; fallback?: boolean; error?: string }>
   ragQueryGlobal: (query: string) => Promise<{ success?: boolean; fallback?: boolean; error?: string }>
-  ragCancelQuery: (options: { meetingId?: string; global?: boolean }) => Promise<{ success: boolean }>
+  ragCancelQuery: (options: { meetingId?: string; global?: boolean; live?: boolean }) => Promise<{ success: boolean }>
   ragIsMeetingProcessed: (meetingId: string) => Promise<boolean>
   ragGetQueueStatus: () => Promise<{ pending: number; processing: number; completed: number; failed: number }>
   ragRetryEmbeddings: () => Promise<{ success: boolean }>
-  onRAGStreamChunk: (callback: (data: { meetingId?: string; global?: boolean; chunk: string }) => void) => () => void
-  onRAGStreamComplete: (callback: (data: { meetingId?: string; global?: boolean }) => void) => () => void
-  onRAGStreamError: (callback: (data: { meetingId?: string; global?: boolean; error: string }) => void) => () => void
+  onRAGStreamChunk: (callback: (data: { meetingId?: string; global?: boolean; live?: boolean; chunk: string }) => void) => () => void
+  onRAGStreamComplete: (callback: (data: { meetingId?: string; global?: boolean; live?: boolean }) => void) => () => void
+  onRAGStreamError: (callback: (data: { meetingId?: string; global?: boolean; live?: boolean; error: string }) => void) => () => void
 
   // Donation API
   getDonationStatus: () => Promise<{ shouldShow: boolean; hasDonated: boolean; lifetimeShows: number }>;
@@ -311,12 +326,17 @@ export interface ElectronAPI {
   cluelyImportDiscover: (limit?: number) => Promise<{ candidates: Array<{ sessionId: string; meetingTitle: string; date?: string; hasTranscript: boolean; hasSummary: boolean; hasUsage: boolean; source: 'live' | 'cached' }>; mode: 'live' | 'cached' | 'unavailable'; warning?: string; sessionEmail?: string; tokenFresh?: boolean }>
   cluelyImportIngest: (options?: { limit?: number; sessionIds?: string[] }) => Promise<{ importedMeetings: any[]; skippedArtifacts: Array<{ name: string; reason: string }>; totalArtifacts: number; attemptedSessions: number; discoveredCandidates: number; mode: 'live' | 'cached' | 'unavailable'; warning?: string }>
   getContextHubStatus: () => Promise<any>
+  listBrainActionProposals: (limit?: number) => Promise<any[]>
+  recordBrainActionOutcome: (input: { proposalId: string; decision: string; editSummary?: string; finalPayload?: unknown; error?: string; learningSignals?: string[] }) => Promise<{ success: boolean; filePath?: string; error?: string }>
+  executeBrainActionProposal: (input: { proposalId: string; payload?: Record<string, unknown> }) => Promise<{ success: boolean; summary?: string; result?: any; error?: string }>
   getAutonomousOpsStatus: () => Promise<any>
   refreshAutonomousOpsStatus: () => Promise<any>
   startAutonomousWorkflow: (workflowId: string, options?: { goalId?: string; autonomyLevel?: 'observe' | 'assist' | 'bounded-auto' | 'approval-required' }) => Promise<any>
   stopAutonomousWorkflow: (workflowId: string) => Promise<{ success: boolean; error?: string }>
   invokeAutonomousWorkflowAction: (workflowId: string, actionId: string, payload?: Record<string, any>) => Promise<{ success: boolean; summary: string; output?: Record<string, any>; stdout?: string; stderr?: string }>
   onAutonomousOpsUpdated: (callback: (status: any) => void) => () => void
+  getDurableWorkflowStatus: (limit?: number) => Promise<any>
+  listDurableWorkflowRuns: (limit?: number) => Promise<any[]>
 
   // JD & Research API
   profileUploadJD: (filePath: string) => Promise<{ success: boolean; error?: string }>

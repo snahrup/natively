@@ -367,12 +367,22 @@ export class RAGManager {
                 return;
             }
 
-            // Convert to RawSegment format
-            const segments = meeting.transcript.map((t: any) => ({
-                speaker: t.speaker,
-                text: t.text,
-                timestamp: t.timestamp
-            }));
+            // Prefer GPT-reconstructed transcript turns when available. Raw rows stay
+            // stored for audit, but RAG should index the coherent analysis transcript.
+            const reconstructedTurns = meeting.detailedSummary?.reconstructedTranscript?.turns;
+            const segments = Array.isArray(reconstructedTurns) && reconstructedTurns.length > 0
+                ? reconstructedTurns.map((t: any, index: number) => ({
+                    speaker: t.speaker,
+                    text: t.text,
+                    timestamp: Number.isFinite(Number(t.startTimestamp))
+                        ? Number(t.startTimestamp)
+                        : (new Date(meeting.date).getTime() + index * 15_000)
+                }))
+                : meeting.transcript.map((t: any) => ({
+                    speaker: t.speaker,
+                    text: t.text,
+                    timestamp: t.timestamp
+                }));
 
             // Get summary if available
             let summary: string | undefined;

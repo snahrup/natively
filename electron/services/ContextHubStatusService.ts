@@ -1,14 +1,23 @@
 import { DatabaseManager } from "../db/DatabaseManager";
 import { ContextObservationStore } from "../context";
-import { CalendarManager } from "./CalendarManager";
-import { MicrosoftLocalManager } from "./MicrosoftLocalManager";
-import { SemanticaBridgeService } from "./SemanticaBridgeService";
 import { AutonomousOpsService, type AutonomousOpsStatus } from "../autonomy";
-
-type ResolvedSemanticaStatus = Awaited<ReturnType<SemanticaBridgeService["getStatus"]>>;
+import { BrainReadModelService } from "./BrainReadModelService";
+import { DurableWorkflowLedger, type DurableWorkflowLedgerStatus } from "./DurableWorkflowLedger";
 
 export interface ContextHubStatus {
   generatedAt: string;
+  brain: {
+    available: boolean;
+    rootPath: string;
+    statusUpdatedAt?: string;
+    meetingIndexUpdatedAt?: string;
+    latestRunAt?: string;
+    prepPacketsReady: number;
+    cortexInsights: number;
+    openActionProposals: number;
+    runtimeBoundary?: Record<string, unknown>;
+    warning?: string;
+  };
   semantica: {
     available: boolean;
     ready: boolean;
@@ -49,32 +58,25 @@ export interface ContextHubStatus {
     nodeCount: number;
   };
   autonomousOps: AutonomousOpsStatus;
+  durableWorkflows: DurableWorkflowLedgerStatus;
 }
 
 export class ContextHubStatusService {
   static async getStatus(knowledgeOrchestrator?: any): Promise<ContextHubStatus> {
-    const meetings = DatabaseManager.getInstance().getRecentMeetings(250);
+    const brainReadModel = BrainReadModelService.getInstance();
+    const brainMeetings = brainReadModel.getRecentMeetings(250);
+    const meetings = brainMeetings.length > 0
+      ? brainMeetings
+      : DatabaseManager.getInstance().getRecentMeetings(250);
+    const meetingCounts = brainReadModel.getMeetingCounts(meetings as any);
+    const localSourceCounts = brainReadModel.getLocalSourceCounts();
+    const brainStatus = brainReadModel.getStatus();
+    const cortexSummary = brainReadModel.getCortexSummary();
     const observations = ContextObservationStore.getInstance().getDocuments();
-    const [events, emails, teamsChats, microsoftStatus] = await Promise.all([
-      CalendarManager.getInstance().getUpcomingEvents().catch((): any[] => []),
-      MicrosoftLocalManager.getInstance().getRecentEmails(10).catch((): any[] => []),
-      MicrosoftLocalManager.getInstance().getTeamsChats(10).catch((): any[] => []),
-      MicrosoftLocalManager.getInstance().getStatus().catch(() => ({
-        outlook: { outlookRunning: false, comAvailable: false },
-        teams: { status: "disconnected" },
-      })),
-    ]);
-    const semanticaStatus: ResolvedSemanticaStatus = await SemanticaBridgeService.getInstance().getStatus().catch((error: any) => ({
-      available: false,
-      ready: false,
-      runtime: null as any,
-      sidecar: null as any,
-      error: error?.message || "Semantica status unavailable.",
-    }));
 
     const profileData = safeGetProfileData(knowledgeOrchestrator);
     const autonomousOps = AutonomousOpsService.getInstance().getStatus();
-    const lastMeetingAt = meetings[0]?.date;
+    const durableWorkflows = DurableWorkflowLedger.getInstance().getStatus(25);
     const lastObservedAt = observations
       .map((doc) => doc.updatedAt || doc.createdAt)
       .filter(Boolean)
@@ -83,24 +85,36 @@ export class ContextHubStatusService {
 
     return {
       generatedAt: new Date().toISOString(),
+      brain: {
+        available: brainStatus.available,
+        rootPath: brainStatus.rootPath,
+        statusUpdatedAt: brainStatus.statusUpdatedAt,
+        meetingIndexUpdatedAt: brainStatus.meetingIndexUpdatedAt,
+        latestRunAt: cortexSummary.latestRunAt || brainStatus.latestRunUpdatedAt,
+        prepPacketsReady: cortexSummary.prepPacketsReady,
+        cortexInsights: cortexSummary.cortexInsights,
+        openActionProposals: cortexSummary.openActionProposals,
+        runtimeBoundary: cortexSummary.runtimeBoundary,
+        warning: brainStatus.warning,
+      },
       semantica: {
-        available: !!semanticaStatus.available,
-        ready: !!semanticaStatus.ready,
-        meetingCount: Number(semanticaStatus.sidecar?.meetingCount || 0),
-        recordCount: Number(semanticaStatus.sidecar?.recordCount || 0),
-        nodeCount: Number(semanticaStatus.sidecar?.nodeCount || 0),
-        edgeCount: Number(semanticaStatus.sidecar?.edgeCount || 0),
-        stateDir: semanticaStatus.sidecar?.stateDir || undefined,
-        error: semanticaStatus.error || null,
+        available: false,
+        ready: false,
+        meetingCount: 0,
+        recordCount: 0,
+        nodeCount: 0,
+        edgeCount: 0,
+        stateDir: undefined,
+        error: "Deprecated: Natively now reads IP Corp brain repo read models instead of Semantica.",
       },
       meetings: {
-        total: meetings.length,
-        natively: meetings.filter((meeting) => !meeting.source || meeting.source === "manual").length,
-        calendar: meetings.filter((meeting) => meeting.source === "calendar").length,
-        teamsImports: meetings.filter((meeting) => meeting.source === "teams").length,
-        cluelyImports: meetings.filter((meeting) => meeting.source === "cluely").length,
-        genericImports: meetings.filter((meeting) => meeting.source === "imported").length,
-        lastMeetingAt,
+        total: meetingCounts.total,
+        natively: meetingCounts.natively,
+        calendar: meetingCounts.calendar,
+        teamsImports: meetingCounts.teamsImports,
+        cluelyImports: meetingCounts.cluelyImports,
+        genericImports: meetingCounts.genericImports,
+        lastMeetingAt: meetingCounts.lastMeetingAt,
       },
       live: {
         ocrObservations: observations.filter((doc) => doc.sourceType === "ocr_observation").length,
@@ -109,11 +123,11 @@ export class ContextHubStatusService {
         lastObservedAt,
       },
       localSources: {
-        upcomingEvents: events.length,
-        recentEmails: emails.length,
-        teamsChats: teamsChats.length,
-        outlookConnected: !!microsoftStatus.outlook?.comAvailable,
-        teamsConnected: microsoftStatus.teams?.status === "connected",
+        upcomingEvents: localSourceCounts.upcomingEvents,
+        recentEmails: localSourceCounts.recentEmails,
+        teamsChats: localSourceCounts.teamsChats,
+        outlookConnected: localSourceCounts.outlookConnected,
+        teamsConnected: localSourceCounts.teamsConnected,
       },
       profile: {
         loaded: !!profileData,
@@ -125,6 +139,7 @@ export class ContextHubStatusService {
         nodeCount: Number(profileData?.nodeCount || 0),
       },
       autonomousOps,
+      durableWorkflows,
     };
   }
 }

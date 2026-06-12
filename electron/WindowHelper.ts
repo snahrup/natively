@@ -45,6 +45,10 @@ export class WindowHelper {
     this.appState = appState
   }
 
+  private isMeetingRuntimeActive(): boolean {
+    return this.appState.getIsMeetingActive()
+  }
+
   private getDisplayWorkArea(bounds?: Electron.Rectangle): Electron.Rectangle {
     if (bounds) {
       return screen.getDisplayMatching(bounds).workArea
@@ -61,6 +65,10 @@ export class WindowHelper {
   public setContentProtection(enable: boolean): void {
     this.contentProtection = enable
     this.applyContentProtection(enable)
+  }
+
+  public setTransientCaptureProtection(enable: boolean): void {
+    this.applyContentProtection(enable || this.contentProtection)
   }
 
   private applyContentProtection(enable: boolean): void {
@@ -637,6 +645,11 @@ export class WindowHelper {
 
   public switchToLauncher(inactive?: boolean): void {
     console.log(`[WindowHelper] Switching to LAUNCHER (inactive: ${!!inactive})`);
+    if (this.isMeetingRuntimeActive()) {
+      this.showLauncherCompanion(inactive);
+      return;
+    }
+
     this.currentWindowMode = 'launcher';
     KeybindManager.getInstance().setMode('launcher'); // Adapted from public PR #123 — verify premium interaction
 
@@ -668,6 +681,46 @@ export class WindowHelper {
     // Hide Overlay SECOND
     if (this.overlayWindow && !this.overlayWindow.isDestroyed()) {
       this.overlayWindow.hide();
+    }
+  }
+
+  private showLauncherCompanion(inactive?: boolean): void {
+    console.log(`[WindowHelper] Showing LAUNCHER companion while overlay runtime remains active (inactive: ${!!inactive})`);
+    // Preserve overlay mode/keybind routing. The launcher is a dashboard surface,
+    // not a request to stop listening or hide the live assistant.
+    this.currentWindowMode = 'overlay';
+    KeybindManager.getInstance().setMode('overlay');
+
+    if (this.launcherWindow && !this.launcherWindow.isDestroyed()) {
+      if (process.platform === 'win32' && this.contentProtection) {
+        this.launcherWindow.setOpacity(0);
+        if (inactive) this.launcherWindow.showInactive(); else this.launcherWindow.show();
+        this.launcherWindow.setContentProtection(true);
+
+        if (this.opacityTimeout) clearTimeout(this.opacityTimeout);
+        this.opacityTimeout = setTimeout(() => {
+          if (this.launcherWindow && !this.launcherWindow.isDestroyed()) {
+            this.launcherWindow.setOpacity(1);
+            if (!inactive) this.launcherWindow.focus();
+          }
+        }, 60);
+      } else {
+        this.launcherWindow.setOpacity(1);
+        this.launcherWindow.setContentProtection(this.contentProtection);
+        if (inactive) this.launcherWindow.showInactive(); else this.launcherWindow.show();
+        if (!inactive) this.launcherWindow.focus();
+      }
+      this.isWindowVisible = true;
+    }
+
+    if (this.overlayWindow && !this.overlayWindow.isDestroyed()) {
+      this.overlayWindow.setOpacity(1);
+      if (process.platform === 'win32') {
+        this.overlayWindow.setAlwaysOnTop(true, 'floating');
+      }
+      if (!this.overlayWindow.isVisible()) {
+        this.overlayWindow.showInactive();
+      }
     }
   }
 

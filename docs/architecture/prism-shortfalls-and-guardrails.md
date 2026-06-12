@@ -225,3 +225,16 @@ A feature is allowed if it makes Natively more decisive, more visible, and more 
 
 A feature is not allowed if it merely makes Natively more impressive on paper while making the actual runtime more ambiguous.
 
+## 6. 2026-05-12 Cortex Recovery Learning
+
+The valuable part of Prism was the original Cortex analyst: it found non-obvious patterns, tracked hypotheses, explained reasoning, assigned confidence, and proposed action. Prism-v2 failed because it kept the Cortex label while collapsing the work into generic memory consolidation.
+
+The corrected Natively pattern is:
+
+1. brain-side Cortex job performs deep observation and synthesis
+2. brain repo stores prep packets, insights, hypotheses, action proposals, and outcomes
+3. Natively reads those contracts and renders them quickly
+4. Steve approves, rejects, edits, or defers visible action cards
+5. those decisions become durable learning signal
+
+The long-term product is a personal operating model, not a chat widget. Every action and decision should become part of a contextualized sequence that helps the system learn Steve's strengths, gaps, judgment patterns, and high-value intervention points over time.

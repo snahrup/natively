@@ -44,6 +44,13 @@ interface MeetingContextOverview {
     model?: string;
 }
 
+interface MeetingContextNote {
+    id: string;
+    text: string;
+    createdAt: string;
+    source: 'manual' | 'meeting_chat';
+}
+
 interface MeetingUsageScreenCapture {
     path: string;
     capturedAt: number;
@@ -89,6 +96,26 @@ interface Meeting {
         actionItemsTitle?: string;
         keyPointsTitle?: string;
         contextOverview?: MeetingContextOverview;
+        userContextNotes?: MeetingContextNote[];
+        reconstructedTranscript?: {
+            generatedAt: string;
+            model: string;
+            reasoningEffort: string;
+            sourceRawSegments: number;
+            cleanedTurns: number;
+            reconstructedTurns: number;
+            summaryNotes?: string[];
+            turns?: Array<{ speaker: string; text: string; startTimestamp?: number; endTimestamp?: number; confidence?: string }>;
+        };
+        transcriptCleanup?: {
+            rawSegments: number;
+            cleanTurns: number;
+            rawCharacters: number;
+            cleanCharacters: number;
+            compressionRatio: number;
+            generatedAt: string;
+            strategy: string;
+        };
     };
     transcript?: Array<{
         speaker: string;
@@ -319,6 +346,9 @@ const ensureDetailedSummary = (meeting: Meeting) => ({
     actionItemsTitle: meeting.detailedSummary?.actionItemsTitle,
     keyPointsTitle: meeting.detailedSummary?.keyPointsTitle,
     contextOverview: meeting.detailedSummary?.contextOverview,
+    userContextNotes: meeting.detailedSummary?.userContextNotes || [],
+    reconstructedTranscript: meeting.detailedSummary?.reconstructedTranscript,
+    transcriptCleanup: meeting.detailedSummary?.transcriptCleanup,
 });
 
 const groupTranscriptEntries = (entries: Meeting['transcript'] = [], filterValue: string): TranscriptGroup[] => {
@@ -362,6 +392,7 @@ const MeetingDetails: React.FC<MeetingDetailsProps> = ({ meeting: initialMeeting
     const [isStartingClaudeLogin, setIsStartingClaudeLogin] = useState(false);
     const [hasAutoStartedClaudeLogin, setHasAutoStartedClaudeLogin] = useState(false);
     const [overviewError, setOverviewError] = useState('');
+    const [contextNoteStatus, setContextNoteStatus] = useState('');
     const [screenGallery, setScreenGallery] = useState<ScreenGalleryState | null>(null);
     const [isLoadingScreenGallery, setIsLoadingScreenGallery] = useState(false);
     const [screenGalleryError, setScreenGalleryError] = useState('');
@@ -391,6 +422,7 @@ const MeetingDetails: React.FC<MeetingDetailsProps> = ({ meeting: initialMeeting
         setIsStartingClaudeLogin(false);
         setHasAutoStartedClaudeLogin(false);
         setOverviewError('');
+        setContextNoteStatus('');
         setScreenGallery(null);
         setScreenGalleryError('');
         setIsLoadingScreenGallery(false);
@@ -465,6 +497,29 @@ const MeetingDetails: React.FC<MeetingDetailsProps> = ({ meeting: initialMeeting
         } finally {
             setIsGeneratingOverview(false);
         }
+    };
+
+    const handleContextNoteSaved = (note: MeetingContextNote, nextMeeting?: Meeting) => {
+        if (nextMeeting) {
+            setMeeting(nextMeeting);
+        } else {
+            setMeeting((prev) => {
+                const previousSummary = ensureDetailedSummary(prev);
+                return {
+                    ...prev,
+                    detailedSummary: {
+                        ...previousSummary,
+                        userContextNotes: [...previousSummary.userContextNotes, note],
+                        contextOverview: undefined,
+                    },
+                };
+            });
+        }
+
+        setContextNoteStatus('Saved as meeting context. Refreshing the GPT 5.5 brief with that correction...');
+        void generateOverview(true).finally(() => {
+            setTimeout(() => setContextNoteStatus(''), 3500);
+        });
     };
 
     useEffect(() => {
@@ -604,7 +659,7 @@ const MeetingDetails: React.FC<MeetingDetailsProps> = ({ meeting: initialMeeting
                                     </div>
                                     <h2 className="text-2xl font-semibold tracking-tight text-text-primary">Read the significance before the evidence.</h2>
                                     <p className="mt-2 text-sm leading-7 text-text-secondary">
-                                        This briefing is generated with Claude from the meeting record plus related context already stored in Natively.
+                                        This briefing is generated with GPT 5.5 using extra-high reasoning from the meeting record plus related context already stored in Natively.
                                     </p>
                                 </div>
 
@@ -616,7 +671,7 @@ const MeetingDetails: React.FC<MeetingDetailsProps> = ({ meeting: initialMeeting
                                         className="inline-flex items-center gap-2 rounded-full border border-border-subtle bg-bg-item-surface px-4 py-2 text-xs font-semibold text-text-primary transition-colors hover:border-border-muted disabled:opacity-60"
                                     >
                                         <RefreshCw size={14} className={isGeneratingOverview ? 'animate-spin' : ''} />
-                                        {isGeneratingOverview ? 'Refreshing brief...' : isStartingClaudeLogin ? 'Connecting Claude...' : 'Refresh brief'}
+                                        {isGeneratingOverview ? 'Refreshing with GPT 5.5...' : isStartingClaudeLogin ? 'Connecting model...' : 'Refresh with GPT 5.5'}
                                     </button>
                                     <button
                                         type="button"
@@ -646,6 +701,12 @@ const MeetingDetails: React.FC<MeetingDetailsProps> = ({ meeting: initialMeeting
                                             {isStartingClaudeLogin ? 'Starting sign-in...' : 'Sign in to Claude'}
                                         </button>
                                     ) : null}
+                                </div>
+                            )}
+
+                            {contextNoteStatus && (
+                                <div className="mb-4 rounded-2xl border border-emerald-500/25 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-500">
+                                    {contextNoteStatus}
                                 </div>
                             )}
 
@@ -774,12 +835,37 @@ const MeetingDetails: React.FC<MeetingDetailsProps> = ({ meeting: initialMeeting
                                 </div>
                             </section>
 
+                            {detailedSummary.userContextNotes.length > 0 && (
+                                <section className="rounded-[28px] border border-emerald-500/20 bg-emerald-500/8 p-5 gs-stagger-card" style={getStaggerStyle(3)}>
+                                    <div className="mb-4 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-emerald-500">
+                                        <FileText size={14} />
+                                        Added Context
+                                    </div>
+                                    <div className="space-y-3">
+                                        {detailedSummary.userContextNotes.slice(-4).map((note) => (
+                                            <article key={note.id} className="rounded-2xl border border-emerald-500/15 bg-bg-card/80 px-4 py-3">
+                                                <p className="text-sm leading-6 text-text-primary">{note.text}</p>
+                                                <div className="mt-2 text-[11px] text-text-tertiary">
+                                                    {note.createdAt ? new Date(note.createdAt).toLocaleString() : 'Just now'}
+                                                </div>
+                                            </article>
+                                        ))}
+                                    </div>
+                                </section>
+                            )}
+
                             <section className="rounded-[28px] border border-border-subtle bg-bg-main p-5 gs-stagger-card" style={getStaggerStyle(3)}>
                                 <div className="mb-3 text-[11px] font-semibold uppercase tracking-[0.16em] text-text-tertiary">Storage & provenance</div>
                                 <div className="space-y-2 text-sm leading-6 text-text-secondary">
                                     <p>Model: <span className="text-text-primary">{contextOverview.model || 'Claude'}</span></p>
                                     <p>Confidence: <span className="text-text-primary uppercase">{contextOverview.confidence || 'n/a'}</span></p>
                                     <p>Generated: <span className="text-text-primary">{contextOverview.generatedAt ? formatShortDate(contextOverview.generatedAt) : 'Pending'}</span></p>
+                                    {detailedSummary.transcriptCleanup && (
+                                        <p>Transcript cleanup: <span className="text-text-primary">{detailedSummary.transcriptCleanup.rawSegments} raw to {detailedSummary.transcriptCleanup.cleanTurns} turns</span></p>
+                                    )}
+                                    {detailedSummary.reconstructedTranscript && (
+                                        <p>Reconstruction: <span className="text-text-primary">{detailedSummary.reconstructedTranscript.reconstructedTurns} GPT 5.5 turns</span></p>
+                                    )}
                                 </div>
 
                                 {artifacts.length > 0 && (
@@ -923,6 +1009,38 @@ const MeetingDetails: React.FC<MeetingDetailsProps> = ({ meeting: initialMeeting
                                     </div>
                                 </div>
 
+                                {detailedSummary.reconstructedTranscript?.turns?.length ? (
+                                    <article className="rounded-[28px] border border-emerald-500/20 bg-emerald-500/8 p-5">
+                                        <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+                                            <div>
+                                                <div className="mb-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-emerald-500">GPT reconstructed transcript</div>
+                                                <p className="text-sm text-text-secondary">
+                                                    {detailedSummary.reconstructedTranscript.sourceRawSegments} raw fragments became {detailedSummary.reconstructedTranscript.reconstructedTurns} coherent turns using {detailedSummary.reconstructedTranscript.model} / {detailedSummary.reconstructedTranscript.reasoningEffort}.
+                                                </p>
+                                            </div>
+                                        </div>
+                                        {detailedSummary.reconstructedTranscript.summaryNotes?.length ? (
+                                            <ul className="mb-4 space-y-2">
+                                                {detailedSummary.reconstructedTranscript.summaryNotes.map((note, index) => (
+                                                    <li key={`${note}-${index}`} className="text-sm leading-6 text-text-secondary">- {note}</li>
+                                                ))}
+                                            </ul>
+                                        ) : null}
+                                        <div className="space-y-3">
+                                            {detailedSummary.reconstructedTranscript.turns.map((turn, index) => (
+                                                <div key={`${turn.startTimestamp || index}-${index}`} className="rounded-2xl border border-emerald-500/15 bg-bg-card px-4 py-3">
+                                                    <div className="mb-1 flex flex-wrap items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-text-tertiary">
+                                                        <span>{turn.speaker}</span>
+                                                        {turn.startTimestamp ? <span>{formatTimestamp(turn.startTimestamp)}</span> : null}
+                                                        {turn.confidence && turn.confidence !== 'high' ? <span>{turn.confidence} confidence</span> : null}
+                                                    </div>
+                                                    <p className="text-sm leading-7 text-text-primary">{turn.text}</p>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </article>
+                                ) : null}
+
                                 <div className="space-y-4">
                                     {transcriptGroups.length > 0 ? transcriptGroups.map((group, index) => (
                                         <article key={`${group.label}-${index}`} className="rounded-[28px] border border-border-subtle bg-bg-main p-5 gs-stagger-row gs-row-hover" style={getStaggerStyle(index)}>
@@ -1021,7 +1139,7 @@ const MeetingDetails: React.FC<MeetingDetailsProps> = ({ meeting: initialMeeting
                         value={query}
                         onChange={(e) => setQuery(e.target.value)}
                         onKeyDown={handleInputKeyDown}
-                        placeholder="Ask about this meeting..."
+                        placeholder="Ask about this meeting, or add context..."
                         className="w-full rounded-full border border-white/20 bg-transparent py-3 pl-5 pr-12 text-sm text-text-primary shadow-[0_8px_30px_rgb(0,0,0,0.12)] backdrop-blur-[24px] backdrop-saturate-[140%] placeholder:text-text-tertiary/70 focus:outline-none"
                     />
                     <button
@@ -1047,10 +1165,12 @@ const MeetingDetails: React.FC<MeetingDetailsProps> = ({ meeting: initialMeeting
                     summary: contextOverview.synopsis || detailedSummary.overview,
                     keyPoints: detailedSummary.keyPoints,
                     actionItems: detailedSummary.actionItems,
+                    userContextNotes: detailedSummary.userContextNotes,
                     transcript: meeting.transcript,
                 }}
                 initialQuery={submittedQuery}
                 onNewQuery={(nextQuery) => setSubmittedQuery(nextQuery)}
+                onContextNoteSaved={handleContextNoteSaved}
             />
 
             {screenGallery && (

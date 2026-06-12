@@ -1,6 +1,9 @@
 import { CalendarManager, type CalendarEvent } from "./CalendarManager";
 import { ContextRetrievalBroker } from "../context/ContextRetrievalBroker";
 import { ScoredContextDocument } from "../context/types";
+import { BrainReadModelService, type BrainPrepPacket } from "./BrainReadModelService";
+import { DurableWorkflowLedger } from "./DurableWorkflowLedger";
+import { MeetingContextCapsuleService, type MeetingContextCapsuleRef } from "./MeetingContextCapsuleService";
 
 export interface MeetingPrepPacket {
   event: CalendarEvent;
@@ -37,6 +40,7 @@ export interface MeetingPrepPacket {
   prepChecklist: string[];
   openQuestions: string[];
   openCommitments: string[];
+  contextCapsule?: MeetingContextCapsuleRef;
 }
 
 interface CacheEntry {
@@ -44,11 +48,47 @@ interface CacheEntry {
   createdAtMs: number;
 }
 
-const CACHE_TTL_MS = 10 * 60 * 1000;
+export interface MeetingPrepReadinessSnapshot {
+  cachedPacketCount: number;
+  nextMeeting: {
+    id: string;
+    title: string;
+    startsAt: string;
+    startsInMinutes: number;
+    source: CalendarEvent["source"];
+  } | null;
+  nextPacketReady: boolean;
+  nextPacketGeneratedAt: string | null;
+  nextPacketAgeMs: number | null;
+  inAutoPrepWindow: boolean;
+  lastWarmStartedAt: string | null;
+  lastWarmFinishedAt: string | null;
+  lastWarmCandidateCount: number;
+  lastWarmError: string | null;
+  lastBuiltPacketAt: string | null;
+  lastBuiltPacketTitle: string | null;
+  cache: Array<{
+    eventId: string;
+    title: string;
+    generatedAt: string;
+    ageMs: number;
+  }>;
+}
+
+const AUTO_PREP_LEAD_MS = 15 * 60 * 1000;
+const AUTO_PREP_GRACE_MS = 2 * 60 * 1000;
+const AUTO_PREP_STOP_BEFORE_START_MS = 3 * 60 * 1000;
+const PREP_CACHE_TTL_MS = 45 * 60 * 1000;
 
 export class MeetingPrepService {
   private static instance: MeetingPrepService;
   private cache = new Map<string, CacheEntry>();
+  private lastWarmStartedAt: string | null = null;
+  private lastWarmFinishedAt: string | null = null;
+  private lastWarmCandidateCount: number = 0;
+  private lastWarmError: string | null = null;
+  private lastBuiltPacketAt: string | null = null;
+  private lastBuiltPacketTitle: string | null = null;
 
   public static getInstance(): MeetingPrepService {
     if (!MeetingPrepService.instance) {
@@ -58,27 +98,63 @@ export class MeetingPrepService {
   }
 
   public async warmPackets(events: CalendarEvent[], knowledgeOrchestrator?: any): Promise<void> {
+    this.lastWarmStartedAt = new Date().toISOString();
+    this.lastWarmFinishedAt = null;
+    this.lastWarmError = null;
     ContextRetrievalBroker.getInstance().setKnowledgeOrchestrator(knowledgeOrchestrator);
+    const now = Date.now();
     const candidates = events
-      .filter((event) => new Date(event.endTime).getTime() > Date.now())
-      .slice(0, 3);
+      .filter((event) => {
+        const startMs = new Date(event.startTime).getTime();
+        const endMs = new Date(event.endTime).getTime();
+        if (!Number.isFinite(startMs) || !Number.isFinite(endMs)) return false;
+        if (endMs <= now) return false;
+        if (this.getCachedPacket(event.id)) return false;
+        if (startMs < now + AUTO_PREP_STOP_BEFORE_START_MS) return false;
+        return startMs <= now + AUTO_PREP_LEAD_MS + AUTO_PREP_GRACE_MS;
+      })
+      .slice(0, 5);
+    this.lastWarmCandidateCount = candidates.length;
 
-    await Promise.allSettled(
-      candidates.map((event) => this.buildPacketFromEvent(event, knowledgeOrchestrator))
-    );
+    try {
+      const results = await Promise.allSettled(
+        candidates.map((event) => this.buildPacketWithLedger(event, knowledgeOrchestrator, "scheduler"))
+      );
+      const firstFailure = results.find((result) => result.status === "rejected");
+      if (firstFailure && firstFailure.status === "rejected") {
+        this.lastWarmError = firstFailure.reason?.message || String(firstFailure.reason);
+      }
+    } catch (error: any) {
+      this.lastWarmError = error?.message || String(error);
+      throw error;
+    } finally {
+      this.lastWarmFinishedAt = new Date().toISOString();
+    }
+  }
+
+  public getCachedPacket(eventId: string): MeetingPrepPacket | null {
+    const cached = this.cache.get(eventId);
+    if (!cached || Date.now() - cached.createdAtMs >= PREP_CACHE_TTL_MS) {
+      if (cached) {
+        this.cache.delete(eventId);
+      }
+      return null;
+    }
+    if (!cached.packet.contextCapsule) {
+      this.attachContextCapsule(cached.packet);
+    }
+    return cached.packet;
   }
 
   public async buildPacket(eventId: string, knowledgeOrchestrator?: any): Promise<MeetingPrepPacket | null> {
-    const cached = this.cache.get(eventId);
-    if (cached && Date.now() - cached.createdAtMs < CACHE_TTL_MS) {
-      return cached.packet;
-    }
+    const cached = this.getCachedPacket(eventId);
+    if (cached) return cached;
 
     const events = await CalendarManager.getInstance().getUpcomingEvents();
     const event = events.find((candidate) => candidate.id === eventId);
     if (!event) return null;
 
-    return this.buildPacketFromEvent(event, knowledgeOrchestrator);
+    return this.buildPacketWithLedger(event, knowledgeOrchestrator, "manual");
   }
 
   public clear(eventId?: string): void {
@@ -89,13 +165,73 @@ export class MeetingPrepService {
     this.cache.clear();
   }
 
+  public getReadinessSnapshot(events: CalendarEvent[] = []): MeetingPrepReadinessSnapshot {
+    const now = Date.now();
+    const validCache = Array.from(this.cache.entries())
+      .filter(([eventId]) => Boolean(this.getCachedPacket(eventId)))
+      .map(([eventId, entry]) => ({
+        eventId,
+        title: entry.packet.event?.title || "Untitled meeting",
+        generatedAt: entry.packet.generatedAt,
+        ageMs: Math.max(0, now - entry.createdAtMs),
+      }))
+      .sort((a, b) => a.ageMs - b.ageMs);
+
+    const upcoming = events
+      .filter((event) => {
+        const endMs = new Date(event.endTime).getTime();
+        return Number.isFinite(endMs) && endMs > now;
+      })
+      .sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime());
+
+    const nextEvent = upcoming[0] || null;
+    const nextStartMs = nextEvent ? new Date(nextEvent.startTime).getTime() : NaN;
+    const nextPacket = nextEvent ? this.getCachedPacket(nextEvent.id) : null;
+    const nextCacheEntry = nextEvent ? this.cache.get(nextEvent.id) : null;
+
+    return {
+      cachedPacketCount: validCache.length,
+      nextMeeting: nextEvent && Number.isFinite(nextStartMs)
+        ? {
+            id: nextEvent.id,
+            title: nextEvent.title,
+            startsAt: nextEvent.startTime,
+            startsInMinutes: Math.round((nextStartMs - now) / 60000),
+            source: nextEvent.source,
+          }
+        : null,
+      nextPacketReady: Boolean(nextPacket),
+      nextPacketGeneratedAt: nextPacket?.generatedAt || null,
+      nextPacketAgeMs: nextCacheEntry ? Math.max(0, now - nextCacheEntry.createdAtMs) : null,
+      inAutoPrepWindow: Boolean(
+        nextEvent &&
+        Number.isFinite(nextStartMs) &&
+        nextStartMs > now + AUTO_PREP_STOP_BEFORE_START_MS &&
+        nextStartMs <= now + AUTO_PREP_LEAD_MS + AUTO_PREP_GRACE_MS
+      ),
+      lastWarmStartedAt: this.lastWarmStartedAt,
+      lastWarmFinishedAt: this.lastWarmFinishedAt,
+      lastWarmCandidateCount: this.lastWarmCandidateCount,
+      lastWarmError: this.lastWarmError,
+      lastBuiltPacketAt: this.lastBuiltPacketAt,
+      lastBuiltPacketTitle: this.lastBuiltPacketTitle,
+      cache: validCache.slice(0, 10),
+    };
+  }
+
   private async buildPacketFromEvent(
     event: CalendarEvent,
     knowledgeOrchestrator?: any
   ): Promise<MeetingPrepPacket> {
-    const cached = this.cache.get(event.id);
-    if (cached && Date.now() - cached.createdAtMs < CACHE_TTL_MS) {
-      return cached.packet;
+    const cached = this.getCachedPacket(event.id);
+    if (cached) return cached;
+
+    const brainPacket = BrainReadModelService.getInstance().getPrepPacketForEvent(event);
+    if (brainPacket) {
+      const packet = this.buildPacketFromBrainPacket(event, brainPacket);
+      this.cache.set(event.id, { packet, createdAtMs: Date.now() });
+      this.rememberBuiltPacket(packet);
+      return packet;
     }
 
     const broker = ContextRetrievalBroker.getInstance();
@@ -110,6 +246,8 @@ export class MeetingPrepService {
         .filter(Boolean) as string[],
       limit: 12,
       maxAgeMs: 60 * 24 * 60 * 60 * 1000,
+      includeLiveMicrosoftSources: false,
+      includeSemantica: false,
     });
 
     const relatedMeetings = this.extractRelatedMeetings(retrieval.documents);
@@ -156,7 +294,134 @@ export class MeetingPrepService {
     };
 
     this.cache.set(event.id, { packet, createdAtMs: Date.now() });
+    this.rememberBuiltPacket(packet);
     return packet;
+  }
+
+  private async buildPacketWithLedger(
+    event: CalendarEvent,
+    knowledgeOrchestrator: any,
+    trigger: "scheduler" | "manual"
+  ): Promise<MeetingPrepPacket> {
+    const cached = this.getCachedPacket(event.id);
+    if (cached) return cached;
+
+    return DurableWorkflowLedger.getInstance().runTask(
+      {
+        type: "meeting_prep_packet",
+        title: `Prepare ${event.title}`,
+        dedupeKey: `meeting-prep:${event.id}`,
+        metadata: {
+          calendarEventId: event.id,
+          meetingTitle: event.title,
+          startsAt: event.startTime,
+          trigger,
+          contextAuthority: "ipcorp_architecture_brain",
+        },
+        queuedSummary: `${event.title} prep packet queued.`,
+        runningSummary: `Building prep packet for ${event.title}.`,
+        completedSummary: `${event.title} prep packet is ready.`,
+      },
+      () => this.buildPacketFromEvent(event, knowledgeOrchestrator)
+    ).then((packet) => {
+      this.attachContextCapsule(packet);
+      this.cache.set(event.id, { packet, createdAtMs: Date.now() });
+      this.rememberBuiltPacket(packet);
+      return packet;
+    });
+  }
+
+  private rememberBuiltPacket(packet: MeetingPrepPacket): void {
+    this.lastBuiltPacketAt = packet.generatedAt || new Date().toISOString();
+    this.lastBuiltPacketTitle = packet.event?.title || "Untitled meeting";
+  }
+
+  private attachContextCapsule(packet: MeetingPrepPacket): void {
+    try {
+      const capsule = MeetingContextCapsuleService.getInstance().buildAndWriteCapsule(packet);
+      if (capsule) {
+        packet.contextCapsule = capsule;
+      }
+    } catch (error: any) {
+      console.warn("[MeetingPrepService] Failed to build meeting context capsule:", error?.message || error);
+    }
+  }
+
+  private buildPacketFromBrainPacket(event: CalendarEvent, brainPacket: BrainPrepPacket): MeetingPrepPacket {
+    const startMs = new Date(event.startTime).getTime();
+    const endMs = new Date(event.endTime).getTime();
+    const startsInMinutes = Math.max(0, Math.round((startMs - Date.now()) / 60000));
+    const durationMinutes = Math.max(1, Math.round((endMs - startMs) / 60000));
+
+    const contextBullets = dedupeStrings([
+      brainPacket.whyItMatters ? `Why it matters: ${brainPacket.whyItMatters}` : "",
+      ...brainPacket.currentState.slice(0, 3),
+      brainPacket.suggestedPosture ? `Suggested posture: ${brainPacket.suggestedPosture}` : "",
+      ...brainPacket.talkingPoints.slice(0, 3),
+    ]).slice(0, 6);
+
+    const evidenceHighlights = brainPacket.evidenceRefs.slice(0, 5).map((ref, index) => ({
+      title: ref.split(/[\\/]/).pop() || `Brain evidence ${index + 1}`,
+      excerpt: ref,
+      source: "ipcorp_architecture_brain",
+      type: "brain_prep_packet",
+      date: brainPacket.updatedAt,
+      score: 0.95 - index * 0.04,
+    }));
+
+    const liveContext = brainPacket.liveContextMarkdown?.trim()
+      ? [{
+          title: `${brainPacket.title} live context`,
+          excerpt: compactWhitespace(brainPacket.liveContextMarkdown).slice(0, 360),
+          source: "ipcorp_architecture_brain",
+          type: "brain_prep_packet",
+          date: brainPacket.updatedAt,
+          score: 0.98,
+        }]
+      : [];
+
+    return {
+      event,
+      generatedAt: brainPacket.updatedAt || new Date().toISOString(),
+      timing: {
+        startsInMinutes,
+        durationMinutes,
+      },
+      sourceHealth: {
+        calendar: true,
+        memory: true,
+        backgroundContext: true,
+        roleBrief: brainPacket.suggestedPosture ? true : false,
+        liveResearch: false,
+      },
+      summary: brainPacket.summary || `${brainPacket.title} prep packet loaded from the IP Corp architecture brain.`,
+      contextBullets,
+      profileSnapshot: brainPacket.suggestedPosture ? [`Suggested posture: ${brainPacket.suggestedPosture}`] : [],
+      relatedMeetings: brainPacket.relatedWork.slice(0, 3).map((work, index) => ({
+        id: `${brainPacket.id}-related-${index + 1}`,
+        title: work,
+        date: brainPacket.updatedAt || brainPacket.startsAt || new Date().toISOString(),
+        summary: work,
+        matchScore: 0.9 - index * 0.05,
+      })),
+      memoryHighlights: [...liveContext, ...evidenceHighlights].slice(0, 5),
+      prepChecklist: this.buildChecklistFromBrainPacket(brainPacket),
+      openQuestions: brainPacket.openQuestions.slice(0, 4),
+      openCommitments: brainPacket.openCommitments.slice(0, 4),
+    };
+  }
+
+  private buildChecklistFromBrainPacket(brainPacket: BrainPrepPacket): string[] {
+    const checklist = [
+      ...brainPacket.talkingPoints.slice(0, 3).map((point) => `Be ready to cover: ${point}`),
+      ...brainPacket.openCommitments.slice(0, 2).map((commitment) => `Have status ready for: ${commitment}`),
+    ];
+
+    if (brainPacket.openQuestions.length > 0) {
+      checklist.push(`Clarify: ${brainPacket.openQuestions[0]}`);
+    }
+
+    return dedupeStrings(checklist).slice(0, 5);
   }
 
   private buildSummary(

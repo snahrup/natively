@@ -18,6 +18,7 @@ import type {
 
 const STATE_KEY = "autonomous-ops:workflow-monitors";
 const DEFAULT_POLL_INTERVAL_MS = 30_000;
+const LEGACY_APP_MONITORS_ENABLED = process.env.NATIVELY_ENABLE_LEGACY_APP_MONITORS === "1";
 
 export class AutonomousOpsService {
   private static instance: AutonomousOpsService;
@@ -46,7 +47,14 @@ export class AutonomousOpsService {
     if (this.started) return;
     this.started = true;
 
-    this.registry.registerAdapter(new FmdAdapter());
+    if (LEGACY_APP_MONITORS_ENABLED) {
+      this.registry.registerAdapter(new FmdAdapter());
+    } else {
+      console.log(
+        "[AutonomousOps] Legacy app monitors disabled by default. Set NATIVELY_ENABLE_LEGACY_APP_MONITORS=1 to enable FMD/repo workflow adapters."
+      );
+    }
+
     this.loadPersistedMonitors();
     void this.refreshNow();
 

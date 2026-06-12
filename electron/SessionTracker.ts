@@ -5,7 +5,6 @@
 import { RecapLLM } from './llm';
 import { isVerboseLogging } from './verboseLog';
 import { ContextObservationStore } from './context';
-import { MeetingUsageScreenCaptureService } from './services/MeetingUsageScreenCaptureService';
 
 export interface TranscriptSegment {
     marker?: string;
@@ -46,6 +45,7 @@ export class SessionTracker {
 
     // Temporal RAG: Track all assistant responses in session for anti-repetition
     private assistantResponseHistory: AssistantResponse[] = [];
+    private preparedMeetingContext: string | null = null;
 
     // Meeting metadata
     private currentMeetingMetadata: {
@@ -99,6 +99,15 @@ export class SessionTracker {
 
     public clearMeetingMetadata(): void {
         this.currentMeetingMetadata = null;
+    }
+
+    public setPreparedMeetingContext(context: string | null): void {
+        const trimmed = context?.trim();
+        this.preparedMeetingContext = trimmed ? trimmed : null;
+    }
+
+    public getPreparedMeetingContext(): string | null {
+        return this.preparedMeetingContext;
     }
 
     // ============================================
@@ -378,12 +387,16 @@ export class SessionTracker {
      */
     getFormattedContext(lastSeconds: number = 120): string {
         const items = this.getContext(lastSeconds);
-        return items.map(item => {
+        const transcriptContext = items.map(item => {
             const label = item.role === 'external' ? 'CONTEXT' :
                 item.role === 'user' ? 'ME' :
                     'ASSISTANT (PREVIOUS SUGGESTION)';
             return `[${label}]: ${item.text}`;
         }).join('\n');
+        if (!this.preparedMeetingContext) {
+            return transcriptContext;
+        }
+        return `[MEETING PREP CONTEXT]\n${this.preparedMeetingContext}\n\n${transcriptContext}`.trim();
     }
 
     /**
@@ -495,6 +508,7 @@ export class SessionTracker {
         this.sessionStartTime = Date.now();
         this.lastAssistantMessage = null;
         this.assistantResponseHistory = [];
+        this.preparedMeetingContext = null;
         this.lastInterimExternal = null;
         this.detectedCodingQuestion = null;
         this.codingQuestionSource = null;
@@ -524,25 +538,10 @@ export class SessionTracker {
 
     private async attachUsageScreenCaptures(entry: any): Promise<any> {
         const timestamp = Number.isFinite(entry?.timestamp) ? entry.timestamp : Date.now();
-        const normalizedEntry = {
+        return {
             ...entry,
             timestamp,
         };
-
-        if (Array.isArray(normalizedEntry.screenCaptures) && normalizedEntry.screenCaptures.length > 0) {
-            return normalizedEntry;
-        }
-
-        try {
-            const screenCaptures = await MeetingUsageScreenCaptureService.getInstance().captureForUsage(timestamp);
-            if (screenCaptures.length > 0) {
-                normalizedEntry.screenCaptures = screenCaptures;
-            }
-        } catch (error) {
-            console.warn('[SessionTracker] Failed to attach usage screen captures:', error);
-        }
-
-        return normalizedEntry;
     }
 
     /**

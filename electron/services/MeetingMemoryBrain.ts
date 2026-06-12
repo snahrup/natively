@@ -4,7 +4,7 @@
  * The unified knowledge layer for Natively's meeting assistant.
  * Aggregates and makes searchable:
  *
- *   1. IP Corp knowledge base (fabric_toolbox/knowledge/**) — company structure,
+ *   1. IP Corp architecture brain (ipcorp-architecture-brain/**) - company structure,
  *      systems, stakeholders, decisions, glossary, gotchas
  *   2. Past meeting transcripts & summaries from Natively's SQLite DB
  *   3. Imported operational context and future feeds
@@ -52,15 +52,68 @@ export interface MemorySearchHit {
 
 // ─── Brain ───────────────────────────────────────────────────────────────────
 
-const KNOWLEDGE_BASE_PATH = path.join(
+const IPCORP_BRAIN_PATH = path.join(
+  os.homedir(),
+  "CascadeProjects",
+  "ipcorp-architecture-brain"
+);
+
+const LEGACY_KNOWLEDGE_BASE_PATH = path.join(
   os.homedir(),
   "CascadeProjects",
   "fabric_toolbox",
   "knowledge"
 );
 
-// Files to always load in full (authoritative knowledge)
-const PRIORITY_FILES = [
+// Files to always load first from the canonical IP Corp architecture brain.
+const IPCORP_PRIORITY_FILES = [
+  "README.md",
+  "MEMORY.md",
+  "AGENTS.md",
+  "CLAUDE.md",
+  "agent-prompts/system-doctrine.md",
+  "agent-prompts/meeting-intelligence.md",
+  "agent-prompts/fabric-mdm-advisor.md",
+  "project-memory/README.md",
+  "project-memory/company-context.md",
+  "project-memory/company-structure.md",
+  "project-memory/systems-landscape.md",
+  "project-memory/source-databases.md",
+  "project-memory/stakeholder-map.md",
+  "project-memory/open-questions.md",
+  "project-memory/risk-register.md",
+  "project-memory/purview-implementation-strategy.md",
+  "project-memory/source-systems/m3.md",
+  "project-memory/source-systems/mes.md",
+  "project-memory/decisions/_index.md",
+  "project-memory/decisions/ADR-0001-knowledge-consolidation.md",
+  "project-memory/decisions/ADR-0002-purview-parallel-governance-track.md",
+  "project-memory/decisions/ADR-0003-meeting-source-priority-and-evidence-index.md",
+  "execution-package/00_Read_First/00_SUMMARY_AND_USAGE_GUIDE.md",
+  "execution-package/00_Read_First/01_EXECUTIVE_ACTION_MEMO.md",
+  "execution-package/02_Implementation_Playbooks/01_Fabric_Implementation_Guide.md",
+  "execution-package/02_Implementation_Playbooks/02_Medallion_Layer_Standards.md",
+  "execution-package/03_Domain_Documentation/Shared_Conformed_Dimensions.md",
+];
+
+const IPCORP_SCAN_DIRS = [
+  "project-memory",
+  "memory",
+  "natively/meeting-captures",
+  "natively/live-captures",
+  "meetings/summaries",
+  "execution-package/00_Read_First",
+  "execution-package/01_Strategy_and_Governance",
+  "execution-package/02_Implementation_Playbooks",
+  "execution-package/03_Domain_Documentation",
+  "books",
+];
+
+const TEXT_FILE_EXTENSIONS = new Set([".md", ".txt", ".json", ".yaml", ".yml"]);
+const MAX_KNOWLEDGE_FILE_BYTES = 450_000;
+
+// Legacy fallback only. The canonical source is ipcorp-architecture-brain.
+const LEGACY_PRIORITY_FILES = [
   "knowledge-docs/IP-Corp-Fabric-Knowledge-Base-Complete.txt",
   "IP-CORP-SYSTEM-OVERVIEW.md",
   "ipcorp-knowledge.md",
@@ -174,7 +227,7 @@ export class MeetingMemoryBrain {
    */
   getFullKnowledgeContext(maxChars = 20_000): string {
     const priority = this.chunks
-      .filter(c => !c.superseded && c.type === "knowledge" && PRIORITY_FILES.some(f => c.source.includes(path.basename(f, path.extname(f)))))
+      .filter(c => !c.superseded && c.type === "knowledge" && isPriorityKnowledgeSource(c.source))
       .map(c => c.content)
       .join("\n\n");
 
@@ -213,115 +266,124 @@ export class MeetingMemoryBrain {
   // ─── Loaders ─────────────────────────────────────────────────────────────
 
   private async loadKnowledgeBase(): Promise<void> {
-    if (!fs.existsSync(KNOWLEDGE_BASE_PATH)) {
-      console.warn("[MeetingMemoryBrain] Knowledge base path not found:", KNOWLEDGE_BASE_PATH);
+    const loadedFiles = new Set<string>();
+
+    if (fs.existsSync(IPCORP_BRAIN_PATH)) {
+      console.log("[MeetingMemoryBrain] Loading canonical IP Corp architecture brain:", IPCORP_BRAIN_PATH);
+
+      for (const rel of IPCORP_PRIORITY_FILES) {
+        this.addKnowledgeFile(path.join(IPCORP_BRAIN_PATH, rel), loadedFiles, { priority: true });
+      }
+
+      for (const relDir of IPCORP_SCAN_DIRS) {
+        const dir = path.join(IPCORP_BRAIN_PATH, relDir);
+        for (const full of collectTextFiles(dir)) {
+          this.addKnowledgeFile(full, loadedFiles);
+        }
+      }
+
+      console.log(`[MeetingMemoryBrain] IP Corp architecture brain loaded - ${this.chunks.length} chunks`);
       return;
     }
 
-    // Priority full-text files
-    for (const rel of PRIORITY_FILES) {
-      const full = path.join(KNOWLEDGE_BASE_PATH, rel);
-      if (!fs.existsSync(full)) continue;
-      try {
-        const content = fs.readFileSync(full, "utf-8");
-        // Split large files into chunks of ~2000 chars
-        const sub = chunkText(content, 2000);
-        sub.forEach((text, i) => {
-          this.chunks.push({
-            source: full,
-            type: "knowledge",
-            title: `${path.basename(rel)} (part ${i + 1})`,
-            content: text,
-            keywords: tokenize(text),
-          });
+    console.warn(
+      "[MeetingMemoryBrain] Canonical IP Corp architecture brain not found. Falling back to legacy knowledge base:",
+      IPCORP_BRAIN_PATH
+    );
+    this.loadLegacyKnowledgeBase(loadedFiles);
+    console.log(`[MeetingMemoryBrain] Legacy knowledge base loaded - ${this.chunks.length} chunks`);
+  }
+
+  private addKnowledgeFile(
+    fullPath: string,
+    loadedFiles: Set<string>,
+    options: { priority?: boolean } = {}
+  ): void {
+    const resolved = path.resolve(fullPath);
+    if (loadedFiles.has(resolved) || !fs.existsSync(resolved)) return;
+
+    try {
+      const stat = fs.statSync(resolved);
+      if (!stat.isFile()) return;
+      if (!TEXT_FILE_EXTENSIONS.has(path.extname(resolved).toLowerCase())) return;
+      if (stat.size > MAX_KNOWLEDGE_FILE_BYTES) {
+        console.warn("[MeetingMemoryBrain] Skipping very large knowledge file:", resolved);
+        return;
+      }
+
+      const content = fs.readFileSync(resolved, "utf-8");
+      const relativeTitle = getKnowledgeTitle(resolved);
+      const chunkSize = options.priority ? 2200 : 1600;
+      const date = extractDateFromFilename(path.basename(resolved)) ?? inferDateFromPath(resolved, stat);
+      const type = inferChunkType(resolved);
+
+      chunkText(content, chunkSize).forEach((text, i) => {
+        this.chunks.push({
+          source: resolved,
+          type,
+          title: `${relativeTitle} (part ${i + 1})`,
+          content: text,
+          date,
+          keywords: tokenize(`${relativeTitle} ${text}`),
         });
-      } catch (e: any) {
-        console.warn("[MeetingMemoryBrain] Failed to read:", rel, e.message);
+      });
+
+      loadedFiles.add(resolved);
+    } catch (e: any) {
+      console.warn("[MeetingMemoryBrain] Failed to read knowledge file:", resolved, e?.message || e);
+    }
+  }
+
+  private loadLegacyKnowledgeBase(loadedFiles: Set<string>): void {
+    if (!fs.existsSync(LEGACY_KNOWLEDGE_BASE_PATH)) {
+      console.warn("[MeetingMemoryBrain] Legacy knowledge base path not found:", LEGACY_KNOWLEDGE_BASE_PATH);
+      return;
+    }
+
+    for (const rel of LEGACY_PRIORITY_FILES) {
+      this.addKnowledgeFile(path.join(LEGACY_KNOWLEDGE_BASE_PATH, rel), loadedFiles, { priority: true });
+    }
+
+    const docsDir = path.join(LEGACY_KNOWLEDGE_BASE_PATH, "knowledge-docs");
+    for (const full of collectTextFiles(docsDir)) {
+      if (path.extname(full).toLowerCase() === ".md") {
+        this.addKnowledgeFile(full, loadedFiles);
       }
     }
 
-    // Load all markdown files in knowledge-docs/
-    const docsDir = path.join(KNOWLEDGE_BASE_PATH, "knowledge-docs");
-    if (fs.existsSync(docsDir)) {
-      for (const file of fs.readdirSync(docsDir)) {
-        if (!file.endsWith(".md")) continue;
-        const full = path.join(docsDir, file);
-        try {
-          const content = fs.readFileSync(full, "utf-8");
-          chunkText(content, 1500).forEach((text, i) => {
-            this.chunks.push({
-              source: full,
-              type: "knowledge",
-              title: `${file.replace(".md", "")} (part ${i + 1})`,
-              content: text,
-              keywords: tokenize(text),
-            });
-          });
-        } catch {}
-      }
-    }
-
-    // Entity JSON files
     for (const rel of ENTITY_FILES) {
-      const full = path.join(KNOWLEDGE_BASE_PATH, rel);
-      if (!fs.existsSync(full)) continue;
-      try {
-        const raw = JSON.parse(fs.readFileSync(full, "utf-8"));
-        const items: any[] = Array.isArray(raw) ? raw : Object.values(raw);
-        for (const item of items) {
-          const text = JSON.stringify(item);
-          const title = item.name ?? item.id ?? item.term ?? "Entity";
-          this.chunks.push({
-            source: full,
-            type: "entity",
-            title,
-            content: text,
-            keywords: tokenize(text),
-          });
-        }
-      } catch {}
+      this.loadJsonItems(path.join(LEGACY_KNOWLEDGE_BASE_PATH, rel), "entity");
     }
 
-    // Learnings JSON files
     for (const rel of LEARNING_FILES) {
-      const full = path.join(KNOWLEDGE_BASE_PATH, rel);
-      if (!fs.existsSync(full)) continue;
-      try {
-        const raw = JSON.parse(fs.readFileSync(full, "utf-8"));
-        const items: any[] = Array.isArray(raw) ? raw : Object.values(raw);
-        for (const item of items) {
-          const text = typeof item === "string" ? item : JSON.stringify(item);
-          this.chunks.push({
-            source: full,
-            type: "knowledge",
-            title: item.title ?? item.decision ?? item.id ?? path.basename(rel),
-            content: text,
-            keywords: tokenize(text),
-          });
-        }
-      } catch {}
+      this.loadJsonItems(path.join(LEGACY_KNOWLEDGE_BASE_PATH, rel), "knowledge");
     }
 
-    // Past meeting feed files (Feed - YYYY-MM-DD.md)
-    for (const file of fs.readdirSync(KNOWLEDGE_BASE_PATH)) {
+    for (const file of fs.readdirSync(LEGACY_KNOWLEDGE_BASE_PATH)) {
       if (!file.startsWith("Feed") || !file.endsWith(".md")) continue;
-      const full = path.join(KNOWLEDGE_BASE_PATH, file);
-      try {
-        const content = fs.readFileSync(full, "utf-8");
-        chunkText(content, 1500).forEach((text, i) => {
-          this.chunks.push({
-            source: full,
-            type: "transcript",
-            title: `Feed: ${file.replace(".md", "")} (part ${i + 1})`,
-            content: text,
-            date: extractDateFromFilename(file),
-            keywords: tokenize(text),
-          });
-        });
-      } catch {}
+      this.addKnowledgeFile(path.join(LEGACY_KNOWLEDGE_BASE_PATH, file), loadedFiles);
     }
+  }
 
-    console.log(`[MeetingMemoryBrain] Knowledge base loaded — ${this.chunks.length} chunks`);
+  private loadJsonItems(fullPath: string, type: KnowledgeChunk["type"]): void {
+    if (!fs.existsSync(fullPath)) return;
+    try {
+      const raw = JSON.parse(fs.readFileSync(fullPath, "utf-8"));
+      const items: any[] = Array.isArray(raw) ? raw : Object.values(raw);
+      for (const item of items) {
+        const text = typeof item === "string" ? item : JSON.stringify(item);
+        const title = item.name ?? item.id ?? item.term ?? item.title ?? item.decision ?? path.basename(fullPath);
+        this.chunks.push({
+          source: fullPath,
+          type,
+          title,
+          content: text,
+          keywords: tokenize(`${title} ${text}`),
+        });
+      }
+    } catch (e: any) {
+      console.warn("[MeetingMemoryBrain] Failed to read JSON knowledge file:", fullPath, e?.message || e);
+    }
   }
 
   private async loadPastMeetings(): Promise<void> {
@@ -447,7 +509,7 @@ function tokenize(text: string): string[] {
     .toLowerCase()
     .replace(/[^a-z0-9\s]/g, " ")
     .split(/\s+/)
-    .filter(t => t.length > 2);
+    .filter(t => t.length > 2 || /^[a-z]*\d+[a-z]*$/.test(t));
 }
 
 function scoreChunk(chunk: KnowledgeChunk, queryTerms: string[]): number {
@@ -457,6 +519,13 @@ function scoreChunk(chunk: KnowledgeChunk, queryTerms: string[]): number {
     const kwHits = chunk.keywords.filter(k => k.includes(term)).length;
     score += titleHits + Math.min(kwHits, 10);
   }
+
+  if (isPriorityKnowledgeSource(chunk.source)) {
+    score += 5;
+  } else if (isWithin(chunk.source, IPCORP_BRAIN_PATH)) {
+    score += 2;
+  }
+
   // Boost recent content
   if (chunk.date) {
     const ageDays = (Date.now() - new Date(chunk.date).getTime()) / 86_400_000;
@@ -484,6 +553,77 @@ function chunkText(text: string, maxChars: number): string[] {
 function extractDateFromFilename(filename: string): string | undefined {
   const match = filename.match(/(\d{4}-\d{2}-\d{2})/);
   return match ? match[1] : undefined;
+}
+
+function collectTextFiles(dir: string): string[] {
+  if (!fs.existsSync(dir)) return [];
+
+  const files: string[] = [];
+  const stack = [dir];
+
+  while (stack.length > 0) {
+    const current = stack.pop()!;
+    let entries: fs.Dirent[];
+    try {
+      entries = fs.readdirSync(current, { withFileTypes: true });
+    } catch {
+      continue;
+    }
+
+    for (const entry of entries) {
+      const full = path.join(current, entry.name);
+      if (entry.isDirectory()) {
+        if (entry.name.startsWith(".") || entry.name === "node_modules") continue;
+        stack.push(full);
+        continue;
+      }
+      if (!entry.isFile()) continue;
+      if (!TEXT_FILE_EXTENSIONS.has(path.extname(entry.name).toLowerCase())) continue;
+      files.push(full);
+    }
+  }
+
+  return files.sort((a, b) => a.localeCompare(b));
+}
+
+function getKnowledgeTitle(fullPath: string): string {
+  if (isWithin(fullPath, IPCORP_BRAIN_PATH)) {
+    return path.relative(IPCORP_BRAIN_PATH, fullPath);
+  }
+  if (isWithin(fullPath, LEGACY_KNOWLEDGE_BASE_PATH)) {
+    return path.relative(LEGACY_KNOWLEDGE_BASE_PATH, fullPath);
+  }
+  return path.basename(fullPath);
+}
+
+function isPriorityKnowledgeSource(source: string): boolean {
+  const normalizedSource = normalizePath(source);
+  return IPCORP_PRIORITY_FILES.some((rel) => normalizedSource.endsWith(normalizePath(path.join(IPCORP_BRAIN_PATH, rel)))) ||
+    LEGACY_PRIORITY_FILES.some((rel) => normalizedSource.endsWith(normalizePath(path.join(LEGACY_KNOWLEDGE_BASE_PATH, rel))));
+}
+
+function inferChunkType(fullPath: string): KnowledgeChunk["type"] {
+  const normalized = normalizePath(fullPath);
+  if (normalized.includes("/project-memory/entities/") || normalized.includes("/entities/")) return "entity";
+  if (normalized.includes("/meetings/summaries/")) return "summary";
+  if (path.basename(fullPath).toLowerCase().startsWith("feed")) return "transcript";
+  return "knowledge";
+}
+
+function inferDateFromPath(fullPath: string, stat: fs.Stats): string | undefined {
+  const pathDate = extractDateFromFilename(fullPath);
+  if (pathDate) return pathDate;
+  if (normalizePath(fullPath).includes("/meetings/")) return stat.mtime.toISOString();
+  return undefined;
+}
+
+function isWithin(filePath: string, parentPath: string): boolean {
+  const relative = path.relative(parentPath, filePath);
+  return Boolean(relative) && !relative.startsWith("..") && !path.isAbsolute(relative);
+}
+
+function normalizePath(filePath: string): string {
+  return path.resolve(filePath).replace(/\\/g, "/").toLowerCase();
 }
 
 function normalizeForMatch(text: string): string {

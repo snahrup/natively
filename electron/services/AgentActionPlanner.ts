@@ -1,7 +1,6 @@
 import { buildPromptContextBlock, ContextRetrievalBroker } from "../context";
 import { LLMHelper } from "../LLMHelper";
-import { MicrosoftLocalManager } from "./MicrosoftLocalManager";
-import type { OutlookContact, TeamsChat } from "./MicrosoftLocalTypes";
+import type { TeamsChat } from "./MicrosoftLocalTypes";
 
 type PlannedActionKind = "none" | "email" | "teams_message" | "calendar_event";
 
@@ -105,6 +104,8 @@ export class AgentActionPlanner {
       surface: "reactive",
       limit: 5,
       maxAgeMs: 14 * 24 * 60 * 60 * 1000,
+      includeLiveMicrosoftSources: false,
+      includeSemantica: false,
     });
     const contextBlock = buildPromptContextBlock(retrieval);
     const rawPlan = await llmHelper.generateContentStructured(
@@ -199,14 +200,14 @@ export class AgentActionPlanner {
     const unresolved = recipientQueries.filter((query) => !toResolution.resolvedByQuery.has(query));
     const unresolvedCc = ccQueries.filter((query) => !ccResolution.resolvedByQuery.has(query));
     const ready = toResolution.resolved.length > 0 && unresolved.length === 0;
-    const missing = ready ? [] : ["One or more email recipients still need to be resolved."];
+    const missing = ready ? [] : ["One or more email recipients need an explicit address or a brain-side resolved payload."];
 
     return {
       kind: "email",
       ready,
       note: plan.summary || (ready
         ? "Review the draft inline, then open it in Outlook or send it directly."
-        : "I prepared the draft, but at least one recipient still needs clarification."),
+        : "I prepared the draft, but at least one recipient still needs an explicit address. Natively no longer reads Outlook contacts to resolve this at widget time."),
       sendIntent: plan.sendIntent === true,
       missing,
       draft: {
@@ -236,7 +237,7 @@ export class AgentActionPlanner {
       ready,
       note: plan.summary || (ready
         ? "Review the Teams reply inline, then send it when ready."
-        : "I prepared the message, but I still need a clearer Teams target or message."),
+        : "I prepared the message, but I still need a brain-provided Teams target or direct chat id. Natively no longer reads Teams chats to resolve this at widget time."),
       sendIntent: plan.sendIntent === true,
       missing,
       target: target ? { chatId: target.id, label: target.topic } : undefined,
@@ -301,7 +302,6 @@ export class AgentActionPlanner {
     resolved: Array<{ name: string; email: string }>;
     resolvedByQuery: Set<string>;
   }> {
-    const manager = MicrosoftLocalManager.getInstance();
     const resolved: Array<{ name: string; email: string }> = [];
     const resolvedByQuery = new Set<string>();
 
@@ -309,14 +309,6 @@ export class AgentActionPlanner {
       const direct = extractEmail(query);
       if (direct) {
         resolved.push({ name: query, email: direct });
-        resolvedByQuery.add(query);
-        continue;
-      }
-
-      const contacts = await manager.getOutlookContacts(query);
-      const match = pickBestContact(query, contacts);
-      if (match) {
-        resolved.push(match);
         resolvedByQuery.add(query);
       }
     }
@@ -329,8 +321,17 @@ export class AgentActionPlanner {
 
   private async resolveTeamsChat(query: string): Promise<TeamsChat | null> {
     if (!query.trim()) return null;
-    const chats = await MicrosoftLocalManager.getInstance().getTeamsChats(40);
-    return pickBestChat(query, chats);
+    const chatIdMatch = query.match(/\bchat(?:id)?[:=]\s*([A-Za-z0-9:_@.-]+)/i);
+    if (!chatIdMatch?.[1]) return null;
+    return {
+      id: chatIdMatch[1],
+      topic: query,
+      lastMessage: "",
+      lastMessageTime: new Date().toISOString(),
+      participants: [],
+      unreadCount: 0,
+      chatType: "group",
+    };
   }
 }
 
@@ -341,42 +342,6 @@ function uniqueStrings(values: string[]): string[] {
 function extractEmail(input: string): string | null {
   const match = input.match(EMAIL_RE);
   return match ? match[0].toLowerCase() : null;
-}
-
-function pickBestContact(query: string, contacts: OutlookContact[]): { name: string; email: string } | null {
-  const normalized = query.trim().toLowerCase();
-  if (!normalized) return null;
-
-  const exact = contacts.find((contact) =>
-    [contact.name, contact.email].filter(Boolean).some((value) => value.toLowerCase() === normalized)
-  );
-  if (exact) return exact;
-
-  const startsWith = contacts.find((contact) =>
-    [contact.name, contact.email].filter(Boolean).some((value) => value.toLowerCase().startsWith(normalized))
-  );
-  if (startsWith) return startsWith;
-
-  const contains = contacts.find((contact) =>
-    [contact.name, contact.email].filter(Boolean).some((value) => value.toLowerCase().includes(normalized))
-  );
-  return contains || null;
-}
-
-function pickBestChat(query: string, chats: TeamsChat[]): TeamsChat | null {
-  const normalized = query.trim().toLowerCase();
-  if (!normalized) return null;
-
-  const exact = chats.find((chat) => chat.topic.toLowerCase() === normalized);
-  if (exact) return exact;
-
-  const participant = chats.find((chat) =>
-    chat.participants.some((participant) => participant.name.toLowerCase().includes(normalized))
-  );
-  if (participant) return participant;
-
-  const partial = chats.find((chat) => chat.topic.toLowerCase().includes(normalized));
-  return partial || null;
 }
 
 function dedupeRecipients(values: Array<{ name: string; email: string }>): Array<{ name: string; email: string }> {

@@ -32,6 +32,18 @@ export function initializeIpcHandlers(appState: AppState): void {
     }
   };
 
+  const broadcastIntelligenceError = (error: string, mode: string) => {
+    try {
+      BrowserWindow.getAllWindows().forEach((win) => {
+        if (!win.isDestroyed()) {
+          win.webContents.send("intelligence-error", { error, mode });
+        }
+      });
+    } catch (broadcastError) {
+      console.warn("[IPC] Failed to broadcast intelligence-error:", broadcastError);
+    }
+  };
+
   type ChatDebugStatus = 'completed' | 'error' | 'proposal' | 'superseded';
   type ChatDebugSurface = 'widget' | 'meeting_overlay' | 'global_overlay' | 'widget_live_rag' | 'meeting_rag' | 'global_rag' | string;
   type ChatDebugModelState = {
@@ -406,6 +418,16 @@ export function initializeIpcHandlers(appState: AppState): void {
     }
   })
 
+  safeHandle("take-context-screenshot", async () => {
+    try {
+      const screenshotPath = await appState.takeContextScreenshot(false)
+      const preview = await appState.getImagePreview(screenshotPath)
+      return { path: screenshotPath, preview }
+    } catch (error) {
+      throw error
+    }
+  })
+
   safeHandle("take-selective-screenshot", async () => {
     try {
       const screenshotPath = await appState.takeSelectiveScreenshot()
@@ -542,6 +564,16 @@ export function initializeIpcHandlers(appState: AppState): void {
 
   safeHandle("finalize-mic-stt", async () => {
     appState.finalizeMicSTT();
+  });
+
+  safeHandle("start-mic-stt", async () => {
+    await appState.startManualVoiceCapture();
+    return { success: true };
+  });
+
+  safeHandle("stop-mic-stt", async () => {
+    appState.stopManualVoiceCapture();
+    return { success: true };
   });
 
   // IPC handler for analyzing image from file path
@@ -915,6 +947,15 @@ export function initializeIpcHandlers(appState: AppState): void {
     return appState.getUndetectable()
   })
 
+  safeHandle("get-proactive-mode", async () => {
+    return appState.getProactiveModeEnabled()
+  })
+
+  safeHandle("set-proactive-mode", async (_, enabled: boolean) => {
+    appState.setProactiveModeEnabled(!!enabled)
+    return { success: true }
+  })
+
   // Adapted from public PR #113 — verify premium interaction
   safeHandle("set-overlay-mouse-passthrough", async (_, enabled: boolean) => {
     appState.setOverlayMousePassthrough(enabled)
@@ -1045,7 +1086,7 @@ export function initializeIpcHandlers(appState: AppState): void {
       return {
         hasNativelyKey: hasKey(creds.nativelyApiKey),
         googleServiceAccountPath: creds.googleServiceAccountPath || null,
-        sttProvider: creds.sttProvider || 'google',
+        sttProvider: CredentialsManager.getInstance().getSttProvider(),
         groqSttModel: creds.groqSttModel || 'whisper-large-v3-turbo',
         hasSttGroqKey: hasKey(creds.groqSttApiKey),
         hasSttOpenaiKey: hasKey(creds.openAiSttApiKey),
@@ -1080,6 +1121,17 @@ export function initializeIpcHandlers(appState: AppState): void {
   // STT Provider Management Handlers
   // ==========================================
 
+  const reconfigureIfActiveSttProvider = async (
+    provider: 'google' | 'groq' | 'openai' | 'deepgram' | 'elevenlabs' | 'azure' | 'ibmwatson' | 'soniox' | 'natively'
+  ) => {
+    const { CredentialsManager } = require('./services/CredentialsManager');
+    const activeProvider = CredentialsManager.getInstance().getSttProvider();
+    if (activeProvider === provider) {
+      console.log(`[IPC] ${provider} STT credentials changed; rebuilding active STT pipeline`);
+      await appState.reconfigureSttProvider();
+    }
+  };
+
   safeHandle("set-stt-provider", async (_, provider: 'google' | 'groq' | 'openai' | 'deepgram' | 'elevenlabs' | 'azure' | 'ibmwatson' | 'soniox' | 'natively') => {
     try {
       const { CredentialsManager } = require('./services/CredentialsManager');
@@ -1108,6 +1160,7 @@ export function initializeIpcHandlers(appState: AppState): void {
     try {
       const { CredentialsManager } = require('./services/CredentialsManager');
       CredentialsManager.getInstance().setGroqSttApiKey(apiKey);
+      await reconfigureIfActiveSttProvider('groq');
       return { success: true };
     } catch (error: any) {
       console.error("Error saving Groq STT API key:", error);
@@ -1119,6 +1172,7 @@ export function initializeIpcHandlers(appState: AppState): void {
     try {
       const { CredentialsManager } = require('./services/CredentialsManager');
       CredentialsManager.getInstance().setOpenAiSttApiKey(apiKey);
+      await reconfigureIfActiveSttProvider('openai');
       return { success: true };
     } catch (error: any) {
       console.error("Error saving OpenAI STT API key:", error);
@@ -1130,6 +1184,7 @@ export function initializeIpcHandlers(appState: AppState): void {
     try {
       const { CredentialsManager } = require('./services/CredentialsManager');
       CredentialsManager.getInstance().setDeepgramApiKey(apiKey);
+      await reconfigureIfActiveSttProvider('deepgram');
       return { success: true };
     } catch (error: any) {
       console.error("Error saving Deepgram API key:", error);
@@ -1156,6 +1211,7 @@ export function initializeIpcHandlers(appState: AppState): void {
     try {
       const { CredentialsManager } = require('./services/CredentialsManager');
       CredentialsManager.getInstance().setElevenLabsApiKey(apiKey);
+      await reconfigureIfActiveSttProvider('elevenlabs');
       return { success: true };
     } catch (error: any) {
       console.error("Error saving ElevenLabs API key:", error);
@@ -1167,6 +1223,7 @@ export function initializeIpcHandlers(appState: AppState): void {
     try {
       const { CredentialsManager } = require('./services/CredentialsManager');
       CredentialsManager.getInstance().setAzureApiKey(apiKey);
+      await reconfigureIfActiveSttProvider('azure');
       return { success: true };
     } catch (error: any) {
       console.error("Error saving Azure API key:", error);
@@ -1193,6 +1250,7 @@ export function initializeIpcHandlers(appState: AppState): void {
     try {
       const { CredentialsManager } = require('./services/CredentialsManager');
       CredentialsManager.getInstance().setIbmWatsonApiKey(apiKey);
+      await reconfigureIfActiveSttProvider('ibmwatson');
       return { success: true };
     } catch (error: any) {
       console.error("Error saving IBM Watson API key:", error);
@@ -1204,6 +1262,7 @@ export function initializeIpcHandlers(appState: AppState): void {
     try {
       const { CredentialsManager } = require('./services/CredentialsManager');
       CredentialsManager.getInstance().setSonioxApiKey(apiKey);
+      await reconfigureIfActiveSttProvider('soniox');
       return { success: true };
     } catch (error: any) {
       console.error("Error saving Soniox API key:", error);
@@ -1627,10 +1686,28 @@ export function initializeIpcHandlers(appState: AppState): void {
 
 
   // Native Audio Service Handlers
-  // Native Audio handlers removed as part of migration to driverless architecture
   safeHandle("native-audio-status", async () => {
-    // Always return true or pseudo-status since it's "driverless"
-    return { connected: true };
+    return appState.getNativeAudioRuntimeStatus();
+  });
+
+  safeHandle("meeting-readiness:get-status", async () => {
+    return appState.getMeetingReadinessStatus();
+  });
+
+  safeHandle("meeting-speaker-labels:get", async () => {
+    return appState.getMeetingSpeakerLabels();
+  });
+
+  safeHandle("meeting-speaker-labels:set", async (_, speakerKey: string, label: string) => {
+    return appState.setMeetingSpeakerLabel(speakerKey, label);
+  });
+
+  safeHandle("user-profile:get", async () => {
+    return { userDisplayName: appState.getUserDisplayName() };
+  });
+
+  safeHandle("user-profile:set-name", async (_, name: string) => {
+    return appState.setUserDisplayName(name);
   });
 
   safeHandle("get-input-devices", async () => {
@@ -1681,7 +1758,12 @@ export function initializeIpcHandlers(appState: AppState): void {
   });
 
   safeHandle("get-recent-meetings", async () => {
-    // Fetch from SQLite (limit 50)
+    const { BrainReadModelService } = require('./services/BrainReadModelService');
+    const brainMeetings = BrainReadModelService.getInstance().getRecentMeetings(50);
+    if (brainMeetings.length > 0) {
+      return brainMeetings;
+    }
+
     return DatabaseManager.getInstance().getRecentMeetings(50);
   });
 
@@ -1700,6 +1782,51 @@ export function initializeIpcHandlers(appState: AppState): void {
 
   safeHandle("update-meeting-summary", async (_, { id, updates }: { id: string; updates: any }) => {
     return DatabaseManager.getInstance().updateMeetingSummary(id, updates);
+  });
+
+  const resolveWritableMeetingId = (meetingId: string): string | null => {
+    const db = DatabaseManager.getInstance();
+    if (db.getMeetingDetails(meetingId)) return meetingId;
+
+    try {
+      const { BrainReadModelService } = require("./services/BrainReadModelService");
+      const brainRecord = BrainReadModelService.getInstance()
+        .getRecentMeetings(1000)
+        .find((meeting: any) => meeting?.id === meetingId);
+      const sourceMeetingId = brainRecord?.importMetadata?.sourceMeetingId;
+      if (sourceMeetingId && db.getMeetingDetails(sourceMeetingId)) {
+        return sourceMeetingId;
+      }
+    } catch (error: any) {
+      console.warn("[IPC] Failed to resolve writable meeting id:", error?.message || error);
+    }
+
+    return null;
+  };
+
+  safeHandle("add-meeting-context-note", async (_, input: { meetingId: string; text: string; source?: 'manual' | 'meeting_chat' }) => {
+    const meetingId = String(input?.meetingId || "");
+    const localMeetingId = resolveWritableMeetingId(meetingId);
+    if (!localMeetingId) {
+      throw new Error(`Meeting not found: ${meetingId}`);
+    }
+
+    const result = DatabaseManager.getInstance().addMeetingContextNote(
+      localMeetingId,
+      input.text,
+      input.source || 'manual'
+    );
+    if (!result.success) {
+      throw new Error(result.error || "Unable to save meeting context.");
+    }
+
+    return {
+      success: true,
+      requestedMeetingId: meetingId,
+      meetingId: localMeetingId,
+      note: result.note,
+      meeting: result.meeting,
+    };
   });
 
   safeHandle("generate-meeting-overview", async (_, { meetingId, force }: { meetingId: string; force?: boolean }) => {
@@ -1790,11 +1917,11 @@ export function initializeIpcHandlers(appState: AppState): void {
   });
 
   // MODE 2: What Should I Say (Primary auto-answer)
-  safeHandle("generate-what-to-say", async (_, question?: string, imagePaths?: string[]) => {
+  safeHandle("generate-what-to-say", async (_, question?: string, imagePaths?: string[], options?: { force?: boolean }) => {
     try {
       const intelligenceManager = appState.getIntelligenceManager();
       // Question and imagePaths are now optional - IntelligenceManager infers from transcript
-      const answer = await intelligenceManager.runWhatShouldISay(question, 0.8, imagePaths);
+      const answer = await intelligenceManager.runWhatShouldISay(question, 0.8, imagePaths, options);
       return { answer, question: question || 'inferred from context' };
     } catch (error: any) {
       // Return graceful fallback instead of throwing
@@ -1811,8 +1938,7 @@ export function initializeIpcHandlers(appState: AppState): void {
       // If null returned without throwing, the engine already set mode to idle.
       // We must still ensure the frontend un-sticks — emit an error so onIntelligenceError fires.
       if (clarification === null) {
-        const win = appState.getMainWindow();
-        win?.webContents.send('intelligence-error', { error: 'Could not generate a clarifying question. Try again after some audio context is available.', mode: 'clarify' });
+        broadcastIntelligenceError('Could not generate a clarifying question. Try again after some audio context is available.', 'clarify');
       }
       return { clarification };
     } catch (error: any) {
@@ -2030,6 +2156,7 @@ export function initializeIpcHandlers(appState: AppState): void {
     const { CalendarManager } = require('./services/CalendarManager');
     const { MeetingPrepService } = require('./services/MeetingPrepService');
     const events = await CalendarManager.getInstance().getUpcomingEvents();
+    appState.rememberReadinessEvents(events);
     MeetingPrepService.getInstance()
       .warmPackets(events, appState.getKnowledgeOrchestrator())
       .catch((error: any) => {
@@ -2043,6 +2170,7 @@ export function initializeIpcHandlers(appState: AppState): void {
     await CalendarManager.getInstance().refreshState();
     const { MeetingPrepService } = require('./services/MeetingPrepService');
     const events = await CalendarManager.getInstance().getUpcomingEvents();
+    appState.rememberReadinessEvents(events);
     MeetingPrepService.getInstance()
       .warmPackets(events, appState.getKnowledgeOrchestrator())
       .catch((error: any) => {
@@ -2484,12 +2612,12 @@ export function initializeIpcHandlers(appState: AppState): void {
   });
 
   // Cancel active RAG query
-  safeHandle("rag:cancel-query", async (_, { meetingId, global }: { meetingId?: string; global?: boolean }) => {
-    const queryKey = global ? 'global' : `meeting-${meetingId}`;
+  safeHandle("rag:cancel-query", async (_, { meetingId, global, live }: { meetingId?: string; global?: boolean; live?: boolean }) => {
+    const queryKey = live ? 'live-' : global ? 'global' : `meeting-${meetingId}`;
 
     // Cancel any matching key
     for (const [key, controller] of activeRAGQueries) {
-      if (key.startsWith(queryKey) || (global && key.startsWith('global'))) {
+      if (key.startsWith(queryKey) || (global && key.startsWith('global')) || (live && key.startsWith('live-'))) {
         controller.abort();
         activeRAGQueries.delete(key);
       }
@@ -2754,6 +2882,170 @@ export function initializeIpcHandlers(appState: AppState): void {
     }
   });
 
+  safeHandle("brain-action-proposals:list", async (_, limit?: number) => {
+    try {
+      const { BrainReadModelService } = require('./services/BrainReadModelService');
+      return BrainReadModelService.getInstance().getActionProposals(limit ?? 25);
+    } catch (error: any) {
+      console.error('[IPC] brain-action-proposals:list failed:', error);
+      return [];
+    }
+  });
+
+  safeHandle("brain-action-proposals:record-outcome", async (_, input: {
+    proposalId: string;
+    decision: string;
+    editSummary?: string;
+    finalPayload?: unknown;
+    error?: string;
+    learningSignals?: string[];
+  }) => {
+    try {
+      const { BrainReadModelService } = require('./services/BrainReadModelService');
+      return BrainReadModelService.getInstance().recordActionOutcome(input);
+    } catch (error: any) {
+      console.error('[IPC] brain-action-proposals:record-outcome failed:', error);
+      return { success: false, error: error?.message || 'Failed to record action outcome.' };
+    }
+  });
+
+  safeHandle("brain-action-proposals:execute", async (_, input: {
+    proposalId: string;
+    payload?: Record<string, unknown>;
+  }) => {
+    const { BrainReadModelService } = require('./services/BrainReadModelService');
+    const { MicrosoftLocalManager } = require('./services/MicrosoftLocalManager');
+    const brain = BrainReadModelService.getInstance();
+    const proposal = brain.getActionProposalById(input?.proposalId || "");
+    if (!proposal) {
+      return { success: false, error: 'Brain action proposal was not found.' };
+    }
+
+    const payload = {
+      ...(proposal.payload || {}),
+      ...(input?.payload || {}),
+    };
+    const workflowRun = brain.getOrCreateWorkflowRunForProposal(proposal, {
+      state: "approved",
+      actor: "steve",
+      eventType: "approval.explicit_execute",
+      eventSummary: "Steve explicitly approved this proposal for execution from Natively.",
+      payload,
+    });
+
+    try {
+      const manager = MicrosoftLocalManager.getInstance();
+      let summary = "";
+      let result: any = null;
+      const type = String(proposal.type || "").toLowerCase();
+      const adapter = type === "task" || type === "note" || type === "follow_up"
+        ? "ipcorp_architecture_brain"
+        : type === "teams_message"
+          ? "teams"
+          : "outlook";
+
+      brain.transitionWorkflowRun(workflowRun.id, "executing", {
+        type: "execution.started",
+        actor: "natively",
+        adapter,
+        summary: `Executing ${proposal.type} proposal.`,
+        payload,
+      });
+
+      if (type === "email") {
+        const toRecipients = stringsFromPayload(payload, "toRecipients", "to", "recipients");
+        const ccRecipients = stringsFromPayload(payload, "ccRecipients", "cc");
+        const subject = stringFromPayload(payload, "subject", "title");
+        const body = stringFromPayload(payload, "body", "message", "text");
+        if (!toRecipients.length || !subject || !body) {
+          throw new Error("Email proposal needs toRecipients/to, subject, and body before it can execute.");
+        }
+        if (booleanFromPayload(payload, "send", "sendNow")) {
+          await manager.sendEmail({ toRecipients, ccRecipients, subject, body });
+          summary = "Email sent through Outlook.";
+        } else {
+          result = await manager.createDraft({ toRecipients, ccRecipients, subject, body });
+          summary = "Email draft created in Outlook.";
+        }
+      } else if (type === "teams_message") {
+        const chatId = stringFromPayload(payload, "chatId", "targetChatId");
+        const text = stringFromPayload(payload, "message", "text", "body");
+        if (!chatId || !text) {
+          throw new Error("Teams proposal needs chatId and message before it can execute.");
+        }
+        result = await manager.sendTeamsMessage(chatId, text);
+        if (result?.success === false) {
+          throw new Error(result.error || "Teams send failed.");
+        }
+        summary = "Teams message sent.";
+      } else if (type === "calendar_event") {
+        const subject = stringFromPayload(payload, "subject", "title");
+        const start = stringFromPayload(payload, "start", "startsAt", "startTime");
+        const end = stringFromPayload(payload, "end", "endsAt", "endTime");
+        if (!subject || !start || !end) {
+          throw new Error("Calendar proposal needs subject, start, and end before it can execute.");
+        }
+        result = await manager.createCalendarEvent({
+          subject,
+          start,
+          end,
+          location: stringFromPayload(payload, "location"),
+          body: stringFromPayload(payload, "body", "description"),
+          attendees: {
+            required: stringsFromPayload(payload, "required", "requiredAttendees", "attendees"),
+            optional: stringsFromPayload(payload, "optional", "optionalAttendees"),
+          },
+          send: booleanFromPayload(payload, "send", "sendInvites"),
+        });
+        summary = booleanFromPayload(payload, "send", "sendInvites")
+          ? "Calendar invite created and sent through Outlook."
+          : "Calendar event created in Outlook.";
+      } else if (type === "task" || type === "follow_up") {
+        result = brain.writeTaskFromProposal(proposal, payload, workflowRun.id);
+        summary = type === "follow_up"
+          ? "Follow-up written to the IP Corp brain task queue."
+          : "Task written to the IP Corp brain task queue.";
+      } else if (type === "note") {
+        result = brain.writeNoteFromProposal(proposal, payload, workflowRun.id);
+        summary = "Note written to the IP Corp brain notes ledger.";
+      } else {
+        throw new Error(`Unsupported brain action proposal type: ${proposal.type}`);
+      }
+
+      brain.transitionWorkflowRun(workflowRun.id, "completed", {
+        type: "execution.completed",
+        actor: "natively",
+        adapter,
+        summary,
+        receipt: result,
+      });
+
+      brain.recordActionOutcome({
+        proposalId: proposal.id,
+        decision: "executed",
+        finalPayload: payload,
+        learningSignals: [`Steve executed ${proposal.type} proposal ${proposal.id}.`],
+      });
+
+      return { success: true, summary, result };
+    } catch (error: any) {
+      brain.transitionWorkflowRun(workflowRun.id, "failed", {
+        type: "execution.failed",
+        actor: "natively",
+        summary: error?.message || String(error),
+        error: error?.message || String(error),
+        payload,
+      });
+      brain.recordActionOutcome({
+        proposalId: proposal.id,
+        decision: "failed",
+        finalPayload: payload,
+        error: error?.message || String(error),
+      });
+      return { success: false, error: error?.message || 'Failed to execute brain action proposal.' };
+    }
+  });
+
   safeHandle("autonomous-ops:get-status", async () => {
     try {
       const { AutonomousOpsService } = require('./autonomy');
@@ -2802,6 +3094,26 @@ export function initializeIpcHandlers(appState: AppState): void {
     } catch (error: any) {
       console.error('[IPC] autonomous-ops:invoke-action failed:', error);
       return { success: false, summary: error?.message || 'Failed to invoke workflow action.' };
+    }
+  });
+
+  safeHandle("durable-workflows:get-status", async (_, limit?: number) => {
+    try {
+      const { DurableWorkflowLedger } = require('./services/DurableWorkflowLedger');
+      return DurableWorkflowLedger.getInstance().getStatus(limit ?? 25);
+    } catch (error: any) {
+      console.error('[IPC] durable-workflows:get-status failed:', error);
+      return null;
+    }
+  });
+
+  safeHandle("durable-workflows:list", async (_, limit?: number) => {
+    try {
+      const { DurableWorkflowLedger } = require('./services/DurableWorkflowLedger');
+      return DurableWorkflowLedger.getInstance().listRuns(limit ?? 50);
+    } catch (error: any) {
+      console.error('[IPC] durable-workflows:list failed:', error);
+      return [];
     }
   });
 
@@ -2969,4 +3281,49 @@ export function initializeIpcHandlers(appState: AppState): void {
     });
     return;
   });
+}
+
+function stringFromPayload(payload: Record<string, unknown>, ...keys: string[]): string {
+  for (const key of keys) {
+    const value = payload[key];
+    if (typeof value === "string" && value.trim()) return value.trim();
+    if (typeof value === "number" && Number.isFinite(value)) return String(value);
+  }
+  return "";
+}
+
+function stringsFromPayload(payload: Record<string, unknown>, ...keys: string[]): string[] {
+  for (const key of keys) {
+    const value = payload[key];
+    if (Array.isArray(value)) {
+      return value
+        .flatMap((item) => {
+          if (typeof item === "string" || typeof item === "number") return [String(item)];
+          if (item && typeof item === "object") {
+            const record = item as Record<string, unknown>;
+            return stringFromPayload(record, "email", "address", "name", "value") || [];
+          }
+          return [];
+        })
+        .map((item) => item.trim())
+        .filter(Boolean);
+    }
+    if (typeof value === "string" && value.trim()) {
+      return value.split(",").map((item) => item.trim()).filter(Boolean);
+    }
+  }
+  return [];
+}
+
+function booleanFromPayload(payload: Record<string, unknown>, ...keys: string[]): boolean {
+  for (const key of keys) {
+    const value = payload[key];
+    if (typeof value === "boolean") return value;
+    if (typeof value === "string") {
+      if (/^(true|yes|1|send)$/i.test(value)) return true;
+      if (/^(false|no|0|draft)$/i.test(value)) return false;
+    }
+    if (typeof value === "number") return value !== 0;
+  }
+  return false;
 }

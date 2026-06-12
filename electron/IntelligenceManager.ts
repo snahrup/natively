@@ -78,12 +78,20 @@ export class IntelligenceManager extends EventEmitter {
         this.engine.reinitializeLLMs();
     }
 
+    setProactiveModeEnabled(enabled: boolean): void {
+        this.engine.setProactiveModeEnabled(enabled);
+    }
+
     // ============================================
     // Context Management (delegates to session)
     // ============================================
 
     setMeetingMetadata(metadata: any): void {
         this.session.setMeetingMetadata(metadata);
+    }
+
+    setPreparedMeetingContext(context: string | null): void {
+        this.session.setPreparedMeetingContext(context);
     }
 
     addTranscript(segment: import('./SessionTracker').TranscriptSegment, skipRefinementCheck: boolean = false): void {
@@ -140,8 +148,8 @@ export class IntelligenceManager extends EventEmitter {
         return this.engine.runAssistMode();
     }
 
-    async runWhatShouldISay(question?: string, confidence?: number, imagePaths?: string[]): Promise<string | null> {
-        return this.engine.runWhatShouldISay(question, confidence, imagePaths);
+    async runWhatShouldISay(question?: string, confidence?: number, imagePaths?: string[], options?: { force?: boolean }): Promise<string | null> {
+        return this.engine.runWhatShouldISay(question, confidence, imagePaths, options);
     }
 
     async runFollowUp(intent: string, userRequest?: string): Promise<string | null> {

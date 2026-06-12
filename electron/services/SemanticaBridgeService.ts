@@ -142,6 +142,8 @@ export class SemanticaBridgeService {
     participantHints?: string[];
     limit?: number;
     surface?: string;
+    startIfNeeded?: boolean;
+    timeoutMs?: number;
   }): Promise<ContextDocument[]> {
     const response = await this.requestJson<{ results?: RawSemanticaQueryResult[] }>("/api/query/meetings", {
       method: "POST",
@@ -152,6 +154,9 @@ export class SemanticaBridgeService {
         limit: input.limit ?? 10,
         surface: input.surface ?? "reactive",
       }),
+    }, {
+      startIfNeeded: input.startIfNeeded,
+      timeoutMs: input.timeoutMs,
     });
 
     return (response.results || []).map((result) => ({

@@ -351,16 +351,24 @@ export class CalendarManager extends EventEmitter {
     // =========================================================================
 
     public async getUpcomingEvents(force: boolean = false): Promise<CalendarEvent[]> {
+        const now = new Date();
+        const end = new Date(now.getTime() + 48 * 60 * 60 * 1000);
+        const events = await this.getEventsInRange(now.toISOString(), end.toISOString());
+        this.scheduleReminders(events);
+        return events;
+    }
+
+    public async getEventsInRange(startTime: string, endTime: string): Promise<CalendarEvent[]> {
         const googleEventsPromise = (async (): Promise<CalendarEvent[]> => {
             if (!this.isConnected || !this.accessToken) return [];
             if (this.expiryDate && Date.now() >= this.expiryDate - 60000) {
                 await this.refreshAccessToken();
             }
-            return this.fetchEventsInternal();
+            return this.fetchEventsInternal(startTime, endTime);
         })();
 
         const outlookEventsPromise = MicrosoftLocalManager.getInstance()
-            .getOutlookCalendarEvents(48)
+            .getOutlookCalendarEventsInRange(startTime, endTime)
             .then((events) => events.map((event) => this.mapOutlookEvent(event)))
             .catch((error) => {
                 console.warn('[CalendarManager] Outlook calendar fetch failed:', error);
@@ -368,13 +376,11 @@ export class CalendarManager extends EventEmitter {
             });
 
         const [googleEvents, outlookEvents] = await Promise.all([googleEventsPromise, outlookEventsPromise]);
-        const events = [...googleEvents, ...outlookEvents]
+        return [...googleEvents, ...outlookEvents]
             .sort((left, right) => new Date(left.startTime).getTime() - new Date(right.startTime).getTime());
-        this.scheduleReminders(events);
-        return events;
     }
 
-    private async fetchEventsInternal(): Promise<CalendarEvent[]> {
+    private async fetchEventsInternal(startTime?: string, endTime?: string): Promise<CalendarEvent[]> {
         if (!this.accessToken) return [];
 
         const now = new Date();
@@ -386,8 +392,8 @@ export class CalendarManager extends EventEmitter {
                     Authorization: `Bearer ${this.accessToken}`
                 },
                 params: {
-                    timeMin: now.toISOString(),
-                    timeMax: tomorrow.toISOString(),
+                    timeMin: startTime || now.toISOString(),
+                    timeMax: endTime || tomorrow.toISOString(),
                     singleEvents: true,
                     orderBy: 'startTime'
                 }

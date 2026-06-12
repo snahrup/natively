@@ -7,6 +7,7 @@ import { buildPromptContextBlock, ContextRetrievalBroker } from "./context";
 import { buildClaudeCliEnv } from "./services/ClaudeCliEnvironment";
 import { buildLocalCliInvocation, type LocalCliProvider } from "./services/CliProviderResolver";
 import { ContinuousOCRService } from "./services/ContinuousOCRService";
+import { buildIPCorpContext, buildIPCorpSystemPrompt } from "./services/IPCorpContextBuilder";
 
 type ReasoningEffort = "low" | "medium" | "high" | "xhigh";
 type ActiveProvider = "claude" | "codex";
@@ -14,6 +15,9 @@ type ActiveProvider = "claude" | "codex";
 type ChatOptions = {
   ignoreKnowledgeMode?: boolean;
   skipRetrievedContext?: boolean;
+  skipIPCorpSystemPrompt?: boolean;
+  skipScreenContext?: boolean;
+  requestProfile?: "default" | "realtime";
   responseSchema?: Record<string, unknown>;
 };
 
@@ -47,7 +51,15 @@ type CliRequest = {
   systemPrompt?: string;
   prompt: string;
   imagePaths?: string[];
+  requestProfile?: "default" | "realtime";
   responseSchema?: Record<string, unknown>;
+  reasoningEffort?: ReasoningEffort;
+};
+
+type CodexRequestProfile = {
+  effort: ReasoningEffort;
+  timeoutMs: number;
+  reason: string;
 };
 
 const DEFAULT_SYSTEM_PROMPT = [
@@ -57,35 +69,67 @@ const DEFAULT_SYSTEM_PROMPT = [
   "If context is provided, ground your response in it instead of inventing missing facts.",
 ].join("\n");
 
-const DEFAULT_CLAUDE_MODEL = "claude-sonnet-4-6";
-const DEFAULT_CODEX_MODEL = "gpt-5.4";
+function loadCascadeProjectsEnv(): void {
+  const envPath = path.join(os.homedir(), "CascadeProjects", ".env");
+  if (!fs.existsSync(envPath)) return;
+
+  try {
+    for (const rawLine of fs.readFileSync(envPath, "utf8").split(/\r?\n/)) {
+      const line = rawLine.trim();
+      if (!line || line.startsWith("#") || !line.includes("=")) continue;
+      const [rawKey, ...rawValueParts] = line.split("=");
+      const key = rawKey.trim();
+      if (!key || process.env[key]) continue;
+      process.env[key] = rawValueParts.join("=").trim().replace(/^["']|["']$/g, "");
+    }
+  } catch (error) {
+    console.warn("[LLMHelper] Failed to load CascadeProjects AI defaults:", error);
+  }
+}
+
+loadCascadeProjectsEnv();
+
+const DEFAULT_CLAUDE_MODEL = process.env.AI_CLAUDE_MODEL?.trim() || "claude-opus-4-8";
+const DEFAULT_CLAUDE_EFFORT = process.env.AI_CLAUDE_EFFORT?.trim() || "max";
+const DEFAULT_CODEX_MODEL = "gpt-5.5";
+const DEFAULT_CLI_REQUEST_TIMEOUT_MS = 180_000;
 
 const SUPPORTED_CLAUDE_MODELS = new Set([
+  DEFAULT_CLAUDE_MODEL,
+  "claude-opus-4-8",
+  "claude-opus-4-7",
   "claude-sonnet-4-6",
-  "claude-opus-4-6",
 ]);
 
 const SUPPORTED_CODEX_MODELS = new Set([
+  "gpt-5.5",
   "gpt-5.4",
   "gpt-5.4-mini",
-  "gpt-5.3-codex",
-  "gpt-5.3-codex-spark",
-  "gpt-5.2",
 ]);
 
 const LEGACY_MODEL_ALIASES: Record<string, string> = {
   claude: DEFAULT_CLAUDE_MODEL,
   "claude-max": DEFAULT_CLAUDE_MODEL,
-  "claude-max-sonnet": DEFAULT_CLAUDE_MODEL,
-  "claude-max-sonnet-4-6": DEFAULT_CLAUDE_MODEL,
-  "claude-max-opus": "claude-opus-4-6",
-  "claude-max-opus-4-6": "claude-opus-4-6",
+  "claude-max-opus": DEFAULT_CLAUDE_MODEL,
+  "claude-max-opus-4-8": DEFAULT_CLAUDE_MODEL,
+  "claude-opus-4-8": DEFAULT_CLAUDE_MODEL,
+  "claude-max-opus-4-7": DEFAULT_CLAUDE_MODEL,
+  "claude-opus-4-7": DEFAULT_CLAUDE_MODEL,
+  "claude-max-opus-4-6": DEFAULT_CLAUDE_MODEL,
+  "claude-opus-4-6": DEFAULT_CLAUDE_MODEL,
+  "claude-max-sonnet": "claude-sonnet-4-6",
+  "claude-max-sonnet-4-6": "claude-sonnet-4-6",
   codex: DEFAULT_CODEX_MODEL,
-  "codex-gpt-5.4": DEFAULT_CODEX_MODEL,
+  "codex-gpt-5.5": DEFAULT_CODEX_MODEL,
+  "codex-gpt-5.4": "gpt-5.4",
   "codex-gpt-5.4-mini": "gpt-5.4-mini",
-  "codex-gpt-5.3-codex": "gpt-5.3-codex",
-  "codex-gpt-5.3-codex-spark": "gpt-5.3-codex-spark",
-  "codex-gpt-5.2": "gpt-5.2",
+  "codex-gpt-5.3-codex": DEFAULT_CODEX_MODEL,
+  "codex-gpt-5.3-codex-spark": DEFAULT_CODEX_MODEL,
+  "codex-gpt-5.2": DEFAULT_CODEX_MODEL,
+  "gpt-5-codex": DEFAULT_CODEX_MODEL,
+  "gpt-5.3-codex": DEFAULT_CODEX_MODEL,
+  "gpt-5.3-codex-spark": DEFAULT_CODEX_MODEL,
+  "gpt-5.2": DEFAULT_CODEX_MODEL,
 
   // Removed API-key/cloud routes now normalize to local CLI defaults.
   gemini: DEFAULT_CLAUDE_MODEL,
@@ -163,6 +207,11 @@ export class LLMHelper {
 
   public setIPCorpMode(enabled: boolean): void {
     this.ipCorpMode = !!enabled;
+    if (this.ipCorpMode) {
+      buildIPCorpContext().catch((error) => {
+        console.warn("[LLMHelper] Failed to warm IP Corp context:", error);
+      });
+    }
   }
 
   public getIPCorpMode(): boolean {
@@ -417,6 +466,21 @@ export class LLMHelper {
     });
   }
 
+  public async generateWithLocalCodex(
+    userPrompt: string,
+    systemPrompt?: string,
+    model: string = DEFAULT_CODEX_MODEL,
+    reasoningEffort: ReasoningEffort = "xhigh",
+  ): Promise<string> {
+    return this.runCliText({
+      provider: "codex",
+      model: normalizeCodexModel(model),
+      systemPrompt: systemPrompt ? this.injectLanguageInstruction(systemPrompt) : undefined,
+      prompt: userPrompt,
+      reasoningEffort,
+    });
+  }
+
   public async reviewAssistantOutput(input: ReviewInput): Promise<ReviewOutput> {
     const reviewType = input?.reviewType || "voice_pass";
     const model = reviewType === "technical_check" ? DEFAULT_CODEX_MODEL : DEFAULT_CLAUDE_MODEL;
@@ -458,14 +522,17 @@ export class LLMHelper {
     imagePaths?: string[],
     context?: string,
     systemPromptOverride?: string,
-    ignoreKnowledgeMode: boolean = false,
+    chatOptions: boolean | ChatOptions = false,
   ): AsyncGenerator<string, void, unknown> {
+    const options = typeof chatOptions === "boolean"
+      ? { ignoreKnowledgeMode: chatOptions }
+      : chatOptions;
     const response = await this.chat(
       message,
       imagePaths,
       context,
       systemPromptOverride,
-      { ignoreKnowledgeMode },
+      options,
     );
     if (response) {
       yield response;
@@ -488,10 +555,31 @@ export class LLMHelper {
       return knowledgeMode.shortCircuit;
     }
 
-    const finalSystemPrompt = knowledgeMode.systemPrompt ?? resolvedSystemPrompt;
+    let finalSystemPrompt = knowledgeMode.systemPrompt ?? resolvedSystemPrompt;
+    if (
+      this.ipCorpMode &&
+      options.ignoreKnowledgeMode !== true &&
+      options.skipIPCorpSystemPrompt !== true &&
+      systemPromptOverride !== ""
+    ) {
+      const ipCorpSystemPrompt = await withTimeout(
+        buildIPCorpSystemPrompt(message),
+        2_500,
+        "",
+        "IP Corp system prompt"
+      );
+      if (ipCorpSystemPrompt) {
+        finalSystemPrompt = finalSystemPrompt?.trim()
+          ? `${ipCorpSystemPrompt}\n\n<task_instructions>\n${finalSystemPrompt.trim()}\n</task_instructions>`
+          : ipCorpSystemPrompt;
+      }
+    }
+
     let finalContext = knowledgeMode.context ?? context ?? "";
     finalContext = await this.appendRetrievedContext(message, finalContext, options.skipRetrievedContext === true);
-    finalContext = this.appendScreenContext(finalContext);
+    if (options.skipScreenContext !== true) {
+      finalContext = this.appendScreenContext(finalContext);
+    }
 
     const prepared = this.buildPrompt(message, imagePaths, finalContext, finalSystemPrompt);
     return this.runCliText({
@@ -500,6 +588,7 @@ export class LLMHelper {
       systemPrompt: prepared.systemPrompt,
       prompt: prepared.userPrompt,
       imagePaths,
+      requestProfile: options.requestProfile,
       responseSchema: options.responseSchema,
     });
   }
@@ -643,6 +732,7 @@ export class LLMHelper {
         systemPrompt: request.systemPrompt,
         prompt: request.prompt,
         imagePaths,
+        requestProfile: request.requestProfile,
         responseSchema: request.responseSchema,
       });
     }
@@ -653,6 +743,7 @@ export class LLMHelper {
       systemPrompt: request.systemPrompt,
       prompt: request.prompt,
       imagePaths,
+      requestProfile: request.requestProfile,
       responseSchema: request.responseSchema,
     });
   }
@@ -661,6 +752,8 @@ export class LLMHelper {
     const args: string[] = [
       "-p",
       "--verbose",
+      "--input-format",
+      "text",
       "--output-format",
       "stream-json",
       "--disable-slash-commands",
@@ -669,6 +762,8 @@ export class LLMHelper {
       "bypassPermissions",
       "--model",
       request.model,
+      "--effort",
+      DEFAULT_CLAUDE_EFFORT,
     ];
 
     if (request.systemPrompt) {
@@ -684,12 +779,16 @@ export class LLMHelper {
       args.push("--add-dir", ...extraDirs);
     }
 
-    args.push(request.prompt);
-
     const invocation = buildLocalCliInvocation("claude", args);
     const env = this.buildCliEnv("claude");
 
-    const result = await this.collectJsonlOutput(invocation.command, invocation.args, env, "claude");
+    const result = await this.collectJsonlOutput(
+      invocation.command,
+      invocation.args,
+      env,
+      "claude",
+      request.prompt,
+    );
     if (result.error) {
       throw new Error(result.error);
     }
@@ -705,16 +804,24 @@ export class LLMHelper {
       const prompt = request.systemPrompt
         ? `${request.systemPrompt}\n\n${request.prompt}`
         : request.prompt;
+      const profile = resolveCodexRequestProfile(request, request.reasoningEffort || this.reasoningEffort, prompt);
 
       const args: string[] = [
         "exec",
         "--json",
         "--color",
         "never",
+        "--ignore-user-config",
+        "--ignore-rules",
+        "--ephemeral",
         "--skip-git-repo-check",
         "--dangerously-bypass-approvals-and-sandbox",
+        "--cd",
+        os.tmpdir(),
         "--model",
         request.model,
+        "--config",
+        `model_reasoning_effort="${profile.effort}"`,
       ];
 
       if (schemaPath) {
@@ -725,11 +832,21 @@ export class LLMHelper {
         args.push("--image", imagePath);
       }
 
-      args.push(prompt);
+      args.push("-");
 
       const invocation = buildLocalCliInvocation("codex", args);
       const env = this.buildCliEnv("codex");
-      const result = await this.collectJsonlOutput(invocation.command, invocation.args, env, "codex");
+      console.log(
+        `[LLMHelper] Codex request profile model=${request.model} effort=${profile.effort} timeout=${Math.round(profile.timeoutMs / 1000)}s reason=${profile.reason}`
+      );
+      const result = await this.collectJsonlOutput(
+        invocation.command,
+        invocation.args,
+        env,
+        "codex",
+        prompt,
+        profile.timeoutMs,
+      );
       if (result.error) {
         throw new Error(result.error);
       }
@@ -767,12 +884,15 @@ export class LLMHelper {
     args: string[],
     env: NodeJS.ProcessEnv,
     provider: ActiveProvider,
+    stdinText?: string,
+    timeoutMs: number = DEFAULT_CLI_REQUEST_TIMEOUT_MS,
   ): Promise<{ text: string; error?: string }> {
     return new Promise((resolve, reject) => {
       const child = spawn(command, args, {
-        cwd: process.cwd(),
+        cwd: os.tmpdir(),
         env,
         windowsHide: true,
+        stdio: [stdinText === undefined ? "ignore" : "pipe", "pipe", "pipe"],
       });
 
       let stdout = "";
@@ -780,6 +900,29 @@ export class LLMHelper {
       let finalText = "";
       let explicitError: string | undefined;
       let stdoutBuffer = "";
+      let settled = false;
+      let timedOut = false;
+      const startedAt = Date.now();
+      console.log(`[LLMHelper] Starting ${provider} CLI request: ${path.basename(command)} ${args.slice(0, 8).join(" ")}`);
+
+      if (stdinText !== undefined && child.stdin) {
+        child.stdin.end(stdinText, "utf8");
+      }
+
+      const timeout = setTimeout(() => {
+        timedOut = true;
+        explicitError = `${provider === "codex" ? "Codex" : "Claude"} CLI timed out after ${Math.round(timeoutMs / 1000)} seconds.`;
+        killProcessTree(child.pid);
+        finish({ text: finalText, error: explicitError });
+      }, timeoutMs);
+
+      const finish = (value: { text: string; error?: string }) => {
+        if (settled) return;
+        settled = true;
+        clearTimeout(timeout);
+        console.log(`[LLMHelper] ${provider} CLI request finished in ${Date.now() - startedAt}ms${value.error ? " with error" : ""}`);
+        resolve(value);
+      };
 
       const handleJsonLine = (line: string) => {
         const trimmed = line.trim();
@@ -790,6 +933,15 @@ export class LLMHelper {
         try {
           const parsed = JSON.parse(trimmed) as any;
           if (provider === "codex") {
+            if (parsed?.type === "error" && parsed?.message) {
+              explicitError = String(parsed.message);
+            }
+            const turnFailedMessage = parsed?.type === "turn.failed"
+              ? parsed?.error?.message
+              : undefined;
+            if (turnFailedMessage) {
+              explicitError = String(turnFailedMessage);
+            }
             const itemText = parsed?.item?.text;
             if (typeof itemText === "string" && itemText.trim()) {
               finalText = itemText;
@@ -836,7 +988,11 @@ export class LLMHelper {
         stderr += chunk.toString();
       });
 
-      child.on("error", (error) => reject(error));
+      child.on("error", (error) => {
+        if (settled) return;
+        clearTimeout(timeout);
+        reject(error);
+      });
 
       child.on("close", (code) => {
         if (stdoutBuffer.trim()) {
@@ -844,23 +1000,28 @@ export class LLMHelper {
         }
 
         if (explicitError) {
-          resolve({ text: finalText, error: explicitError });
+          finish({ text: finalText, error: sanitizeCliFailure(explicitError) });
+          return;
+        }
+
+        if (timedOut) {
+          finish({ text: finalText, error: `${provider === "codex" ? "Codex" : "Claude"} CLI timed out.` });
           return;
         }
 
         if (code !== 0) {
           const message = sanitizeCliFailure(stderr || stdout || `${provider} CLI exited with code ${code}`);
-          resolve({ text: finalText, error: message });
+          finish({ text: finalText, error: message });
           return;
         }
 
         if (!finalText.trim()) {
           const plainText = sanitizeTextResponse(stdout);
-          resolve({ text: plainText });
+          finish({ text: plainText });
           return;
         }
 
-        resolve({ text: finalText });
+        finish({ text: finalText });
       });
     });
   }
@@ -869,6 +1030,27 @@ export class LLMHelper {
     const filePath = path.join(os.tmpdir(), `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2)}.json`);
     fs.writeFileSync(filePath, JSON.stringify(value, null, 2), "utf8");
     return filePath;
+  }
+}
+
+function killProcessTree(pid?: number): void {
+  if (!pid) return;
+  try {
+    if (process.platform === "win32") {
+      spawn("taskkill.exe", ["/PID", String(pid), "/T", "/F"], {
+        windowsHide: true,
+        stdio: "ignore",
+      });
+      return;
+    }
+  } catch {
+    // Fall through to process.kill.
+  }
+
+  try {
+    process.kill(pid, "SIGTERM");
+  } catch {
+    // The process may already have exited.
   }
 }
 
@@ -894,6 +1076,125 @@ function normalizeCodexModel(modelId?: string): string {
 function providerForModel(modelId: string): ActiveProvider {
   const normalized = normalizeModelId(modelId);
   return SUPPORTED_CLAUDE_MODELS.has(normalized) ? "claude" : "codex";
+}
+
+function resolveCodexRequestProfile(
+  request: CliRequest,
+  configuredEffort: ReasoningEffort,
+  prompt: string,
+): CodexRequestProfile {
+  const model = normalizeCodexModel(request.model);
+  const lower = prompt.toLowerCase();
+  const hasImages = !!request.imagePaths?.length;
+  const promptChars = prompt.length;
+  const hasSchema = !!request.responseSchema;
+  const asksForDecision =
+    /\b(recommend|recommendation|decision|decide|risk|trade|position|long|short|should i|should we|what would you|next step|blocker)\b/.test(lower);
+  const durableInsight =
+    /\b(cortex|insight|insights|meeting prep|prep packet|architecture brain|action proposal|outcome ledger|thorough|deep analysis|durable memory)\b/.test(lower);
+  const realtimeWidget =
+    hasImages ||
+    /\b(live screen|screenshot|what'?s on my screen|what is on my screen|right now|voice ask|real-time meeting coach|provide only the answer)\b/.test(lower);
+  const quickAction =
+    /\b(draft reply|clarify|clarifying question|summarize|recap|suggest follow-up|follow-up questions|concise|2-4 sentences)\b/.test(lower);
+
+  if (request.requestProfile === "realtime") {
+    return {
+      effort: "low",
+      timeoutMs: 9_000,
+      reason: "proactive-realtime",
+    };
+  }
+
+  if (model === "gpt-5.4-mini") {
+    const effort: ReasoningEffort = hasImages || asksForDecision ? "medium" : "low";
+    return {
+      effort,
+      timeoutMs: timeoutForCliRequest("codex", model, effort),
+      reason: hasImages ? "mini-screen" : "mini-fast",
+    };
+  }
+
+  if (request.reasoningEffort) {
+    return {
+      effort: request.reasoningEffort,
+      timeoutMs: timeoutForCliRequest("codex", model, request.reasoningEffort),
+      reason: "explicit-effort",
+    };
+  }
+
+  if (durableInsight) {
+    const effort: ReasoningEffort = configuredEffort === "xhigh" || configuredEffort === "high"
+      ? configuredEffort
+      : "high";
+    return {
+      effort,
+      timeoutMs: timeoutForCliRequest("codex", model, effort),
+      reason: "durable-insight",
+    };
+  }
+
+  if (realtimeWidget) {
+    const effort: ReasoningEffort = asksForDecision ? "high" : "medium";
+    return {
+      effort,
+      timeoutMs: timeoutForCliRequest("codex", model, effort),
+      reason: asksForDecision ? "screen-decision" : "screen-fast",
+    };
+  }
+
+  if (quickAction) {
+    return {
+      effort: "medium",
+      timeoutMs: timeoutForCliRequest("codex", model, "medium"),
+      reason: "quick-action",
+    };
+  }
+
+  if (hasSchema) {
+    return {
+      effort: "medium",
+      timeoutMs: timeoutForCliRequest("codex", model, "medium"),
+      reason: "structured-output",
+    };
+  }
+
+  if (promptChars > 18_000) {
+    return {
+      effort: "high",
+      timeoutMs: timeoutForCliRequest("codex", model, "high"),
+      reason: "long-context",
+    };
+  }
+
+  return {
+    effort: configuredEffort === "xhigh" ? "medium" : configuredEffort,
+    timeoutMs: timeoutForCliRequest("codex", model, configuredEffort === "xhigh" ? "medium" : configuredEffort),
+    reason: configuredEffort === "xhigh" ? "default-capped" : "default",
+  };
+}
+
+function timeoutForCliRequest(provider: ActiveProvider, modelId: string, effort: ReasoningEffort): number {
+  if (provider !== "codex") {
+    return DEFAULT_CLI_REQUEST_TIMEOUT_MS;
+  }
+
+  if (modelId === "gpt-5.4-mini" && effort !== "xhigh") {
+    return 120_000;
+  }
+
+  switch (effort) {
+    case "low":
+      return 120_000;
+    case "medium":
+      return 180_000;
+    case "high":
+      return 240_000;
+    case "xhigh":
+      return modelId === DEFAULT_CODEX_MODEL ? 300_000 : 240_000;
+    default:
+      return DEFAULT_CLI_REQUEST_TIMEOUT_MS;
+  }
 }
 
 function sanitizeImagePaths(imagePaths?: string[]): string[] {
@@ -941,5 +1242,25 @@ function parseJsonResponse<T = any>(raw: string): T {
       return JSON.parse(objectMatch[0]) as T;
     }
     throw new Error("Model response was not valid JSON.");
+  }
+}
+
+async function withTimeout<T>(promise: Promise<T>, timeoutMs: number, fallback: T, label: string): Promise<T> {
+  let timer: NodeJS.Timeout | null = null;
+  try {
+    return await Promise.race([
+      promise,
+      new Promise<T>((resolve) => {
+        timer = setTimeout(() => {
+          console.warn(`[LLMHelper] ${label} timed out after ${timeoutMs}ms`);
+          resolve(fallback);
+        }, timeoutMs);
+      }),
+    ]);
+  } catch (error) {
+    console.warn(`[LLMHelper] ${label} failed:`, error);
+    return fallback;
+  } finally {
+    if (timer) clearTimeout(timer);
   }
 }
