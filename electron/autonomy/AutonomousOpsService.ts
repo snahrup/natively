@@ -288,9 +288,18 @@ export class AutonomousOpsService {
         };
 
         const previous = this.snapshots.get(descriptor.workflowId);
-        this.artifactStore.persistSnapshot(snapshot);
+        // Only touch disk when something material changed. With a resident
+        // adapter (commitments), an unconditional per-30s-tick persist +
+        // events.jsonl append accumulated ~0.5MB/day for months per open
+        // commitment with zero information content.
+        const changed = !previous || snapshotSignature(previous) !== snapshotSignature(snapshot);
+        if (changed) {
+          this.artifactStore.persistSnapshot(snapshot);
+        }
         if (snapshot.active || previous?.active) {
-          this.recordEvents(previous, snapshot);
+          if (changed) {
+            this.recordEvents(previous, snapshot);
+          }
           this.notificationService.maybeNotify(previous, snapshot);
         }
         nextSnapshots.set(descriptor.workflowId, snapshot);
@@ -410,4 +419,17 @@ export class AutonomousOpsService {
     await this.registry.refresh(context);
     return this.registry.getDescriptor(workflowId);
   }
+}
+
+/** Material identity of a snapshot — fields whose change is worth persisting. */
+function snapshotSignature(snapshot: WorkflowSnapshot): string {
+  return [
+    snapshot.state,
+    snapshot.summary,
+    snapshot.active,
+    snapshot.autoDetected,
+    snapshot.manual,
+    snapshot.nextActionIds.join(","),
+    snapshot.availableActions.map((action) => action.id).join(","),
+  ].join("::");
 }
