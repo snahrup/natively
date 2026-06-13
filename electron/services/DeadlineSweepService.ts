@@ -45,11 +45,25 @@ export class DeadlineSweepService {
       });
     } catch (error) {
       console.warn("[DeadlineSweep] Could not subscribe to meeting changes:", error);
+      // Health must reflect reality: the sweep timer runs but ingestion is dead.
+      try {
+        const { ServiceHealthRegistry } = require("./ServiceHealthRegistry");
+        ServiceHealthRegistry.getInstance().markDegraded(
+          "DeadlineSweep",
+          `Meeting-change subscription failed — new commitments will not be ingested: ${(error as Error)?.message || error}`
+        );
+      } catch { /* registry unavailable */ }
     }
 
     this.timer = setInterval(() => this.sweep(), SWEEP_INTERVAL_MS);
     this.timer.unref?.();
     this.sweep();
+    if (this.unsubscribeMeetings) {
+      try {
+        const { ServiceHealthRegistry } = require("./ServiceHealthRegistry");
+        ServiceHealthRegistry.getInstance().markOk("DeadlineSweep");
+      } catch { /* registry unavailable */ }
+    }
     console.log("[DeadlineSweep] Started (5-minute sweep, 60-minute due-soon window)");
   }
 

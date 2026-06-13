@@ -140,7 +140,7 @@ export class ContextRetrievalBroker {
       tokenize((request.participantHints || []).join(" ")),
       tokenize((doc.participants || []).join(" "))
     );
-    const freshness = FRESHNESS_SCORES[doc.freshnessClass] ?? 0.45;
+    const freshness = FRESHNESS_SCORES[effectiveFreshnessClass(doc)] ?? 0.45;
     const trust = TRUST_SCORES[doc.trustTier] ?? 0.6;
     const focus = this.computeFocusBoost(doc, request);
     const penalty = computePenalty(doc);
@@ -192,11 +192,30 @@ export class ContextRetrievalBroker {
     if (request.surface === "proactive" && doc.sourceType === "action_proposal") {
       boost += 0.3;
     }
-    if (request.surface === "meeting" && (doc.sourceType === "live_transcript" || doc.sourceType === "ocr_observation")) {
+    if (
+      request.surface === "meeting" &&
+      (doc.sourceType === "live_transcript" || doc.sourceType === "ocr_observation") &&
+      effectiveFreshnessClass(doc) === "live"
+    ) {
+      // "Freshest transcript and screen evidence" — the boost must not apply
+      // to hours-old observations that merely CLAIM the live class.
       boost += 0.45;
     }
     return clamp(boost, 0, 1);
   }
+}
+
+/**
+ * freshnessClass is declared at write time and never updated — with 12h
+ * observation TTLs, a 9-hour-old OCR frame would otherwise rank as if it
+ * were the current screen. Decay 'live' by actual age at scoring time.
+ */
+function effectiveFreshnessClass(doc: ContextDocument): ContextDocument["freshnessClass"] {
+  if (doc.freshnessClass !== "live") return doc.freshnessClass;
+  const ageMs = Date.now() - Date.parse(doc.updatedAt || doc.createdAt);
+  if (!Number.isFinite(ageMs) || ageMs <= 10 * 60 * 1000) return "live";
+  if (ageMs <= 2 * 60 * 60 * 1000) return "recent";
+  return "historical";
 }
 
 function dedupeDocuments(documents: ContextDocument[]): ContextDocument[] {

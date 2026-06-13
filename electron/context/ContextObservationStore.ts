@@ -64,12 +64,26 @@ export class ContextObservationStore {
     }
   }
 
+  private persistFailureReported = false;
+
   private persist(doc: ContextDocument): void {
     try {
       const { DatabaseManager } = require("../db/DatabaseManager");
       DatabaseManager.getInstance().upsertObservation(doc);
-    } catch {
-      // Durable log unavailable — the in-RAM working set still serves.
+    } catch (error) {
+      // Durable log unavailable — the in-RAM working set still serves, but
+      // the degradation must be VISIBLE (once), not silently swallowed.
+      if (!this.persistFailureReported) {
+        this.persistFailureReported = true;
+        console.warn("[ContextObservationStore] Durable observation writes failing — ambient memory will not survive restart:", (error as Error)?.message || error);
+        try {
+          const { ServiceHealthRegistry } = require("../services/ServiceHealthRegistry");
+          ServiceHealthRegistry.getInstance().markDegraded(
+            "ObservationStore",
+            `Durable writes failing: ${(error as Error)?.message || error}`
+          );
+        } catch { /* registry unavailable — warn above already logged */ }
+      }
     }
   }
 
@@ -168,8 +182,21 @@ export class ContextObservationStore {
   recordCommitmentDocument(doc: ContextDocument): void {
     if (doc.sourceType !== "task_or_commitment") return;
     const createdMs = Date.parse(doc.createdAt) || Date.now();
+
+    // Sweep-owned metadata must survive re-ingestion: meeting saves (rename,
+    // summary regen, context notes, repair) rebuild commitment docs from
+    // scratch under the same id — without this merge, every re-save erased
+    // deadlineNotifiedAt and the sweep re-notified the same commitment.
+    this.ensureRehydrated();
+    const existing = this.documents.find((candidate) => candidate.id === doc.id);
+    const mergedMetadata = { ...(doc.metadata || {}) };
+    if (existing?.metadata?.deadlineNotifiedAt && mergedMetadata.deadlineNotifiedAt === undefined) {
+      mergedMetadata.deadlineNotifiedAt = existing.metadata.deadlineNotifiedAt;
+    }
+
     this.upsertDocument({
       ...doc,
+      metadata: mergedMetadata,
       expiresAt: doc.expiresAt ?? new Date(createdMs + TTL_BY_SOURCE_MS.task_or_commitment).toISOString(),
     });
   }

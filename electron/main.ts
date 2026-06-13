@@ -4203,10 +4203,10 @@ async function initializeApp() {
   // one clickable notification when each enters its due-soon window.
   try {
     const { DeadlineSweepService } = require('./services/DeadlineSweepService');
+    // start() reports its own ok/degraded state to the health registry
     DeadlineSweepService.getInstance().start(() => {
       appState.centerAndShowWindow();
     });
-    require('./services/ServiceHealthRegistry').ServiceHealthRegistry.getInstance().markOk('DeadlineSweep');
   } catch (e) {
     console.error('[Main] Failed to start DeadlineSweepService:', e);
     require('./services/ServiceHealthRegistry').ServiceHealthRegistry.getInstance().markFailed('DeadlineSweep', e);
