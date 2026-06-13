@@ -1,6 +1,7 @@
 import { BrowserWindow } from "electron";
 
 import { DatabaseManager } from "../db/DatabaseManager";
+import { CommitmentAdapter } from "../adapters/commitments/adapter";
 import { FmdAdapter } from "../adapters/fmd/adapter";
 import { ArtifactStore } from "./ArtifactStore";
 import { DesktopContextService } from "./DesktopContextService";
@@ -46,6 +47,10 @@ export class AutonomousOpsService {
   public start(): void {
     if (this.started) return;
     this.started = true;
+
+    // The resident adapter watches the user's actual goal: meeting
+    // commitments from the durable observation lane. Read-only, no LLM calls.
+    this.registry.registerAdapter(new CommitmentAdapter());
 
     if (LEGACY_APP_MONITORS_ENABLED) {
       this.registry.registerAdapter(new FmdAdapter());

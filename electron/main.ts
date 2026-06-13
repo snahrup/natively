@@ -20,7 +20,11 @@ earlyTrace(`module-load packaged=${String(app?.isPackaged)} nodeEnv=${process.en
 // This fork currently ships via local installers, not a managed release feed.
 // Keep in-app auto-updates disabled unless a real update channel is configured.
 const AUTO_UPDATES_ENABLED = process.env.NATIVELY_ENABLE_AUTO_UPDATES === '1';
-const AUTONOMOUS_OPS_ENABLED = process.env.NATIVELY_ENABLE_AUTONOMOUS_OPS === '1';
+// Autonomy is ON by default since being repointed at meeting commitments
+// (CommitmentAdapter — read-only, zero model calls). Opt out with
+// NATIVELY_DISABLE_AUTONOMOUS_OPS=1. Legacy repo-workflow adapters remain
+// behind NATIVELY_ENABLE_LEGACY_APP_MONITORS.
+const AUTONOMOUS_OPS_ENABLED = process.env.NATIVELY_DISABLE_AUTONOMOUS_OPS !== '1';
 const CONTEXT_STACK_BOOTSTRAP_ENABLED = process.env.NATIVELY_BOOTSTRAP_CONTEXT_STACK === '1';
 const STARTUP_MEETING_RECOVERY_ENABLED = process.env.NATIVELY_ENABLE_STARTUP_MEETING_RECOVERY === '1';
 
@@ -3976,9 +3980,15 @@ async function initializeApp() {
   initializeIpcHandlers(appState)
 
   if (AUTONOMOUS_OPS_ENABLED) {
-    AutonomousOpsService.getInstance().start();
+    try {
+      AutonomousOpsService.getInstance().start();
+      require('./services/ServiceHealthRegistry').ServiceHealthRegistry.getInstance().markOk('AutonomousOps');
+    } catch (e) {
+      console.error('[Init] AutonomousOpsService failed to start:', e);
+      require('./services/ServiceHealthRegistry').ServiceHealthRegistry.getInstance().markFailed('AutonomousOps', e);
+    }
   } else {
-    console.log('[Init] Autonomous workflow supervision disabled by default. Set NATIVELY_ENABLE_AUTONOMOUS_OPS=1 to enable repo workflow monitoring.');
+    console.log('[Init] Autonomous workflow supervision disabled via NATIVELY_DISABLE_AUTONOMOUS_OPS=1.');
   }
 
   // Apply the full disguise payload (names, dock icon, AUMID) early
