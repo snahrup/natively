@@ -434,6 +434,24 @@ export const ContextHubSettings: React.FC<ContextHubSettingsProps> = ({
         ))}
       </div>
 
+      {Array.isArray(contextHubStatus?.services) && contextHubStatus.services.length > 0 && (
+        <div className="rounded-xl border border-border-subtle bg-bg-item-surface px-4 py-3 text-xs text-text-secondary leading-relaxed">
+          <div className="text-[10px] font-semibold uppercase tracking-wide text-text-tertiary mb-1">Service Health</div>
+          {contextHubStatus.services.filter((s: any) => s.status !== 'ok').length === 0 ? (
+            <div className="text-emerald-400">All {contextHubStatus.services.length} background services healthy.</div>
+          ) : (
+            contextHubStatus.services
+              .filter((s: any) => s.status !== 'ok')
+              .map((s: any) => (
+                <div key={s.name} className="mt-1 text-red-400">
+                  <span className="font-semibold">{s.name}</span>
+                  {' '}{s.status}{s.detail ? ` — ${s.detail}` : ''}
+                </div>
+              ))
+          )}
+        </div>
+      )}
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         <div className="rounded-xl border border-border-subtle bg-bg-item-surface px-4 py-3 text-xs text-text-secondary leading-relaxed">
           <div className="text-[10px] font-semibold uppercase tracking-wide text-text-tertiary mb-1">Freshness</div>

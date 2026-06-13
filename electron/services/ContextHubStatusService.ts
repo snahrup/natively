@@ -3,6 +3,7 @@ import { ContextObservationStore } from "../context";
 import { AutonomousOpsService, type AutonomousOpsStatus } from "../autonomy";
 import { BrainReadModelService } from "./BrainReadModelService";
 import { DurableWorkflowLedger, type DurableWorkflowLedgerStatus } from "./DurableWorkflowLedger";
+import { ServiceHealthRegistry, type ServiceHealthEntry } from "./ServiceHealthRegistry";
 
 export interface ContextHubStatus {
   generatedAt: string;
@@ -59,6 +60,8 @@ export interface ContextHubStatus {
   };
   autonomousOps: AutonomousOpsStatus;
   durableWorkflows: DurableWorkflowLedgerStatus;
+  /** Bootstrap/runtime health of background services (failed inits are visible here). */
+  services: ServiceHealthEntry[];
 }
 
 export class ContextHubStatusService {
@@ -140,6 +143,7 @@ export class ContextHubStatusService {
       },
       autonomousOps,
       durableWorkflows,
+      services: ServiceHealthRegistry.getInstance().getAll(),
     };
   }
 }

@@ -548,18 +548,29 @@ export class AppState {
     // Initialize MeetingMemoryBrain so contradiction detection has a populated index
     // even if IP Corp mode is never toggled on (lazy init in IPCorpContextBuilder
     // only fires when the user activates IP Corp mode).
+    const serviceHealth = (() => {
+      const { ServiceHealthRegistry } = require('./services/ServiceHealthRegistry');
+      return ServiceHealthRegistry.getInstance();
+    })();
+
     {
       const { MeetingMemoryBrain } = require('./services/MeetingMemoryBrain');
       try {
         const dbManager = DatabaseManager.getInstance();
         const initializePromise = MeetingMemoryBrain.getInstance().initialize(dbManager);
         if (initializePromise && typeof initializePromise.catch === 'function') {
-          initializePromise.catch((e: any) => {
-            console.warn('[AppState] MeetingMemoryBrain background init failed:', e?.message || e);
-          });
+          initializePromise
+            .then(() => serviceHealth.markOk('MeetingMemoryBrain'))
+            .catch((e: any) => {
+              console.warn('[AppState] MeetingMemoryBrain background init failed:', e?.message || e);
+              serviceHealth.markFailed('MeetingMemoryBrain', e);
+            });
+        } else {
+          serviceHealth.markOk('MeetingMemoryBrain');
         }
       } catch (e: any) {
         console.warn('[AppState] MeetingMemoryBrain initialization unavailable:', e?.message || e);
+        serviceHealth.markFailed('MeetingMemoryBrain', e);
       }
     }
 
@@ -567,8 +578,10 @@ export class AppState {
       try {
         const { BrainMeetingIngestionService } = require('./services/BrainMeetingIngestionService');
         BrainMeetingIngestionService.getInstance().start(DatabaseManager.getInstance());
+        serviceHealth.markOk('BrainMeetingIngestion');
       } catch (e: any) {
         console.warn('[AppState] Brain meeting ingestion unavailable:', e?.message || e);
+        serviceHealth.markFailed('BrainMeetingIngestion', e);
       }
     }
 
@@ -577,14 +590,21 @@ export class AppState {
 
     // Initialize RAGManager (requires database to be ready)
     this.initializeRAGManager()
+    if (this.ragManager) {
+      serviceHealth.markOk('RAGManager');
+    } else {
+      serviceHealth.markFailed('RAGManager', 'not initialized — meeting recall and embeddings unavailable');
+    }
     try {
       const { MeetingTranscriptBackfillService } = require('./services/MeetingTranscriptBackfillService');
       MeetingTranscriptBackfillService.getInstance().schedule({
         llmHelper: this.processingHelper.getLLMHelper(),
         ragManager: this.ragManager,
       });
+      serviceHealth.markOk('MeetingTranscriptBackfill');
     } catch (e: any) {
       console.warn('[AppState] Meeting transcript backfill unavailable:', e?.message || e);
+      serviceHealth.markFailed('MeetingTranscriptBackfill', e);
     }
     if (process.env.NATIVELY_ENABLE_SEMANTICA_CONTEXT === "1") {
       this.initializeSemanticaContext()
@@ -4141,8 +4161,10 @@ async function initializeApp() {
 
     console.log('[Main] CalendarManager initialized');
     appState.startMeetingPrepScheduler();
+    require('./services/ServiceHealthRegistry').ServiceHealthRegistry.getInstance().markOk('Calendar');
   } catch (e) {
     console.error('[Main] Failed to initialize CalendarManager:', e);
+    require('./services/ServiceHealthRegistry').ServiceHealthRegistry.getInstance().markFailed('Calendar', e);
   }
 
   try {
@@ -4152,9 +4174,16 @@ async function initializeApp() {
     if (mainWindow) {
       microsoftLocal.setWindow(mainWindow);
     }
-    microsoftLocal.start().catch((error: any) => {
-      console.warn('[Main] MicrosoftLocalManager start failed:', error?.message || error);
-    });
+    microsoftLocal.start()
+      .then(() => {
+        const { ServiceHealthRegistry } = require('./services/ServiceHealthRegistry');
+        ServiceHealthRegistry.getInstance().markOk('MicrosoftLocal');
+      })
+      .catch((error: any) => {
+        console.warn('[Main] MicrosoftLocalManager start failed:', error?.message || error);
+        const { ServiceHealthRegistry } = require('./services/ServiceHealthRegistry');
+        ServiceHealthRegistry.getInstance().markFailed('MicrosoftLocal', error);
+      });
     setTimeout(() => {
       microsoftLocal.refreshConnections().catch((error: any) => {
         console.warn('[Main] MicrosoftLocalManager delayed refresh failed:', error?.message || error);
@@ -4177,8 +4206,10 @@ async function initializeApp() {
     DeadlineSweepService.getInstance().start(() => {
       appState.centerAndShowWindow();
     });
+    require('./services/ServiceHealthRegistry').ServiceHealthRegistry.getInstance().markOk('DeadlineSweep');
   } catch (e) {
     console.error('[Main] Failed to start DeadlineSweepService:', e);
+    require('./services/ServiceHealthRegistry').ServiceHealthRegistry.getInstance().markFailed('DeadlineSweep', e);
   }
 
   // Power state awareness: an all-day session crosses sleep/lock boundaries.

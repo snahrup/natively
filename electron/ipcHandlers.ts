@@ -73,6 +73,41 @@ export function initializeIpcHandlers(appState: AppState): void {
     global_rag: "Global Recall RAG",
   };
 
+  // Surface behavior contracts (Guardrails 1+2): the surface parameter is
+  // load-bearing, not just a debug label. It controls which memory lanes each
+  // surface reads/writes, so the live-meeting context cannot be silently
+  // polluted by recall chats on other surfaces, and structured action
+  // proposals only reach the surface that renders them.
+  type SurfaceContract = {
+    /** Write turns into the live session transcript + meeting usage log. */
+    writeToSessionMemory: boolean;
+    /** Record turns as interaction observations in the durable context lane. */
+    recordObservations: boolean;
+    /** Auto-merge the rolling live session context into the prompt. */
+    mergeLiveSessionContext: boolean;
+    /** Allow AgentActionPlanner interception (inline action proposal cards). */
+    allowActionProposals: boolean;
+  };
+  const DEFAULT_SURFACE_CONTRACT: SurfaceContract = {
+    writeToSessionMemory: false,
+    recordObservations: true,
+    mergeLiveSessionContext: false,
+    allowActionProposals: false,
+  };
+  const SURFACE_CONTRACTS: Record<string, SurfaceContract> = {
+    // The primary assistant surface — full session participation.
+    widget: { writeToSessionMemory: true, recordObservations: true, mergeLiveSessionContext: true, allowActionProposals: true },
+    widget_live_rag: { writeToSessionMemory: true, recordObservations: true, mergeLiveSessionContext: true, allowActionProposals: false },
+    // Recall surfaces about a SPECIFIC past meeting / global history: they
+    // build their own context and must not bleed into the live session.
+    meeting_overlay: { writeToSessionMemory: false, recordObservations: true, mergeLiveSessionContext: false, allowActionProposals: false },
+    meeting_rag: { writeToSessionMemory: false, recordObservations: false, mergeLiveSessionContext: false, allowActionProposals: false },
+    global_overlay: { writeToSessionMemory: false, recordObservations: true, mergeLiveSessionContext: false, allowActionProposals: false },
+    global_rag: { writeToSessionMemory: false, recordObservations: false, mergeLiveSessionContext: false, allowActionProposals: false },
+  };
+  const surfaceContractFor = (surface: string): SurfaceContract =>
+    SURFACE_CONTRACTS[surface] || DEFAULT_SURFACE_CONTRACT;
+
   const getChatDebugModelState = (): ChatDebugModelState => {
     try {
       const llmHelper = appState.processingHelper.getLLMHelper();
@@ -676,30 +711,36 @@ export function initializeIpcHandlers(appState: AppState): void {
         }
       };
 
-      // Update IntelligenceManager with USER message immediately
+      // Per-surface memory scoping (see SURFACE_CONTRACTS above)
+      const contract = surfaceContractFor(surface);
       const intelligenceManager = appState.getIntelligenceManager();
-      intelligenceManager.addTranscript({
-        text: message,
-        speaker: 'user',
-        timestamp: Date.now(),
-        final: true
-      }, true);
-      ContextObservationStore.getInstance().recordInteraction({
-        role: 'user',
-        text: message,
-        timestamp: Date.now(),
-      });
+      if (contract.writeToSessionMemory) {
+        // Update IntelligenceManager with USER message immediately
+        intelligenceManager.addTranscript({
+          text: message,
+          speaker: 'user',
+          timestamp: Date.now(),
+          final: true
+        }, true);
+      }
+      if (contract.recordObservations) {
+        ContextObservationStore.getInstance().recordInteraction({
+          role: 'user',
+          text: message,
+          timestamp: Date.now(),
+        });
+      }
 
       // Action-card interception for the inline widget.
       // If the user is asking for an Outlook / Teams / calendar action, return a
       // structured proposal instead of freeform chat text so the renderer can
       // show an embedded sendable card.
-      // Gated to the widget surface: it is the only surface that renders
-      // InlineActionProposalCard. On other surfaces (meeting/global overlay)
-      // the JSON payload broke chat, and the serial planner LLM call added
-      // seconds of pre-stream latency to any message containing words like
-      // 'meeting'/'schedule'/'send' — which is most live-meeting queries.
-      if (surface === 'widget' && !imagePaths?.length) {
+      // Gated by the surface contract: only the widget renders
+      // InlineActionProposalCard. On other surfaces the JSON payload broke
+      // chat, and the serial planner LLM call added seconds of pre-stream
+      // latency to any message containing words like 'meeting'/'schedule'/
+      // 'send' — which is most live-meeting queries.
+      if (contract.allowActionProposals && !imagePaths?.length) {
         try {
           const { AgentActionPlanner } = require('./services/AgentActionPlanner');
           const proposal = await AgentActionPlanner.getInstance().maybeBuildProposal(message, llmHelper);
@@ -736,20 +777,23 @@ export function initializeIpcHandlers(appState: AppState): void {
         }
       }
 
-      // Always merge in recent live context. Renderer chat history is useful, but
-      // it should not suppress the rolling live session buffer.
-      try {
-        const autoContext = intelligenceManager.getFormattedContext(100);
-        if (autoContext && autoContext.trim().length > 0) {
-          if (!context || !context.includes(autoContext)) {
-            context = context?.trim()
-              ? `${context}\n\nLIVE SESSION CONTEXT:\n${autoContext}`
-              : autoContext;
+      // Merge in recent live context — but only for surfaces whose contract
+      // participates in the live session. Recall surfaces build their own
+      // context and must not have the live meeting blended in.
+      if (contract.mergeLiveSessionContext) {
+        try {
+          const autoContext = intelligenceManager.getFormattedContext(100);
+          if (autoContext && autoContext.trim().length > 0) {
+            if (!context || !context.includes(autoContext)) {
+              context = context?.trim()
+                ? `${context}\n\nLIVE SESSION CONTEXT:\n${autoContext}`
+                : autoContext;
+            }
+            console.log(`[IPC] Merged live context into gemini-chat-stream (${autoContext.length} chars)`);
           }
-          console.log(`[IPC] Merged live context into gemini-chat-stream (${autoContext.length} chars)`);
+        } catch (ctxErr) {
+          console.warn("[IPC] Failed to merge live context:", ctxErr);
         }
-      } catch (ctxErr) {
-        console.warn("[IPC] Failed to merge live context:", ctxErr);
       }
 
       let authoritativeResponse: string | null = null;
@@ -802,11 +846,18 @@ export function initializeIpcHandlers(appState: AppState): void {
           const finalResponse = (authoritativeResponse ?? fullResponse) as string;
           event.sender.send("gemini-stream-done", authoritativeResponse);
 
-          // Update IntelligenceManager with ASSISTANT message after completion
-          if (finalResponse.trim().length > 0) {
+          // Update the live session memory only for surfaces contracted to it
+          if (contract.writeToSessionMemory && finalResponse.trim().length > 0) {
+            // addAssistantMessage also records the interaction observation
             intelligenceManager.addAssistantMessage(finalResponse);
             // Log Usage for streaming chat
             await intelligenceManager.logUsage('chat', message, finalResponse);
+          } else if (contract.recordObservations && finalResponse.trim().length > 0) {
+            ContextObservationStore.getInstance().recordInteraction({
+              role: 'assistant',
+              text: finalResponse,
+              timestamp: Date.now(),
+            });
           }
 
           saveChatDebugEntry({
