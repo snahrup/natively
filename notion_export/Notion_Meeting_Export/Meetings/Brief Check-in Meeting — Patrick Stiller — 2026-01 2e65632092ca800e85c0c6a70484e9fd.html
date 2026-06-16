@@ -1,0 +1,744 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>Brief Check-in Meeting — Patrick Stiller — 2026-01-12</title><style>
+/* cspell:disable-file */
+/* webkit printing magic: print all background colors */
+html {
+	-webkit-print-color-adjust: exact;
+}
+* {
+	box-sizing: border-box;
+	-webkit-print-color-adjust: exact;
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+}
+@media only screen {
+	body {
+		margin: 2em auto;
+		max-width: 900px;
+		color: rgb(55, 53, 47);
+	}
+}
+
+body {
+	line-height: 1.5;
+	white-space: pre-wrap;
+}
+
+a,
+a.visited {
+	color: inherit;
+	text-decoration: underline;
+}
+
+.pdf-relative-link-path {
+	font-size: 80%;
+	color: #444;
+}
+
+h1,
+h2,
+h3 {
+	letter-spacing: -0.01em;
+	line-height: 1.2;
+	font-weight: 600;
+	margin-bottom: 0;
+}
+
+/* Override strong tags inside headings to maintain consistent weight */
+h1 strong,
+h2 strong,
+h3 strong {
+	font-weight: 600;
+}
+
+.page-title {
+	font-size: 2.5rem;
+	font-weight: 700;
+	margin-top: 0;
+	margin-bottom: 0.75em;
+}
+
+h1 {
+	font-size: 1.875rem;
+	margin-top: 1.875rem;
+}
+
+h2 {
+	font-size: 1.5rem;
+	margin-top: 1.5rem;
+}
+
+h3 {
+	font-size: 1.25rem;
+	margin-top: 1.25rem;
+}
+
+.source {
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	padding: 1.5em;
+	word-break: break-all;
+}
+
+.callout {
+	border-radius: 10px;
+	padding: 1rem;
+}
+
+figure {
+	margin: 1.25em 0;
+	page-break-inside: avoid;
+}
+
+figcaption {
+	opacity: 0.5;
+	font-size: 85%;
+	margin-top: 0.5em;
+}
+
+mark {
+	background-color: transparent;
+}
+
+.indented {
+	padding-left: 1.5em;
+}
+
+hr {
+	background: transparent;
+	display: block;
+	width: 100%;
+	height: 1px;
+	visibility: visible;
+	border: none;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+img {
+	max-width: 100%;
+}
+
+@media only print {
+	img {
+		max-height: 100vh;
+		object-fit: contain;
+	}
+
+	table.collection-content {
+		width: 100%;
+		table-layout: fixed;
+	}
+
+	table.collection-content th,
+	table.collection-content td {
+		overflow-wrap: anywhere;
+	}
+
+	table.collection-content td > .user,
+	table.collection-content td > time {
+		white-space: pre-wrap;
+	}
+}
+
+@page {
+	margin: 1in;
+}
+
+.collection-content-wrapper {
+	overflow-x: auto;
+}
+
+@media only print {
+	.collection-content-wrapper {
+		overflow-x: visible;
+	}
+}
+
+.collection-content {
+	font-size: 0.875rem;
+}
+
+.collection-content td {
+	white-space: pre-wrap;
+	word-break: break-word;
+}
+
+.column-list {
+	display: flex;
+	gap: 46px;
+}
+
+.column {
+	min-width: 0;
+	overflow: hidden;
+}
+
+.column > *:first-child {
+	margin-top: 0;
+}
+
+.table_of_contents-item {
+	display: block;
+	font-size: 0.875rem;
+	line-height: 1.3;
+	padding: 0.125rem;
+}
+
+.table_of_contents-indent-1 {
+	margin-left: 1.5rem;
+}
+
+.table_of_contents-indent-2 {
+	margin-left: 3rem;
+}
+
+.table_of_contents-indent-3 {
+	margin-left: 4.5rem;
+}
+
+.table_of_contents-link {
+	text-decoration: none;
+	opacity: 0.7;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.18);
+}
+
+table,
+th,
+td {
+	border: 1px solid rgba(55, 53, 47, 0.09);
+	border-collapse: collapse;
+}
+
+table {
+	border-left: none;
+	border-right: none;
+}
+
+th,
+td {
+	font-weight: normal;
+	padding: 0.25em 0.5em;
+	line-height: 1.5;
+	min-height: 1.5em;
+	text-align: left;
+}
+
+th {
+	color: rgba(55, 53, 47, 0.6);
+}
+
+ol,
+ul {
+	margin: 0;
+	margin-block-start: 0.6em;
+	margin-block-end: 0.6em;
+}
+
+li > ol:first-child,
+li > ul:first-child {
+	margin-block-start: 0.6em;
+}
+
+ul > li {
+	list-style: disc;
+}
+
+ul.to-do-list {
+	padding-inline-start: 0;
+}
+
+ul.to-do-list > li {
+	list-style: none;
+}
+
+.to-do-children-checked {
+	text-decoration: line-through;
+	opacity: 0.375;
+}
+
+ul.toggle > li {
+	list-style: none;
+}
+
+ul {
+	padding-inline-start: 1.7em;
+}
+
+ul > li {
+	padding-left: 0.1em;
+}
+
+ol {
+	padding-inline-start: 1.6em;
+}
+
+ol.numbered-list.numbered-list-digits-2 {
+	padding-inline-start: 2em;
+}
+
+ol.numbered-list.numbered-list-digits-3plus {
+	padding-inline-start: 2.4em;
+}
+
+ol > li {
+	padding-left: 0.2em;
+}
+
+.mono ol {
+	padding-inline-start: 2em;
+}
+
+.mono ol > li {
+	text-indent: -0.4em;
+}
+
+.toggle {
+	padding-inline-start: 0em;
+	list-style-type: none;
+}
+
+/* Indent toggle children */
+.toggle > li > details {
+	padding-left: 1.7em;
+}
+
+.toggle > li > details > summary {
+	margin-left: -1.1em;
+}
+
+.selected-value {
+	display: inline-block;
+	padding: 0 0.5em;
+	background: rgba(206, 205, 202, 0.5);
+	border-radius: 3px;
+	margin-right: 0.5em;
+	margin-top: 0.3em;
+	margin-bottom: 0.3em;
+	white-space: nowrap;
+}
+
+.collection-title {
+	display: inline-block;
+	margin-right: 1em;
+}
+
+.page-description {
+	margin-bottom: 2em;
+}
+
+.simple-table {
+	margin-top: 1em;
+	font-size: 0.875rem;
+	empty-cells: show;
+}
+.simple-table td {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table th {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table-header-color {
+	background: rgb(247, 246, 243);
+	color: black;
+}
+.simple-table-header {
+	font-weight: 500;
+}
+
+time {
+	opacity: 0.5;
+}
+
+.icon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	max-width: 1.2em;
+	max-height: 1.2em;
+	text-decoration: none;
+	vertical-align: text-bottom;
+	margin-right: 0.5em;
+}
+
+img.icon {
+	border-radius: 3px;
+}
+
+.callout img.notion-static-icon {
+	width: 1em;
+	height: 1em;
+}
+
+.callout p {
+	margin: 0;
+}
+
+.callout h1,
+.callout h2,
+.callout h3 {
+	margin: 0 0 0.6rem;
+}
+
+.user-icon {
+	width: 1.5em;
+	height: 1.5em;
+	border-radius: 100%;
+	margin-right: 0.5rem;
+}
+
+.user-icon-inner {
+	font-size: 0.8em;
+}
+
+.text-icon {
+	border: 1px solid #000;
+	text-align: center;
+}
+
+.page-cover-image {
+	display: block;
+	object-fit: cover;
+	width: 100%;
+	max-height: 30vh;
+}
+
+.page-header-icon {
+	font-size: 3rem;
+	margin-bottom: 1rem;
+}
+
+.page-header-icon-with-cover {
+	margin-top: -0.72em;
+	margin-left: 0.07em;
+}
+
+.page-header-icon img {
+	border-radius: 3px;
+}
+
+.link-to-page {
+	margin: 1em 0;
+	padding: 0;
+	border: none;
+	font-weight: 500;
+}
+
+p > .user {
+	opacity: 0.5;
+}
+
+td > .user,
+td > time {
+	white-space: nowrap;
+}
+
+input[type="checkbox"] {
+	transform: scale(1.5);
+	margin-right: 0.6em;
+	vertical-align: middle;
+}
+
+p {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+.image {
+	border: none;
+	margin: 1.5em 0;
+	padding: 0;
+	border-radius: 0;
+	text-align: center;
+}
+
+.code,
+code {
+	background: rgba(135, 131, 120, 0.15);
+	border-radius: 3px;
+	padding: 0.2em 0.4em;
+	border-radius: 3px;
+	font-size: 85%;
+	tab-size: 2;
+}
+
+code {
+	color: #eb5757;
+}
+
+.code {
+	padding: 1.5em 1em;
+}
+
+.code-wrap {
+	white-space: pre-wrap;
+	word-break: break-all;
+}
+
+.code > code {
+	background: none;
+	padding: 0;
+	font-size: 100%;
+	color: inherit;
+}
+
+blockquote {
+	font-size: 1em;
+	margin: 1em 0;
+	padding-left: 1em;
+	border-left: 3px solid rgb(55, 53, 47);
+}
+
+blockquote.quote-large {
+	font-size: 1.25em;
+}
+
+.bookmark {
+	text-decoration: none;
+	max-height: 8em;
+	padding: 0;
+	display: flex;
+	width: 100%;
+	align-items: stretch;
+}
+
+.bookmark-title {
+	font-size: 0.85em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	height: 1.75em;
+	white-space: nowrap;
+}
+
+.bookmark-text {
+	display: flex;
+	flex-direction: column;
+}
+
+.bookmark-info {
+	flex: 4 1 180px;
+	padding: 12px 14px 14px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.bookmark-image {
+	width: 33%;
+	flex: 1 1 180px;
+	display: block;
+	position: relative;
+	object-fit: cover;
+	border-radius: 1px;
+}
+
+.bookmark-description {
+	color: rgba(55, 53, 47, 0.6);
+	font-size: 0.75em;
+	overflow: hidden;
+	max-height: 4.5em;
+	word-break: break-word;
+}
+
+.bookmark-href {
+	font-size: 0.75em;
+	margin-top: 0.25em;
+}
+
+.sans { font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol"; }
+.code { font-family: "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace; }
+.serif { font-family: Lyon-Text, Georgia, ui-serif, serif; }
+.mono { font-family: iawriter-mono, Nitti, Menlo, Courier, monospace; }
+.pdf .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK JP'; }
+.pdf:lang(zh-CN) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK SC'; }
+.pdf:lang(zh-TW) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK TC'; }
+.pdf:lang(ko-KR) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK KR'; }
+.pdf .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.pdf .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK JP'; }
+.pdf:lang(zh-CN) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK SC'; }
+.pdf:lang(zh-TW) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK TC'; }
+.pdf:lang(ko-KR) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK KR'; }
+.pdf .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.highlight-default {
+	color: rgba(44, 44, 43, 1);
+}
+.highlight-gray {
+	color: rgba(125, 122, 117, 1);
+	fill: rgba(125, 122, 117, 1);
+}
+.highlight-brown {
+	color: rgba(159, 118, 90, 1);
+	fill: rgba(159, 118, 90, 1);
+}
+.highlight-orange {
+	color: rgba(210, 123, 45, 1);
+	fill: rgba(210, 123, 45, 1);
+}
+.highlight-yellow {
+	color: rgba(203, 148, 52, 1);
+	fill: rgba(203, 148, 52, 1);
+}
+.highlight-teal {
+	color: rgba(80, 148, 110, 1);
+	fill: rgba(80, 148, 110, 1);
+}
+.highlight-blue {
+	color: rgba(56, 125, 201, 1);
+	fill: rgba(56, 125, 201, 1);
+}
+.highlight-purple {
+	color: rgba(154, 107, 180, 1);
+	fill: rgba(154, 107, 180, 1);
+}
+.highlight-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.highlight-red {
+	color: rgba(207, 81, 72, 1);
+	fill: rgba(207, 81, 72, 1);
+}
+.highlight-default_background {
+	color: rgba(44, 44, 43, 1);
+}
+.highlight-gray_background {
+	background: rgba(42, 28, 0, 0.07);
+}
+.highlight-brown_background {
+	background: rgba(139, 46, 0, 0.086);
+}
+.highlight-orange_background {
+	background: rgba(224, 101, 1, 0.129);
+}
+.highlight-yellow_background {
+	background: rgba(211, 168, 0, 0.137);
+}
+.highlight-teal_background {
+	background: rgba(0, 100, 45, 0.09);
+}
+.highlight-blue_background {
+	background: rgba(0, 124, 215, 0.094);
+}
+.highlight-purple_background {
+	background: rgba(102, 0, 178, 0.078);
+}
+.highlight-pink_background {
+	background: rgba(197, 0, 93, 0.086);
+}
+.highlight-red_background {
+	background: rgba(223, 22, 0, 0.094);
+}
+.block-color-default {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray {
+	color: rgba(125, 122, 117, 1);
+	fill: rgba(125, 122, 117, 1);
+}
+.block-color-brown {
+	color: rgba(159, 118, 90, 1);
+	fill: rgba(159, 118, 90, 1);
+}
+.block-color-orange {
+	color: rgba(210, 123, 45, 1);
+	fill: rgba(210, 123, 45, 1);
+}
+.block-color-yellow {
+	color: rgba(203, 148, 52, 1);
+	fill: rgba(203, 148, 52, 1);
+}
+.block-color-teal {
+	color: rgba(80, 148, 110, 1);
+	fill: rgba(80, 148, 110, 1);
+}
+.block-color-blue {
+	color: rgba(56, 125, 201, 1);
+	fill: rgba(56, 125, 201, 1);
+}
+.block-color-purple {
+	color: rgba(154, 107, 180, 1);
+	fill: rgba(154, 107, 180, 1);
+}
+.block-color-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.block-color-red {
+	color: rgba(207, 81, 72, 1);
+	fill: rgba(207, 81, 72, 1);
+}
+.block-color-default_background {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray_background {
+	background: rgba(240, 239, 237, 1);
+}
+.block-color-brown_background {
+	background: rgba(245, 237, 233, 1);
+}
+.block-color-orange_background {
+	background: rgba(251, 235, 222, 1);
+}
+.block-color-yellow_background {
+	background: rgba(249, 243, 220, 1);
+}
+.block-color-teal_background {
+	background: rgba(232, 241, 236, 1);
+}
+.block-color-blue_background {
+	background: rgba(229, 242, 252, 1);
+}
+.block-color-purple_background {
+	background: rgba(243, 235, 249, 1);
+}
+.block-color-pink_background {
+	background: rgba(250, 233, 241, 1);
+}
+.block-color-red_background {
+	background: rgba(252, 233, 231, 1);
+}
+.select-value-color-default { background-color: rgba(42, 28, 0, 0.07); }
+.select-value-color-gray { background-color: rgba(28, 19, 1, 0.11); }
+.select-value-color-brown { background-color: rgba(127, 51, 0, 0.156); }
+.select-value-color-orange { background-color: rgba(196, 88, 0, 0.203); }
+.select-value-color-yellow { background-color: rgba(209, 156, 0, 0.282); }
+.select-value-color-green { background-color: rgba(0, 96, 38, 0.156); }
+.select-value-color-blue { background-color: rgba(0, 118, 217, 0.203); }
+.select-value-color-purple { background-color: rgba(92, 0, 163, 0.141); }
+.select-value-color-pink { background-color: rgba(183, 0, 78, 0.152); }
+.select-value-color-red { background-color: rgba(206, 24, 0, 0.164); }
+
+.checkbox {
+	display: inline-flex;
+	vertical-align: text-bottom;
+	width: 16;
+	height: 16;
+	background-size: 16px;
+	margin-left: 2px;
+	margin-right: 5px;
+}
+
+.checkbox-on {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20width%3D%2216%22%20height%3D%2216%22%20fill%3D%22%2358A9D7%22%2F%3E%0A%3Cpath%20d%3D%22M6.71429%2012.2852L14%204.9995L12.7143%203.71436L6.71429%209.71378L3.28571%206.2831L2%207.57092L6.71429%2012.2852Z%22%20fill%3D%22white%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+
+.checkbox-off {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20x%3D%220.75%22%20y%3D%220.75%22%20width%3D%2214.5%22%20height%3D%2214.5%22%20fill%3D%22white%22%20stroke%3D%22%2336352F%22%20stroke-width%3D%221.5%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+	
+</style></head><body><article id="2e656320-92ca-800e-85c0-c6a70484e9fd" class="page sans"><header><h1 class="page-title" dir="auto">Brief Check-in Meeting — Patrick Stiller — 2026-01-12</h1><p class="page-description" dir="auto"></p><table class="properties"><tbody><tr class="property-row property-row-status"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/burst_gray.svg" style="width:14px;height:14px;display:block"/></span>Processing</th><td><span class="status-value select-value-color-green"><div class="status-dot status-dot-color-green"></div>Processed</span></td></tr><tr class="property-row property-row-text"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/description_gray.svg" style="width:14px;height:14px;display:block"/></span>Agenda</th><td>Quick sync on upcoming meetings; Sales BI demo prep; NAC vs Manufacturing differences discussion; Purview work status with Stuart</td></tr><tr class="property-row property-row-date"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/calendar_gray.svg" style="width:14px;height:14px;display:block"/></span>Date</th><td><time>January 12, 2026 11:00 AM (UTC)</time></td></tr><tr class="property-row property-row-multi_select"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/list_gray.svg" style="width:14px;height:14px;display:block"/></span>Attendees</th><td><span class="selected-value select-value-color-pink">Internal</span></td></tr><tr class="property-row property-row-select"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/arrow-circle-down_gray.svg" style="width:14px;height:14px;display:block"/></span>Meeting Type</th><td><span class="selected-value select-value-color-default">1:1</span></td></tr><tr class="property-row property-row-person"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/friends_gray.svg" style="width:14px;height:14px;display:block"/></span>Organizer</th><td><span class="user"><span class="icon text-icon user-icon"><span class="user-icon-inner">P</span></span>Patrick Stiller</span></td></tr><tr class="property-row property-row-select"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/arrow-circle-down_gray.svg" style="width:14px;height:14px;display:block"/></span>Priority</th><td><span class="selected-value select-value-color-yellow">Medium</span></td></tr><tr class="property-row property-row-checkbox"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/checkmark-square_gray.svg" style="width:14px;height:14px;display:block"/></span>Has Cluely Transcript</th><td><div class="checkbox checkbox-off"></div></td></tr><tr class="property-row property-row-checkbox"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/checkmark-square_gray.svg" style="width:14px;height:14px;display:block"/></span>Has Final Transcript</th><td><div class="checkbox checkbox-on"></div></td></tr><tr class="property-row property-row-select"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/arrow-circle-down_gray.svg" style="width:14px;height:14px;display:block"/></span>Status</th><td><span class="selected-value select-value-color-brown">Completed</span></td></tr><tr class="property-row property-row-checkbox"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/checkmark-square_gray.svg" style="width:14px;height:14px;display:block"/></span>Has Notion Transcript</th><td><div class="checkbox checkbox-on"></div></td></tr><tr class="property-row property-row-checkbox"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/checkmark-square_gray.svg" style="width:14px;height:14px;display:block"/></span>Has Teams Transcript</th><td><div class="checkbox checkbox-off"></div></td></tr><tr class="property-row property-row-checkbox"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/checkmark-square_gray.svg" style="width:14px;height:14px;display:block"/></span>Merged to Feed</th><td><div class="checkbox checkbox-off"></div></td></tr></tbody></table></header><div class="page-body"><div style="display:contents" dir="ltr"><div id="2e656320-92ca-8079-b245-e91859b051dd" class="transcription"><div style="border-bottom:0.05em solid;border-bottom-color:rgba(42, 28, 0, 0.07)">Summary<br/></div><div style="display:contents" dir="auto"><h3 id="2e656320-92ca-81be-b0d8-ff6bb1689d35" class="">Health and Meeting Logistics</h3></div><div style="display:contents" dir="auto"><ul id="2e656320-92ca-81c6-9b03-dd27042c17c6" class="bulleted-list"><li style="list-style-type:disc">One participant was not feeling well with stomach issues, so the meeting was kept short ‣ ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e656320-92ca-81ad-a33a-ea0ff9fa1afe" class="bulleted-list"><li style="list-style-type:disc">Similar symptoms have been going around the office ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e656320-92ca-8116-b64c-e021111f5ecc" class="bulleted-list"><li style="list-style-type:disc">Meeting was ended early to allow time for recovery before other scheduled meetings ‣ ‣</li></ul></div><div style="display:contents" dir="auto"><h3 id="2e656320-92ca-817c-b726-c54e0bbbf7ee" class="">Sales BI Report Demo</h3></div><div style="display:contents" dir="auto"><ul id="2e656320-92ca-816a-9c51-e8e02d53e151" class="bulleted-list"><li style="list-style-type:disc">Upcoming meeting to demo the molding product sales BI report ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e656320-92ca-8184-897a-e6bc1cc97c31" class="bulleted-list"><li style="list-style-type:disc">One participant will be listening in while Udius presents the sales BI ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e656320-92ca-8148-a8f7-c6dd1d3193c2" class="bulleted-list"><li style="list-style-type:disc">Decision made not to make any changes one hour before the meeting - instead will note areas needing better definitions or calculations ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e656320-92ca-8130-8fd2-ff12ffb16db9" class="bulleted-list"><li style="list-style-type:disc">Each implementation (molding products, inter-plastic, NAC) reveals different requirements and considerations ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e656320-92ca-813c-a424-dd6fad5793d3" class="bulleted-list"><li style="list-style-type:disc">Plan is to gather feedback during the demo and make adjustments afterward ‣</li></ul></div><div style="display:contents" dir="auto"><h3 id="2e656320-92ca-81be-a07a-fcbe89d5e83d" class="">NAC vs. Manufacturing Differences</h3></div><div style="display:contents" dir="auto"><ul id="2e656320-92ca-8146-bc62-c5dce87479d8" class="bulleted-list"><li style="list-style-type:disc">NAC operates as a distribution company, while others (Interplastic, molding products) are manufacturing companies ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e656320-92ca-810a-8c6e-d6100579ee5c" class="bulleted-list"><li style="list-style-type:disc">This creates significant differences in how data and processes work, particularly around price supports ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e656320-92ca-8134-834d-de0fdb267b3e" class="bulleted-list"><li style="list-style-type:disc">Price supports work differently:<div style="display:contents" dir="auto"><ul id="2e656320-92ca-8132-a508-c686ac36cf25" class="bulleted-list"><li style="list-style-type:circle">For manufacturing (Interplastic): They grant price supports to customers ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e656320-92ca-81ab-9f34-fad5ed4931ed" class="bulleted-list"><li style="list-style-type:circle">For distribution (NAC): They receive price supports from suppliers ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e656320-92ca-8188-9ce3-c8cbb7717a6c" class="bulleted-list"><li style="list-style-type:circle">Comparison made to retail price matching (like Walmart matching Target prices) ‣ ‣</li></ul></div></li></ul></div><div style="display:contents" dir="auto"><ul id="2e656320-92ca-8149-a174-f58e92b5ff88" class="bulleted-list"><li style="list-style-type:disc">These differences between distribution and manufacturing are not currently documented ‣ ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e656320-92ca-8142-a703-fb0ca7bcd1dd" class="bulleted-list"><li style="list-style-type:disc">One size does not fit all when implementing BI across these different business models ‣</li></ul></div><div style="display:contents" dir="auto"><h3 id="2e656320-92ca-8177-9c8d-ce36fe67c5a3" class="">Purview Work with Stuart</h3></div><div style="display:contents" dir="auto"><ul id="2e656320-92ca-8146-bd3e-d8a08f85774c" class="bulleted-list"><li style="list-style-type:disc">Stuart has been out of pocket recently and may still be unavailable this week ‣ ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e656320-92ca-810d-97e5-f50fad30b390" class="bulleted-list"><li style="list-style-type:disc">The timing works well because prep work needs to be completed before discussing with Stuart ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e656320-92ca-81c5-9b5b-fe0c2c3486c5" class="bulleted-list"><li style="list-style-type:disc">Once Stuart returns, the plan is to review materials, discuss agreements/disagreements, and finalize the timeline/roadmap ‣ ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e656320-92ca-8120-ad29-e0603374b0c3" class="bulleted-list"><li style="list-style-type:disc">Stuart&#x27;s absence does not affect the overall project timeline ‣</li></ul></div><div style="display:contents" dir="auto"><h3 id="2e656320-92ca-81c0-863f-e00bbdcb5e69" class="">Action Items</h3></div><div style="display:contents" dir="auto"><ul id="2e656320-92ca-817b-9311-d3861354a5ed" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Prep Purview materials for discussion with Stuart when he returns ‣</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="2e656320-92ca-81a7-9fe3-f5204e985086" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Attend upcoming sales BI demo meeting as listener ‣</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="2e656320-92ca-8143-9bea-e0458d33617d" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Consider documenting the differences between NAC (distribution) and manufacturing operations ‣ ‣</span><div class="indented"></div></li></ul></div><div style="border-bottom:0.05em solid;border-bottom-color:rgba(42, 28, 0, 0.07)">Notes<br/></div><div style="display:contents" dir="auto"><p id="2e656320-92ca-80b6-936f-e9d65448e274" class="">
+</p></div><div style="border-bottom:0.05em solid;border-bottom-color:rgba(42, 28, 0, 0.07)">Transcript<br/></div><div style="display:contents" dir="auto"><p id="2e656320-92ca-80c9-97c4-f6753396840e" class="">Good morning. Oh, did you see my note? I did not. Oh, that&#x27;s fine. You sent me an email with your teeth. Did you send an email or? No, I just, I teamst you. Oh, that&#x27;s okay. There we go. Oh, I&#x27;m sorry, that feels off.</p></div><div style="display:contents" dir="auto"><p id="2e656320-92ca-8030-820b-cd2a69ea39e7" class="">No, it&#x27;s fine. It&#x27;s just... It&#x27;s not something that&#x27;s like a whole day thing. It honestly just... Like... Every few minutes I feel like I&#x27;m just gonna be kinda... I feel like I have, I feel like I ate something weird. That&#x27;s it. Where it&#x27;s like temporary, you know? Yeah. Where you&#x27;re just like. At any moment you feel like you just like get up and Run to the bathroom and Yep, yep, I get it.</p></div><div style="display:contents" dir="auto"><p id="2e656320-92ca-8058-bc59-d3d274e5fa84" class="">Sorry. I just saw your message here just now. No, it&#x27;s fine. So... Uh... So Friday, and there&#x27;s been stuff going around. That&#x27;s how I was on Friday or Thursday, where I had that pounding headache. And then all of a sudden, it would get bad, and I was like, man, my stomach&#x27;s not feeling so good. So that&#x27;s why I finally said, no, I&#x27;m done. But yeah, if you want to turn off your video, that&#x27;s fine. I have no problems with that.</p></div><div style="display:contents" dir="auto"><p id="2e656320-92ca-8001-80a1-c810a1aa66f6" class="">And we can keep this short too. So, uh...</p></div><div style="display:contents" dir="auto"><p id="2e656320-92ca-808d-8656-e6d1facebaad" class="">Was anyone missing from that meeting we were just in?</p></div><div style="display:contents" dir="auto"><p id="2e656320-92ca-8002-b002-f91fa35f98aa" class="">Like the dead team?</p></div><div style="display:contents" dir="auto"><p id="2e656320-92ca-807c-9b81-d73516be234f" class="">Got it. Oh, yeah.</p></div><div style="display:contents" dir="auto"><p id="2e656320-92ca-807c-8cac-f135a94fc8b2" class="">Okay. Yeah, he&#x27;s in Fort Wright this week, so... Okay. So you had a meeting with Mike this afternoon? Yep. Amen. Was that the cyber problem? Yeah.</p></div><div style="display:contents" dir="auto"><p id="2e656320-92ca-8086-8208-efda666e5e2a" class="">And then the molding product sales BI report demo. What did you--Right. You wanted me to just, I guess, listen to Udius?</p></div><div style="display:contents" dir="auto"><p id="2e656320-92ca-80d4-9369-d60d6b633364" class="">You&#x27;re just listening in. She&#x27;s gonna show the sales BI which you should have access to. You&#x27;ve heard her talk about a little bit of some of the challenges that she&#x27;s dealing with. Yeah. And I just told her, hey, we&#x27;re not going to be making changes one hour before the meeting. Yeah. We&#x27;ll say, hey, we&#x27;re seeing that there&#x27;s some differences here. This is an area where we need to get better definitions or whatever it is and calculations that go with it.</p></div><div style="display:contents" dir="auto"><p id="2e656320-92ca-807c-94fa-d0709116caff" class="">And now after doing two of these, And molding products and inter-plastic and NEC, especially NEC. is way different from the others. So having her done The NAC one does not give all the answers because NAC&#x27;s distribution, the other ones are manufacturing. Got it. So how they do stuff is slightly different enough that it can cause, you know, it&#x27;s not like each of the one size fits all. So, yeah. Each time she does one of these, she might learn something different that someone might want.</p></div><div style="display:contents" dir="auto"><p id="2e656320-92ca-80de-a7ae-e717b27da46a" class="">that she can add and go back to do another one. So I said, either way, don&#x27;t stress about it. Talk about it. and get people&#x27;s feedback and then make adjustments.</p></div><div style="display:contents" dir="auto"><p id="2e656320-92ca-80ac-b37b-ee95bb5e6bf3" class="">We&#x27;re not gonna make a good change. So NAC versus manufacturing, do we have it, the data definitions, that divergence outlined anywhere? Or is it just like... It was discussed during a meeting and we haven&#x27;t just got it pen to paper yet or something like that.</p></div><div style="display:contents" dir="auto"><p id="2e656320-92ca-80f2-be3a-d36ca0e2be78" class="">So do we have that divergence written down anywhere as far as the differences you mean? Yeah. As far as the sales? No, I mean... I would say that That is an area that probably could use some improvement. I mean, everyone knows that NEC is different than the others because, like I said, it is distribution versus manufacturing. That&#x27;s where price supports is a whole different animal for them as well because Interplastic is the one that would be granting the price support.</p></div><div style="display:contents" dir="auto"><p id="2e656320-92ca-8044-bfcb-dd52e2b3c0e1" class="">So it&#x27;s kind of like... when you Go find online you have something for $50 at Target and you&#x27;re sitting at Walmart, if you take that ad to them, they might match that price. That&#x27;s essentially what a price support is. NAC is the recipient of that. support. Interplastic is the one that&#x27;s giving that out. So two different animals and how they use that. application. Got it. And there&#x27;s other distribution companies we work with as well that we obviously don&#x27;t own that also do price support.</p></div><div style="display:contents" dir="auto"><p id="2e656320-92ca-8024-9028-efe75fc88bef" class="">So the idea being that You know, NAC. or Um,Comp one. My condos and say, hey, You know, we have this product here that we would like to use yours because it does this, this and this. but it just cost too much. If you can bring the price down, I think we can use this one. That&#x27;s what we&#x27;d really like to do versus say, competitor, ALC or whoever. Other companies do price supports as well. Got it. Okay.</p></div><div style="display:contents" dir="auto"><p id="2e656320-92ca-8014-a337-d8387ea7ec34" class="">but Um... So I don&#x27;t have anything major that I want to go over with. How&#x27;s the work been going with Stuart getting purview and stuff set up?</p></div><div style="display:contents" dir="auto"><p id="2e656320-92ca-80e1-b6ac-eb586a6d5d1f" class="">He&#x27;s been out of, like, kind of... Out of pocket recently, right?</p></div><div style="display:contents" dir="auto"><p id="2e656320-92ca-80b3-bf7c-eed5261183c5" class="">Yeah, he&#x27;s been out of pocket. I don&#x27;t know if he&#x27;s back this week or not.</p></div><div style="display:contents" dir="auto"><p id="2e656320-92ca-8068-baaa-f47561e6dac2" class="">I haven&#x27;t seen him on. Usually I...</p></div><div style="display:contents" dir="auto"><p id="2e656320-92ca-80e7-bff2-cf2349b1104c" class="">is My next question is then is that are you getting what you need or do I need to see if Someone else on the infrastructure team might be able to get that.</p></div><div style="display:contents" dir="auto"><p id="2e656320-92ca-8018-afe6-c1c05d176f38" class="">No, I mean, I&#x27;m getting what I need. I&#x27;m getting what I need right now. The stuff that I have to do per view related, it&#x27;s actually perfect timing in terms of him being gone because I need to... Prep that stuff anyway so that when he comes back we can just kind of like Go through it, agree on it, discuss what he doesn&#x27;t agree with or change what needs to be changed, and then we can kind of move forward with it as our...</p></div><div style="display:contents" dir="auto"><p id="2e656320-92ca-8082-bdd4-f6b6487d87c7" class="">Timeline slash roadmap. Okay. All right.</p></div><div style="display:contents" dir="auto"><p id="2e656320-92ca-8017-8912-ec9cca3263c5" class="">And then like you said, it does not affect our overall length. So I don&#x27;t have to worry about going back to the well for that? Nope. Not that that&#x27;s the worst thing, it&#x27;s just something I&#x27;d rather be prepared for if it does come up. Okay. Well, I&#x27;m going to tell you what, I&#x27;m going to give you a reprieve unless there&#x27;s something else you need from me. If you&#x27;re not feeling so well, I&#x27;m going to let you be.</p></div><div style="display:contents" dir="auto"><p id="2e656320-92ca-800a-a9e5-dc5df9fd4be0" class="">No. So that you&#x27;re more ready and prepared for the other meetings that come up about that. Yep. I appreciate it. Take care. So that you&#x27;re more ready and prepared for the other meetings that come up about that. Yep. I appreciate it. Take care. All right. Thanks, Patrick. Bye.</p></div></div></div></div></article><span class="sans" style="font-size:14px;padding-top:2em"></span></body></html>

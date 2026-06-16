@@ -1,0 +1,744 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>Meeting Planning &amp; Coordination — Patrick Stiller — 2026-01-13</title><style>
+/* cspell:disable-file */
+/* webkit printing magic: print all background colors */
+html {
+	-webkit-print-color-adjust: exact;
+}
+* {
+	box-sizing: border-box;
+	-webkit-print-color-adjust: exact;
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+}
+@media only screen {
+	body {
+		margin: 2em auto;
+		max-width: 900px;
+		color: rgb(55, 53, 47);
+	}
+}
+
+body {
+	line-height: 1.5;
+	white-space: pre-wrap;
+}
+
+a,
+a.visited {
+	color: inherit;
+	text-decoration: underline;
+}
+
+.pdf-relative-link-path {
+	font-size: 80%;
+	color: #444;
+}
+
+h1,
+h2,
+h3 {
+	letter-spacing: -0.01em;
+	line-height: 1.2;
+	font-weight: 600;
+	margin-bottom: 0;
+}
+
+/* Override strong tags inside headings to maintain consistent weight */
+h1 strong,
+h2 strong,
+h3 strong {
+	font-weight: 600;
+}
+
+.page-title {
+	font-size: 2.5rem;
+	font-weight: 700;
+	margin-top: 0;
+	margin-bottom: 0.75em;
+}
+
+h1 {
+	font-size: 1.875rem;
+	margin-top: 1.875rem;
+}
+
+h2 {
+	font-size: 1.5rem;
+	margin-top: 1.5rem;
+}
+
+h3 {
+	font-size: 1.25rem;
+	margin-top: 1.25rem;
+}
+
+.source {
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	padding: 1.5em;
+	word-break: break-all;
+}
+
+.callout {
+	border-radius: 10px;
+	padding: 1rem;
+}
+
+figure {
+	margin: 1.25em 0;
+	page-break-inside: avoid;
+}
+
+figcaption {
+	opacity: 0.5;
+	font-size: 85%;
+	margin-top: 0.5em;
+}
+
+mark {
+	background-color: transparent;
+}
+
+.indented {
+	padding-left: 1.5em;
+}
+
+hr {
+	background: transparent;
+	display: block;
+	width: 100%;
+	height: 1px;
+	visibility: visible;
+	border: none;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+img {
+	max-width: 100%;
+}
+
+@media only print {
+	img {
+		max-height: 100vh;
+		object-fit: contain;
+	}
+
+	table.collection-content {
+		width: 100%;
+		table-layout: fixed;
+	}
+
+	table.collection-content th,
+	table.collection-content td {
+		overflow-wrap: anywhere;
+	}
+
+	table.collection-content td > .user,
+	table.collection-content td > time {
+		white-space: pre-wrap;
+	}
+}
+
+@page {
+	margin: 1in;
+}
+
+.collection-content-wrapper {
+	overflow-x: auto;
+}
+
+@media only print {
+	.collection-content-wrapper {
+		overflow-x: visible;
+	}
+}
+
+.collection-content {
+	font-size: 0.875rem;
+}
+
+.collection-content td {
+	white-space: pre-wrap;
+	word-break: break-word;
+}
+
+.column-list {
+	display: flex;
+	gap: 46px;
+}
+
+.column {
+	min-width: 0;
+	overflow: hidden;
+}
+
+.column > *:first-child {
+	margin-top: 0;
+}
+
+.table_of_contents-item {
+	display: block;
+	font-size: 0.875rem;
+	line-height: 1.3;
+	padding: 0.125rem;
+}
+
+.table_of_contents-indent-1 {
+	margin-left: 1.5rem;
+}
+
+.table_of_contents-indent-2 {
+	margin-left: 3rem;
+}
+
+.table_of_contents-indent-3 {
+	margin-left: 4.5rem;
+}
+
+.table_of_contents-link {
+	text-decoration: none;
+	opacity: 0.7;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.18);
+}
+
+table,
+th,
+td {
+	border: 1px solid rgba(55, 53, 47, 0.09);
+	border-collapse: collapse;
+}
+
+table {
+	border-left: none;
+	border-right: none;
+}
+
+th,
+td {
+	font-weight: normal;
+	padding: 0.25em 0.5em;
+	line-height: 1.5;
+	min-height: 1.5em;
+	text-align: left;
+}
+
+th {
+	color: rgba(55, 53, 47, 0.6);
+}
+
+ol,
+ul {
+	margin: 0;
+	margin-block-start: 0.6em;
+	margin-block-end: 0.6em;
+}
+
+li > ol:first-child,
+li > ul:first-child {
+	margin-block-start: 0.6em;
+}
+
+ul > li {
+	list-style: disc;
+}
+
+ul.to-do-list {
+	padding-inline-start: 0;
+}
+
+ul.to-do-list > li {
+	list-style: none;
+}
+
+.to-do-children-checked {
+	text-decoration: line-through;
+	opacity: 0.375;
+}
+
+ul.toggle > li {
+	list-style: none;
+}
+
+ul {
+	padding-inline-start: 1.7em;
+}
+
+ul > li {
+	padding-left: 0.1em;
+}
+
+ol {
+	padding-inline-start: 1.6em;
+}
+
+ol.numbered-list.numbered-list-digits-2 {
+	padding-inline-start: 2em;
+}
+
+ol.numbered-list.numbered-list-digits-3plus {
+	padding-inline-start: 2.4em;
+}
+
+ol > li {
+	padding-left: 0.2em;
+}
+
+.mono ol {
+	padding-inline-start: 2em;
+}
+
+.mono ol > li {
+	text-indent: -0.4em;
+}
+
+.toggle {
+	padding-inline-start: 0em;
+	list-style-type: none;
+}
+
+/* Indent toggle children */
+.toggle > li > details {
+	padding-left: 1.7em;
+}
+
+.toggle > li > details > summary {
+	margin-left: -1.1em;
+}
+
+.selected-value {
+	display: inline-block;
+	padding: 0 0.5em;
+	background: rgba(206, 205, 202, 0.5);
+	border-radius: 3px;
+	margin-right: 0.5em;
+	margin-top: 0.3em;
+	margin-bottom: 0.3em;
+	white-space: nowrap;
+}
+
+.collection-title {
+	display: inline-block;
+	margin-right: 1em;
+}
+
+.page-description {
+	margin-bottom: 2em;
+}
+
+.simple-table {
+	margin-top: 1em;
+	font-size: 0.875rem;
+	empty-cells: show;
+}
+.simple-table td {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table th {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table-header-color {
+	background: rgb(247, 246, 243);
+	color: black;
+}
+.simple-table-header {
+	font-weight: 500;
+}
+
+time {
+	opacity: 0.5;
+}
+
+.icon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	max-width: 1.2em;
+	max-height: 1.2em;
+	text-decoration: none;
+	vertical-align: text-bottom;
+	margin-right: 0.5em;
+}
+
+img.icon {
+	border-radius: 3px;
+}
+
+.callout img.notion-static-icon {
+	width: 1em;
+	height: 1em;
+}
+
+.callout p {
+	margin: 0;
+}
+
+.callout h1,
+.callout h2,
+.callout h3 {
+	margin: 0 0 0.6rem;
+}
+
+.user-icon {
+	width: 1.5em;
+	height: 1.5em;
+	border-radius: 100%;
+	margin-right: 0.5rem;
+}
+
+.user-icon-inner {
+	font-size: 0.8em;
+}
+
+.text-icon {
+	border: 1px solid #000;
+	text-align: center;
+}
+
+.page-cover-image {
+	display: block;
+	object-fit: cover;
+	width: 100%;
+	max-height: 30vh;
+}
+
+.page-header-icon {
+	font-size: 3rem;
+	margin-bottom: 1rem;
+}
+
+.page-header-icon-with-cover {
+	margin-top: -0.72em;
+	margin-left: 0.07em;
+}
+
+.page-header-icon img {
+	border-radius: 3px;
+}
+
+.link-to-page {
+	margin: 1em 0;
+	padding: 0;
+	border: none;
+	font-weight: 500;
+}
+
+p > .user {
+	opacity: 0.5;
+}
+
+td > .user,
+td > time {
+	white-space: nowrap;
+}
+
+input[type="checkbox"] {
+	transform: scale(1.5);
+	margin-right: 0.6em;
+	vertical-align: middle;
+}
+
+p {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+.image {
+	border: none;
+	margin: 1.5em 0;
+	padding: 0;
+	border-radius: 0;
+	text-align: center;
+}
+
+.code,
+code {
+	background: rgba(135, 131, 120, 0.15);
+	border-radius: 3px;
+	padding: 0.2em 0.4em;
+	border-radius: 3px;
+	font-size: 85%;
+	tab-size: 2;
+}
+
+code {
+	color: #eb5757;
+}
+
+.code {
+	padding: 1.5em 1em;
+}
+
+.code-wrap {
+	white-space: pre-wrap;
+	word-break: break-all;
+}
+
+.code > code {
+	background: none;
+	padding: 0;
+	font-size: 100%;
+	color: inherit;
+}
+
+blockquote {
+	font-size: 1em;
+	margin: 1em 0;
+	padding-left: 1em;
+	border-left: 3px solid rgb(55, 53, 47);
+}
+
+blockquote.quote-large {
+	font-size: 1.25em;
+}
+
+.bookmark {
+	text-decoration: none;
+	max-height: 8em;
+	padding: 0;
+	display: flex;
+	width: 100%;
+	align-items: stretch;
+}
+
+.bookmark-title {
+	font-size: 0.85em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	height: 1.75em;
+	white-space: nowrap;
+}
+
+.bookmark-text {
+	display: flex;
+	flex-direction: column;
+}
+
+.bookmark-info {
+	flex: 4 1 180px;
+	padding: 12px 14px 14px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.bookmark-image {
+	width: 33%;
+	flex: 1 1 180px;
+	display: block;
+	position: relative;
+	object-fit: cover;
+	border-radius: 1px;
+}
+
+.bookmark-description {
+	color: rgba(55, 53, 47, 0.6);
+	font-size: 0.75em;
+	overflow: hidden;
+	max-height: 4.5em;
+	word-break: break-word;
+}
+
+.bookmark-href {
+	font-size: 0.75em;
+	margin-top: 0.25em;
+}
+
+.sans { font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol"; }
+.code { font-family: "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace; }
+.serif { font-family: Lyon-Text, Georgia, ui-serif, serif; }
+.mono { font-family: iawriter-mono, Nitti, Menlo, Courier, monospace; }
+.pdf .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK JP'; }
+.pdf:lang(zh-CN) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK SC'; }
+.pdf:lang(zh-TW) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK TC'; }
+.pdf:lang(ko-KR) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK KR'; }
+.pdf .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.pdf .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK JP'; }
+.pdf:lang(zh-CN) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK SC'; }
+.pdf:lang(zh-TW) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK TC'; }
+.pdf:lang(ko-KR) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK KR'; }
+.pdf .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.highlight-default {
+	color: rgba(44, 44, 43, 1);
+}
+.highlight-gray {
+	color: rgba(125, 122, 117, 1);
+	fill: rgba(125, 122, 117, 1);
+}
+.highlight-brown {
+	color: rgba(159, 118, 90, 1);
+	fill: rgba(159, 118, 90, 1);
+}
+.highlight-orange {
+	color: rgba(210, 123, 45, 1);
+	fill: rgba(210, 123, 45, 1);
+}
+.highlight-yellow {
+	color: rgba(203, 148, 52, 1);
+	fill: rgba(203, 148, 52, 1);
+}
+.highlight-teal {
+	color: rgba(80, 148, 110, 1);
+	fill: rgba(80, 148, 110, 1);
+}
+.highlight-blue {
+	color: rgba(56, 125, 201, 1);
+	fill: rgba(56, 125, 201, 1);
+}
+.highlight-purple {
+	color: rgba(154, 107, 180, 1);
+	fill: rgba(154, 107, 180, 1);
+}
+.highlight-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.highlight-red {
+	color: rgba(207, 81, 72, 1);
+	fill: rgba(207, 81, 72, 1);
+}
+.highlight-default_background {
+	color: rgba(44, 44, 43, 1);
+}
+.highlight-gray_background {
+	background: rgba(42, 28, 0, 0.07);
+}
+.highlight-brown_background {
+	background: rgba(139, 46, 0, 0.086);
+}
+.highlight-orange_background {
+	background: rgba(224, 101, 1, 0.129);
+}
+.highlight-yellow_background {
+	background: rgba(211, 168, 0, 0.137);
+}
+.highlight-teal_background {
+	background: rgba(0, 100, 45, 0.09);
+}
+.highlight-blue_background {
+	background: rgba(0, 124, 215, 0.094);
+}
+.highlight-purple_background {
+	background: rgba(102, 0, 178, 0.078);
+}
+.highlight-pink_background {
+	background: rgba(197, 0, 93, 0.086);
+}
+.highlight-red_background {
+	background: rgba(223, 22, 0, 0.094);
+}
+.block-color-default {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray {
+	color: rgba(125, 122, 117, 1);
+	fill: rgba(125, 122, 117, 1);
+}
+.block-color-brown {
+	color: rgba(159, 118, 90, 1);
+	fill: rgba(159, 118, 90, 1);
+}
+.block-color-orange {
+	color: rgba(210, 123, 45, 1);
+	fill: rgba(210, 123, 45, 1);
+}
+.block-color-yellow {
+	color: rgba(203, 148, 52, 1);
+	fill: rgba(203, 148, 52, 1);
+}
+.block-color-teal {
+	color: rgba(80, 148, 110, 1);
+	fill: rgba(80, 148, 110, 1);
+}
+.block-color-blue {
+	color: rgba(56, 125, 201, 1);
+	fill: rgba(56, 125, 201, 1);
+}
+.block-color-purple {
+	color: rgba(154, 107, 180, 1);
+	fill: rgba(154, 107, 180, 1);
+}
+.block-color-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.block-color-red {
+	color: rgba(207, 81, 72, 1);
+	fill: rgba(207, 81, 72, 1);
+}
+.block-color-default_background {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray_background {
+	background: rgba(240, 239, 237, 1);
+}
+.block-color-brown_background {
+	background: rgba(245, 237, 233, 1);
+}
+.block-color-orange_background {
+	background: rgba(251, 235, 222, 1);
+}
+.block-color-yellow_background {
+	background: rgba(249, 243, 220, 1);
+}
+.block-color-teal_background {
+	background: rgba(232, 241, 236, 1);
+}
+.block-color-blue_background {
+	background: rgba(229, 242, 252, 1);
+}
+.block-color-purple_background {
+	background: rgba(243, 235, 249, 1);
+}
+.block-color-pink_background {
+	background: rgba(250, 233, 241, 1);
+}
+.block-color-red_background {
+	background: rgba(252, 233, 231, 1);
+}
+.select-value-color-default { background-color: rgba(42, 28, 0, 0.07); }
+.select-value-color-gray { background-color: rgba(28, 19, 1, 0.11); }
+.select-value-color-brown { background-color: rgba(127, 51, 0, 0.156); }
+.select-value-color-orange { background-color: rgba(196, 88, 0, 0.203); }
+.select-value-color-yellow { background-color: rgba(209, 156, 0, 0.282); }
+.select-value-color-green { background-color: rgba(0, 96, 38, 0.156); }
+.select-value-color-blue { background-color: rgba(0, 118, 217, 0.203); }
+.select-value-color-purple { background-color: rgba(92, 0, 163, 0.141); }
+.select-value-color-pink { background-color: rgba(183, 0, 78, 0.152); }
+.select-value-color-red { background-color: rgba(206, 24, 0, 0.164); }
+
+.checkbox {
+	display: inline-flex;
+	vertical-align: text-bottom;
+	width: 16;
+	height: 16;
+	background-size: 16px;
+	margin-left: 2px;
+	margin-right: 5px;
+}
+
+.checkbox-on {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20width%3D%2216%22%20height%3D%2216%22%20fill%3D%22%2358A9D7%22%2F%3E%0A%3Cpath%20d%3D%22M6.71429%2012.2852L14%204.9995L12.7143%203.71436L6.71429%209.71378L3.28571%206.2831L2%207.57092L6.71429%2012.2852Z%22%20fill%3D%22white%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+
+.checkbox-off {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20x%3D%220.75%22%20y%3D%220.75%22%20width%3D%2214.5%22%20height%3D%2214.5%22%20fill%3D%22white%22%20stroke%3D%22%2336352F%22%20stroke-width%3D%221.5%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+	
+</style></head><body><article id="2e756320-92ca-8086-8fff-de69286ee496" class="page sans"><header><h1 class="page-title" dir="auto">Meeting Planning &amp; Coordination — Patrick Stiller — 2026-01-13</h1><p class="page-description" dir="auto"></p><table class="properties"><tbody><tr class="property-row property-row-status"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/burst_gray.svg" style="width:14px;height:14px;display:block"/></span>Processing</th><td><span class="status-value select-value-color-green"><div class="status-dot status-dot-color-green"></div>Processed</span></td></tr><tr class="property-row property-row-text"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/description_gray.svg" style="width:14px;height:14px;display:block"/></span>Agenda</th><td>Next week meeting planning with Robin, Mike, IT team; Fabric implementation discussion; Cybertrol meeting prep (sizing, workspace vs capacity); Team staffing (Rob in Virginia, Matt Teller)</td></tr><tr class="property-row property-row-date"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/calendar_gray.svg" style="width:14px;height:14px;display:block"/></span>Date</th><td><time>January 13, 2026 8:52 AM (UTC)</time></td></tr><tr class="property-row property-row-multi_select"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/list_gray.svg" style="width:14px;height:14px;display:block"/></span>Attendees</th><td><span class="selected-value select-value-color-pink">Internal</span></td></tr><tr class="property-row property-row-select"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/arrow-circle-down_gray.svg" style="width:14px;height:14px;display:block"/></span>Meeting Type</th><td><span class="selected-value select-value-color-default">1:1</span></td></tr><tr class="property-row property-row-person"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/friends_gray.svg" style="width:14px;height:14px;display:block"/></span>Organizer</th><td><span class="user"><span class="icon text-icon user-icon"><span class="user-icon-inner">P</span></span>Patrick Stiller</span></td></tr><tr class="property-row property-row-select"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/arrow-circle-down_gray.svg" style="width:14px;height:14px;display:block"/></span>Priority</th><td><span class="selected-value select-value-color-red">High</span></td></tr><tr class="property-row property-row-checkbox"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/checkmark-square_gray.svg" style="width:14px;height:14px;display:block"/></span>Has Cluely Transcript</th><td><div class="checkbox checkbox-off"></div></td></tr><tr class="property-row property-row-checkbox"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/checkmark-square_gray.svg" style="width:14px;height:14px;display:block"/></span>Has Final Transcript</th><td><div class="checkbox checkbox-on"></div></td></tr><tr class="property-row property-row-select"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/arrow-circle-down_gray.svg" style="width:14px;height:14px;display:block"/></span>Status</th><td><span class="selected-value select-value-color-brown">Completed</span></td></tr><tr class="property-row property-row-checkbox"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/checkmark-square_gray.svg" style="width:14px;height:14px;display:block"/></span>Has Notion Transcript</th><td><div class="checkbox checkbox-on"></div></td></tr><tr class="property-row property-row-checkbox"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/checkmark-square_gray.svg" style="width:14px;height:14px;display:block"/></span>Has Teams Transcript</th><td><div class="checkbox checkbox-off"></div></td></tr><tr class="property-row property-row-checkbox"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/checkmark-square_gray.svg" style="width:14px;height:14px;display:block"/></span>Merged to Feed</th><td><div class="checkbox checkbox-off"></div></td></tr></tbody></table></header><div class="page-body"><div style="display:contents" dir="ltr"><div id="2e756320-92ca-8013-9e59-d93967de24bf" class="transcription"><div style="border-bottom:0.05em solid;border-bottom-color:rgba(42, 28, 0, 0.07)">Summary<br/></div><div style="display:contents" dir="auto"><h3 id="2e756320-92ca-8160-aa27-cc87c8e231e6" class="">Meeting Planning &amp; Coordination</h3></div><div style="display:contents" dir="auto"><ul id="2e756320-92ca-8188-8de8-eaa44704e655" class="bulleted-list"><li style="list-style-type:disc">The team discussed setting up meetings for next week with Robin, Mike, and the IT team ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e756320-92ca-8114-a41f-c14c324b618a" class="bulleted-list"><li style="list-style-type:disc">One team member will send descriptions for three high-priority meetings, and <span class="user">@Steve </span> will identify the appropriate attendees and send invites ‣ ‣ ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e756320-92ca-81e2-9229-cc7895d6990b" class="bulleted-list"><li style="list-style-type:disc">The goal is to have actionable items going into meetings and coming out of them, rather than unstructured discussions ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e756320-92ca-8134-b90b-ea20da88ea44" class="bulleted-list"><li style="list-style-type:disc">A Cybertrol meeting is scheduled for Thursday 10-11 AM to discuss data normalization, sizing, and tenant setup ‣ ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e756320-92ca-814a-b325-f286a1a57ef8" class="bulleted-list"><li style="list-style-type:disc">Flight departure is at 6 PM on Thursday, which should not conflict with the morning meeting ‣</li></ul></div><div style="display:contents" dir="auto"><h3 id="2e756320-92ca-8148-86f9-df0a8c40c264" class="">Fabric Implementation Discussion</h3></div><div style="display:contents" dir="auto"><ul id="2e756320-92ca-81d8-a3c4-cad16cfc2d6e" class="bulleted-list"><li style="list-style-type:disc">The team is ready to walk through the current state of architecture, proposed implementation plan, and proposed fabric capacity sizing ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e756320-92ca-811a-950d-df13083d63ef" class="bulleted-list"><li style="list-style-type:disc">The objective is to establish a concrete date for standing up capacity and determine who will receive trial licenses initially ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e756320-92ca-813a-b400-c72526561457" class="bulleted-list"><li style="list-style-type:disc">Key milestones need to be defined to measure success and guide migration of various sources into OneLake, including warehouses and pipelines ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e756320-92ca-810e-a36e-c6f4c182417c" class="bulleted-list"><li style="list-style-type:disc">Discussions will include terminology and standardization guidelines ‣</li></ul></div><div style="display:contents" dir="auto"><h3 id="2e756320-92ca-8185-a7de-dae069ee1861" class="">Cybertrol Meeting Preparation</h3></div><div style="display:contents" dir="auto"><ul id="2e756320-92ca-8134-a7f8-fb317d1b45a3" class="bulleted-list"><li style="list-style-type:disc">A pre-meeting is needed before the Cybertrol session to align on sizing requirements and implementation approach ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e756320-92ca-8162-9329-d4a49796f869" class="bulleted-list"><li style="list-style-type:disc">The team plans to enter the Cybertrol meeting with a clear position on their implementation strategy ‣ ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e756320-92ca-81c0-8e7a-dd3b22f777ff" class="bulleted-list"><li style="list-style-type:disc">The approach being considered is to provide Cybertrol with a dedicated workspace rather than a dedicated capacity or tenant ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e756320-92ca-81ef-ac68-ddd3b48f9a1d" class="bulleted-list"><li style="list-style-type:disc">Billing split and admin access requirements need to be clarified ‣</li></ul></div><div style="display:contents" dir="auto"><h3 id="2e756320-92ca-814a-88b8-fd13a01070e2" class="">Workspace vs. Dedicated Capacity Strategy</h3></div><div style="display:contents" dir="auto"><ul id="2e756320-92ca-81be-8862-dcd66d706ab5" class="bulleted-list"><li style="list-style-type:disc">The team wants to discuss with Cybertrol what workspace access limitations exist compared to having a dedicated capacity ‣ ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e756320-92ca-8137-8410-fa9c4abe5947" class="bulleted-list"><li style="list-style-type:disc">The position is that it would be difficult to justify a dedicated capacity in silos unless Cybertrol identifies legitimate functionality gaps ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e756320-92ca-812a-bdf2-e4252e4f237c" class="bulleted-list"><li style="list-style-type:disc">Guidelines and boundaries need to be established for the workspace arrangement ‣</li></ul></div><div style="display:contents" dir="auto"><h3 id="2e756320-92ca-81cc-a92d-c4627dc1546a" class="">Staffing &amp; Team Development</h3></div><div style="display:contents" dir="auto"><ul id="2e756320-92ca-818a-942a-d21ae2bf8dac" class="bulleted-list"><li style="list-style-type:disc">Rob (or Robin) in Virginia is a new hire reporting directly to Mike with MDM experience ‣ ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e756320-92ca-813a-8a0b-e3c140fc2621" class="bulleted-list"><li style="list-style-type:disc">Matt Teller is being considered as a potential team member, possibly to support future transition planning ‣ ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e756320-92ca-8191-98ff-f7714036f312" class="bulleted-list"><li style="list-style-type:disc">Matt Teller&#x27;s background and resume were discussed as being more aligned with a data position than a BA role ‣ ‣ ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e756320-92ca-8128-b940-cceffb14ff34" class="bulleted-list"><li style="list-style-type:disc">A Power BI auditor tool has been created for analyzing reports and supporting standardization efforts ‣</li></ul></div><div style="display:contents" dir="auto"><h3 id="2e756320-92ca-81b1-b67c-c44d5af1154e" class="">Action Items</h3></div><div style="display:contents" dir="auto"><ul id="2e756320-92ca-8179-b3fa-fffb1000ec52" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Team member to send descriptions of three priority meetings to <span class="user">@Steve </span> ‣</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="2e756320-92ca-8191-9da4-ea2a6ed04d26" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked"><span class="user">@Steve </span> to identify appropriate attendees for each meeting and send invites ‣ ‣</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="2e756320-92ca-81b3-b255-c6a6fe49d488" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Schedule pre-meeting before Cybertrol session to align on sizing and implementation approach ‣</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="2e756320-92ca-81f7-adb4-de6c155b2867" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Power BI auditor tool walkthrough scheduled for tomorrow ‣</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="2e756320-92ca-81e0-8800-d2243213f770" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked"><span class="user">@Steve </span> to gather more information about Rob in Virginia&#x27;s role and potential involvement ‣</span><div class="indented"></div></li></ul></div><div style="border-bottom:0.05em solid;border-bottom-color:rgba(42, 28, 0, 0.07)">Notes<br/></div><div style="display:contents" dir="auto"><p id="2e756320-92ca-8066-ad5d-c23fdd19e973" class="">
+</p></div><div style="border-bottom:0.05em solid;border-bottom-color:rgba(42, 28, 0, 0.07)">Transcript<br/></div><div style="display:contents" dir="auto"><p id="2e756320-92ca-800b-93c8-dc7302fe5934" class="">Totally fine, we&#x27;re good. Okay. Yeah. Okay. Well, I&#x27;m just trying to be conscious of I appreciate that.</p></div><div style="display:contents" dir="auto"><p id="2e756320-92ca-80d2-99f3-d3b45c93f3d2" class="">We&#x27;re good, though.</p></div><div style="display:contents" dir="auto"><p id="2e756320-92ca-806c-aa7b-dbd505e7affc" class="">Okay. Any... Not getting a word. Exorcisms going on and stuff like that.</p></div><div style="display:contents" dir="auto"><p id="2e756320-92ca-803e-a2ef-ec9d9f89b1c1" class="">No, they&#x27;re coming later.</p></div><div style="display:contents" dir="auto"><p id="2e756320-92ca-8048-af35-c14eed4254c1" class="">So I just wanted to talk a little bit about getting a game plan for next week, but I need to lean on you a little bit as far as what you&#x27;re ready to sit down and discuss. I need to get some meetings set up with Robin and Mike and then also going next door. sitting down with somebody to the IT team, Um... What do you have from your side ready to start to sit down and discuss? Do you have all that kind of starting to come to a head here?</p></div><div style="display:contents" dir="auto"><p id="2e756320-92ca-8094-9aa5-ddd7542f3bfd" class="">Yeah.</p></div><div style="display:contents" dir="auto"><p id="2e756320-92ca-80d0-b08a-f6c0efa354ab" class="">I mean, I&#x27;m pretty much ready to walk through everything in terms of current state of the architecture, proposed implementation plan, proposed size of the fabric capacity. Um... Like... Basically, I hope to sit down next week and us be able to walk away from there with, okay, this is the date that we&#x27;re standing up to capacity. This is who&#x27;s going to be given licenses at the trial access or whatever at the beginning.</p></div><div style="display:contents" dir="auto"><p id="2e756320-92ca-804b-aaf8-d0161859fb11" class="">These are the milestones that we need to hit in order to... consider it a success and to continue building on and migrating X, Y, and Z sources into One lake. warehouses, Pipelines. etc. Okay. Is that what you were telling us?</p></div><div style="display:contents" dir="auto"><p id="2e756320-92ca-80b9-a269-d43a539c32d3" class="">Yeah, I mean actually now I&#x27;m thinking about it, Maybe I have you set up the meetings because then you can have all the You know, the words to put into the meeting, the sound bites, all that stuff. Yeah, and I&#x27;ll just give you the people that we need to sit down and put together with at least for the first go-round Okay, so I can set so about this.</p></div><div style="display:contents" dir="auto"><p id="2e756320-92ca-8022-9144-e36349c349bb" class="">I can send you like what I I Like the, I don&#x27;t know, the three meetings I... Imagine we would... want to have and then you can tell me who should be in it. and I&#x27;ll send out the Meeting invites or whatever Yeah, yeah, can we serve that?</p></div><div style="display:contents" dir="auto"><p id="2e756320-92ca-809e-b9bb-fcaace887be3" class="">That works fine. Yeah, okay.</p></div><div style="display:contents" dir="auto"><p id="2e756320-92ca-80df-bce6-dd3b105d4c50" class="">That way I&#x27;m sending it out, but it&#x27;s still like... you kind of know like this is what&#x27;s coming and yeah who&#x27;s gonna be in it and like you just yeah Okay, and I can give you a picture of my schedule, but I mean, I really need to...</p></div><div style="display:contents" dir="auto"><p id="2e756320-92ca-8001-acca-c9df6a9ac6dc" class="">These first three meetings are the highest importance. I also just forwarded you one for fabric. which is 10:00 AM to 11:00. You&#x27;re Airport is 6 p.m. Your flight home is 6 p.m., I believe, on Thursday? Yes, I believe so. So that should be a non-issue there.</p></div><div style="display:contents" dir="auto"><p id="2e756320-92ca-803d-8630-f56f9243d81f" class="">Let&#x27;s see. To discuss data normalization, sizing, tenant setup. Okay. Oh, that&#x27;s perfect. Um... who... Oh, they&#x27;re talking about... Oh, this is Cybertrol. Yeah, this is Cyber12. So they want to talk about sizing tenant setup.</p></div><div style="display:contents" dir="auto"><p id="2e756320-92ca-8004-bf36-e9be6108a258" class="">Yeah, and that&#x27;s why I remember Thank you. We&#x27;re the customers, so we might say, no, this is what we&#x27;re going to do. There&#x27;s good information, but this is what we&#x27;re going to do. But we still need to sit down and talk with them about stuff like that. Yep.</p></div><div style="display:contents" dir="auto"><p id="2e756320-92ca-802f-a02f-e7921f29f458" class="">Okay, this is good. So we should definitely have a We&#x27;ll have a meeting before that one, definitely, where we&#x27;ll talk about the sizing that we think we need. Um... when we plan to stand up so that in my mind we would go into this meeting and actually say, you know what, this is actually what we&#x27;re going to stand up instead of giving you a dedicated capacity or tenant We are going to give you a dedicated workspace.</p></div><div style="display:contents" dir="auto"><p id="2e756320-92ca-806b-b35f-de41e05886a1" class="">This is how the billing is going to be split out so that you guys are able to one have like the admin access that you need in order to configure everything. This is what we need from you. Um... Is there anything missing, etc., in terms of what you guys need? In terms of having your own workspace and access that you cannot, that You can&#x27;t get in a workspace that you would have gotten in, you know, with your own fabric capacity, basically.</p></div><div style="display:contents" dir="auto"><p id="2e756320-92ca-801f-8435-e24414ca75e4" class="">What are you missing? If there&#x27;s something legitimate that they&#x27;re not able to do in a workspace. Right. Compared to capacity. I don&#x27;t know what that would possibly be, but I find it, I find it would be very difficult for them to identify something where it would be justifiable to get a dedicated capacity in silos.</p></div><div style="display:contents" dir="auto"><p id="2e756320-92ca-8084-9fdc-d496d1c081cc" class="">And then make sure we set any guidelines or boundaries that we need to set with that too. So we should also,Let me just take a look at that meteor bust. Might&#x27;ve had it in there, maybe I&#x27;m, Would you look at that, Blake? De-normalization. So, okay, he&#x27;s got some of that there, yeah. Yeah. I wanna make sure that we&#x27;re starting toTalk about alsoYeah. Terminologies and stuff like that too.</p></div><div style="display:contents" dir="auto"><p id="2e756320-92ca-80ac-8388-ee6bbd91ad0c" class="">Yep. All right.</p></div><div style="display:contents" dir="auto"><p id="2e756320-92ca-8088-9285-e6d6f378502d" class="">If there&#x27;s more that you think we should add to that meeting, bring that up too. Yep.</p></div><div style="display:contents" dir="auto"><p id="2e756320-92ca-80b9-b2ea-d66268c74e42" class="">Will do. Okay, this is good. And it&#x27;s early enough this week that We have time to... Put together some solid meetings. I don&#x27;t... Last thing I want to do is go up there and gather people together and then us get into a meeting and it turn into like... A round table of just like what everybody wants to talk about or whatever and not actually come away with Exactly.</p></div><div style="display:contents" dir="auto"><p id="2e756320-92ca-80f6-a54b-fc429ae45c3f" class="">I want to come away with actionable. I want to go in with actionable. I want to come away with actionable. Yeah. Got it. So... If you can send me what those meetings would be about, then I will definitely get you the right people. Have you met Rob in Virginia yet? I have not. Okay, so She&#x27;s a new hire too and she reports directly to Mike. As well. And she&#x27;s got some MDM experience. I met from a management standpoint and might be involved as well.</p></div><div style="display:contents" dir="auto"><p id="2e756320-92ca-80eb-be33-e641dda0ba98" class="">So I&#x27;m trying to get the lay of that. I just did a walk by to have a talk with her. And she brought up the MDM, so I was kind of surprised, but I&#x27;ll definitely get some more information on that. And then if she&#x27;s to be involved, then we&#x27;ll keep her involved too. Got it. Okay. All right? Perfect. Yeah, send me those over and then maybe I&#x27;ll do a discussion with you if I need to and then I&#x27;ll get to the people for each of the meetings.</p></div><div style="display:contents" dir="auto"><p id="2e756320-92ca-80a7-ba05-d5d9fbf73dd2" class="">Sounds good.</p></div><div style="display:contents" dir="auto"><p id="2e756320-92ca-808f-a366-c91eb5f598b2" class="">Right? All right. Anything else? Nope, I&#x27;ll do it. All right, thanks, sir. Yep, thanks. Hope your wife feels better too.</p></div><div style="display:contents" dir="auto"><p id="2e756320-92ca-8021-a5ad-ed537c9f745e" class="">Thanks. Oh, last thing. I put together like a Power BI auditor thing just for Basically analyzing like the I don&#x27;t know power bi reports to make it kind of just easy in terms of like standardization and whatnot But we can walk through it tomorrow But I just wanted to Let you know.</p></div><div style="display:contents" dir="auto"><p id="2e756320-92ca-8034-aeb2-c971081fe28f" class="">Probably also, I mean, are you good for camera videos, meetings today at all? Yep. Okay. I also want to introduce you to Matt Teller, who you saw his resume, and I was trying to find a spot for it. That might wait until you&#x27;re up here, too, so it might actually be better.</p></div><div style="display:contents" dir="auto"><p id="2e756320-92ca-8033-8fef-e7448b569e0f" class="">I talked to, I was talking to Dominique about him also recently. Yep. So... Yeah, sounds like a Good.</p></div><div style="display:contents" dir="auto"><p id="2e756320-92ca-808a-bd83-c06a0a2f8378" class="">Good guy.</p></div><div style="display:contents" dir="auto"><p id="2e756320-92ca-8016-8a05-e72f2d387837" class="">Thank you, Peter.</p></div><div style="display:contents" dir="auto"><p id="2e756320-92ca-80e4-af1e-f675cc775586" class="">I think he&#x27;d be a good fit maybe even to fold into the team later on as you&#x27;re starting to plan exit down the road.</p></div><div style="display:contents" dir="auto"><p id="2e756320-92ca-8093-b4ba-fdb3db036dfb" class="">Yeah, that&#x27;s kind of what I was thinking in terms of what he&#x27;s able to do. I mean, even that file that you showed me that he put together, I was like, this is a lot. more comprehensive and extensive than I would have guessed from somebody.</p></div><div style="display:contents" dir="auto"><p id="2e756320-92ca-8089-afd0-f196d55ea7d3" class="">Yep, yep, and so I&#x27;m just looking down the road and I&#x27;m thinking, he would be a good one to you know build up and kind of have them hand off some of this to you yep agreed So, ironically, I went to I went out last night to meet up with my old CIO. And so Um... I showed him that same resume and I was talking to someone that wanted to hire him for a BA and I said I want to look at his resume and I&#x27;m like this isn&#x27;t a BA position this is a Data position?</p></div><div style="display:contents" dir="auto"><p id="2e756320-92ca-80d9-be6c-fd16b1e7e278" class="">Yeah. And she kind of like, whatever, and they hired him anyways. And he looked at that and he said, yeah, this is not... This does not screen VA, it screens data.</p></div><div style="display:contents" dir="auto"><p id="2e756320-92ca-8091-84db-f9b90652dfb7" class="">I&#x27;m surprised you said yes, to be perfectly honest.</p></div><div style="display:contents" dir="auto"><p id="2e756320-92ca-804f-9c19-c29e4595764e" class="">Well, I already told him, I said, Matt, quite frankly, if it were me, I wouldn&#x27;t have hired you. Yeah. That&#x27;s enough in this position. I&#x27;m glad you&#x27;re here. Yeah. But not for this position. Don&#x27;t get me wrong.</p></div><div style="display:contents" dir="auto"><p id="2e756320-92ca-80af-b696-c03beadfcb49" class="">I&#x27;m glad we had you.</p></div><div style="display:contents" dir="auto"><p id="2e756320-92ca-80d1-93a4-eeef3cbaed55" class="">Right, right. Yeah, exactly. And he didn&#x27;t take it personal at all. He&#x27;s, you know, this is good feedback. And I says, I think you got a great resume. It&#x27;s just not doesn&#x27;t fit the position you. Huh. interviewed for. So... So. Anyhow, good conversations, good conversations. All right. Yeah, send me those over, and we&#x27;ll talk more. Thank you. Okay. Thanks. Bye.</p></div></div></div></div></article><span class="sans" style="font-size:14px;padding-top:2em"></span></body></html>

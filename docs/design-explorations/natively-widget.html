@@ -1,0 +1,184 @@
+<!doctype html>
+<!-- Hallmark · widget reimagined in OpenCluely's command-bar model · genre: utilitarian
+     theme: Autocue v2 (calm sans, opaque, warm-coral) · NO glass. Slim always-on bar + on-demand surfaces. -->
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Natively — widget (command-bar model)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --desk:#C9C2B4; --paper:#F7F3EC; --panel:#FCFAF5; --sunk:#EFE9DC;
+    --ink:#1C1815; --ink-2:#6E665A; --ink-3:#9C9486;
+    --rule:rgba(28,24,21,.12); --rule-2:rgba(28,24,21,.2);
+    --signal:#C25733; --signal-soft:rgba(194,87,51,.12); --ok:#2C7355; --warn:#B5780C;
+    --ui:'Inter',-apple-system,system-ui,sans-serif; --mono:'JetBrains Mono',ui-monospace,monospace;
+    --e:cubic-bezier(.22,1,.36,1); --pop:0 18px 44px -12px rgba(30,20,12,.5),0 2px 6px rgba(30,20,12,.16);
+  }
+  [data-theme="dark"]{
+    --desk:#080706; --paper:#16130F; --panel:#1D1915; --sunk:#110E0B;
+    --ink:#EDE7DB; --ink-2:#A39A8B; --ink-3:#6E665B;
+    --rule:rgba(237,231,219,.12); --rule-2:rgba(237,231,219,.2);
+    --signal:#E5764A; --signal-soft:rgba(229,118,74,.16); --ok:#5FC497; --warn:#E0A93C;
+    --pop:0 20px 50px -12px rgba(0,0,0,.72),0 2px 8px rgba(0,0,0,.5);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{background:var(--desk);font-family:var(--ui);color:var(--ink);-webkit-font-smoothing:antialiased;overflow:hidden;transition:background .4s var(--e)}
+  button{font:inherit;cursor:pointer;border:0;background:none;color:inherit}
+
+  /* faux call backdrop */
+  .stage{position:fixed;inset:0;padding:20px}
+  .callgrid{position:absolute;inset:20px;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:12px;opacity:.42}
+  .tile{background:rgba(128,128,128,.18);border:1px solid rgba(128,128,128,.22);border-radius:12px;display:grid;place-items:center;position:relative}
+  .tile .ini{width:56px;height:56px;border-radius:50%;background:rgba(128,128,128,.3);display:grid;place-items:center;font-size:18px;font-weight:600;color:rgba(160,160,160,.9)}
+  .tile .nm{position:absolute;bottom:11px;left:13px;font-size:11px;font-weight:500;color:rgba(160,160,160,.95)}
+  .note{position:fixed;bottom:16px;left:0;right:0;text-align:center;font-size:11px;color:rgba(150,150,150,.95)}
+  .lt{position:fixed;top:16px;left:16px;display:inline-flex;border:1px solid rgba(150,150,150,.4);border-radius:7px;overflow:hidden;z-index:90}
+  .lt button{font-family:var(--mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:rgba(150,150,150,.95);padding:5px 10px}
+  .lt button.on{background:rgba(150,150,150,.9);color:#111}
+
+  /* ── the widget cluster: bar + on-demand surfaces, anchored top-center ── */
+  .dock{position:fixed;top:22px;left:50%;transform:translateX(-50%);z-index:100;display:flex;flex-direction:column;align-items:center;gap:9px;width:520px;max-width:92vw}
+
+  /* command bar (always-on, minimal) */
+  .bar{display:flex;align-items:center;gap:4px;background:var(--panel);border:1px solid var(--rule-2);border-radius:13px;box-shadow:var(--pop);padding:6px 8px;width:100%}
+  .grip{display:flex;gap:2px;padding:0 6px 0 2px;cursor:grab}.grip i{width:3px;height:3px;border-radius:50%;background:var(--ink-3)}
+  .ld{width:7px;height:7px;border-radius:50%;background:var(--signal);animation:blink 1.3s steps(2) infinite}@keyframes blink{50%{opacity:.2}}
+  .tmr{font-family:var(--mono);font-size:11.5px;color:var(--ink-2);min-width:42px}
+  .div{width:1px;height:20px;background:var(--rule);margin:0 4px}
+  .act{display:flex;align-items:center;gap:7px;padding:7px 10px;border-radius:9px;font-size:12.5px;font-weight:500;color:var(--ink-2);position:relative}
+  .act svg{width:16px;height:16px;stroke-width:1.8}
+  .act:hover{background:var(--sunk);color:var(--ink)}
+  .act.primary{color:var(--ink)}
+  .act .k{font-family:var(--mono);font-size:9px;color:var(--ink-3);border:1px solid var(--rule-2);border-radius:3px;padding:0 3px;margin-left:1px}
+  .act.rec{color:var(--signal)}.act.rec svg{animation:pulseo 1.4s var(--e) infinite}@keyframes pulseo{50%{opacity:.4}}
+  .spacer{flex:1}
+  .ready{display:flex;align-items:center;gap:7px;padding:6px 9px;border-radius:9px;font-family:var(--mono);font-size:10px;color:var(--ink-2);cursor:default;position:relative}
+  .ready .d{width:7px;height:7px;border-radius:2px;background:var(--ok)}
+  .ready:hover .pop{opacity:1;visibility:visible;transform:translateY(0)}
+  .pop{position:absolute;top:calc(100% + 8px);right:0;background:var(--panel);border:1px solid var(--rule-2);border-radius:10px;box-shadow:var(--pop);padding:9px 11px;display:flex;flex-direction:column;gap:7px;opacity:0;visibility:hidden;transform:translateY(-4px);transition:.2s var(--e);min-width:150px}
+  .pop .r{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--ink-2)}.pop .r .d{width:6px;height:6px;border-radius:2px;background:var(--ok)}.pop .r.warm .d{border:1.5px solid var(--warn);background:transparent}
+  .stealth{display:flex;align-items:center;gap:6px;padding:6px 9px;border-radius:9px;font-size:10px;font-weight:600;cursor:pointer}
+  .stealth svg{width:15px;height:15px;stroke-width:1.8}
+  .stealth.on{color:var(--ok)}.stealth.off{color:var(--warn)}
+  .icbtn{width:30px;height:30px;border-radius:8px;display:grid;place-items:center;color:var(--ink-3)}.icbtn:hover{background:var(--sunk);color:var(--ink)}.icbtn svg{width:15px;height:15px;stroke-width:1.8}
+
+  /* on-demand: answer card (spawns when you ask / proactive fires) */
+  .card{width:100%;background:var(--panel);border:1px solid var(--rule-2);border-radius:13px;box-shadow:var(--pop);overflow:hidden;display:none}
+  .card.show{display:block;animation:pop .28s var(--e)}
+  @keyframes pop{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
+  .chead{display:flex;align-items:center;gap:8px;padding:10px 13px 0}
+  .clabel{font-size:10px;font-weight:600;color:var(--signal)}
+  .vdial{display:inline-flex;margin-left:auto;border:1px solid var(--rule);border-radius:6px;overflow:hidden}.vdial button{font-size:9px;font-weight:600;color:var(--ink-3);padding:2px 6px}.vdial button.on{background:var(--signal);color:#fff}
+  .cclose{width:22px;height:22px;border-radius:6px;display:grid;place-items:center;color:var(--ink-3)}.cclose:hover{background:var(--sunk);color:var(--ink)}.cclose svg{width:12px;height:12px;stroke-width:2}
+  .ctext{padding:7px 13px 0;font-size:16px;line-height:1.4;font-weight:600;letter-spacing:-.01em;min-height:23px}
+  .cdetail{padding:6px 13px 0;font-size:12px;line-height:1.5;color:var(--ink-2);max-height:0;opacity:0;overflow:hidden;transition:max-height .3s var(--e),opacity .25s var(--e)}
+  .card:hover .cdetail{max-height:120px;opacity:1}
+  .cacts{display:flex;gap:14px;padding:11px 13px 12px;font-size:11px;color:var(--ink-3)}
+  .cacts button{display:flex;align-items:center;gap:5px;color:var(--ink-3)}.cacts button:hover{color:var(--signal)}.cacts svg{width:12px;height:12px;stroke-width:1.8}
+
+  /* on-demand: expanded panel (transcript blocks + ask) */
+  .panel{width:100%;background:var(--panel);border:1px solid var(--rule-2);border-radius:13px;box-shadow:var(--pop);overflow:hidden;display:none}
+  .panel.show{display:block;animation:pop .28s var(--e)}
+  .ptitle{display:flex;align-items:center;padding:10px 13px;border-bottom:1px solid var(--rule);font-size:10px;font-weight:600;color:var(--ink-3)}
+  .ptitle .x{margin-left:auto;width:22px;height:22px;border-radius:6px;display:grid;place-items:center;color:var(--ink-3)}.ptitle .x:hover{background:var(--sunk);color:var(--ink)}.ptitle .x svg{width:12px;height:12px;stroke-width:2}
+  .block{padding:9px 13px;border-bottom:1px solid var(--rule);position:relative}
+  .block:hover{background:var(--sunk)}
+  .block .sp{font-size:11px;font-weight:600;color:var(--ink)}.block.you .sp{color:var(--signal)}
+  .block .tx{font-size:12.5px;line-height:1.45;color:var(--ink-2);margin-top:2px}
+  .block .ba{position:absolute;top:8px;right:10px;display:flex;gap:8px;opacity:0;transition:.15s var(--e)}.block:hover .ba{opacity:1}
+  .block .ba button{font-family:var(--mono);font-size:9px;color:var(--ink-3)}.block .ba button:hover{color:var(--signal)}
+  .pask{display:flex;align-items:center;gap:8px;padding:10px 12px}
+  .pask input{flex:1;background:var(--sunk);border:1px solid var(--rule);border-radius:8px;padding:8px 11px;font:inherit;font-size:12.5px;color:var(--ink);outline:0}
+  .pask input::placeholder{color:var(--ink-3)}
+  .pask .sb{width:31px;height:31px;border-radius:8px;background:var(--signal);color:#fff;display:grid;place-items:center;flex:none}.pask .sb svg{width:15px;height:15px;stroke-width:2}
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="callgrid">
+    <div class="tile"><div class="ini">DW</div><div class="nm">Dana Whitfield</div></div>
+    <div class="tile"><div class="ini">You</div><div class="nm">You</div></div>
+    <div class="tile"><div class="ini">ML</div><div class="nm">Marcus Lee</div></div>
+    <div class="tile"><div class="ini">PN</div><div class="nm">Priya N.</div></div>
+  </div>
+</div>
+
+<span class="lt"><button id="tl" class="on" onclick="theme('light')">Light</button><button id="td" onclick="theme('dark')">Dark</button></span>
+
+<div class="dock">
+  <!-- always-on command bar -->
+  <div class="bar">
+    <span class="grip"><i></i><i></i><i></i></span>
+    <span class="ld"></span><span class="tmr" id="tmr">14:22</span>
+    <span class="div"></span>
+    <button class="act primary" id="askbtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/></svg>Ask<span class="k">⌘↵</span></button>
+    <button class="act" id="snipbtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 9V5a1 1 0 0 1 1-1h4M20 9V5a1 1 0 0 0-1-1h-4M4 15v4a1 1 0 0 0 1 1h4M20 15v4a1 1 0 0 1-1 1h-4"/></svg>Snip<span class="k">⌘⇧S</span></button>
+    <button class="act" id="voicebtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="11" r="3.5"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>Voice<span class="k">⌘V</span></button>
+    <span class="spacer"></span>
+    <span class="ready"><span class="d" id="rdot"></span>Ready
+      <span class="pop">
+        <span class="r"><span class="d"></span>Mic</span><span class="r"><span class="d"></span>Meeting audio</span>
+        <span class="r warm"><span class="d"></span>Transcript</span><span class="r"><span class="d"></span>Prep</span><span class="r"><span class="d"></span>Coach</span>
+      </span>
+    </span>
+    <span class="div"></span>
+    <span class="stealth on" id="stealth" onclick="toggleStealth()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12z"/><circle cx="12" cy="12" r="2.5"/></svg>Hidden</span>
+    <button class="icbtn" id="expandbtn" aria-label="expand"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="m6 9 6 6 6-6"/></svg></button>
+  </div>
+
+  <!-- on-demand answer card -->
+  <div class="card" id="card">
+    <div class="chead"><span class="clabel" id="clabel">Clarify</span><span class="vdial" id="vdial"><button>S</button><button class="on">M</button><button>L</button><button>Auto</button></span><button class="cclose" onclick="hideCard()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="5" y1="5" x2="19" y2="19"/><line x1="19" y1="5" x2="5" y2="19"/></svg></button></div>
+    <div class="ctext" id="ctext"></div>
+    <div class="cdetail">Pins down whether "quarter-end" is a hard procurement cutoff or an aspirational go-live — size the rollout to the real deadline instead of over-promising on the call.</div>
+    <div class="cacts">
+      <button><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5h10"/></svg>Copy</button>
+      <button><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 2a3 3 0 0 1 3 3v6a3 3 0 0 1-6 0V5a3 3 0 0 1 3-3z"/><path d="M19 11a7 7 0 0 1-14 0M12 18v3"/></svg>Voice pass</button>
+      <button><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="m9 18 6-6-6-6"/></svg>Cross-check</button>
+    </div>
+  </div>
+
+  <!-- on-demand expanded panel (transcript + ask) -->
+  <div class="panel" id="panel">
+    <div class="ptitle">Live transcript<button class="x" onclick="toggleExpand()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="5" y1="5" x2="19" y2="19"/><line x1="19" y1="5" x2="5" y2="19"/></svg></button></div>
+    <div class="block"><span class="sp">Dana</span><div class="tx">On the enterprise tier we'd be looking at roughly forty seats to start.</div><span class="ba"><button>ask</button><button>+ action</button></span></div>
+    <div class="block you"><span class="sp">You</span><div class="tx">Right — and that includes the SSO and audit-log add-ons?</div><span class="ba"><button>ask</button><button>+ action</button></span></div>
+    <div class="block"><span class="sp">Dana</span><div class="tx">It does. Though the procurement timeline is the real question.</div><span class="ba"><button>ask</button><button>+ action</button></span></div>
+    <div class="pask"><input placeholder="Ask anything on screen or in the call…"><span class="sb"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 19V5M5 12l7-7 7 7"/></svg></span></div>
+  </div>
+</div>
+
+<div class="note">A minimal always-on bar — content (answers, transcript) appears only when you summon it. Opaque, glanceable, invisible to screen-share when Hidden.</div>
+
+<script>
+  function theme(t){document.documentElement.setAttribute('data-theme',t==='dark'?'dark':'light');tl.classList.toggle('on',t==='light');td.classList.toggle('on',t==='dark');}
+  let s=14*60+22;const pad=n=>String(n).padStart(2,'0');
+  setInterval(()=>{s++;document.getElementById('tmr').textContent=pad(s/60|0)+':'+pad(s%60)},1000);
+
+  const SUG="“Is quarter-end a hard cutoff, or your target go-live?”";
+  function streamCard(label,text){const c=document.getElementById('card');document.getElementById('clabel').textContent=label;c.classList.add('show');
+    const el=document.getElementById('ctext');el.textContent='';let i=0;clearInterval(el._iv);el._iv=setInterval(()=>{el.textContent=text.slice(0,++i);if(i>=text.length)clearInterval(el._iv)},20);}
+  function hideCard(){document.getElementById('card').classList.remove('show')}
+  document.getElementById('askbtn').onclick=()=>streamCard('Clarify',SUG);
+  document.getElementById('voicebtn').onclick=function(){this.classList.toggle('rec');this.lastChild.textContent=this.classList.contains('rec')?'…':'⌘V';};
+  document.getElementById('snipbtn').onclick=()=>streamCard('Screen',"“That error is a 401 — the token expired, not a permissions issue.”");
+
+  let expanded=false;
+  function toggleExpand(){expanded=!expanded;document.getElementById('panel').classList.toggle('show',expanded);
+    document.getElementById('expandbtn').style.transform=expanded?'rotate(180deg)':'none';}
+  document.getElementById('expandbtn').onclick=toggleExpand;
+
+  function toggleStealth(){const el=document.getElementById('stealth');const on=el.classList.contains('on');
+    el.classList.toggle('on',!on);el.classList.toggle('off',on);el.lastChild.textContent=on?'Visible':'Hidden';}
+
+  document.getElementById('vdial').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;[...vdial.children].forEach(x=>x.classList.remove('on'));b.classList.add('on');});
+
+  // proactive: a suggestion auto-arrives a moment after load
+  setTimeout(()=>streamCard('Clarify',SUG),900);
+</script>
+</body>
+</html>

@@ -1,0 +1,746 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>IT Systems and Reporting Infrastructure Meeting</title><style>
+/* cspell:disable-file */
+/* webkit printing magic: print all background colors */
+html {
+	-webkit-print-color-adjust: exact;
+}
+* {
+	box-sizing: border-box;
+	-webkit-print-color-adjust: exact;
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+}
+@media only screen {
+	body {
+		margin: 2em auto;
+		max-width: 900px;
+		color: rgb(55, 53, 47);
+	}
+}
+
+body {
+	line-height: 1.5;
+	white-space: pre-wrap;
+}
+
+a,
+a.visited {
+	color: inherit;
+	text-decoration: underline;
+}
+
+.pdf-relative-link-path {
+	font-size: 80%;
+	color: #444;
+}
+
+h1,
+h2,
+h3 {
+	letter-spacing: -0.01em;
+	line-height: 1.2;
+	font-weight: 600;
+	margin-bottom: 0;
+}
+
+/* Override strong tags inside headings to maintain consistent weight */
+h1 strong,
+h2 strong,
+h3 strong {
+	font-weight: 600;
+}
+
+.page-title {
+	font-size: 2.5rem;
+	font-weight: 700;
+	margin-top: 0;
+	margin-bottom: 0.75em;
+}
+
+h1 {
+	font-size: 1.875rem;
+	margin-top: 1.875rem;
+}
+
+h2 {
+	font-size: 1.5rem;
+	margin-top: 1.5rem;
+}
+
+h3 {
+	font-size: 1.25rem;
+	margin-top: 1.25rem;
+}
+
+.source {
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	padding: 1.5em;
+	word-break: break-all;
+}
+
+.callout {
+	border-radius: 10px;
+	padding: 1rem;
+}
+
+figure {
+	margin: 1.25em 0;
+	page-break-inside: avoid;
+}
+
+figcaption {
+	opacity: 0.5;
+	font-size: 85%;
+	margin-top: 0.5em;
+}
+
+mark {
+	background-color: transparent;
+}
+
+.indented {
+	padding-left: 1.5em;
+}
+
+hr {
+	background: transparent;
+	display: block;
+	width: 100%;
+	height: 1px;
+	visibility: visible;
+	border: none;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+img {
+	max-width: 100%;
+}
+
+@media only print {
+	img {
+		max-height: 100vh;
+		object-fit: contain;
+	}
+
+	table.collection-content {
+		width: 100%;
+		table-layout: fixed;
+	}
+
+	table.collection-content th,
+	table.collection-content td {
+		overflow-wrap: anywhere;
+	}
+
+	table.collection-content td > .user,
+	table.collection-content td > time {
+		white-space: pre-wrap;
+	}
+}
+
+@page {
+	margin: 1in;
+}
+
+.collection-content-wrapper {
+	overflow-x: auto;
+}
+
+@media only print {
+	.collection-content-wrapper {
+		overflow-x: visible;
+	}
+}
+
+.collection-content {
+	font-size: 0.875rem;
+}
+
+.collection-content td {
+	white-space: pre-wrap;
+	word-break: break-word;
+}
+
+.column-list {
+	display: flex;
+	gap: 46px;
+}
+
+.column {
+	min-width: 0;
+	overflow: hidden;
+}
+
+.column > *:first-child {
+	margin-top: 0;
+}
+
+.table_of_contents-item {
+	display: block;
+	font-size: 0.875rem;
+	line-height: 1.3;
+	padding: 0.125rem;
+}
+
+.table_of_contents-indent-1 {
+	margin-left: 1.5rem;
+}
+
+.table_of_contents-indent-2 {
+	margin-left: 3rem;
+}
+
+.table_of_contents-indent-3 {
+	margin-left: 4.5rem;
+}
+
+.table_of_contents-link {
+	text-decoration: none;
+	opacity: 0.7;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.18);
+}
+
+table,
+th,
+td {
+	border: 1px solid rgba(55, 53, 47, 0.09);
+	border-collapse: collapse;
+}
+
+table {
+	border-left: none;
+	border-right: none;
+}
+
+th,
+td {
+	font-weight: normal;
+	padding: 0.25em 0.5em;
+	line-height: 1.5;
+	min-height: 1.5em;
+	text-align: left;
+}
+
+th {
+	color: rgba(55, 53, 47, 0.6);
+}
+
+ol,
+ul {
+	margin: 0;
+	margin-block-start: 0.6em;
+	margin-block-end: 0.6em;
+}
+
+li > ol:first-child,
+li > ul:first-child {
+	margin-block-start: 0.6em;
+}
+
+ul > li {
+	list-style: disc;
+}
+
+ul.to-do-list {
+	padding-inline-start: 0;
+}
+
+ul.to-do-list > li {
+	list-style: none;
+}
+
+.to-do-children-checked {
+	text-decoration: line-through;
+	opacity: 0.375;
+}
+
+ul.toggle > li {
+	list-style: none;
+}
+
+ul {
+	padding-inline-start: 1.7em;
+}
+
+ul > li {
+	padding-left: 0.1em;
+}
+
+ol {
+	padding-inline-start: 1.6em;
+}
+
+ol.numbered-list.numbered-list-digits-2 {
+	padding-inline-start: 2em;
+}
+
+ol.numbered-list.numbered-list-digits-3plus {
+	padding-inline-start: 2.4em;
+}
+
+ol > li {
+	padding-left: 0.2em;
+}
+
+.mono ol {
+	padding-inline-start: 2em;
+}
+
+.mono ol > li {
+	text-indent: -0.4em;
+}
+
+.toggle {
+	padding-inline-start: 0em;
+	list-style-type: none;
+}
+
+/* Indent toggle children */
+.toggle > li > details {
+	padding-left: 1.7em;
+}
+
+.toggle > li > details > summary {
+	margin-left: -1.1em;
+}
+
+.selected-value {
+	display: inline-block;
+	padding: 0 0.5em;
+	background: rgba(206, 205, 202, 0.5);
+	border-radius: 3px;
+	margin-right: 0.5em;
+	margin-top: 0.3em;
+	margin-bottom: 0.3em;
+	white-space: nowrap;
+}
+
+.collection-title {
+	display: inline-block;
+	margin-right: 1em;
+}
+
+.page-description {
+	margin-bottom: 2em;
+}
+
+.simple-table {
+	margin-top: 1em;
+	font-size: 0.875rem;
+	empty-cells: show;
+}
+.simple-table td {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table th {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table-header-color {
+	background: rgb(247, 246, 243);
+	color: black;
+}
+.simple-table-header {
+	font-weight: 500;
+}
+
+time {
+	opacity: 0.5;
+}
+
+.icon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	max-width: 1.2em;
+	max-height: 1.2em;
+	text-decoration: none;
+	vertical-align: text-bottom;
+	margin-right: 0.5em;
+}
+
+img.icon {
+	border-radius: 3px;
+}
+
+.callout img.notion-static-icon {
+	width: 1em;
+	height: 1em;
+}
+
+.callout p {
+	margin: 0;
+}
+
+.callout h1,
+.callout h2,
+.callout h3 {
+	margin: 0 0 0.6rem;
+}
+
+.user-icon {
+	width: 1.5em;
+	height: 1.5em;
+	border-radius: 100%;
+	margin-right: 0.5rem;
+}
+
+.user-icon-inner {
+	font-size: 0.8em;
+}
+
+.text-icon {
+	border: 1px solid #000;
+	text-align: center;
+}
+
+.page-cover-image {
+	display: block;
+	object-fit: cover;
+	width: 100%;
+	max-height: 30vh;
+}
+
+.page-header-icon {
+	font-size: 3rem;
+	margin-bottom: 1rem;
+}
+
+.page-header-icon-with-cover {
+	margin-top: -0.72em;
+	margin-left: 0.07em;
+}
+
+.page-header-icon img {
+	border-radius: 3px;
+}
+
+.link-to-page {
+	margin: 1em 0;
+	padding: 0;
+	border: none;
+	font-weight: 500;
+}
+
+p > .user {
+	opacity: 0.5;
+}
+
+td > .user,
+td > time {
+	white-space: nowrap;
+}
+
+input[type="checkbox"] {
+	transform: scale(1.5);
+	margin-right: 0.6em;
+	vertical-align: middle;
+}
+
+p {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+.image {
+	border: none;
+	margin: 1.5em 0;
+	padding: 0;
+	border-radius: 0;
+	text-align: center;
+}
+
+.code,
+code {
+	background: rgba(135, 131, 120, 0.15);
+	border-radius: 3px;
+	padding: 0.2em 0.4em;
+	border-radius: 3px;
+	font-size: 85%;
+	tab-size: 2;
+}
+
+code {
+	color: #eb5757;
+}
+
+.code {
+	padding: 1.5em 1em;
+}
+
+.code-wrap {
+	white-space: pre-wrap;
+	word-break: break-all;
+}
+
+.code > code {
+	background: none;
+	padding: 0;
+	font-size: 100%;
+	color: inherit;
+}
+
+blockquote {
+	font-size: 1em;
+	margin: 1em 0;
+	padding-left: 1em;
+	border-left: 3px solid rgb(55, 53, 47);
+}
+
+blockquote.quote-large {
+	font-size: 1.25em;
+}
+
+.bookmark {
+	text-decoration: none;
+	max-height: 8em;
+	padding: 0;
+	display: flex;
+	width: 100%;
+	align-items: stretch;
+}
+
+.bookmark-title {
+	font-size: 0.85em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	height: 1.75em;
+	white-space: nowrap;
+}
+
+.bookmark-text {
+	display: flex;
+	flex-direction: column;
+}
+
+.bookmark-info {
+	flex: 4 1 180px;
+	padding: 12px 14px 14px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.bookmark-image {
+	width: 33%;
+	flex: 1 1 180px;
+	display: block;
+	position: relative;
+	object-fit: cover;
+	border-radius: 1px;
+}
+
+.bookmark-description {
+	color: rgba(55, 53, 47, 0.6);
+	font-size: 0.75em;
+	overflow: hidden;
+	max-height: 4.5em;
+	word-break: break-word;
+}
+
+.bookmark-href {
+	font-size: 0.75em;
+	margin-top: 0.25em;
+}
+
+.sans { font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol"; }
+.code { font-family: "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace; }
+.serif { font-family: Lyon-Text, Georgia, ui-serif, serif; }
+.mono { font-family: iawriter-mono, Nitti, Menlo, Courier, monospace; }
+.pdf .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK JP'; }
+.pdf:lang(zh-CN) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK SC'; }
+.pdf:lang(zh-TW) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK TC'; }
+.pdf:lang(ko-KR) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK KR'; }
+.pdf .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.pdf .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK JP'; }
+.pdf:lang(zh-CN) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK SC'; }
+.pdf:lang(zh-TW) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK TC'; }
+.pdf:lang(ko-KR) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK KR'; }
+.pdf .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.highlight-default {
+	color: rgba(44, 44, 43, 1);
+}
+.highlight-gray {
+	color: rgba(125, 122, 117, 1);
+	fill: rgba(125, 122, 117, 1);
+}
+.highlight-brown {
+	color: rgba(159, 118, 90, 1);
+	fill: rgba(159, 118, 90, 1);
+}
+.highlight-orange {
+	color: rgba(210, 123, 45, 1);
+	fill: rgba(210, 123, 45, 1);
+}
+.highlight-yellow {
+	color: rgba(203, 148, 52, 1);
+	fill: rgba(203, 148, 52, 1);
+}
+.highlight-teal {
+	color: rgba(80, 148, 110, 1);
+	fill: rgba(80, 148, 110, 1);
+}
+.highlight-blue {
+	color: rgba(56, 125, 201, 1);
+	fill: rgba(56, 125, 201, 1);
+}
+.highlight-purple {
+	color: rgba(154, 107, 180, 1);
+	fill: rgba(154, 107, 180, 1);
+}
+.highlight-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.highlight-red {
+	color: rgba(207, 81, 72, 1);
+	fill: rgba(207, 81, 72, 1);
+}
+.highlight-default_background {
+	color: rgba(44, 44, 43, 1);
+}
+.highlight-gray_background {
+	background: rgba(42, 28, 0, 0.07);
+}
+.highlight-brown_background {
+	background: rgba(139, 46, 0, 0.086);
+}
+.highlight-orange_background {
+	background: rgba(224, 101, 1, 0.129);
+}
+.highlight-yellow_background {
+	background: rgba(211, 168, 0, 0.137);
+}
+.highlight-teal_background {
+	background: rgba(0, 100, 45, 0.09);
+}
+.highlight-blue_background {
+	background: rgba(0, 124, 215, 0.094);
+}
+.highlight-purple_background {
+	background: rgba(102, 0, 178, 0.078);
+}
+.highlight-pink_background {
+	background: rgba(197, 0, 93, 0.086);
+}
+.highlight-red_background {
+	background: rgba(223, 22, 0, 0.094);
+}
+.block-color-default {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray {
+	color: rgba(125, 122, 117, 1);
+	fill: rgba(125, 122, 117, 1);
+}
+.block-color-brown {
+	color: rgba(159, 118, 90, 1);
+	fill: rgba(159, 118, 90, 1);
+}
+.block-color-orange {
+	color: rgba(210, 123, 45, 1);
+	fill: rgba(210, 123, 45, 1);
+}
+.block-color-yellow {
+	color: rgba(203, 148, 52, 1);
+	fill: rgba(203, 148, 52, 1);
+}
+.block-color-teal {
+	color: rgba(80, 148, 110, 1);
+	fill: rgba(80, 148, 110, 1);
+}
+.block-color-blue {
+	color: rgba(56, 125, 201, 1);
+	fill: rgba(56, 125, 201, 1);
+}
+.block-color-purple {
+	color: rgba(154, 107, 180, 1);
+	fill: rgba(154, 107, 180, 1);
+}
+.block-color-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.block-color-red {
+	color: rgba(207, 81, 72, 1);
+	fill: rgba(207, 81, 72, 1);
+}
+.block-color-default_background {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray_background {
+	background: rgba(240, 239, 237, 1);
+}
+.block-color-brown_background {
+	background: rgba(245, 237, 233, 1);
+}
+.block-color-orange_background {
+	background: rgba(251, 235, 222, 1);
+}
+.block-color-yellow_background {
+	background: rgba(249, 243, 220, 1);
+}
+.block-color-teal_background {
+	background: rgba(232, 241, 236, 1);
+}
+.block-color-blue_background {
+	background: rgba(229, 242, 252, 1);
+}
+.block-color-purple_background {
+	background: rgba(243, 235, 249, 1);
+}
+.block-color-pink_background {
+	background: rgba(250, 233, 241, 1);
+}
+.block-color-red_background {
+	background: rgba(252, 233, 231, 1);
+}
+.select-value-color-default { background-color: rgba(42, 28, 0, 0.07); }
+.select-value-color-gray { background-color: rgba(28, 19, 1, 0.11); }
+.select-value-color-brown { background-color: rgba(127, 51, 0, 0.156); }
+.select-value-color-orange { background-color: rgba(196, 88, 0, 0.203); }
+.select-value-color-yellow { background-color: rgba(209, 156, 0, 0.282); }
+.select-value-color-green { background-color: rgba(0, 96, 38, 0.156); }
+.select-value-color-blue { background-color: rgba(0, 118, 217, 0.203); }
+.select-value-color-purple { background-color: rgba(92, 0, 163, 0.141); }
+.select-value-color-pink { background-color: rgba(183, 0, 78, 0.152); }
+.select-value-color-red { background-color: rgba(206, 24, 0, 0.164); }
+
+.checkbox {
+	display: inline-flex;
+	vertical-align: text-bottom;
+	width: 16;
+	height: 16;
+	background-size: 16px;
+	margin-left: 2px;
+	margin-right: 5px;
+}
+
+.checkbox-on {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20width%3D%2216%22%20height%3D%2216%22%20fill%3D%22%2358A9D7%22%2F%3E%0A%3Cpath%20d%3D%22M6.71429%2012.2852L14%204.9995L12.7143%203.71436L6.71429%209.71378L3.28571%206.2831L2%207.57092L6.71429%2012.2852Z%22%20fill%3D%22white%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+
+.checkbox-off {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20x%3D%220.75%22%20y%3D%220.75%22%20width%3D%2214.5%22%20height%3D%2214.5%22%20fill%3D%22white%22%20stroke%3D%22%2336352F%22%20stroke-width%3D%221.5%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+	
+</style></head><body><article id="2c656320-92ca-8055-bc9f-d7d44a0b252a" class="page sans"><header><h1 class="page-title" dir="auto">IT Systems and Reporting Infrastructure Meeting</h1><p class="page-description" dir="auto"></p><table class="properties"><tbody><tr class="property-row property-row-status"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/burst_gray.svg" style="width:14px;height:14px;display:block"/></span>Processing</th><td><span class="status-value select-value-color-green"><div class="status-dot status-dot-color-green"></div>Processed</span></td></tr><tr class="property-row property-row-text"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/description_gray.svg" style="width:14px;height:14px;display:block"/></span>Agenda</th><td>SSRS reporting infrastructure overview, data sources walkthrough (M3, ETQ, Optiva, Thermograph, SysAid), report organization structure, system access planning</td></tr><tr class="property-row property-row-date"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/calendar_gray.svg" style="width:14px;height:14px;display:block"/></span>Date</th><td><time>December 11, 2025</time></td></tr><tr class="property-row property-row-multi_select"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/list_gray.svg" style="width:14px;height:14px;display:block"/></span>Attendees</th><td><span class="selected-value select-value-color-pink">Internal</span></td></tr><tr class="property-row property-row-select"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/arrow-circle-down_gray.svg" style="width:14px;height:14px;display:block"/></span>Meeting Type</th><td><span class="selected-value select-value-color-orange">Team Meeting</span></td></tr><tr class="property-row property-row-person"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/friends_gray.svg" style="width:14px;height:14px;display:block"/></span>Organizer</th><td><span class="user"><img src="https://lh3.googleusercontent.com/a/ACg8ocLHfVvdl28jS936w7CBB6TObsUa1P-X8cbdsUSKdeEn_MD7Bw=s96-c" class="icon user-icon"/>Steve </span></td></tr><tr class="property-row property-row-select"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/arrow-circle-down_gray.svg" style="width:14px;height:14px;display:block"/></span>Priority</th><td><span class="selected-value select-value-color-yellow">Medium</span></td></tr><tr class="property-row property-row-checkbox"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/checkmark-square_gray.svg" style="width:14px;height:14px;display:block"/></span>Has Cluely Transcript</th><td><div class="checkbox checkbox-on"></div></td></tr><tr class="property-row property-row-checkbox"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/checkmark-square_gray.svg" style="width:14px;height:14px;display:block"/></span>Has Final Transcript</th><td><div class="checkbox checkbox-on"></div></td></tr><tr class="property-row property-row-select"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/arrow-circle-down_gray.svg" style="width:14px;height:14px;display:block"/></span>Status</th><td><span class="selected-value select-value-color-brown">Completed</span></td></tr><tr class="property-row property-row-checkbox"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/checkmark-square_gray.svg" style="width:14px;height:14px;display:block"/></span>Has Notion Transcript</th><td><div class="checkbox checkbox-on"></div></td></tr><tr class="property-row property-row-checkbox"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/checkmark-square_gray.svg" style="width:14px;height:14px;display:block"/></span>Has Teams Transcript</th><td><div class="checkbox checkbox-off"></div></td></tr><tr class="property-row property-row-number"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/hashtag_gray.svg" style="width:14px;height:14px;display:block"/></span>Mtg #</th><td>9</td></tr><tr class="property-row property-row-checkbox"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/checkmark-square_gray.svg" style="width:14px;height:14px;display:block"/></span>Merged to Feed</th><td><div class="checkbox checkbox-off"></div></td></tr></tbody></table></header><div class="page-body"><div style="display:contents" dir="ltr"><div id="50143a70-5fea-41df-8e51-24071590a197" class="transcription"><div style="border-bottom:0.05em solid;border-bottom-color:rgba(42, 28, 0, 0.07)">Summary<br/></div><div style="display:contents" dir="auto"><h3 id="b5cb2948-52f5-4319-ae20-e946a7b3f88b" class="">Meeting Overview</h3></div><div style="display:contents" dir="auto"><ul id="186f4b2e-362a-4c7c-aff5-7bd1808f746d" class="bulleted-list"><li style="list-style-type:disc">Session focused on introducing Steve to the company&#x27;s reporting infrastructure and data sources <a href="IT%20Systems%20and%20Reporting%20Infrastructure%20Meeting%202c65632092ca8055bc9fd7d44a0b252a.html">[1]</a></li></ul></div><div style="display:contents" dir="auto"><ul id="da5a9b45-6609-4be0-97c7-0a322fcbb7b2" class="bulleted-list"><li style="list-style-type:disc">Discussion centered on how reports are organized, data sources available, and current reporting processes <a href="IT%20Systems%20and%20Reporting%20Infrastructure%20Meeting%202c65632092ca8055bc9fd7d44a0b252a.html">[2]</a> <a href="IT%20Systems%20and%20Reporting%20Infrastructure%20Meeting%202c65632092ca8055bc9fd7d44a0b252a.html">[3]</a></li></ul></div><div style="display:contents" dir="auto"><ul id="85e10a2c-b2ce-4324-a8bc-6de35b6a3262" class="bulleted-list"><li style="list-style-type:disc">Meeting served as part of Steve&#x27;s onboarding to understand the IT landscape before deeper engagement <a href="IT%20Systems%20and%20Reporting%20Infrastructure%20Meeting%202c65632092ca8055bc9fd7d44a0b252a.html">[4]</a></li></ul></div><div style="display:contents" dir="auto"><h3 id="96d5e279-efc0-4826-a0c8-6f14abc6aef7" class="">Reporting Structure</h3></div><div style="display:contents" dir="auto"><ul id="e578e563-d8eb-4b55-acc6-8ab5b4518a76" class="bulleted-list"><li style="list-style-type:disc">Reports are currently grouped by data source or function, with some organized by system <a href="IT%20Systems%20and%20Reporting%20Infrastructure%20Meeting%202c65632092ca8055bc9fd7d44a0b252a.html">[2]</a></li></ul></div><div style="display:contents" dir="auto"><ul id="d57d34a1-74af-441b-b77e-4ecb16f6c6af" class="bulleted-list"><li style="list-style-type:disc">When Molding Products and NAC were acquired, they maintained the same folder structure as Interplastic <a href="IT%20Systems%20and%20Reporting%20Infrastructure%20Meeting%202c65632092ca8055bc9fd7d44a0b252a.html">[3]</a></li></ul></div><div style="display:contents" dir="auto"><ul id="6c00bb8b-59e6-4221-a410-93cf630d4dff" class="bulleted-list"><li style="list-style-type:disc">Future goal is to organize reports by function (e.g., AP folder) without users needing to know which company or system the report comes from <a href="IT%20Systems%20and%20Reporting%20Infrastructure%20Meeting%202c65632092ca8055bc9fd7d44a0b252a.html">[5]</a></li></ul></div><div style="display:contents" dir="auto"><ul id="46198e5f-2555-45a5-9cc4-fb9a00066343" class="bulleted-list"><li style="list-style-type:disc">Current structure may be revised, and newer SSRS features could enable better organization <a href="IT%20Systems%20and%20Reporting%20Infrastructure%20Meeting%202c65632092ca8055bc9fd7d44a0b252a.html">[6]</a> <a href="IT%20Systems%20and%20Reporting%20Infrastructure%20Meeting%202c65632092ca8055bc9fd7d44a0b252a.html">[7]</a></li></ul></div><div style="display:contents" dir="auto"><h3 id="090aca0f-36d7-4ff0-ad1c-98be80270e73" class="">Data Sources Overview</h3></div><div style="display:contents" dir="auto"><ul id="b6456376-6ead-4bc2-9372-1e021edd4982" class="bulleted-list"><li style="list-style-type:disc">Comprehensive review of all available data sources for reporting <a href="IT%20Systems%20and%20Reporting%20Infrastructure%20Meeting%202c65632092ca8055bc9fd7d44a0b252a.html">[8]</a></li></ul></div><div style="display:contents" dir="auto"><ul id="c40b20fe-0333-4708-a5b8-86e8f6fb8df6" class="bulleted-list"><li style="list-style-type:disc">Key systems include:<div style="display:contents" dir="auto"><ul id="c0a68986-4c17-4af6-aae5-789c2a48e5ab" class="bulleted-list"><li style="list-style-type:circle">M3 (both cloud and on-premises versions) for ERP functions <a href="IT%20Systems%20and%20Reporting%20Infrastructure%20Meeting%202c65632092ca8055bc9fd7d44a0b252a.html">[9]</a> <a href="IT%20Systems%20and%20Reporting%20Infrastructure%20Meeting%202c65632092ca8055bc9fd7d44a0b252a.html">[10]</a></li></ul></div><div style="display:contents" dir="auto"><ul id="d162fa8e-97d0-4c45-95bb-a1bf2f508127" class="bulleted-list"><li style="list-style-type:circle">ETQ (&quot;Excellence Through Quality&quot;) for quality issues, safety, and agency requirements <a href="IT%20Systems%20and%20Reporting%20Infrastructure%20Meeting%202c65632092ca8055bc9fd7d44a0b252a.html">[11]</a> <a href="IT%20Systems%20and%20Reporting%20Infrastructure%20Meeting%202c65632092ca8055bc9fd7d44a0b252a.html">[12]</a></li></ul></div><div style="display:contents" dir="auto"><ul id="d1e75738-e6aa-4a33-b6b4-1f30fb65d96b" class="bulleted-list"><li style="list-style-type:circle">CPR (Capital Planning Requests) for RFEs <a href="IT%20Systems%20and%20Reporting%20Infrastructure%20Meeting%202c65632092ca8055bc9fd7d44a0b252a.html">[13]</a></li></ul></div><div style="display:contents" dir="auto"><ul id="8a70aedb-7c72-40ff-8ee1-b553d46068f5" class="bulleted-list"><li style="list-style-type:circle">EAM (Enterprise Asset Management) for maintenance work orders <a href="IT%20Systems%20and%20Reporting%20Infrastructure%20Meeting%202c65632092ca8055bc9fd7d44a0b252a.html">[13]</a></li></ul></div><div style="display:contents" dir="auto"><ul id="41da0a1e-9baa-41aa-89d0-de08344c3180" class="bulleted-list"><li style="list-style-type:circle">Thermograph for production testing and measuring viscosity <a href="IT%20Systems%20and%20Reporting%20Infrastructure%20Meeting%202c65632092ca8055bc9fd7d44a0b252a.html">[14]</a> <a href="IT%20Systems%20and%20Reporting%20Infrastructure%20Meeting%202c65632092ca8055bc9fd7d44a0b252a.html">[15]</a> <a href="IT%20Systems%20and%20Reporting%20Infrastructure%20Meeting%202c65632092ca8055bc9fd7d44a0b252a.html">[16]</a></li></ul></div><div style="display:contents" dir="auto"><ul id="2f87c16d-6ab9-4191-8196-7edfe18b4d3a" class="bulleted-list"><li style="list-style-type:circle">Optiva Live for formula and raw material data (R&amp;D sandbox) <a href="IT%20Systems%20and%20Reporting%20Infrastructure%20Meeting%202c65632092ca8055bc9fd7d44a0b252a.html">[17]</a></li></ul></div><div style="display:contents" dir="auto"><ul id="2013ab50-9c4b-4ab5-871c-8a95713ccebd" class="bulleted-list"><li style="list-style-type:circle">SysAid for ticketing <a href="IT%20Systems%20and%20Reporting%20Infrastructure%20Meeting%202c65632092ca8055bc9fd7d44a0b252a.html">[18]</a></li></ul></div><div style="display:contents" dir="auto"><ul id="78a5548d-deee-4185-9321-bdd92bfd26f1" class="bulleted-list"><li style="list-style-type:circle">Various other specialized databases <a href="IT%20Systems%20and%20Reporting%20Infrastructure%20Meeting%202c65632092ca8055bc9fd7d44a0b252a.html">[19]</a> <a href="IT%20Systems%20and%20Reporting%20Infrastructure%20Meeting%202c65632092ca8055bc9fd7d44a0b252a.html">[20]</a></li></ul></div></li></ul></div><div style="display:contents" dir="auto"><h3 id="7d8fe7cb-4da8-46cc-a734-f3c4ddde2f15" class="">System Integration</h3></div><div style="display:contents" dir="auto"><ul id="b7cadb3d-2cd7-4cd2-9ae4-44f76193178f" class="bulleted-list"><li style="list-style-type:disc">Data flows from M3 to ETQ (one-way integration) <a href="IT%20Systems%20and%20Reporting%20Infrastructure%20Meeting%202c65632092ca8055bc9fd7d44a0b252a.html">[21]</a> <a href="IT%20Systems%20and%20Reporting%20Infrastructure%20Meeting%202c65632092ca8055bc9fd7d44a0b252a.html">[22]</a></li></ul></div><div style="display:contents" dir="auto"><ul id="3e69bc20-a85b-4bc4-b01c-1e4cbacb0dbe" class="bulleted-list"><li style="list-style-type:disc">On-premises M3 servers enable workflows and document management with hyperlink functionality <a href="IT%20Systems%20and%20Reporting%20Infrastructure%20Meeting%202c65632092ca8055bc9fd7d44a0b252a.html">[9]</a></li></ul></div><div style="display:contents" dir="auto"><ul id="40021add-49cf-411c-a5dc-1403f6071611" class="bulleted-list"><li style="list-style-type:disc">Discussion about potential for more resilient linking between systems <a href="IT%20Systems%20and%20Reporting%20Infrastructure%20Meeting%202c65632092ca8055bc9fd7d44a0b252a.html">[23]</a> <a href="IT%20Systems%20and%20Reporting%20Infrastructure%20Meeting%202c65632092ca8055bc9fd7d44a0b252a.html">[24]</a> <a href="IT%20Systems%20and%20Reporting%20Infrastructure%20Meeting%202c65632092ca8055bc9fd7d44a0b252a.html">[25]</a> <a href="IT%20Systems%20and%20Reporting%20Infrastructure%20Meeting%202c65632092ca8055bc9fd7d44a0b252a.html">[26]</a></li></ul></div><div style="display:contents" dir="auto"><h3 id="823f00b4-4518-4606-8883-7d39f0b656cc" class="">Challenges and Considerations</h3></div><div style="display:contents" dir="auto"><ul id="0cdc7f5d-32b9-4c82-99bf-4ed7233128f1" class="bulleted-list"><li style="list-style-type:disc">No standardized stakeholder system for report requests <a href="IT%20Systems%20and%20Reporting%20Infrastructure%20Meeting%202c65632092ca8055bc9fd7d44a0b252a.html">[27]</a></li></ul></div><div style="display:contents" dir="auto"><ul id="013aefaf-f1bb-4d26-ba32-7e0ad2e75f5d" class="bulleted-list"><li style="list-style-type:disc">Users sometimes repurpose reports for different functions than intended <a href="IT%20Systems%20and%20Reporting%20Infrastructure%20Meeting%202c65632092ca8055bc9fd7d44a0b252a.html">[28]</a></li></ul></div><div style="display:contents" dir="auto"><ul id="133fa7df-9d09-4739-933d-abebd031ca4c" class="bulleted-list"><li style="list-style-type:disc">Need to consolidate reporting across multiple acquired companies <a href="IT%20Systems%20and%20Reporting%20Infrastructure%20Meeting%202c65632092ca8055bc9fd7d44a0b252a.html">[3]</a></li></ul></div><div style="display:contents" dir="auto"><ul id="2c331e7f-fa15-4a80-973a-7e11b39e4d35" class="bulleted-list"><li style="list-style-type:disc">Steve&#x27;s main challenge will be understanding how systems interconnect and affect each other <a href="IT%20Systems%20and%20Reporting%20Infrastructure%20Meeting%202c65632092ca8055bc9fd7d44a0b252a.html">[29]</a></li></ul></div><div style="display:contents" dir="auto"><ul id="56d77e04-ec85-4d32-bd85-72e6a0112d68" class="bulleted-list"><li style="list-style-type:disc">Some reporting may eventually be replaced by BI solutions <a href="IT%20Systems%20and%20Reporting%20Infrastructure%20Meeting%202c65632092ca8055bc9fd7d44a0b252a.html">[30]</a></li></ul></div><div style="display:contents" dir="auto"><h3 id="10dbc5d0-cba8-4225-92f1-d3b15f05a0aa" class="">Next Steps for Steve</h3></div><div style="display:contents" dir="auto"><ul id="24fb1f5b-8500-41d6-9af5-2e3ba5cde526" class="bulleted-list"><li style="list-style-type:disc">Steve has sufficient information to process before receiving system access <a href="IT%20Systems%20and%20Reporting%20Infrastructure%20Meeting%202c65632092ca8055bc9fd7d44a0b252a.html">[31]</a> <a href="IT%20Systems%20and%20Reporting%20Infrastructure%20Meeting%202c65632092ca8055bc9fd7d44a0b252a.html">[32]</a></li></ul></div><div style="display:contents" dir="auto"><ul id="00ce7b48-df0a-492f-ade4-55b81d8352b0" class="bulleted-list"><li style="list-style-type:disc">Future meeting planned with Matt to discuss production applications <a href="IT%20Systems%20and%20Reporting%20Infrastructure%20Meeting%202c65632092ca8055bc9fd7d44a0b252a.html">[33]</a></li></ul></div><div style="display:contents" dir="auto"><ul id="45037f13-0511-4622-895d-e1e67403ac53" class="bulleted-list"><li style="list-style-type:disc">Plans to arrange a site visit for Steve to do a walkthrough <a href="IT%20Systems%20and%20Reporting%20Infrastructure%20Meeting%202c65632092ca8055bc9fd7d44a0b252a.html">[4]</a> <a href="IT%20Systems%20and%20Reporting%20Infrastructure%20Meeting%202c65632092ca8055bc9fd7d44a0b252a.html">[34]</a></li></ul></div><div style="display:contents" dir="auto"><ul id="7a3fb288-9e09-4d61-ace0-c437205ecfaa" class="bulleted-list"><li style="list-style-type:disc">Meeting with Mike to discuss game plan and stakeholder engagement <a href="IT%20Systems%20and%20Reporting%20Infrastructure%20Meeting%202c65632092ca8055bc9fd7d44a0b252a.html">[4]</a></li></ul></div><div style="display:contents" dir="auto"><ul id="ad771b6e-2548-4c72-8481-8f14d1a552ff" class="bulleted-list"><li style="list-style-type:disc">Steve will continue meeting team members individually to build relationships <a href="IT%20Systems%20and%20Reporting%20Infrastructure%20Meeting%202c65632092ca8055bc9fd7d44a0b252a.html">[35]</a></li></ul></div><div style="display:contents" dir="auto"><h3 id="95084d75-c57d-41bd-a129-f8af60860109" class="">Action Items</h3></div><div style="display:contents" dir="auto"><ul id="323e31ea-556c-4ee2-9239-a28c374bd110" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Get Steve access to M3 for viewing reports <a href="IT%20Systems%20and%20Reporting%20Infrastructure%20Meeting%202c65632092ca8055bc9fd7d44a0b252a.html">[36]</a></span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="0eab9904-76c7-4cb2-879c-c8225d3ade32" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Arrange meeting with Matt about production applications <a href="IT%20Systems%20and%20Reporting%20Infrastructure%20Meeting%202c65632092ca8055bc9fd7d44a0b252a.html">[33]</a></span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="86938bc5-f632-4064-962d-fcdc3e121bd5" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Plan for Steve&#x27;s site visit and kickoff meeting <a href="IT%20Systems%20and%20Reporting%20Infrastructure%20Meeting%202c65632092ca8055bc9fd7d44a0b252a.html">[4]</a></span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="75f1525e-3a04-4381-86be-f76e46cb2c41" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Schedule meeting with Mike to discuss stakeholder engagement strategy <a href="IT%20Systems%20and%20Reporting%20Infrastructure%20Meeting%202c65632092ca8055bc9fd7d44a0b252a.html">[4]</a></span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="654e8d9b-6019-4154-a9cc-7d01d28b574f" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Update Carrie&#x27;s name on the infographic <a href="IT%20Systems%20and%20Reporting%20Infrastructure%20Meeting%202c65632092ca8055bc9fd7d44a0b252a.html">[37]</a></span><div class="indented"></div></li></ul></div><div style="border-bottom:0.05em solid;border-bottom-color:rgba(42, 28, 0, 0.07)">Notes<br/></div><div style="display:contents" dir="auto"><p id="8da85216-0d87-4979-b688-e2d32c72d19f" class="">
+</p></div><div style="border-bottom:0.05em solid;border-bottom-color:rgba(42, 28, 0, 0.07)">Transcript<br/></div><div style="display:contents" dir="auto"><p id="c25d2dc1-02c8-4542-babb-b70ddd8574ad" class="">I do need like 30 seconds. Hey, good, I need to finish my lunch, so we&#x27;ll see you guys back in a little bit. What&#x27;s a little bit? She said she&#x27;ll be back in a little bit. You tell me how long and I&#x27;ll be here. You want five minutes? Yeah, five words. Five minutes. We&#x27;ll see you at 35 after. All right.</p></div><div style="display:contents" dir="auto"><p id="ba98cbad-c932-42b9-a262-c05643079677" class="">Thank you.</p></div><div style="display:contents" dir="auto"><p id="12dfb466-ab7d-4142-911a-fd82e711694e" class="">We&#x27;ll restructure that likely if we build another server, which is likely. And then go over some of the data sources, where you&#x27;re pulling that data from, maybe giving a couple examples of some of the reports even as well. Feel free to chime in too if there&#x27;s other things you want to see at any point in time or questions you have too.</p></div><div style="display:contents" dir="auto"><p id="ec10de05-12d0-4551-b60c-408998487a4f" class="">Sorry, I didn&#x27;t go into a new meeting. I didn&#x27;t want to mix up my notes because these are very different. They&#x27;re different systems, basically. Okay. Let&#x27;s go. Sorry about that. Go for it.</p></div><div style="display:contents" dir="auto"><p id="d2da2a39-1a7f-457e-9341-24491dcbb493" class="">They&#x27;re grouped by the source of the data, or the main source of the data. And it&#x27;s by function of couple are by system, simply because...</p></div><div style="display:contents" dir="auto"><p id="7b83593c-e486-4b29-a989-95c3b3a5c0e7" class="">It was designed for interplastic, so when we brought in molding products and NAC, they have a folder. So when they&#x27;re older, then they have that same structure. Part of the reason is for NAC and molding products.</p></div><div style="display:contents" dir="auto"><p id="b138b158-ae0b-4fa2-b27f-0dd7d0f7eb13" class="">Table structures are almost identical between the systems, between the cloud and on-prem for M3. So, I stole a lot of interplastic reports to start from, but because the business is different enough, it couldn&#x27;t be 100% the same. And to be fair, she stole them from herself, so it&#x27;s not really stealing.</p></div><div style="display:contents" dir="auto"><p id="0e84631b-cfd4-4401-aa24-3a8df280501b" class="">True. So um yeah that&#x27;s kind of like I&#x27;m I envision either a, you know, by just the way it is now, except for no delineation between companies at some point. If you need an AP folder, you go in the AP folder. The user shouldn&#x27;t have to care what company or system the report is coming from. They just should be able to go, I want a check register, and I want it for this.</p></div><div style="display:contents" dir="auto"><p id="ddac8f9f-6721-42b1-8c89-3be9ee560404" class="">So that would be how I would ideally lay it in the future, but I don&#x27;t think it&#x27;s quite that simple.</p></div><div style="display:contents" dir="auto"><p id="d72270a3-9ad7-43df-88c3-df758efab6d9" class="">And I think that there is some way to do short-cutting now in SSRS that didn&#x27;t exist when we laid this out also.</p></div><div style="display:contents" dir="auto"><p id="938328f4-395d-4375-b8e4-5db63c27322b" class="">Here are all of my data sources that we have available.</p></div><div style="display:contents" dir="auto"><p id="e82d15dd-aade-4543-a26f-dd14aaffe50f" class="">CPR is Capital Planning Requests. built system to get to RFEs. EAM, which is Enterprise Asset Management, I think is what it is. It&#x27;s where they do all of the work order. Maintenance keeps all of their work orders. ETQ.</p></div><div style="display:contents" dir="auto"><p id="b7f121ca-9bbd-4175-955a-edd63defcf18" class="">Patrick, I can&#x27;t remember what an ETQ is. Excellence through quality. It started out as a company that was a quality-based company, primarily dealing with, you know, incidences for quality issues. But then it&#x27;s turned also into a company that handles safety and agency stuff as well, which is...</p></div><div style="display:contents" dir="auto"><p id="f7f5625a-de3b-4942-9149-4dd90973cdec" class="">Still, by definition, quality to some degree, just the difference in when someone gets injured versus when we have a bad product.</p></div><div style="display:contents" dir="auto"><p id="f9b4b5a9-52b7-4253-ae78-e5f823fe027b" class="">And the source of that is going to be coming from, as we talked about earlier, M3 to EQ. And there&#x27;s our dotted line. Yes, that&#x27;s my 12-year-old.</p></div><div style="display:contents" dir="auto"><p id="c7fd72c8-f2e4-4565-8b05-dac49477da0c" class="">I forgot I&#x27;m only sharing one screen. I was going to move them over. The backgrounds are my favorite of those school pictures. It&#x27;s just like, who at the school was like, yes, that&#x27;s it, we found it, we found it. I&#x27;m sorry, that&#x27;s just Yeah, it&#x27;s just what&#x27;s even funnier is there was one which I probably I know we got</p></div><div style="display:contents" dir="auto"><p id="6895d0be-6d5c-468f-8196-66c61d1d673f" class="">There&#x27;s like floating cat heads right here on a different background that they had.</p></div><div style="display:contents" dir="auto"><p id="62b3ee5c-c6ec-461d-af39-7e4e7fc6a116" class="">What do we even call it in HP 3- well, no. COBOL. COBOL system. Okay. Same with HP 3000. It was the legacy COBOL system.</p></div><div style="display:contents" dir="auto"><p id="13ec480c-4d09-4094-8b29-4477641bc5bc" class="">I am proud. We&#x27;ll go away.</p></div><div style="display:contents" dir="auto"><p id="2e38ac6b-7b46-4b18-800b-addd68e68bda" class="">Because we have the servers on-prem, in M3 there are workflows and document management and things like that, so I have reports. Where it will, like if they have an AP document, it goes up to there to find the path. So I can just let them hyperlink and get right to the documents in the system.</p></div><div style="display:contents" dir="auto"><p id="cda7dc6c-86ec-4059-9870-6aafd47ca25d" class="">M3 Cloud Prod, M3 Prod, M3 Prod Actual. So, depending on... I don&#x27;t know why MES dev is in the live portal, but then MES, which is the batch cycle count. So are those SSRS links hitting like infor like IDM workflow in on-prem M3 or a separate file?</p></div><div style="display:contents" dir="auto"><p id="bd67c821-c1c4-48da-86ef-94524e6e7771" class="">It&#x27;s a server on-site. slash bods with keys we can join on like in reports or direct database extracts.</p></div><div style="display:contents" dir="auto"><p id="95bf7e97-f1a0-4d8f-8eef-3c4660b816a0" class="">Everything they&#x27;ve ever really asked me for between those two systems, I&#x27;ve never thought about linking directly to ETQ because it&#x27;s always about, it&#x27;s not necessarily about the details of the item that they&#x27;re looking for. It&#x27;s most of the stuff that&#x27;s been written out of ETQ is related to...</p></div><div style="display:contents" dir="auto"><p id="3f49889c-28a4-4944-96f4-3ed04fef018b" class="">Safety, so it&#x27;s George dropped a pail on his foot and here&#x27;s the root cause. Those are the kind of things that have mostly written out more from the health and safety side than the quality side. We only have one quality report that we&#x27;ve written.</p></div><div style="display:contents" dir="auto"><p id="c7a4a67f-bed0-443f-9200-13dd78696954" class="">MPD-SHAR is called the PLC, Patrick. It is the controls or PLC system for molding products. Oh, no, which one? I&#x27;m sorry. Yeah, MPG-Sharp. MPG-Sharp. I thought you were MPCD. Sorry. Yep. And then Optiva Live is all of the formula. Raw material data, kind of the R&amp;D sandbox, sometimes people call it. PCD is...</p></div><div style="display:contents" dir="auto"><p id="30b448c0-f8f0-4f11-8c64-c6811955f30b" class="">It&#x27;s been too long since I wrote out of that one. Isn&#x27;t that prior? It&#x27;s for control systems. It&#x27;s for them to decide what... What is going to be the source for a material? So if you&#x27;re going to put it into the hatch, or if you&#x27;re going to put it into a drum, or if you&#x27;re going to put it in a non-drum.</p></div><div style="display:contents" dir="auto"><p id="0f17a83b-107d-42e7-9e2a-eff42907ae0e" class="">This power data, I needed to write a report off of Udiis&#x27; Power BI data.</p></div><div style="display:contents" dir="auto"><p id="ea58af60-da5a-4e6f-8435-938cb387d75b" class="">
+</p></div><div style="display:contents" dir="auto"><p id="240f211e-ba35-44b0-a96e-92ae5451a9b9" class="">To prepare for his departure and they he always had it out of a table we needed is stored. That&#x27;s why he wrote it from there.</p></div><div style="display:contents" dir="auto"><p id="fda8da76-9384-4dc8-b379-88a4aca7fcdb" class="">Yeah, that one was brand new.</p></div><div style="display:contents" dir="auto"><p id="7b29ce17-8bb9-4ca3-b8f7-4f5ed5d88a2f" class="">RTTU prod is... I don&#x27;t know why we have a report written directly against that one but oh yes I do because it&#x27;s a stored procedure. RPTVPROD is a database on the same server as on-prem MP3PROD. Because to do our stored procedures or functions or anything like that, we can&#x27;t put them on the log ship and you can&#x27;t put them on the actual database. So this is just a way to access.</p></div><div style="display:contents" dir="auto"><p id="b6896b32-e9a4-45c4-8d42-f4b44f75dfbe" class="">Is there a stable document key or a GUI we can standardize so that cross-company reorganizing won&#x27;t break links?</p></div><div style="display:contents" dir="auto"><p id="8540ac05-5660-4f55-9c9b-ebb072e520b6" class="">Or is that just completely not related to what? Sorry, that&#x27;s. I was just wondering if like is if there is a like a stable document key or like a GUID we can like standardize so that like any cross company like reorganizing like wouldn&#x27;t break the link?</p></div><div style="display:contents" dir="auto"><p id="4926240b-19d5-4992-bf8a-4d474d8e216e" class="">I don&#x27;t know that there is. I would need to get a little more clarification on how that would work. So that&#x27;s not a strong suit for me.</p></div><div style="display:contents" dir="auto"><p id="cfdb23f0-0331-4e19-9a4d-a7db848fdfb9" class="">We could probably answer that a little better, but I don&#x27;t think the answer is no. Those are the database notes. OK.</p></div><div style="display:contents" dir="auto"><p id="3b18e702-91de-4d82-bca6-48de5d67e10c" class="">Okay.</p></div><div style="display:contents" dir="auto"><p id="fd7b316f-59ff-4fd1-b3fd-1f24c55e3c24" class="">The DNS entry is in where that database sits, so that if we were to ever move it, we could update the DNS, but that&#x27;s not quite what you&#x27;re talking about, I don&#x27;t think. So, sorry, thanks for being, thanks for working with me on this. So, like, when I asked about, like, a GUID, I meant, like, a durable document slash object key in IDM or M3 that SSRS links can target, like, so folders. So, folder moves, link, like, link servers or cross-company, like, wouldn&#x27;t break the hyperlinks.</p></div><div style="display:contents" dir="auto"><p id="5f9c2546-f82c-4242-8933-22aca1c7165d" class="">But I&#x27;m not suggesting we merge anything. I was curious about, like, just wanting link resiliency. That&#x27;s all I was considering. Yeah, no. No, it&#x27;s not.</p></div><div style="display:contents" dir="auto"><p id="b55b305e-8fd6-4efe-a4c1-4a4be5a8ad47" class="">Not, not a big deal. For a second you guys were looking at me like I had horns. I was like, oh no, I&#x27;m off base here. Back up. Okay. Thanks for being flexible. Okay.</p></div><div style="display:contents" dir="auto"><p id="807ca1e6-f43f-4fdf-b860-22db38edf493" class="">We have a couple of reports that tell us that we send to ourselves, so if subscriptions are failing, we know so we can address them. I think I only have one report left for that, otherwise everything else Salesforce report-wise is written in Salesforce now.</p></div><div style="display:contents" dir="auto"><p id="37ba83e5-a162-4b18-955c-c5acf8401240" class="">SDSs is a little homegrown database for the SDSs.</p></div><div style="display:contents" dir="auto"><p id="44c1eb36-dc08-4375-b195-424335a99632" class="">SysAid is the ticketing system.</p></div><div style="display:contents" dir="auto"><p id="d766a566-5c5a-4a4d-ae55-2f1e83293186" class="">And thermograph. You know, I hear thermograph all the time, but I don&#x27;t even actually know 100% what it is, Patrick. Thermograph, long story short, is an application where they will take and measure the...</p></div><div style="display:contents" dir="auto"><p id="513c5ed6-8025-46a2-8981-3d2fe210dd7c" class="">If it&#x27;s starting to gel, if it&#x27;s, you know, gel to peak timings. So, it&#x27;s to help them measure a product with a test. And specifically, what they&#x27;re doing right now is they... They would have a guy who would take a popsicle stick and keep on jabbing at the material. And they would say, yep, that looks like it&#x27;s about ready to gel or is gelling.</p></div><div style="display:contents" dir="auto"><p id="230e8bfa-6197-4c65-8b02-d06821b26e74" class="">But it&#x27;s basically just a system that they use for testing. This is going to show it in the duration that we want it to. It&#x27;s another way of measuring viscosity too.</p></div><div style="display:contents" dir="auto"><p id="ad29d827-a9e4-4ba8-8b4c-e562e005d156" class="">So, production testing. Production testing.</p></div><div style="display:contents" dir="auto"><p id="7b1a2382-cdfa-43ea-a544-63bead1592d2" class="">So this is a dependable overview of all the data sources that Cary writes reports against. Any questions there before we leave that a little bit? And some of this might likely get replaced by BI down the road too. Well, this is fantastic.</p></div><div style="display:contents" dir="auto"><p id="5084118d-e7bf-40a0-9824-704310f27498" class="">I&#x27;m going to go see if I can run my most favoritest report. I can&#x27;t remember if it starts from the 88. Seeing it at such a high level, it&#x27;s always great to look at, you know. as high of a level as you can in terms of like visualizing the entire landscape so because sometimes you get so mired down like at a granular like a finer grain level that it&#x27;s hard to kind of wrap your head around how they all fit together and stuff so I appreciate this.</p></div><div style="display:contents" dir="auto"><p id="74a494c8-a475-4871-b273-159079777e80" class="">I mean especially coming from like the last meeting we were in we were like Patrick I don&#x27;t know Oh my god, yeah</p></div><div style="display:contents" dir="auto"><p id="ff715179-d038-4647-babf-3b3483d36b61" class="">Like I said, we&#x27;ll eventually, may or may not get replaced. The other challenge that I see here is that oftentimes, Karey will get a request from a user. Hey, can I add this to this report? Hey, oh, I need a report that does this. We don&#x27;t have a great stakeholder system in place, or haven&#x27;t.</p></div><div style="display:contents" dir="auto"><p id="d4328714-f280-46da-9348-de6d2dd62b9b" class="">We&#x27;ve got some, or had some, from time to time. People choose to use different reports and use them for shipping. That is a sales order, open sales order report. That&#x27;s not a shipping report. They both existed in CSS and they had to have both of them.</p></div><div style="display:contents" dir="auto"><p id="89fce814-ecd8-4919-843f-1281e6927e23" class="">So Steve, you should be able to get to that work homepage, and this one you will need to have VPN access to use, at which point I think you can access some of these reports. The other downside is that until I get you into M3 and have access to M3, the M3 reports are based off of what you&#x27;re accessing in M3.</p></div><div style="display:contents" dir="auto"><p id="9b612d05-8bee-45c9-b6d1-5ef4410f6b89" class="">That&#x27;s fine. I mean, at this stage, honestly, this is what I need to be doing anyway. It&#x27;d be nice to drill through the reports myself, but until I really have all the... Until you know some stuff. Yeah. Having access to this stuff right now is nice to have. These conversations and the previous ones we had today, those are what really...</p></div><div style="display:contents" dir="auto"><p id="52be53bd-0166-4c39-941d-85bd63548566" class="">That&#x27;s what I figured. Yeah. Again, I wanted to get you introduced to the rest of the team, and then start expanding from there, especially after we start getting you in front of Mike and start talking about what that game plan looks like, when we bring in the stakeholders, when to get you out here is another one that I&#x27;m excited to have you do a walkaround, when to do the kickoff.</p></div><div style="display:contents" dir="auto"><p id="c8a1ecdc-147f-4a6a-abda-6d450ec9833a" class="">Those are the ones that are clear. I won&#x27;t say more important, but they&#x27;re definitely important. IP Corp Boot Camp. Steve, where do you live? Remind me. Charleston, South Carolina.</p></div><div style="display:contents" dir="auto"><p id="57c6f310-5345-4506-8973-94f134de6d93" class="">I was for like 12 years. I mean I sure miss walking along the river on days and you getting to work in my tip of my nose almost being black and tears frozen on the side of my face going Pretty brutal, but yeah, it&#x27;s Yeah, I mean I&#x27;m totally okay with having it be 50-something degrees here and sunny</p></div><div style="display:contents" dir="auto"><p id="5ce6e51d-7a56-43fa-902b-f88b7ca8b261" class="">You can use that to egg us on every once in a while. I was trying to figure out a way to get together where you are.</p></div><div style="display:contents" dir="auto"><p id="1c00d06c-c214-42f4-a7d6-57358050c872" class="">Yeah, we&#x27;ll have an off-site retreat for the team down here. It&#x27;s got to be peak peak winner for Minneapolis Yeah, I mean, I mean, this is this is great. This is what I need right now. I just It&#x27;s good to meet meet everybody individually and just make it easier to not make it feel so random if I were to reach out like a faceless person like who the hell is this guy asking me these random questions like that&#x27;s why I&#x27;m trying to get you to meet each of the direct people on my team because they&#x27;re going to probably be some key people that you know like carry will be the one that I would probably contact to say hey carry</p></div><div style="display:contents" dir="auto"><p id="35c3f273-a3b3-49f7-8af9-1595f6c13ead" class="">That was the person that I needed to identify. I hadn&#x27;t yet really like I know who could... That&#x27;s all I needed. Awesome. Perfect.</p></div><div style="display:contents" dir="auto"><p id="fc517789-cb85-402b-a2f8-f3cf05a5cbe8" class="">Thank you very much for taking the time. I don&#x27;t, I mean, honestly based on everything that we&#x27;ve met about this morning, I... I have plenty of stuff to do this afternoon.</p></div><div style="display:contents" dir="auto"><p id="8dd1d788-8ece-4cfb-900e-02ce25d4433c" class="">I wanted to get you loaded up before I was going to be off for a couple days. Again, I will put together more information for the production applications with Matt, because that one, I knew MES would likely go long. I&#x27;ll probably do a little bit more on MES and then get into some of those other applications as well.</p></div><div style="display:contents" dir="auto"><p id="cf2f0eda-effb-400f-ab10-f880f5476136" class="">At some point I&#x27;ll probably get you talking about some of the controls, but all of that is going to come into play. You&#x27;ve got a lot to chew on. Process the most is like I keep understanding them individually like as their own kind of Silo is one thing but like really understanding how they&#x27;re all fitting together. What affects what like dependencies all of that. That&#x27;s what I probably working the most on so</p></div><div style="display:contents" dir="auto"><p id="b7b985da-e475-4e73-8018-cd910f6e3891" class="">If you don&#x27;t mind, I&#x27;m going to take some of the work that you have put together and show it on the screen, unless you have it handy there.</p></div><div style="display:contents" dir="auto"><p id="d43eb9c9-2d9c-4eec-8e6c-a7a9d3eb3a58" class="">One of the things that I still hadn&#x27;t done is update Carrie&#x27;s name on that infographic.</p></div><div style="display:contents" dir="auto"><p id="42e3d6f0-2f86-4423-8dd0-19a6126d4049" class="">I think MES is more to the occupations. It was pretty cool, it had a lot of company.</p></div><div style="display:contents" dir="auto"><p id="e3953001-63ea-4aa3-9071-fef542505716" class="">It&#x27;s just there&#x27;s the most things attached to MES, kind of. To M3, you mean? No, to MES.</p></div><div style="display:contents" dir="auto"><p id="ad3312f5-37cc-4618-a5be-715c3ae494c6" class="">Well, yeah.</p></div><div style="display:contents" dir="auto"><p id="6b23ee03-64bb-4d12-b10b-7004d8cb1bde" class="">Well, it&#x27;s only a one-way talk, though. They just dump data from M3 into ETQ. They don&#x27;t talk to each other.</p></div><div style="display:contents" dir="auto"><p id="71f1bc64-cba1-493b-8f22-298bf028bd09" class="">Just a couple of entries here that I&#x27;ve doctored up right.</p></div><div style="display:contents" dir="auto"><p id="6584c724-9ef6-4613-b1d5-a355ec0350f2" class="">I like the mess of the dream. That&#x27;s a great title by the way.</p></div><div style="display:contents" dir="auto"><p id="82843e96-2b42-4bce-8bd6-f2add7b23612" class="">Did I show this already, Carrie? You showed it to us in our meeting, yes. Okay.</p></div><div style="display:contents" dir="auto"><p id="72815dff-f0a0-4f8f-8dd3-3d81f7e708c8" class="">I was hoping to at least get some of the more obvious things ironed out before it was shown to the shown to the masses. Well, it&#x27;s not to the masses, it&#x27;s to the sub-masses at this point.</p></div><div style="display:contents" dir="auto"><p id="882183d0-aff3-4dfa-a615-2f5e83ab9cf4" class="">Yeah, I accept it. I approved your access to that page from this morning, by the way.</p></div><div style="display:contents" dir="auto"><p id="5fef21cf-851e-4ded-a5be-5468286015fc" class="">Uh, coming up on 18 months. I don&#x27;t know, a year. Give or take. Oh yeah, she just woke up from a nap. She wanted a smoothie. Duh.</p></div><div style="display:contents" dir="auto"><p id="dca84a7e-a1bf-439e-bb13-cb7c260c46e3" class="">She&#x27;s home sick from school. She can&#x27;t go back for 36 hours after getting hand, foot, and mouth, so that&#x27;s awesome.</p></div><div style="display:contents" dir="auto"><p id="7f4cd9a1-cdcf-4fe0-8ddd-a50e8e868d57" class="">I&#x27;m all done there, Steve. Yep. I&#x27;m on round two now, so... Oh, you mean once removed? Uh, yeah.</p></div><div style="display:contents" dir="auto"><p id="cf794e61-cbce-4bf0-8973-d937d38c6a75" class="">Yeah, it turns into a sport. You&#x27;re actually a spectator at this point. You can really throw your opinions in there. I&#x27;m sure they appreciate it. They know you&#x27;re doing it.</p></div><div style="display:contents" dir="auto"><p id="97197c35-d64c-498b-b7a4-32d3764eff8d" class="">drives my sisters crazy. Nice to meet you, Carrie.</p></div><div style="display:contents" dir="auto"><p id="9085872a-6cc1-4d83-b59f-02d22a3e3db9" class="">It carries the social connective tissue of the team, so I&#x27;ll put that in the graphic.</p></div><div style="display:contents" dir="auto"><p id="dbfe2180-7104-489b-b701-f5ab5ba40dd4" class="">Alright. Steve, I&#x27;m going to give you a buzz back real quick. Okay. And then we&#x27;ll call it. Sounds good. Thanks, guys. Bye, guys.</p></div><div style="display:contents" dir="auto"><p id="a0c0c738-33ed-4014-b35f-62bc038f0845" class="">
+</p></div></div></div><div style="display:contents" dir="auto"><hr id="2cb56320-92ca-80a2-b5d3-f1454466bc63"/></div><div style="display:contents" dir="auto"><h2 id="fde58ce2-e886-4b44-bbe3-9df4dd3733d1" class="">✅ ACTION ITEMS (Consolidated)</h2></div><div style="display:contents" dir="auto"><p id="1b76628c-245b-41ad-8ba5-0dfd48b97bff" class=""><strong>Patrick Stiller</strong></p></div><div style="display:contents" dir="auto"><ul id="439e292f-e68c-49fd-8d6f-9f4a0b19dd29" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Get Steve access to M3 for viewing reports</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="af2cc778-bc6b-465c-bfbe-2b57855077b1" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Arrange meeting with Matt about production applications</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="3f6cc9d0-b717-47f0-976f-d7aa5c387824" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Plan for Steve&#x27;s site visit and kickoff meeting</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="411cc7cb-464f-47b3-88a1-9c7bbe8df164" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Schedule meeting with Mike to discuss stakeholder engagement strategy</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="6b7728a8-c3eb-4b64-9bc7-ea156baca5af" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Put together more info on production applications with Matt</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><p id="d2303200-a376-48e8-ac7a-369fecdc8a9a" class=""><strong>Steve</strong></p></div><div style="display:contents" dir="auto"><ul id="f3b02c86-f007-424a-b0a7-f603e7118185" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Update Carrie&#x27;s name on the infographic</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="1a5afb95-0506-4773-9e3e-f6b620ac58a6" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Continue processing how systems fit together and affect each other</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><hr id="4c894aa5-5162-4943-8b3c-f4ace97a9fe1"/></div><div style="display:contents" dir="auto"><h2 id="89ac2807-4c63-4e36-befc-c7a2f9a11556" class="">📊 EVIDENCE MATRIX</h2></div><div style="display:contents" dir="ltr"><table id="641a1237-f551-4b11-870c-78f270092a92" class="simple-table"><thead class="simple-table-header"><div style="display:contents" dir="ltr"><tr id="684d1f11-a0b1-449b-a421-fdfc6133df60"><th id=":BD^" class="simple-table-header-color simple-table-header">ID</th><th id="zqHK" class="simple-table-header-color simple-table-header">Type</th><th id="UK:e" class="simple-table-header-color simple-table-header">Source</th><th id="K~gR" class="simple-table-header-color simple-table-header">Timestamp</th><th id="&lt;NBw" class="simple-table-header-color simple-table-header">Exact Quote</th></tr></div></thead><tbody><div style="display:contents" dir="ltr"><tr id="1d01eff1-65b8-4aca-9626-d5c5a969d05e"><td id=":BD^" class="">IT-FACT-1</td><td id="zqHK" class="">Fact</td><td id="UK:e" class="">Kerri Voiss</td><td id="K~gR" class="">~03:00</td><td id="&lt;NBw" class="">&quot;They&#x27;re grouped by the source of the data, or the main source of the data. And it&#x27;s by function&quot;</td></tr></div><div style="display:contents" dir="ltr"><tr id="9f4ea10a-b652-4b5d-b267-290140561c65"><td id=":BD^" class="">IT-FACT-2</td><td id="zqHK" class="">Fact</td><td id="UK:e" class="">Kerri Voiss</td><td id="K~gR" class="">~05:15</td><td id="&lt;NBw" class="">&quot;I envision either... by just the way it is now, except for no delineation between companies at some point. If you need an AP folder, you go in the AP folder.&quot;</td></tr></div><div style="display:contents" dir="ltr"><tr id="84a8eb33-3b38-428b-8f53-c8be9c916af8"><td id=":BD^" class="">IT-FACT-3</td><td id="zqHK" class="">Fact</td><td id="UK:e" class="">Patrick Stiller</td><td id="K~gR" class="">~08:30</td><td id="&lt;NBw" class="">&quot;ETQ - Excellence through quality. It started out as a company that was a quality-based company, primarily dealing with incidences for quality issues.&quot;</td></tr></div><div style="display:contents" dir="ltr"><tr id="85a5192c-191b-4bd5-b5fc-8ff32c0753ec"><td id=":BD^" class="">IT-FACT-4</td><td id="zqHK" class="">Fact</td><td id="UK:e" class="">Patrick Stiller</td><td id="K~gR" class="">~25:00</td><td id="&lt;NBw" class="">&quot;Thermograph... is an application where they will take and measure the... if it&#x27;s starting to gel, gel to peak timings.&quot;</td></tr></div><div style="display:contents" dir="ltr"><tr id="76b68427-d2fb-49aa-861b-da1627660a13"><td id=":BD^" class="">IT-FACT-5</td><td id="zqHK" class="">Fact</td><td id="UK:e" class="">Patrick Stiller</td><td id="K~gR" class="">~28:00</td><td id="&lt;NBw" class="">&quot;So this is a dependable overview of all the data sources that Carrie writes reports against.&quot;</td></tr></div><div style="display:contents" dir="ltr"><tr id="18cca797-5c42-4c7e-b362-002d2d64d30c"><td id=":BD^" class="">IT-FACT-6</td><td id="zqHK" class="">Fact</td><td id="UK:e" class="">Kerri Voiss</td><td id="K~gR" class="">~18:00</td><td id="&lt;NBw" class="">&quot;M3 to ETQ... it&#x27;s a one-way talk, they just dump data from M3 into ETQ. They don&#x27;t talk to each other.&quot;</td></tr></div><div style="display:contents" dir="ltr"><tr id="a3b6ea1e-9a84-459e-9185-4de14ebec5a9"><td id=":BD^" class="">IT-DEC-1</td><td id="zqHK" class="">Decision</td><td id="UK:e" class="">Patrick Stiller</td><td id="K~gR" class="">~35:00</td><td id="&lt;NBw" class="">&quot;I wanted to get you introduced to the rest of the team, and then start expanding from there, especially after we start getting you in front of Mike&quot;</td></tr></div><div style="display:contents" dir="ltr"><tr id="2f0c9850-8a99-4b69-99bb-fddb75aba40e"><td id=":BD^" class="">IT-NEXT-1</td><td id="zqHK" class="">Next Step</td><td id="UK:e" class="">Patrick Stiller</td><td id="K~gR" class="">~36:00</td><td id="&lt;NBw" class="">&quot;I will put together more information for the production applications with Matt&quot;</td></tr></div><div style="display:contents" dir="ltr"><tr id="af00bcbd-b738-4ff6-85ec-2ddc17621549"><td id=":BD^" class="">IT-NEXT-2</td><td id="zqHK" class="">Next Step</td><td id="UK:e" class="">Patrick Stiller</td><td id="K~gR" class="">~37:00</td><td id="&lt;NBw" class="">&quot;At some point I&#x27;ll probably get you talking about some of the controls&quot;</td></tr></div><div style="display:contents" dir="ltr"><tr id="e04d4149-7855-46a6-ab8b-9936cf098176"><td id=":BD^" class="">IT-CONTACT-1</td><td id="zqHK" class="">Fact</td><td id="UK:e" class="">Patrick Stiller</td><td id="K~gR" class="">~40:00</td><td id="&lt;NBw" class="">&quot;Carrie will be the one that I would probably contact to say hey Carrie... That was the person that I needed to identify.&quot;</td></tr></div></tbody></table></div><div style="display:contents" dir="ltr"><figure class="block-color-yellow_background callout" style="white-space:pre-wrap;display:flex" id="7d1c6a8a-90a4-4093-abd2-a486a1363784"><div style="font-size:1.5em"><span class="icon">⚠️</span></div><div style="width:100%"><div style="display:contents" dir="auto"><p id="9f0c9d9b-9a8a-4909-b9fc-0792c6c6b3ea" class=""><strong>No Teams transcript</strong> — Evidence extracted from Notion AI summary + transcript content. Timestamps are approximate based on conversation flow.</p></div><div style="display:contents" dir="auto"><hr id="3ddb763b-ef98-43d7-b3df-6082694a8beb"/></div><div style="display:contents" dir="auto"><h2 id="4e31cf44-918f-4d32-91b6-591794678a7a" class="">🎯 CLUELY SUMMARY (Recovered)</h2></div><div style="display:contents" dir="auto"><h3 id="3056874c-1662-44bb-b86f-7ac5164e9198" class="">Meeting Overview</h3></div><div style="display:contents" dir="auto"><ul id="0fccba68-804a-49b0-a035-da9843563614" class="bulleted-list"><li style="list-style-type:disc"><strong>Kerri Voiss</strong> leading SSRS portal walkthrough</li></ul></div><div style="display:contents" dir="auto"><ul id="76aabee0-83ca-4c10-adba-9546da3318be" class="bulleted-list"><li style="list-style-type:disc">Portal organized by data source/system, not by company</li></ul></div><div style="display:contents" dir="auto"><ul id="7cedf5f4-b000-4968-90e1-a69c33ad6fc6" class="bulleted-list"><li style="list-style-type:disc">Goal: future function-based folders, hide company details from end users</li></ul></div><div style="display:contents" dir="auto"><ul id="a9255af7-2da1-46ba-aad6-9760a41ce77e" class="bulleted-list"><li style="list-style-type:disc">Mention of new SSRS shortcut features not available at original design</li></ul></div><div style="display:contents" dir="auto"><h3 id="43af4ab6-7c1f-46b6-8bdf-a7484cd112ce" class="">Data Sources Highlighted</h3></div><div style="display:contents" dir="ltr"><table id="1e99fca6-df65-4de7-a5da-6ce1a81ff449" class="simple-table"><thead class="simple-table-header"><div style="display:contents" dir="ltr"><tr id="0361cdbf-02db-49a7-9312-1b6fa4f97cb9"><th id="FZ[G" class="simple-table-header-color simple-table-header">Source</th><th id="L@Bl" class="simple-table-header-color simple-table-header">Description</th></tr></div></thead><tbody><div style="display:contents" dir="ltr"><tr id="8de42d62-0231-4849-bc18-0f105e7046f5"><td id="FZ[G" class=""><strong>Adage</strong></td><td id="L@Bl" class="">Legacy, historical only, being retired</td></tr></div><div style="display:contents" dir="ltr"><tr id="bdca96b7-5ba7-4e3c-8b9b-9cd866be0db2"><td id="FZ[G" class=""><strong>Advanced Scheduler</strong></td><td id="L@Bl" class="">Reduction scheduling tool</td></tr></div><div style="display:contents" dir="ltr"><tr id="e509e484-3fcb-4925-abb8-37b3440c0d1c"><td id="FZ[G" class=""><strong>CPR</strong></td><td id="L@Bl" class="">Capital Planning Requests (RFEs)</td></tr></div><div style="display:contents" dir="ltr"><tr id="074567a9-8839-432a-9615-95355cb9e29b"><td id="FZ[G" class=""><strong>EAM</strong></td><td id="L@Bl" class="">Enterprise Asset Management — maintenance work orders</td></tr></div><div style="display:contents" dir="ltr"><tr id="4e1c1103-d7c8-4a2d-8ed1-c310be3f565f"><td id="FZ[G" class=""><strong>ETQ</strong></td><td id="L@Bl" class="">Quality &amp; HSE incidents, data sourced from M3 (direct DB loads, not ION)</td></tr></div><div style="display:contents" dir="ltr"><tr id="748c4128-054e-4bb7-ab76-a976345cb69c"><td id="FZ[G" class=""><strong>ION</strong></td><td id="L@Bl" class="">On-prem document management, links to IDM</td></tr></div><div style="display:contents" dir="ltr"><tr id="dbe12943-1059-477b-b300-2ad770337c01"><td id="FZ[G" class=""><strong>M3 Cloud / M3 Prod / M3 Prod Actual</strong></td><td id="L@Bl" class="">Cloud, on-prem, and 30-min log-shipped copy</td></tr></div><div style="display:contents" dir="ltr"><tr id="9ed4dc0c-4490-436c-a632-c641def40bba"><td id="FZ[G" class=""><strong>MESLive / MESDev</strong></td><td id="L@Bl" class="">Batch and cycle-count data</td></tr></div><div style="display:contents" dir="ltr"><tr id="870ba301-6486-4e6a-8747-8d461df643d7"><td id="FZ[G" class=""><strong>MPD SHAR</strong></td><td id="L@Bl" class="">PLC controls for Molding Products</td></tr></div><div style="display:contents" dir="ltr"><tr id="290663c2-f247-49f2-b0c6-bac6f48a385a"><td id="FZ[G" class=""><strong>OptivaLive</strong></td><td id="L@Bl" class="">Formulas &amp; raw-material R&amp;D sandbox</td></tr></div><div style="display:contents" dir="ltr"><tr id="559c0490-0992-4df8-9922-a409a641b30c"><td id="FZ[G" class=""><strong>PCD</strong></td><td id="L@Bl" class="">Control-system material source decisions</td></tr></div><div style="display:contents" dir="ltr"><tr id="da0de910-72db-4b21-a405-b21498dafdc2"><td id="FZ[G" class=""><strong>Salesforce</strong></td><td id="L@Bl" class="">Mostly native reporting now; one SSRS report left</td></tr></div><div style="display:contents" dir="ltr"><tr id="d0d90c2a-043a-4f88-8d85-0ff61960571e"><td id="FZ[G" class=""><strong>SDS</strong></td><td id="L@Bl" class="">Homegrown ticketing DB</td></tr></div><div style="display:contents" dir="ltr"><tr id="3a3da093-2da6-4adf-b4e4-46cbdc58dbba"><td id="FZ[G" class=""><strong>Thermograph</strong></td><td id="L@Bl" class="">Viscosity/gel-time testing application</td></tr></div><div style="display:contents" dir="ltr"><tr id="2603a293-76df-48c1-8449-214c7cf80b69"><td id="FZ[G" class=""><strong>rpt_view_prod</strong></td><td id="L@Bl" class="">Helper DB for stored procedures (on M3 on-prem server)</td></tr></div><div style="display:contents" dir="ltr"><tr id="cc373f8c-13bf-4734-9163-2c7fb53bc833"><td id="FZ[G" class=""><strong>rpt_live</strong></td><td id="L@Bl" class="">Portal self-monitoring for failed subscriptions</td></tr></div></tbody></table></div><div style="display:contents" dir="auto"><h3 id="33ef4b66-1acc-4e04-bac6-949098394fde" class="">Architecture Insights</h3></div><div style="display:contents" dir="auto"><ul id="24c7dbf8-1020-4830-8595-692d08e9fc91" class="bulleted-list"><li style="list-style-type:disc">M3 cloud and on-prem schemas almost identical; many Interplastic reports reused</li></ul></div><div style="display:contents" dir="auto"><ul id="2d345363-0be0-4e6f-91f6-bbe3de71a3f7" class="bulleted-list"><li style="list-style-type:disc">ETQ receives data via <strong>direct DB loads from M3</strong>, not through ION/BODs</li></ul></div><div style="display:contents" dir="auto"><ul id="c6ed4764-9455-4ae2-94c9-aa88544c226d" class="bulleted-list"><li style="list-style-type:disc">IDM hyperlinks currently point to on-prem paths; <strong>no known durable GUID</strong></li></ul></div><div style="display:contents" dir="auto"><ul id="9d88c463-d83f-4399-81bb-c7ca73c2a2b1" class="bulleted-list"><li style="list-style-type:disc">DNS entries used for DB hosts to allow future moves, but not a full link-resiliency solution</li></ul></div><div style="display:contents" dir="auto"><ul id="6c316c73-90c7-43df-8975-82b7d6748a0f" class="bulleted-list"><li style="list-style-type:disc">Some reports use link servers across systems, raising potential breakage risk</li></ul></div><div style="display:contents" dir="auto"><h3 id="78479a1e-4d6e-41c8-898f-a36eb6d580a1" class="">Link Resiliency Discussion</h3></div><div style="display:contents" dir="auto"><ul id="80a4274d-9c47-4e2c-8df2-63c3203b7054" class="bulleted-list"><li style="list-style-type:disc">Steve asked about a stable document key/GUID to prevent broken links after folder or company moves</li></ul></div><div style="display:contents" dir="auto"><ul id="2367f680-a3a4-40f1-9264-1bf9b8357b17" class="bulleted-list"><li style="list-style-type:disc">Kerri indicated <strong>no such standard exists today</strong>; links are brittle</li></ul></div><div style="display:contents" dir="auto"><ul id="9b8c28f5-5b98-4995-bb95-2fda7178188a" class="bulleted-list"><li style="list-style-type:disc">Suggested approach: store durable object ID in report and call IDM endpoint instead of static path</li></ul></div><div style="display:contents" dir="auto"><ul id="180280f1-b4cb-4035-9479-cd449bf78265" class="bulleted-list"><li style="list-style-type:disc">Agreed to <strong>park as low-effort discovery item</strong> while focusing on core SSRS walkthrough</li></ul></div><div style="display:contents" dir="auto"><hr id="3bdc82dc-aa7d-4c7b-a5ec-7e3c9d3924b6"/></div><div style="display:contents" dir="auto"><h2 id="b12d7311-f10e-4f0f-90e2-b6d7abf727f5" class="">📝 INFOGRAPHIC UPDATE CHECKLIST (for Gemini 3)</h2></div><div style="display:contents" dir="auto"><p id="d1ef55d4-f56b-42cd-80e0-0edeaebd747e" class=""><strong>Core Positioning:</strong></p></div><div style="display:contents" dir="auto"><ul id="444f4ea3-e955-43cc-bf46-6583b6f16c4b" class="bulleted-list"><li style="list-style-type:disc">Keep <strong>MES as core to operations</strong> in the manufacturing layer</li></ul></div><div style="display:contents" dir="auto"><ul id="5dc486f2-ace6-4527-abfe-cc25f5cdca24" class="bulleted-list"><li style="list-style-type:disc">Elevate <strong>M3 as core to the company</strong> for master/commercial/financial data</li></ul></div><div style="display:contents" dir="auto"><ul id="1c090044-228b-4ad7-a4d5-07881f8ad80a" class="bulleted-list"><li style="list-style-type:disc">Visually show MES and M3 as the two hubs with distinct roles</li></ul></div><div style="display:contents" dir="auto"><p id="cde0b08a-536f-4869-bd7f-0a65f002a70c" class=""><strong>ETQ and SDS:</strong></p></div><div style="display:contents" dir="auto"><ul id="75d5ae58-39a1-4256-b354-9342ffb1a8b2" class="bulleted-list"><li style="list-style-type:disc">Change ETQ to a <strong>one-way flow M3 → ETQ</strong>; remove any MES ↔ ETQ line</li></ul></div><div style="display:contents" dir="auto"><ul id="4dae3cc5-b3a9-4001-b578-860925540d8a" class="bulleted-list"><li style="list-style-type:disc">Keep SDS as a separate homegrown DB; <strong>no ETQ ↔ SDS arrow</strong> unless validated</li></ul></div><div style="display:contents" dir="auto"><ul id="19c7a753-246c-4865-a513-9b60eadf5381" class="bulleted-list"><li style="list-style-type:disc">Label SDS &quot;homegrown DB, reporting focus&quot;</li></ul></div><div style="display:contents" dir="auto"><p id="205814a2-3216-47b2-aecc-7738815c9204" class=""><strong>Rockwell/Plant Floor:</strong></p></div><div style="display:contents" dir="auto"><ul id="b08cf5a1-bf9f-4403-bb9e-708bc7e3a2ad" class="bulleted-list"><li style="list-style-type:disc"><strong>PlantPAx ↔ MES only</strong> — no direct PlantPAx ↔ M3 line</li></ul></div><div style="display:contents" dir="auto"><ul id="ed0b8eb7-5d51-444e-bc59-6166fe998f1c" class="bulleted-list"><li style="list-style-type:disc"><strong>FactoryTalk Batch ↔ MES only</strong> — remove any FactoryTalk ↔ M3 line</li></ul></div><div style="display:contents" dir="auto"><p id="648e39be-fa34-4f07-a62d-8937e9c387ed" class=""><strong>MPD SHAR and BatchWorks:</strong></p></div><div style="display:contents" dir="auto"><ul id="d1de0dd1-cde3-4e4f-b036-248e5c006710" class="bulleted-list"><li style="list-style-type:disc">Move <strong>MPD SHAR to connect against M3</strong> (not MES); label &quot;MES light for MPD&quot;</li></ul></div><div style="display:contents" dir="auto"><ul id="8bbc4928-6ce0-4856-825c-f41d55d07450" class="bulleted-list"><li style="list-style-type:disc">Connect <strong>BatchWorks to M3</strong>; no MES link unless confirmed</li></ul></div><div style="display:contents" dir="auto"><p id="6f8e6777-c16f-4bc8-9fbd-bcb55ab94faa" class=""><strong>ANV &amp; OATS:</strong></p></div><div style="display:contents" dir="auto"><ul id="43be6dab-5a6d-43c2-9d65-cb4c5af8625e" class="bulleted-list"><li style="list-style-type:disc">Keep <strong>ANV ↔ MES only</strong></li></ul></div><div style="display:contents" dir="auto"><ul id="69a57acb-5e96-4dcd-bdf6-b472bf7ef80e" class="bulleted-list"><li style="list-style-type:disc">Keep <strong>OATS ↔ MES</strong> via Batch ID</li></ul></div><div style="display:contents" dir="auto"><p id="2300ad5f-1a37-49aa-bcd4-8d281f85ac20" class=""><strong>Adage:</strong></p></div><div style="display:contents" dir="auto"><ul id="368ca71a-d3b9-4838-9256-76947841e6b6" class="bulleted-list"><li style="list-style-type:disc">Mark Adage <strong>&quot;legacy/historical only; migrated to M3 Cloud&quot;</strong></li></ul></div><div style="display:contents" dir="auto"><ul id="8ec430d2-6c0c-4afd-8360-ed50c79c7044" class="bulleted-list"><li style="list-style-type:disc">Remove active flows from Adage</li></ul></div><div style="display:contents" dir="auto"><p id="1b13c26c-db1b-4343-8fa2-2fca688a37c9" class=""><strong>Reporting Layer (SSRS):</strong></p></div><div style="display:contents" dir="auto"><ul id="a1103583-83fc-4652-820d-069c7abfbf7e" class="bulleted-list"><li style="list-style-type:disc">Show SSRS pulling from: M3 Prod, M3 Prod Actual, M3 Cloud, MES, Optiva, ETQ, EAM, CPR, Salesforce, SDS, Thermograph, rpt_view_prod, rpt_live</li></ul></div><div style="display:contents" dir="auto"><ul id="f0f96886-3579-4891-b756-d197c54c4c69" class="bulleted-list"><li style="list-style-type:disc">Note: <strong>rpt_live</strong> = portal self-monitoring for failed subscriptions</li></ul></div><div style="display:contents" dir="auto"><ul id="a8405f30-3cc7-43e6-af86-c54a64a41684" class="bulleted-list"><li style="list-style-type:disc">Note: <strong>rpt_view_prod</strong> = helper DB on M3 on-prem server for stored procs/functions</li></ul></div><div style="display:contents" dir="auto"><p id="e98da3a1-d36a-403f-b277-88f2063004c9" class=""><strong>Document Management:</strong></p></div><div style="display:contents" dir="auto"><ul id="daa54924-49bf-4e6b-b173-dd4f542a7ecb" class="bulleted-list"><li style="list-style-type:disc">Add <strong>&quot;Infor Document Management (IDM) on-prem&quot;</strong> node attached to M3</li></ul></div><div style="display:contents" dir="auto"><ul id="0fb146e9-5d61-444e-a75b-2862a3b56963" class="bulleted-list"><li style="list-style-type:disc">From SSRS, show hyperlinking to IDM documents (not a data integration)</li></ul></div><div style="display:contents" dir="auto"><p id="ce704ca6-f400-480c-85f2-8cb76bf2f9ed" class=""><strong>ION Clarification:</strong></p></div><div style="display:contents" dir="auto"><ul id="542a11ac-4c12-46e0-843b-cc9a0ebf4969" class="bulleted-list"><li style="list-style-type:disc"><strong>ION is also in the cloud</strong> (not only on-prem)</li></ul></div><div style="display:contents" dir="auto"><ul id="e7e9f44c-8840-4542-8bf6-82612ebb42bc" class="bulleted-list"><li style="list-style-type:disc"><strong>MECH is only on-prem</strong></li></ul></div><div style="display:contents" dir="auto"><p id="68cd3870-3106-4c0a-8790-07ee8f2217b1" class=""><strong>Legend Updates:</strong></p></div><div style="display:contents" dir="auto"><ul id="52387749-9f33-46b6-b492-dde93f292e5a" class="bulleted-list"><li style="list-style-type:disc">✅ Confirmed: MES ↔ M3, ANV ↔ MES, OATS ↔ MES, PlantPAx ↔ MES, FactoryTalk Batch ↔ MES, M3 → ETQ</li></ul></div><div style="display:contents" dir="auto"><ul id="c3c79127-ce28-441e-af1c-a130a9fc2a01" class="bulleted-list"><li style="list-style-type:disc">❓ Assumed: ETQ ↔ SDS, BatchWorks ↔ which M3 instance, MPD SHAR ↔ which M3 instance, Thermograph integrations</li></ul></div><div style="display:contents" dir="auto"><blockquote id="5b7e1174-82f7-4888-9016-2203ff970cde" class=""><strong>Diagram Caption:</strong> &quot;MES is operational core; M3 is enterprise core. Plant-floor systems connect to MES; quality/safety (ETQ) receives data from M3; reporting spans both via SSRS with IDM hyperlinks; legacy Adage is historical only.&quot;</blockquote></div><div style="display:contents" dir="auto"><hr id="0540de59-bbed-402f-919e-85cd30169e77"/></div><div style="display:contents" dir="auto"><h2 id="9987b7b3-0b8b-424f-8c16-c1f7357f3837" class="">💡 CLUELY USAGE LOG (12 real-time assists)</h2></div><div style="display:contents" dir="ltr"><table id="c0ba2bb4-f4c6-4062-956c-ec6fb2620acb" class="simple-table"><thead class="simple-table-header"><div style="display:contents" dir="ltr"><tr id="77b68e9a-4211-44a3-96e8-88f1009cbb52"><th id="{?Ud" class="simple-table-header-color simple-table-header">Time</th><th id="xC:Q" class="simple-table-header-color simple-table-header">Assist Type</th><th id="y}U&gt;" class="simple-table-header-color simple-table-header">Content</th></tr></div></thead><tbody><div style="display:contents" dir="ltr"><tr id="b75d4634-1e3b-4df7-9275-86570d6a4458"><td id="{?Ud" class="">12:41 PM</td><td id="xC:Q" class="">Context reload</td><td id="y}U&gt;" class="">Loaded Notion context from Mode</td></tr></div><div style="display:contents" dir="ltr"><tr id="743ffff4-b925-4a17-bf57-bb31e7752dad"><td id="{?Ud" class="">12:43 PM</td><td id="xC:Q" class="">Zinger mode enabled</td><td id="y}U&gt;" class="">Protocol established for live follow-ups</td></tr></div><div style="display:contents" dir="ltr"><tr id="3ab670d5-6551-40aa-b9d3-8a1b54f013c4"><td id="{?Ud" class="">12:46 PM</td><td id="xC:Q" class="">Zinger</td><td id="y}U&gt;" class="">IDM hyperlinks, ETQ source, auth patterns</td></tr></div><div style="display:contents" dir="ltr"><tr id="88fa1464-e5a4-461a-99c2-9b744b47884b"><td id="{?Ud" class="">12:48 PM</td><td id="xC:Q" class="">Quick lookup</td><td id="y}U&gt;" class="">Kerri Voiss role/background</td></tr></div><div style="display:contents" dir="ltr"><tr id="4f6d0b3c-8481-448f-a46f-fcb04ad0075f"><td id="{?Ud" class="">12:50 PM</td><td id="xC:Q" class="">Catch-up + reassurance</td><td id="y}U&gt;" class="">Summary of what&#x27;s been covered</td></tr></div><div style="display:contents" dir="ltr"><tr id="975228cd-b2ff-4007-b783-a1f85d1e1a71"><td id="{?Ud" class="">12:55 PM</td><td id="xC:Q" class="">Course correction</td><td id="y}U&gt;" class="">Dropped link resiliency, moved on</td></tr></div><div style="display:contents" dir="ltr"><tr id="2f4dc522-8b44-41c9-8f86-f38ecb4702ac"><td id="{?Ud" class="">1:03 PM</td><td id="xC:Q" class="">Infographic framing</td><td id="y}U&gt;" class="">How to describe current flow diagram</td></tr></div><div style="display:contents" dir="ltr"><tr id="6a4651d4-267f-4e05-81a6-1f668ad914bc"><td id="{?Ud" class="">1:06 PM</td><td id="xC:Q" class="">Infographic change list</td><td id="y}U&gt;" class="">Full detailed list for Gemini 3 update</td></tr></div></tbody></table></div><div style="display:contents" dir="auto"><hr id="f867b2f3-7e60-4e49-abbe-98aa8d7c027f"/></div><div style="display:contents" dir="auto"><h2 id="63cdabe5-3914-4b23-9f42-a71abfbe8275" class="">🆕 NEW FACTS (from Cluely — Not Yet in Feed)</h2></div><div style="display:contents" dir="ltr"><table id="8bbe0b0e-6b42-4f76-8e61-39bff89fc345" class="simple-table"><thead class="simple-table-header"><div style="display:contents" dir="ltr"><tr id="f2ef6fc2-5387-4bc2-8d9a-28e790d7799c"><th id="DibH" class="simple-table-header-color simple-table-header">Fact</th><th id="jW^`" class="simple-table-header-color simple-table-header">Category</th><th id="nStr" class="simple-table-header-color simple-table-header">Status</th></tr></div></thead><tbody><div style="display:contents" dir="ltr"><tr id="91df0641-f636-4895-bc4a-c501343595c1"><td id="DibH" class=""><strong>rpt_view_prod</strong> = helper DB on M3 on-prem for stored procs</td><td id="jW^`" class="">Systems</td><td id="nStr" class="">✅ Confirmed</td></tr></div><div style="display:contents" dir="ltr"><tr id="c69a5bd5-bb18-4ff3-bb62-a9e6fea21115"><td id="DibH" class=""><strong>rpt_live</strong> = SSRS portal self-monitoring for failed subscriptions</td><td id="jW^`" class="">Systems</td><td id="nStr" class="">✅ Confirmed</td></tr></div><div style="display:contents" dir="ltr"><tr id="20456fa8-2501-4fe7-bb38-c8c5e9ae06ae"><td id="DibH" class=""><strong>ETQ</strong> = direct DB loads from M3 (not ION/BODs)</td><td id="jW^`" class="">Data Flows</td><td id="nStr" class="">✅ Confirmed</td></tr></div><div style="display:contents" dir="ltr"><tr id="4e59eeb6-bfd8-489a-b17a-63853492e017"><td id="DibH" class=""><strong>M3 Prod Actual</strong> = 30-minute log-shipped copy of M3 on-prem</td><td id="jW^`" class="">Systems</td><td id="nStr" class="">✅ Confirmed</td></tr></div><div style="display:contents" dir="ltr"><tr id="36866dd8-6d2e-4490-a9b4-2ca6122460f7"><td id="DibH" class=""><strong>ION</strong> = exists in both cloud AND on-prem</td><td id="jW^`" class="">Systems</td><td id="nStr" class="">✅ Confirmed</td></tr></div><div style="display:contents" dir="ltr"><tr id="ecb3bd3a-23e6-430e-89ef-e76808819d64"><td id="DibH" class=""><strong>MECH</strong> = only on-prem</td><td id="jW^`" class="">Systems</td><td id="nStr" class="">✅ Confirmed</td></tr></div><div style="display:contents" dir="ltr"><tr id="04bdfd26-6757-40cb-9ac3-bf8a14b6ae24"><td id="DibH" class=""><strong>No durable GUID</strong> for IDM hyperlinks — links are brittle</td><td id="jW^`" class="">Architecture</td><td id="nStr" class="">✅ Confirmed</td></tr></div><div style="display:contents" dir="ltr"><tr id="b5d45e67-659d-4bba-95d2-2bfb51c9d848"><td id="DibH" class=""><strong>Kerri Voiss</strong> = &quot;social connective tissue&quot; of the team</td><td id="jW^`" class="">People</td><td id="nStr" class="">✅ Confirmed</td></tr></div></tbody></table></div><div style="display:contents" dir="ltr"><figure class="block-color-blue_background callout" style="white-space:pre-wrap;display:flex" id="bb47ab7b-bb49-47b7-9a21-7dac44004459"><div style="font-size:1.5em"><span class="icon">📎</span></div><div style="width:100%"><div style="display:contents" dir="auto"><p id="c792b3f8-0321-47b5-bd1c-4d319dfd3e64" class=""><strong>Cluely source merged</strong> from recovered page: <a href="IT%20Systems%20and%20Reporting%20Infrastructure%20Meeting/SSRS%20Reporting%20Overview%20&amp;%20Infographic%20Updates%20%E2%80%94%2020%20cc93c05624574965b74695e831a66197.html">SSRS Reporting Overview &amp; Infographic Updates — 2025-12-11</a></p></div></div></figure></div></div></figure></div><div style="display:contents" dir="ltr"><figure id="cc93c056-2457-4965-b746-95e831a66197" class="link-to-page"><a href="IT%20Systems%20and%20Reporting%20Infrastructure%20Meeting/SSRS%20Reporting%20Overview%20&amp;%20Infographic%20Updates%20%E2%80%94%2020%20cc93c05624574965b74695e831a66197.html">SSRS Reporting Overview &amp; Infographic Updates — 2025-12-11</a></figure></div></div></article><span class="sans" style="font-size:14px;padding-top:2em"></span></body></html>

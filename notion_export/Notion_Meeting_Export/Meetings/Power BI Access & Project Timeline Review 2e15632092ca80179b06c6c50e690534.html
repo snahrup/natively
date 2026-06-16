@@ -1,0 +1,744 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>Power BI Access &amp; Project Timeline Review</title><style>
+/* cspell:disable-file */
+/* webkit printing magic: print all background colors */
+html {
+	-webkit-print-color-adjust: exact;
+}
+* {
+	box-sizing: border-box;
+	-webkit-print-color-adjust: exact;
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+}
+@media only screen {
+	body {
+		margin: 2em auto;
+		max-width: 900px;
+		color: rgb(55, 53, 47);
+	}
+}
+
+body {
+	line-height: 1.5;
+	white-space: pre-wrap;
+}
+
+a,
+a.visited {
+	color: inherit;
+	text-decoration: underline;
+}
+
+.pdf-relative-link-path {
+	font-size: 80%;
+	color: #444;
+}
+
+h1,
+h2,
+h3 {
+	letter-spacing: -0.01em;
+	line-height: 1.2;
+	font-weight: 600;
+	margin-bottom: 0;
+}
+
+/* Override strong tags inside headings to maintain consistent weight */
+h1 strong,
+h2 strong,
+h3 strong {
+	font-weight: 600;
+}
+
+.page-title {
+	font-size: 2.5rem;
+	font-weight: 700;
+	margin-top: 0;
+	margin-bottom: 0.75em;
+}
+
+h1 {
+	font-size: 1.875rem;
+	margin-top: 1.875rem;
+}
+
+h2 {
+	font-size: 1.5rem;
+	margin-top: 1.5rem;
+}
+
+h3 {
+	font-size: 1.25rem;
+	margin-top: 1.25rem;
+}
+
+.source {
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	padding: 1.5em;
+	word-break: break-all;
+}
+
+.callout {
+	border-radius: 10px;
+	padding: 1rem;
+}
+
+figure {
+	margin: 1.25em 0;
+	page-break-inside: avoid;
+}
+
+figcaption {
+	opacity: 0.5;
+	font-size: 85%;
+	margin-top: 0.5em;
+}
+
+mark {
+	background-color: transparent;
+}
+
+.indented {
+	padding-left: 1.5em;
+}
+
+hr {
+	background: transparent;
+	display: block;
+	width: 100%;
+	height: 1px;
+	visibility: visible;
+	border: none;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+img {
+	max-width: 100%;
+}
+
+@media only print {
+	img {
+		max-height: 100vh;
+		object-fit: contain;
+	}
+
+	table.collection-content {
+		width: 100%;
+		table-layout: fixed;
+	}
+
+	table.collection-content th,
+	table.collection-content td {
+		overflow-wrap: anywhere;
+	}
+
+	table.collection-content td > .user,
+	table.collection-content td > time {
+		white-space: pre-wrap;
+	}
+}
+
+@page {
+	margin: 1in;
+}
+
+.collection-content-wrapper {
+	overflow-x: auto;
+}
+
+@media only print {
+	.collection-content-wrapper {
+		overflow-x: visible;
+	}
+}
+
+.collection-content {
+	font-size: 0.875rem;
+}
+
+.collection-content td {
+	white-space: pre-wrap;
+	word-break: break-word;
+}
+
+.column-list {
+	display: flex;
+	gap: 46px;
+}
+
+.column {
+	min-width: 0;
+	overflow: hidden;
+}
+
+.column > *:first-child {
+	margin-top: 0;
+}
+
+.table_of_contents-item {
+	display: block;
+	font-size: 0.875rem;
+	line-height: 1.3;
+	padding: 0.125rem;
+}
+
+.table_of_contents-indent-1 {
+	margin-left: 1.5rem;
+}
+
+.table_of_contents-indent-2 {
+	margin-left: 3rem;
+}
+
+.table_of_contents-indent-3 {
+	margin-left: 4.5rem;
+}
+
+.table_of_contents-link {
+	text-decoration: none;
+	opacity: 0.7;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.18);
+}
+
+table,
+th,
+td {
+	border: 1px solid rgba(55, 53, 47, 0.09);
+	border-collapse: collapse;
+}
+
+table {
+	border-left: none;
+	border-right: none;
+}
+
+th,
+td {
+	font-weight: normal;
+	padding: 0.25em 0.5em;
+	line-height: 1.5;
+	min-height: 1.5em;
+	text-align: left;
+}
+
+th {
+	color: rgba(55, 53, 47, 0.6);
+}
+
+ol,
+ul {
+	margin: 0;
+	margin-block-start: 0.6em;
+	margin-block-end: 0.6em;
+}
+
+li > ol:first-child,
+li > ul:first-child {
+	margin-block-start: 0.6em;
+}
+
+ul > li {
+	list-style: disc;
+}
+
+ul.to-do-list {
+	padding-inline-start: 0;
+}
+
+ul.to-do-list > li {
+	list-style: none;
+}
+
+.to-do-children-checked {
+	text-decoration: line-through;
+	opacity: 0.375;
+}
+
+ul.toggle > li {
+	list-style: none;
+}
+
+ul {
+	padding-inline-start: 1.7em;
+}
+
+ul > li {
+	padding-left: 0.1em;
+}
+
+ol {
+	padding-inline-start: 1.6em;
+}
+
+ol.numbered-list.numbered-list-digits-2 {
+	padding-inline-start: 2em;
+}
+
+ol.numbered-list.numbered-list-digits-3plus {
+	padding-inline-start: 2.4em;
+}
+
+ol > li {
+	padding-left: 0.2em;
+}
+
+.mono ol {
+	padding-inline-start: 2em;
+}
+
+.mono ol > li {
+	text-indent: -0.4em;
+}
+
+.toggle {
+	padding-inline-start: 0em;
+	list-style-type: none;
+}
+
+/* Indent toggle children */
+.toggle > li > details {
+	padding-left: 1.7em;
+}
+
+.toggle > li > details > summary {
+	margin-left: -1.1em;
+}
+
+.selected-value {
+	display: inline-block;
+	padding: 0 0.5em;
+	background: rgba(206, 205, 202, 0.5);
+	border-radius: 3px;
+	margin-right: 0.5em;
+	margin-top: 0.3em;
+	margin-bottom: 0.3em;
+	white-space: nowrap;
+}
+
+.collection-title {
+	display: inline-block;
+	margin-right: 1em;
+}
+
+.page-description {
+	margin-bottom: 2em;
+}
+
+.simple-table {
+	margin-top: 1em;
+	font-size: 0.875rem;
+	empty-cells: show;
+}
+.simple-table td {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table th {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table-header-color {
+	background: rgb(247, 246, 243);
+	color: black;
+}
+.simple-table-header {
+	font-weight: 500;
+}
+
+time {
+	opacity: 0.5;
+}
+
+.icon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	max-width: 1.2em;
+	max-height: 1.2em;
+	text-decoration: none;
+	vertical-align: text-bottom;
+	margin-right: 0.5em;
+}
+
+img.icon {
+	border-radius: 3px;
+}
+
+.callout img.notion-static-icon {
+	width: 1em;
+	height: 1em;
+}
+
+.callout p {
+	margin: 0;
+}
+
+.callout h1,
+.callout h2,
+.callout h3 {
+	margin: 0 0 0.6rem;
+}
+
+.user-icon {
+	width: 1.5em;
+	height: 1.5em;
+	border-radius: 100%;
+	margin-right: 0.5rem;
+}
+
+.user-icon-inner {
+	font-size: 0.8em;
+}
+
+.text-icon {
+	border: 1px solid #000;
+	text-align: center;
+}
+
+.page-cover-image {
+	display: block;
+	object-fit: cover;
+	width: 100%;
+	max-height: 30vh;
+}
+
+.page-header-icon {
+	font-size: 3rem;
+	margin-bottom: 1rem;
+}
+
+.page-header-icon-with-cover {
+	margin-top: -0.72em;
+	margin-left: 0.07em;
+}
+
+.page-header-icon img {
+	border-radius: 3px;
+}
+
+.link-to-page {
+	margin: 1em 0;
+	padding: 0;
+	border: none;
+	font-weight: 500;
+}
+
+p > .user {
+	opacity: 0.5;
+}
+
+td > .user,
+td > time {
+	white-space: nowrap;
+}
+
+input[type="checkbox"] {
+	transform: scale(1.5);
+	margin-right: 0.6em;
+	vertical-align: middle;
+}
+
+p {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+.image {
+	border: none;
+	margin: 1.5em 0;
+	padding: 0;
+	border-radius: 0;
+	text-align: center;
+}
+
+.code,
+code {
+	background: rgba(135, 131, 120, 0.15);
+	border-radius: 3px;
+	padding: 0.2em 0.4em;
+	border-radius: 3px;
+	font-size: 85%;
+	tab-size: 2;
+}
+
+code {
+	color: #eb5757;
+}
+
+.code {
+	padding: 1.5em 1em;
+}
+
+.code-wrap {
+	white-space: pre-wrap;
+	word-break: break-all;
+}
+
+.code > code {
+	background: none;
+	padding: 0;
+	font-size: 100%;
+	color: inherit;
+}
+
+blockquote {
+	font-size: 1em;
+	margin: 1em 0;
+	padding-left: 1em;
+	border-left: 3px solid rgb(55, 53, 47);
+}
+
+blockquote.quote-large {
+	font-size: 1.25em;
+}
+
+.bookmark {
+	text-decoration: none;
+	max-height: 8em;
+	padding: 0;
+	display: flex;
+	width: 100%;
+	align-items: stretch;
+}
+
+.bookmark-title {
+	font-size: 0.85em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	height: 1.75em;
+	white-space: nowrap;
+}
+
+.bookmark-text {
+	display: flex;
+	flex-direction: column;
+}
+
+.bookmark-info {
+	flex: 4 1 180px;
+	padding: 12px 14px 14px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.bookmark-image {
+	width: 33%;
+	flex: 1 1 180px;
+	display: block;
+	position: relative;
+	object-fit: cover;
+	border-radius: 1px;
+}
+
+.bookmark-description {
+	color: rgba(55, 53, 47, 0.6);
+	font-size: 0.75em;
+	overflow: hidden;
+	max-height: 4.5em;
+	word-break: break-word;
+}
+
+.bookmark-href {
+	font-size: 0.75em;
+	margin-top: 0.25em;
+}
+
+.sans { font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol"; }
+.code { font-family: "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace; }
+.serif { font-family: Lyon-Text, Georgia, ui-serif, serif; }
+.mono { font-family: iawriter-mono, Nitti, Menlo, Courier, monospace; }
+.pdf .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK JP'; }
+.pdf:lang(zh-CN) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK SC'; }
+.pdf:lang(zh-TW) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK TC'; }
+.pdf:lang(ko-KR) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK KR'; }
+.pdf .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.pdf .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK JP'; }
+.pdf:lang(zh-CN) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK SC'; }
+.pdf:lang(zh-TW) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK TC'; }
+.pdf:lang(ko-KR) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK KR'; }
+.pdf .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.highlight-default {
+	color: rgba(44, 44, 43, 1);
+}
+.highlight-gray {
+	color: rgba(125, 122, 117, 1);
+	fill: rgba(125, 122, 117, 1);
+}
+.highlight-brown {
+	color: rgba(159, 118, 90, 1);
+	fill: rgba(159, 118, 90, 1);
+}
+.highlight-orange {
+	color: rgba(210, 123, 45, 1);
+	fill: rgba(210, 123, 45, 1);
+}
+.highlight-yellow {
+	color: rgba(203, 148, 52, 1);
+	fill: rgba(203, 148, 52, 1);
+}
+.highlight-teal {
+	color: rgba(80, 148, 110, 1);
+	fill: rgba(80, 148, 110, 1);
+}
+.highlight-blue {
+	color: rgba(56, 125, 201, 1);
+	fill: rgba(56, 125, 201, 1);
+}
+.highlight-purple {
+	color: rgba(154, 107, 180, 1);
+	fill: rgba(154, 107, 180, 1);
+}
+.highlight-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.highlight-red {
+	color: rgba(207, 81, 72, 1);
+	fill: rgba(207, 81, 72, 1);
+}
+.highlight-default_background {
+	color: rgba(44, 44, 43, 1);
+}
+.highlight-gray_background {
+	background: rgba(42, 28, 0, 0.07);
+}
+.highlight-brown_background {
+	background: rgba(139, 46, 0, 0.086);
+}
+.highlight-orange_background {
+	background: rgba(224, 101, 1, 0.129);
+}
+.highlight-yellow_background {
+	background: rgba(211, 168, 0, 0.137);
+}
+.highlight-teal_background {
+	background: rgba(0, 100, 45, 0.09);
+}
+.highlight-blue_background {
+	background: rgba(0, 124, 215, 0.094);
+}
+.highlight-purple_background {
+	background: rgba(102, 0, 178, 0.078);
+}
+.highlight-pink_background {
+	background: rgba(197, 0, 93, 0.086);
+}
+.highlight-red_background {
+	background: rgba(223, 22, 0, 0.094);
+}
+.block-color-default {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray {
+	color: rgba(125, 122, 117, 1);
+	fill: rgba(125, 122, 117, 1);
+}
+.block-color-brown {
+	color: rgba(159, 118, 90, 1);
+	fill: rgba(159, 118, 90, 1);
+}
+.block-color-orange {
+	color: rgba(210, 123, 45, 1);
+	fill: rgba(210, 123, 45, 1);
+}
+.block-color-yellow {
+	color: rgba(203, 148, 52, 1);
+	fill: rgba(203, 148, 52, 1);
+}
+.block-color-teal {
+	color: rgba(80, 148, 110, 1);
+	fill: rgba(80, 148, 110, 1);
+}
+.block-color-blue {
+	color: rgba(56, 125, 201, 1);
+	fill: rgba(56, 125, 201, 1);
+}
+.block-color-purple {
+	color: rgba(154, 107, 180, 1);
+	fill: rgba(154, 107, 180, 1);
+}
+.block-color-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.block-color-red {
+	color: rgba(207, 81, 72, 1);
+	fill: rgba(207, 81, 72, 1);
+}
+.block-color-default_background {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray_background {
+	background: rgba(240, 239, 237, 1);
+}
+.block-color-brown_background {
+	background: rgba(245, 237, 233, 1);
+}
+.block-color-orange_background {
+	background: rgba(251, 235, 222, 1);
+}
+.block-color-yellow_background {
+	background: rgba(249, 243, 220, 1);
+}
+.block-color-teal_background {
+	background: rgba(232, 241, 236, 1);
+}
+.block-color-blue_background {
+	background: rgba(229, 242, 252, 1);
+}
+.block-color-purple_background {
+	background: rgba(243, 235, 249, 1);
+}
+.block-color-pink_background {
+	background: rgba(250, 233, 241, 1);
+}
+.block-color-red_background {
+	background: rgba(252, 233, 231, 1);
+}
+.select-value-color-default { background-color: rgba(42, 28, 0, 0.07); }
+.select-value-color-gray { background-color: rgba(28, 19, 1, 0.11); }
+.select-value-color-brown { background-color: rgba(127, 51, 0, 0.156); }
+.select-value-color-orange { background-color: rgba(196, 88, 0, 0.203); }
+.select-value-color-yellow { background-color: rgba(209, 156, 0, 0.282); }
+.select-value-color-green { background-color: rgba(0, 96, 38, 0.156); }
+.select-value-color-blue { background-color: rgba(0, 118, 217, 0.203); }
+.select-value-color-purple { background-color: rgba(92, 0, 163, 0.141); }
+.select-value-color-pink { background-color: rgba(183, 0, 78, 0.152); }
+.select-value-color-red { background-color: rgba(206, 24, 0, 0.164); }
+
+.checkbox {
+	display: inline-flex;
+	vertical-align: text-bottom;
+	width: 16;
+	height: 16;
+	background-size: 16px;
+	margin-left: 2px;
+	margin-right: 5px;
+}
+
+.checkbox-on {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20width%3D%2216%22%20height%3D%2216%22%20fill%3D%22%2358A9D7%22%2F%3E%0A%3Cpath%20d%3D%22M6.71429%2012.2852L14%204.9995L12.7143%203.71436L6.71429%209.71378L3.28571%206.2831L2%207.57092L6.71429%2012.2852Z%22%20fill%3D%22white%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+
+.checkbox-off {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20x%3D%220.75%22%20y%3D%220.75%22%20width%3D%2214.5%22%20height%3D%2214.5%22%20fill%3D%22white%22%20stroke%3D%22%2336352F%22%20stroke-width%3D%221.5%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+	
+</style></head><body><article id="2e156320-92ca-8017-9b06-c6c50e690534" class="page sans"><header><h1 class="page-title" dir="auto">Power BI Access &amp; Project Timeline Review</h1><p class="page-description" dir="auto"></p><table class="properties"><tbody><tr class="property-row property-row-status"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/burst_gray.svg" style="width:14px;height:14px;display:block"/></span>Processing</th><td><span class="status-value select-value-color-green"><div class="status-dot status-dot-color-green"></div>Processed</span></td></tr><tr class="property-row property-row-text"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/description_gray.svg" style="width:14px;height:14px;display:block"/></span>Agenda</th><td>Power BI workspace access levels (viewer for Steve), workspace cleanup (remove inactive), Azure app registration IDs for XMLA endpoint, Jira project setup with Dominique, Implementation timeline review (95 weeks), AI platform selection (Azure Foundry)</td></tr><tr class="property-row property-row-date"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/calendar_gray.svg" style="width:14px;height:14px;display:block"/></span>Date</th><td><time>January 7, 2026</time></td></tr><tr class="property-row property-row-multi_select"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/list_gray.svg" style="width:14px;height:14px;display:block"/></span>Attendees</th><td><span class="selected-value select-value-color-pink">Internal</span></td></tr><tr class="property-row property-row-select"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/arrow-circle-down_gray.svg" style="width:14px;height:14px;display:block"/></span>Meeting Type</th><td><span class="selected-value select-value-color-default">1:1</span></td></tr><tr class="property-row property-row-person"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/friends_gray.svg" style="width:14px;height:14px;display:block"/></span>Organizer</th><td><span class="user"><span class="icon text-icon user-icon"><span class="user-icon-inner">P</span></span>Patrick Stiller</span></td></tr><tr class="property-row property-row-select"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/arrow-circle-down_gray.svg" style="width:14px;height:14px;display:block"/></span>Priority</th><td><span class="selected-value select-value-color-yellow">Medium</span></td></tr><tr class="property-row property-row-checkbox"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/checkmark-square_gray.svg" style="width:14px;height:14px;display:block"/></span>Has Cluely Transcript</th><td><div class="checkbox checkbox-off"></div></td></tr><tr class="property-row property-row-checkbox"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/checkmark-square_gray.svg" style="width:14px;height:14px;display:block"/></span>Has Final Transcript</th><td><div class="checkbox checkbox-off"></div></td></tr><tr class="property-row property-row-select"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/arrow-circle-down_gray.svg" style="width:14px;height:14px;display:block"/></span>Status</th><td><span class="selected-value select-value-color-brown">Completed</span></td></tr><tr class="property-row property-row-checkbox"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/checkmark-square_gray.svg" style="width:14px;height:14px;display:block"/></span>Has Notion Transcript</th><td><div class="checkbox checkbox-on"></div></td></tr><tr class="property-row property-row-checkbox"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/checkmark-square_gray.svg" style="width:14px;height:14px;display:block"/></span>Has Teams Transcript</th><td><div class="checkbox checkbox-off"></div></td></tr><tr class="property-row property-row-checkbox"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/checkmark-square_gray.svg" style="width:14px;height:14px;display:block"/></span>Merged to Feed</th><td><div class="checkbox checkbox-off"></div></td></tr></tbody></table></header><div class="page-body"><div style="display:contents" dir="ltr"><div id="2e156320-92ca-8070-aaee-c544a4903571" class="transcription"><div style="border-bottom:0.05em solid;border-bottom-color:rgba(42, 28, 0, 0.07)">Summary<br/></div><div style="display:contents" dir="auto"><h3 id="2e156320-92ca-816d-9c78-f632f8ff6912" class="">Power BI/Fabric Workspace Access</h3></div><div style="display:contents" dir="auto"><ul id="2e156320-92ca-81a8-94dc-cea9925e2562" class="bulleted-list"><li style="list-style-type:disc"><strong>Thinking about workspace access levels</strong>: <span class="user">@Steve </span> confirmed viewer access is sufficient for Power BI workspaces ‣ ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e156320-92ca-817a-9b74-f4a7b78437f7" class="bulleted-list"><li style="list-style-type:disc">Patrick will add <span class="user">@Steve </span> as a viewer to ensure no accidental changes to semantic models ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e156320-92ca-81c0-8388-f6cd4ecb3cd5" class="bulleted-list"><li style="list-style-type:disc">Permissions can be elevated later if needed; easier to add than remove access ‣</li></ul></div><div style="display:contents" dir="auto"><h3 id="2e156320-92ca-81b8-8365-cbbdb418386a" class="">Current Workspace Status</h3></div><div style="display:contents" dir="auto"><ul id="2e156320-92ca-81c4-b5cd-cbfb9b75590a" class="bulleted-list"><li style="list-style-type:disc"><strong>Workspaces reviewed</strong>: Interplastic, Power BI Steering Committee, ETQ, Fabric PAS, WS, IT Management, All in Products, NEC, NEC Management ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e156320-92ca-81d8-a8bc-e1e108fab14d" class="bulleted-list"><li style="list-style-type:disc"><span class="user">@Steve </span> does not currently have access to NC Management workspace</li></ul></div><div style="display:contents" dir="auto"><ul id="2e156320-92ca-81fa-b860-e1d47d42ce8d" class="bulleted-list"><li style="list-style-type:disc">All workspaces are Power BI workspaces; no Fabric workspaces created yet due to lack of trial capacity ‣</li></ul></div><div style="display:contents" dir="auto"><h3 id="2e156320-92ca-8177-94d8-c7d8c85b33fe" class="">Workspace Cleanup</h3></div><div style="display:contents" dir="auto"><ul id="2e156320-92ca-8110-a638-f0dd8b5bf765" class="bulleted-list"><li style="list-style-type:disc"><strong>Unused workspaces identified</strong>: Power BI Steering Group and Old IP Sales are no longer actively used ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e156320-92ca-817d-b53b-c1ac99129ffb" class="bulleted-list"><li style="list-style-type:disc">These workspaces contain data that has been moved to different locations ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e156320-92ca-810a-b092-cd9dcabbd85c" class="bulleted-list"><li style="list-style-type:disc">Decision made to remove <span class="user">@Steve </span> from inactive workspaces to avoid unnecessary data review ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e156320-92ca-815b-9d18-c826d4b4c891" class="bulleted-list"><li style="list-style-type:disc">Going forward, <span class="user">@Steve </span> should be added as viewer to all new workspaces ‣</li></ul></div><div style="display:contents" dir="auto"><h3 id="2e156320-92ca-8108-a70d-cf4f8516c802" class="">Additional Access Requirements</h3></div><div style="display:contents" dir="auto"><ul id="2e156320-92ca-815d-a2f1-cc67d7d0f701" class="bulleted-list"><li style="list-style-type:disc"><strong>SSRS reports</strong>: <span class="user">@Steve </span> may need access to data sources ‣ ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e156320-92ca-8168-9f22-cf5546c6ec30" class="bulleted-list"><li style="list-style-type:disc">Carrie previously gave <span class="user">@Steve </span> an overview of SSRS reports ‣</li></ul></div><div style="display:contents" dir="auto"><h3 id="2e156320-92ca-8129-94bb-d086e26be586" class="">Azure App Registration Access</h3></div><div style="display:contents" dir="auto"><ul id="2e156320-92ca-812f-9f27-ccb3047a4322" class="bulleted-list"><li style="list-style-type:disc"><strong>Three IDs needed for XMLA endpoint access</strong>: Client secret, App ID, and one additional ID ‣ ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e156320-92ca-81e9-aabf-c22fe4e2cf94" class="bulleted-list"><li style="list-style-type:disc">Patrick will coordinate with infrastructure team (likely Michael Thiel) to obtain these credentials ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e156320-92ca-8148-bac3-d4d11ff65edd" class="bulleted-list"><li style="list-style-type:disc">This is also related to getting Co-pilot Studio access ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e156320-92ca-8183-b227-dc8fa107a07a" class="bulleted-list"><li style="list-style-type:disc">XMLA endpoint setting has already been enabled within Power BI ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e156320-92ca-816d-a5d3-d3eb5e81d99d" class="bulleted-list"><li style="list-style-type:disc">Workspace access has been provided ‣</li></ul></div><div style="display:contents" dir="auto"><h3 id="2e156320-92ca-8104-82f1-e5a19c9f7711" class="">Project Management &amp; Timeline Discussion</h3></div><div style="display:contents" dir="auto"><ul id="2e156320-92ca-8159-af1f-ce3d3d738474" class="bulleted-list"><li style="list-style-type:disc"><strong>Meeting scheduled with Dominique</strong>: Friday meeting to set up project in Jira ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e156320-92ca-81ff-87a3-e2e7baf79c95" class="bulleted-list"><li style="list-style-type:disc">Tickets will be created in Jira after this meeting ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e156320-92ca-8181-b2e4-dcefe03cec4a" class="bulleted-list"><li style="list-style-type:disc"><strong>Confluence consideration</strong>: Patrick will review pricing and gather feedback from others who have used it ‣ ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e156320-92ca-819f-b8d3-ddc78c0d25ba" class="bulleted-list"><li style="list-style-type:disc">Could be useful for IT documentation beyond just this project ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e156320-92ca-81da-8ed7-d2f8f836d9e8" class="bulleted-list"><li style="list-style-type:disc"><span class="user">@Steve </span> currently using Notion for project tracking ‣</li></ul></div><div style="display:contents" dir="auto"><h3 id="2e156320-92ca-81fd-83c0-cb5706aaf5f5" class="">Implementation Timeline</h3></div><div style="display:contents" dir="auto"><ul id="2e156320-92ca-81a6-b071-cdfb419a5655" class="bulleted-list"><li style="list-style-type:disc"><strong>Timeline export</strong>: <span class="user">@Steve </span> exported implementation timeline from Notion and shared as PDF ‣ ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e156320-92ca-8167-b595-c1a36e80b496" class="bulleted-list"><li style="list-style-type:disc"><strong>Updated timeline</strong>: Extended from original 50 weeks to 95 weeks (approximately two years) ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e156320-92ca-81fd-9f28-d19d280b8d5c" class="bulleted-list"><li style="list-style-type:disc"><strong>MDM implementation</strong>: Will take a full year based on current estimates ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e156320-92ca-811f-90e8-d7b365f0e9f4" class="bulleted-list"><li style="list-style-type:disc">Timeline includes risk factors that could extend or shorten each phase ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e156320-92ca-81be-8f12-cb54ecd81bf4" class="bulleted-list"><li style="list-style-type:disc">Information remains internal - only Micah will see these numbers currently ‣</li></ul></div><div style="display:contents" dir="auto"><h3 id="2e156320-92ca-8155-814c-c17459e7af3f" class="">AI Platform Selection</h3></div><div style="display:contents" dir="auto"><ul id="2e156320-92ca-8129-afdf-c87b285882ec" class="bulleted-list"><li style="list-style-type:disc"><span class="user">@Steve </span> is leaning towards Azure Foundry as the AI platform ‣ ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e156320-92ca-81f0-a741-cf78eb42cfe0" class="bulleted-list"><li style="list-style-type:disc">Still evaluating to avoid pigeonholing the solution ‣</li></ul></div><div style="display:contents" dir="auto"><h3 id="2e156320-92ca-8137-b707-dd31147805ab" class="">Action Items</h3></div><div style="display:contents" dir="auto"><ul id="2e156320-92ca-81a8-8a85-ebf2a56b77a1" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Patrick to grant <span class="user">@Steve </span> access to NC Management workspace ‣</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="2e156320-92ca-8102-ad5c-fcafd70ce877" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Patrick to coordinate with infrastructure team (Michael Thiel) to obtain Azure app registration IDs (client secret, app ID) ‣ ‣</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="2e156320-92ca-81d5-9c30-d3413872e66b" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Patrick to set up IP corporation Notion account ‣</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="2e156320-92ca-81a3-9173-d8fbc3e926da" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Patrick to review Confluence pricing and gather feedback ‣</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="2e156320-92ca-8175-a61a-dd3451ee5a91" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked"><span class="user">@Steve </span> to organize notes from morning meeting for review ‣</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="2e156320-92ca-81e3-8c27-ce7c17f54778" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Team to meet with Dominique on Friday to set up Jira project ‣</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="2e156320-92ca-810b-a995-f69e68ae50fe" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Ensure <span class="user">@Steve </span> is added as viewer to all new workspaces going forward ‣</span><div class="indented"></div></li></ul></div><div style="border-bottom:0.05em solid;border-bottom-color:rgba(42, 28, 0, 0.07)">Notes<br/></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-804c-a200-d8c5fd3cbc6a" class="">
+</p></div><div style="border-bottom:0.05em solid;border-bottom-color:rgba(42, 28, 0, 0.07)">Transcript<br/></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-8093-b063-cb7c34b24846" class="">Hello you Hey, how&#x27;s it going? Good.</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-803d-a46d-ef65bd4301ab" class="">Did you by chance have those numbers or those dates? Yep. I do. Format is like you had it like it&#x27;s the same like it&#x27;s a matrix. It&#x27;s justThat format is just mostly high level. The one that I sent you the screenshot the other day. That&#x27;s all I&#x27;m really after. We can iron out the more detailed one later, the one that I shared. Okay. Okay. um So and then you The reason for this call now I completely forgot holy moly.</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-8016-9ed1-f427cde2a7c9" class="">Oh, oh And this can be pretty, probably pretty quick. Urias, what? Workspaces are out there. And are you adding Steve? Steve, do you need to be reviewer or-What level of access are you going to need on these workspaces?</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-8002-9282-c86ca057a267" class="">Oh, awesome. I mean... I can just be like a viewer is fine for these if you want, but... Yeah.</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-8087-97ef-cecce472ec04" class="">If you need more, I mean, that&#x27;s fine.</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-80b7-9a42-ffa7d03149a6" class="">I mean, yeah, I just, I don&#x27;t want you guys to worry that I&#x27;m going to like remove anything from the semantic models or anything like that.</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-800a-8dfa-d6867b9626c7" class="">And if you got any insight, feel free to give that as we&#x27;re going through stuff too. But yeah, I&#x27;m glad you guys figured that out. I mean, if a read is sufficient, we can always add more permissions later. It&#x27;s harder to pull things back when we need to sometimes. I&#x27;ve been in that spot a few times, but...</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-809f-ba4f-c2ae1fa53dea" class="">Uh, I mean... Can you remember that I think that might be?</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-80f5-a1d0-e0b2a263520b" class="">Remember?</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-807b-973d-e6ce156b7950" class="">Okay. So I can&#x27;t delete anything or delete the workspace or whatever.</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-8005-8d07-eff76722515c" class="">Obviously. And you&#x27;re the, Are all of them in the Fabric workspaces or do we have some that are tied to SharePoint groups or anything like that? Adie sir. RBI workspaces. I mean, that&#x27;s what I can see right now. I know, over here. Go ahead and share your screen if you want. This is.</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-800a-8205-c6f2d9d5ad73" class="">So since I&#x27;m sure this is because oops. Cheers. Yep. Okay. so I can switch between Power BI and Fabric. to Right now I&#x27;m in fabric, so I probably would be looking at the fabric. I mean, I&#x27;m in Power BI, so I&#x27;m probably looking at the Power BI workspaces. We don&#x27;t have any fabric workspaces created. Well, because we don&#x27;t have any trial capacity.</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-8078-887e-ea06bd017e83" class="">Right.</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-805b-94b1-f9d043765733" class="">That&#x27;s right. Right now, these are just the Power BI workspaces that I have access to. I don&#x27;t know if there are other ones that I don&#x27;t have access to right now.</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-8012-8cc6-d138bf11ea66" class="">Let me take a look and see if I&#x27;ve got something you don&#x27;t. If you want to leave that up there for a second. Let me pull up what I got real quick. A few years. Thank you.</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-8040-ad12-d23af1f0ebd6" class="">There&#x27;s not much here. I&#x27;m just going to move it to name their scenes. There is really not much out here for reports though, so I don&#x27;t think there is. There&#x27;d be much of a screw up.</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-80f0-9f58-cd9342e9276e" class="">OK, can you go back to workspaces just for a second? So I just kind of compare notes. Mm-hmm. So I&#x27;ve got interplastic, you&#x27;ve got that one. I&#x27;ve got power BI steering committee. You get that one, okay. ETQ. Yep. Fabric PAS, that&#x27;s just me messing around. That&#x27;s nothing. WS you have, also nothing. IT management you have. All in products, NEC, NEC management. Okay, so the AC management is one that you don&#x27;t have.</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-80e5-92c0-d4f62179b6e9" class="">Let me get you that. DO I NEED TO? I DON&#x27;T KNOW.</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-8010-ba10-c16870a764ac" class="">I don&#x27;t see why you It wouldn&#x27;t be in there. So let&#x27;s do... Both of you guys. And Steve, as soon as we add these, You guys can both see them, correct? Yep.</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-8077-b536-f3803fe3a956" class="">And if there are workspaces that are probably not being used, is there any need to have Stephen them? I mean, there are some that are not really.</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-80cd-bf64-d097a75a95d3" class="">Say that again.</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-804e-90c5-dacfa6dc502a" class="">For the workspaces that are not being used anymore like this Power BI steering group or old IP sales, these two, I&#x27;m not sure we&#x27;re using them for anything right now. Should we?</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-803c-9e64-efbf916c19a6" class="">I would say if we&#x27;re going to archive the BIs and they&#x27;re not being used, I think it would be, I&#x27;ll ask this question for you this Tuesday, but I think that&#x27;s just going to be unnecessary data. You&#x27;re going to be looking at something that&#x27;s not Active anymore.</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-8044-aa40-dd8dded80614" class="">It&#x27;s on it. I mean unless there&#x27;s anything in there in terms of like how data is being used or like a blending of resource like sources that Aren&#x27;t like isn&#x27;t done in other workspaces that would be nice to, are good to see, then I, there&#x27;s no reason for me to, access that. Okay. Because these have been moved to a new... to a different workspace.</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-8076-b257-eb05539bbc91" class="">So I would go ahead and remove Steve from that one because it&#x27;s just Static Noise? Yeah. Yeah. Okay. And I&#x27;m not removing you because you can&#x27;t see them. I just don&#x27;t need you to... Chase down stuff that&#x27;s not--Right. Is that correct, Steve? Do you agree? Correct. Yep. Okay. And from now on, then when you, if you create a workspace or group, then let&#x27;s just make sure that Steve is also a viewer on it so that we can, and then at some point I&#x27;m guessing we&#x27;ll have to have some sort of account.</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-8077-94ca-c5c4b72fdc4e" class="">I&#x27;m not able to manage permissions on this one, so you probably be the one to check. If Steve has access, this is Power BI.</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-80d6-8166-f132ec3618de" class="">Power BI steering. Yeah. If I can get in there real quick. And...</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-803c-9b29-ce98b79484f0" class="">The other place which I think we talked about Little aware he can be able to learn more about this. Joints and access would be SSRS reports. I don&#x27;t know if You talked about that with Carrie or not, Patrick?</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-8038-8281-c5a7abaf17df" class="">Not in detail. I mean, he&#x27;s seen them a little bit. Carrie gave you a little song and dance on them. You know how to get to them if you needed to look at them, correct, Steve? Correct. Okay. And if you need to have access to see Um The data sources and stuff like that, that might be one of the things that might be useful for you as well. I can get you that too. Okay. So. I KNOW I PUT TOGETHER A HALF-HOUR MEETING.</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-8059-8b95-de1d3bba2ea0" class="">I WAS HOPING TO MAKE THIS QUICK. I&#x27;LL JUST HOP IN AND GET YOU WHAT YOU NEED. IS THERE ANYTHING ELSE WE NEED TO GO OVER?</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-80ff-9511-ea9e2afde368" class="">The one thing was... So access to that. Did Who are we meeting with in terms of getting those three IDs, like the client secret, the app ID, and the...</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-8092-a6a1-da88ba8c47b0" class="">So that I&#x27;m going to have to talk to probably, I talked to Michael the other day to start that discussion. It&#x27;s also going to be related to getting the co-pilot studio. Okay. So that&#x27;s probably going to beYeah. Probably the infrastructure team, so I&#x27;ll get someone that going too.</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-806c-9b7d-d5fb6db30eb9" class="">Got it. What are those? Sorry.</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-8075-a540-f1d8a6bed1a5" class="">Um... See, I think I have it in my inbox here. I&#x27;m assuming there&#x27;s no sense in not sharing that out. You get to see it at least. I forwarded that to you, as well, Steve. So she can see it. Okay. Yeah. Um That&#x27;s all in that XMLA endpoint access that you talked about, right? Correct. I will get a resource on that. Well, we can look at it here real quick. Let&#x27;s see if we can. Let&#x27;s see what I got because we looked at the one setting.</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-80e2-8a7b-ce2977940f03" class="">Pull this up and share my screen. I don&#x27;t think I&#x27;m gonna have the access you need, but let&#x27;s just take a look. See my screen? Correct.</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-80c8-b011-fc00c281e3bb" class="">Yep. Okay. Alright, get out of here.</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-8014-9585-c1ffcaccf18f" class="">So, I&#x27;m looking through the document on another... Screen here best. Maybe you just block me through. Where do you want me to go in here?</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-80b8-84d4-c6577cc1d6bd" class="">So it&#x27;s in like the Azure admin.</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-803c-9744-e181d4f326d1" class="">I have some stuff, but I&#x27;m not sure I&#x27;m going to have the stuff that you were going to need.</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-8001-b613-ff04e1417fec" class="">I mean, it&#x27;s pretty, Like. So we&#x27;re going to... Okay, where are the polos? Instructions back up. Okay, so Wait, why can&#x27;t I... I sent you the email that... requested those three things, right?</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-80df-9b19-c9fbc2d56192" class="">Thought it was in here.</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-8023-8fac-e3f63e872b80" class="">Where did I... I swear to God I sent that, but this doesn&#x27;t seem like the right one. I thought I sent you another one that was...</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-8095-bdc4-e835adbd6a2d" class="">I don&#x27;t see this one here. They&#x27;re having the IDs you&#x27;re talking about. I thought it was in here too.</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-80a6-945f-d3d1db90aa86" class="">Okay, so here Here it is. It was part of like a response. ...re-forwarding it to you. I even I missed it. I knew I wrote it, but I sent it as part of like a. I don&#x27;t know, like a... meeting request or something, I just emailed it. Sorry, that just got buried. You get a lot of windows going on, even more than me, I think.</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-80b0-8088-db99f49a03ed" class="">Yeah, well... I do remember a long time ago having a whole bunch of Excel I took a screenshot of it at my previous job because I had so many open That it wouldn&#x27;t open anymore. So yeah, I get guilty if it wasn&#x27;t on.</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-80c4-8e90-e9b60fa54ba3" class="">Okay. Right. I&#x27;m not. You should see it in the top of your inbox. I just sent it to you.</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-8071-9353-cf818d464fab" class="">Oh, there we go. For whatever reason. Add up to, so I&#x27;ll see that. Oh Oh, yeah. I do remember seeing this one. I think I replied with a meeting request.</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-8003-bca1-e5586b04f41d" class="">That&#x27;s probably what happened. That&#x27;s why it got buried. It looked like it was sandwiched in between a request and my response or something. So, yeah, so... Oh, I thought I included...</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-80b5-a4d0-e0c8adc16c27" class="">Registrations. Yeah, this is definitely going to be... Mr. T.</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-80af-ad52-c25d2b64306c" class="">I thought I included the Azure URLs. Sorry, I thought I did that. There.</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-8094-9d5a-ee8074d4355f" class="">Azure portal. App registration. I think this is going to be It&#x27;s fine.</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-8084-b86b-e06fe43e444f" class="">I just wanted to... That&#x27;s really... Everything else, you&#x27;ve already enabled the XMLA endpoint setting within Power BI and then provided the necessary access to the workspaces. So these three things are the only... remaining items. As far as like the access that I need. Is it snowing up where you guys are?</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-8038-b04f-d741ab80d5c1" class="">No, it&#x27;s actually looking like a day I should have taken off to go flying.</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-807b-a933-efe961abefda" class="">Flying? You fly like a Cessna kind of thing?</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-8054-887a-cd4428cd4fae" class="">Yeah, I do. I got a 172. That&#x27;s awesome. Nudius is looking to go up sometime in the future, she said. That&#x27;s awesome.</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-8090-9f82-e1d64b9c4a71" class="">That&#x27;s really cool. Where do you... Where do you store it? Like you got a hanger out somewhere?</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-804f-b88d-fdac07aa2212" class="">See, now you&#x27;re going to take me off onto a tangent.</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-80fb-a13a-f8b7c496c067" class="">Not trying to derail it.</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-8090-8156-fdac8ce21344" class="">Um, After the matters a whole lot There&#x27;s some part of it that&#x27;s got a fairly coolBack to it. It&#x27;ll eventually be stored there. So there&#x27;s a friend of mine who&#x27;s got a house, lives right here. Got it. Currently, it&#x27;s towards some of those studies. How far is it away? 45 minutes. An hour right now. Hour by car.</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-8090-a22d-ce2e9654155f" class="">So. Worth it.</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-80d9-8821-c45a7935b4f3" class="">Yeah, it&#x27;s something on the laptop. Okay, so I think I&#x27;m going to need the infrastructure as assistance to this. I&#x27;m just going to send this off to the help desk and set up a meeting. I&#x27;m gonna guess it&#x27;s Michael Thiel, but... I&#x27;ll forward it to him as well. OK, yeah, that one I don&#x27;t have access to.</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-8098-9749-df1db851f92a" class="">I&#x27;m just exporting the. implementation timeline from Notion for you. emailing it Okay.</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-8088-900d-eb26412f2836" class="">Right. Anything else we need to go over? Uh...</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-805a-bf0e-f19dff740bb2" class="">*Ding* As soon as I said this, like... Once I get this over to you, I&#x27;m... I&#x27;m going to finish that. That&#x27;s basically an audit of... Foundry and Co-pilot. I&#x27;m leaning towards Foundry. But... I just wanna... make sure I&#x27;m not pigeonholing myself.</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-80c6-8e1c-c6c7c324d06c" class="">Sorry, say again.</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-800e-a455-ff2c10a41848" class="">I&#x27;m leaning towards Azure Foundry. for the AI Like, vehicle, so to speak. Okay. Yeah. Bye. That&#x27;s it. I&#x27;ll get that over to you as well.</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-8028-8929-c8a1f55d2aaa" class="">Do you have time to look at the timeline together? Yeah. All right, cool. Go ahead and share what you got. Or did you email it or whatever you said?</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-80cb-b375-ee1c23b728e9" class="">No, I exported it as a PDF from Notion. Sorry, I need to get this stuff into Jira and stop using Notion for all this stuff.</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-805d-b3ef-cb80a691cea8" class="">So you have a meeting with Dominique on Friday? Yep. Okay. We&#x27;ll probably have, we&#x27;ll set up a, a, a, project at that point in time. And then we can start putting tickets in there and getting that in there.</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-80ee-9925-cd020283ccd2" class="">I forget if we have-You said that we were going to use Confluence or...</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-803b-bb27-d9ac3c3114c0" class="">I have not used it. Let me take a look at pricing on it and see if it&#x27;s something worth shifting gears over if you&#x27;re really set on it.</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-80f4-913f-c09c384904f7" class="">I thought that that was you guys. I thought that that&#x27;s...</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-80ad-b328-c52e11242350" class="">No, we talked about Confluence. We do not have it. I don&#x27;t think I ever said we were looking to go get it. Okay. But I&#x27;m also not completely opposed to it. There&#x27;s others that have used it. So I want to get some feedback from others and maybe that&#x27;s where we go. It might come in handy for other IT documentation, I&#x27;m guessing. So, you have a lot more experience with it, I assume? Yeah.</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-806a-8cfe-cabf385eae01" class="">Let&#x27;s see. Let me know when you can see.</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-80da-bf28-e1f9a8b8848a" class="">Let me pull it over to a screen I can see better. UDS, you can drop off if you want to. Welcome to Stick it Brown if you want to. All right, I&#x27;ll stick around. Okay.</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-809f-9a6c-d49f2a8cdcdd" class="">All right, so... This is basically just the thing that I was really... focused more on what it&#x27;s like Things that could... What can make any part or any phase longer or shorter. Inspirations. Ballparked. So. But these are the most that it should take for these durations. Okay. Does that make sense?</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-8051-8d38-ef8de55bd319" class="">Yeah, and I want to make sure-do I have access to this one already, Q?</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-8007-97f9-e44e89c8b7a0" class="">I think two people invited to the feed. Who are these? I think... Okay. Patrick. Or should I be inviting your IP corp one?</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-80bd-b100-e498760b738c" class="">You can do both. I should set up the IP corporation on it. I don&#x27;t have one. Okay. That would probably be more wise of me. I just don&#x27;t have one today. So There you go.</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-8063-8d17-f49d0c87a9c3" class="">And then I will put this in the chat as well. Guys, so you don&#x27;t feel like wait for the email Okay. There we go, sent. In the chat.</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-800c-9177-d21e83c31819" class="">So MDM implementation would be right at a full year based on what I&#x27;m seeing by the time I get that far out. Correct. Okay. Okay. And then, yeah, so. Yeah, I see the changes there fast. That&#x27;s what I want to see. The what? The original timeline I had was at about 50 weeks and you have it updated to 95 weeks. So that&#x27;s... Two years. Okay. Okay.</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-8054-a2b6-e8314f3ebaa6" class="">Are you able to access the timeline risk factors?</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-8085-84d8-fe12768eeda6" class="">I&#x27;m trying to figure out why I&#x27;m not getting to see any of it actually. Hmm.</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-807c-a2a5-e37e3ebb3f01" class="">Can actually you know what I can do I can do this like just temporarily so that you can... Um...</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-80ae-b3f8-e187674955a7" class="">Let me do, go to do do do do do.</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-804b-b334-e72fccee90db" class="">Let me know, now go to, Okay, can you... Click this, that second one that I just sent. and see if you can Access that.</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-8042-84df-eda6583de701" class="">There we go. Yeah, I can see that one.</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-800e-92dd-c75f4858634f" class="">Okay. Okay. So I just was going to do that temporarily.</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-801f-a20a-e1abe96ca48a" class="">I&#x27;m just going to print this one real quick so I have it. Cool. Andy? And did you say you&#x27;re able to see this? That&#x27;s right. You got to export to PDF to print, don&#x27;t you? Yeah.</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-803f-8b62-fe8a415e3145" class="">It has like, it&#x27;s like Markdown or XML or something.</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-800e-b24e-c581a10bf15d" class="">I can, Where do I see that? The what? Export to XML. PDF, I mean.</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-8049-baca-fb03f4e0a950" class="">Oh, that. Let me... I can do that for you. Oh, that&#x27;d be sweet. Export PDF.</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-8071-bd7e-d288dcc6bc0f" class="">Just send me the PDF of it for now. I will go get set up for an IP corporation account as well.</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-806b-99d1-fe525f227941" class="">Can you click the timeline risk factors link at the bottom of that page and let me know if you&#x27;re able to see that or not? Yes, I do have it.</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-802b-9921-ca7f9a712ba4" class="">Okay, cool.</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-8083-9947-e9da7554fef4" class="">Do you want me to print that one too?</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-8099-8ea6-e04865889ce0" class="">Yeah, let me have that handy. Okay.</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-8061-8a4a-e720d1f72fa4" class="">Awesome. Okay, I&#x27;ll shoot this over to you. Udius, are you able to access everything? Okay.</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-80d6-80e8-f37518f2f6aa" class="">Yes, I can access it. Good. All right. Thanks, Steve. Yep. No problem. I got a few minutes if you want to go over some recap from this morning&#x27;s meeting if you want. But if not, tomorrow would work better.</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-803d-b380-c0c055d59a63" class="">Yeah. I need to organize my notes and stuff, actually, if that&#x27;s OK. Just so that-Works for me.</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-8058-ac73-de24539ccf78" class="">--so that we can actually go through it in a timely fashion and not spend it all over the place. Can you forward this as a PDF over to me too, you said?</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-802f-9386-e74cb0e0986d" class="">Yeah, I&#x27;m just renaming the files. quickly, so Okay. Actually, I can throw them in the chat if you want.</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-80cc-ad52-d518fbc6f3ba" class="">Yeah, that&#x27;s... Fine. It is this... This conversation still stays internal. So Micah is the only one that sees these numbers right now.</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-80b6-a354-d1b21f4e7473" class="">Okay. Sounds good. Thanks for letting me know. Bye. Thank you. All right. Did you guys get it? Yep. I got it. All right. Perfect. Appreciate it. Yep. Thanks, dude. Yep, no problem. -</p></div></div></div></div></article><span class="sans" style="font-size:14px;padding-top:2em"></span></body></html>

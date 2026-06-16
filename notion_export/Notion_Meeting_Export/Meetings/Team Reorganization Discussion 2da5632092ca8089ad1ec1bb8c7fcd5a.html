@@ -1,0 +1,743 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>Team Reorganization Discussion</title><style>
+/* cspell:disable-file */
+/* webkit printing magic: print all background colors */
+html {
+	-webkit-print-color-adjust: exact;
+}
+* {
+	box-sizing: border-box;
+	-webkit-print-color-adjust: exact;
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+}
+@media only screen {
+	body {
+		margin: 2em auto;
+		max-width: 900px;
+		color: rgb(55, 53, 47);
+	}
+}
+
+body {
+	line-height: 1.5;
+	white-space: pre-wrap;
+}
+
+a,
+a.visited {
+	color: inherit;
+	text-decoration: underline;
+}
+
+.pdf-relative-link-path {
+	font-size: 80%;
+	color: #444;
+}
+
+h1,
+h2,
+h3 {
+	letter-spacing: -0.01em;
+	line-height: 1.2;
+	font-weight: 600;
+	margin-bottom: 0;
+}
+
+/* Override strong tags inside headings to maintain consistent weight */
+h1 strong,
+h2 strong,
+h3 strong {
+	font-weight: 600;
+}
+
+.page-title {
+	font-size: 2.5rem;
+	font-weight: 700;
+	margin-top: 0;
+	margin-bottom: 0.75em;
+}
+
+h1 {
+	font-size: 1.875rem;
+	margin-top: 1.875rem;
+}
+
+h2 {
+	font-size: 1.5rem;
+	margin-top: 1.5rem;
+}
+
+h3 {
+	font-size: 1.25rem;
+	margin-top: 1.25rem;
+}
+
+.source {
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	padding: 1.5em;
+	word-break: break-all;
+}
+
+.callout {
+	border-radius: 10px;
+	padding: 1rem;
+}
+
+figure {
+	margin: 1.25em 0;
+	page-break-inside: avoid;
+}
+
+figcaption {
+	opacity: 0.5;
+	font-size: 85%;
+	margin-top: 0.5em;
+}
+
+mark {
+	background-color: transparent;
+}
+
+.indented {
+	padding-left: 1.5em;
+}
+
+hr {
+	background: transparent;
+	display: block;
+	width: 100%;
+	height: 1px;
+	visibility: visible;
+	border: none;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+img {
+	max-width: 100%;
+}
+
+@media only print {
+	img {
+		max-height: 100vh;
+		object-fit: contain;
+	}
+
+	table.collection-content {
+		width: 100%;
+		table-layout: fixed;
+	}
+
+	table.collection-content th,
+	table.collection-content td {
+		overflow-wrap: anywhere;
+	}
+
+	table.collection-content td > .user,
+	table.collection-content td > time {
+		white-space: pre-wrap;
+	}
+}
+
+@page {
+	margin: 1in;
+}
+
+.collection-content-wrapper {
+	overflow-x: auto;
+}
+
+@media only print {
+	.collection-content-wrapper {
+		overflow-x: visible;
+	}
+}
+
+.collection-content {
+	font-size: 0.875rem;
+}
+
+.collection-content td {
+	white-space: pre-wrap;
+	word-break: break-word;
+}
+
+.column-list {
+	display: flex;
+	gap: 46px;
+}
+
+.column {
+	min-width: 0;
+	overflow: hidden;
+}
+
+.column > *:first-child {
+	margin-top: 0;
+}
+
+.table_of_contents-item {
+	display: block;
+	font-size: 0.875rem;
+	line-height: 1.3;
+	padding: 0.125rem;
+}
+
+.table_of_contents-indent-1 {
+	margin-left: 1.5rem;
+}
+
+.table_of_contents-indent-2 {
+	margin-left: 3rem;
+}
+
+.table_of_contents-indent-3 {
+	margin-left: 4.5rem;
+}
+
+.table_of_contents-link {
+	text-decoration: none;
+	opacity: 0.7;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.18);
+}
+
+table,
+th,
+td {
+	border: 1px solid rgba(55, 53, 47, 0.09);
+	border-collapse: collapse;
+}
+
+table {
+	border-left: none;
+	border-right: none;
+}
+
+th,
+td {
+	font-weight: normal;
+	padding: 0.25em 0.5em;
+	line-height: 1.5;
+	min-height: 1.5em;
+	text-align: left;
+}
+
+th {
+	color: rgba(55, 53, 47, 0.6);
+}
+
+ol,
+ul {
+	margin: 0;
+	margin-block-start: 0.6em;
+	margin-block-end: 0.6em;
+}
+
+li > ol:first-child,
+li > ul:first-child {
+	margin-block-start: 0.6em;
+}
+
+ul > li {
+	list-style: disc;
+}
+
+ul.to-do-list {
+	padding-inline-start: 0;
+}
+
+ul.to-do-list > li {
+	list-style: none;
+}
+
+.to-do-children-checked {
+	text-decoration: line-through;
+	opacity: 0.375;
+}
+
+ul.toggle > li {
+	list-style: none;
+}
+
+ul {
+	padding-inline-start: 1.7em;
+}
+
+ul > li {
+	padding-left: 0.1em;
+}
+
+ol {
+	padding-inline-start: 1.6em;
+}
+
+ol.numbered-list.numbered-list-digits-2 {
+	padding-inline-start: 2em;
+}
+
+ol.numbered-list.numbered-list-digits-3plus {
+	padding-inline-start: 2.4em;
+}
+
+ol > li {
+	padding-left: 0.2em;
+}
+
+.mono ol {
+	padding-inline-start: 2em;
+}
+
+.mono ol > li {
+	text-indent: -0.4em;
+}
+
+.toggle {
+	padding-inline-start: 0em;
+	list-style-type: none;
+}
+
+/* Indent toggle children */
+.toggle > li > details {
+	padding-left: 1.7em;
+}
+
+.toggle > li > details > summary {
+	margin-left: -1.1em;
+}
+
+.selected-value {
+	display: inline-block;
+	padding: 0 0.5em;
+	background: rgba(206, 205, 202, 0.5);
+	border-radius: 3px;
+	margin-right: 0.5em;
+	margin-top: 0.3em;
+	margin-bottom: 0.3em;
+	white-space: nowrap;
+}
+
+.collection-title {
+	display: inline-block;
+	margin-right: 1em;
+}
+
+.page-description {
+	margin-bottom: 2em;
+}
+
+.simple-table {
+	margin-top: 1em;
+	font-size: 0.875rem;
+	empty-cells: show;
+}
+.simple-table td {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table th {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table-header-color {
+	background: rgb(247, 246, 243);
+	color: black;
+}
+.simple-table-header {
+	font-weight: 500;
+}
+
+time {
+	opacity: 0.5;
+}
+
+.icon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	max-width: 1.2em;
+	max-height: 1.2em;
+	text-decoration: none;
+	vertical-align: text-bottom;
+	margin-right: 0.5em;
+}
+
+img.icon {
+	border-radius: 3px;
+}
+
+.callout img.notion-static-icon {
+	width: 1em;
+	height: 1em;
+}
+
+.callout p {
+	margin: 0;
+}
+
+.callout h1,
+.callout h2,
+.callout h3 {
+	margin: 0 0 0.6rem;
+}
+
+.user-icon {
+	width: 1.5em;
+	height: 1.5em;
+	border-radius: 100%;
+	margin-right: 0.5rem;
+}
+
+.user-icon-inner {
+	font-size: 0.8em;
+}
+
+.text-icon {
+	border: 1px solid #000;
+	text-align: center;
+}
+
+.page-cover-image {
+	display: block;
+	object-fit: cover;
+	width: 100%;
+	max-height: 30vh;
+}
+
+.page-header-icon {
+	font-size: 3rem;
+	margin-bottom: 1rem;
+}
+
+.page-header-icon-with-cover {
+	margin-top: -0.72em;
+	margin-left: 0.07em;
+}
+
+.page-header-icon img {
+	border-radius: 3px;
+}
+
+.link-to-page {
+	margin: 1em 0;
+	padding: 0;
+	border: none;
+	font-weight: 500;
+}
+
+p > .user {
+	opacity: 0.5;
+}
+
+td > .user,
+td > time {
+	white-space: nowrap;
+}
+
+input[type="checkbox"] {
+	transform: scale(1.5);
+	margin-right: 0.6em;
+	vertical-align: middle;
+}
+
+p {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+.image {
+	border: none;
+	margin: 1.5em 0;
+	padding: 0;
+	border-radius: 0;
+	text-align: center;
+}
+
+.code,
+code {
+	background: rgba(135, 131, 120, 0.15);
+	border-radius: 3px;
+	padding: 0.2em 0.4em;
+	border-radius: 3px;
+	font-size: 85%;
+	tab-size: 2;
+}
+
+code {
+	color: #eb5757;
+}
+
+.code {
+	padding: 1.5em 1em;
+}
+
+.code-wrap {
+	white-space: pre-wrap;
+	word-break: break-all;
+}
+
+.code > code {
+	background: none;
+	padding: 0;
+	font-size: 100%;
+	color: inherit;
+}
+
+blockquote {
+	font-size: 1em;
+	margin: 1em 0;
+	padding-left: 1em;
+	border-left: 3px solid rgb(55, 53, 47);
+}
+
+blockquote.quote-large {
+	font-size: 1.25em;
+}
+
+.bookmark {
+	text-decoration: none;
+	max-height: 8em;
+	padding: 0;
+	display: flex;
+	width: 100%;
+	align-items: stretch;
+}
+
+.bookmark-title {
+	font-size: 0.85em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	height: 1.75em;
+	white-space: nowrap;
+}
+
+.bookmark-text {
+	display: flex;
+	flex-direction: column;
+}
+
+.bookmark-info {
+	flex: 4 1 180px;
+	padding: 12px 14px 14px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.bookmark-image {
+	width: 33%;
+	flex: 1 1 180px;
+	display: block;
+	position: relative;
+	object-fit: cover;
+	border-radius: 1px;
+}
+
+.bookmark-description {
+	color: rgba(55, 53, 47, 0.6);
+	font-size: 0.75em;
+	overflow: hidden;
+	max-height: 4.5em;
+	word-break: break-word;
+}
+
+.bookmark-href {
+	font-size: 0.75em;
+	margin-top: 0.25em;
+}
+
+.sans { font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol"; }
+.code { font-family: "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace; }
+.serif { font-family: Lyon-Text, Georgia, ui-serif, serif; }
+.mono { font-family: iawriter-mono, Nitti, Menlo, Courier, monospace; }
+.pdf .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK JP'; }
+.pdf:lang(zh-CN) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK SC'; }
+.pdf:lang(zh-TW) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK TC'; }
+.pdf:lang(ko-KR) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK KR'; }
+.pdf .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.pdf .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK JP'; }
+.pdf:lang(zh-CN) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK SC'; }
+.pdf:lang(zh-TW) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK TC'; }
+.pdf:lang(ko-KR) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK KR'; }
+.pdf .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.highlight-default {
+	color: rgba(44, 44, 43, 1);
+}
+.highlight-gray {
+	color: rgba(125, 122, 117, 1);
+	fill: rgba(125, 122, 117, 1);
+}
+.highlight-brown {
+	color: rgba(159, 118, 90, 1);
+	fill: rgba(159, 118, 90, 1);
+}
+.highlight-orange {
+	color: rgba(210, 123, 45, 1);
+	fill: rgba(210, 123, 45, 1);
+}
+.highlight-yellow {
+	color: rgba(203, 148, 52, 1);
+	fill: rgba(203, 148, 52, 1);
+}
+.highlight-teal {
+	color: rgba(80, 148, 110, 1);
+	fill: rgba(80, 148, 110, 1);
+}
+.highlight-blue {
+	color: rgba(56, 125, 201, 1);
+	fill: rgba(56, 125, 201, 1);
+}
+.highlight-purple {
+	color: rgba(154, 107, 180, 1);
+	fill: rgba(154, 107, 180, 1);
+}
+.highlight-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.highlight-red {
+	color: rgba(207, 81, 72, 1);
+	fill: rgba(207, 81, 72, 1);
+}
+.highlight-default_background {
+	color: rgba(44, 44, 43, 1);
+}
+.highlight-gray_background {
+	background: rgba(42, 28, 0, 0.07);
+}
+.highlight-brown_background {
+	background: rgba(139, 46, 0, 0.086);
+}
+.highlight-orange_background {
+	background: rgba(224, 101, 1, 0.129);
+}
+.highlight-yellow_background {
+	background: rgba(211, 168, 0, 0.137);
+}
+.highlight-teal_background {
+	background: rgba(0, 100, 45, 0.09);
+}
+.highlight-blue_background {
+	background: rgba(0, 124, 215, 0.094);
+}
+.highlight-purple_background {
+	background: rgba(102, 0, 178, 0.078);
+}
+.highlight-pink_background {
+	background: rgba(197, 0, 93, 0.086);
+}
+.highlight-red_background {
+	background: rgba(223, 22, 0, 0.094);
+}
+.block-color-default {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray {
+	color: rgba(125, 122, 117, 1);
+	fill: rgba(125, 122, 117, 1);
+}
+.block-color-brown {
+	color: rgba(159, 118, 90, 1);
+	fill: rgba(159, 118, 90, 1);
+}
+.block-color-orange {
+	color: rgba(210, 123, 45, 1);
+	fill: rgba(210, 123, 45, 1);
+}
+.block-color-yellow {
+	color: rgba(203, 148, 52, 1);
+	fill: rgba(203, 148, 52, 1);
+}
+.block-color-teal {
+	color: rgba(80, 148, 110, 1);
+	fill: rgba(80, 148, 110, 1);
+}
+.block-color-blue {
+	color: rgba(56, 125, 201, 1);
+	fill: rgba(56, 125, 201, 1);
+}
+.block-color-purple {
+	color: rgba(154, 107, 180, 1);
+	fill: rgba(154, 107, 180, 1);
+}
+.block-color-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.block-color-red {
+	color: rgba(207, 81, 72, 1);
+	fill: rgba(207, 81, 72, 1);
+}
+.block-color-default_background {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray_background {
+	background: rgba(240, 239, 237, 1);
+}
+.block-color-brown_background {
+	background: rgba(245, 237, 233, 1);
+}
+.block-color-orange_background {
+	background: rgba(251, 235, 222, 1);
+}
+.block-color-yellow_background {
+	background: rgba(249, 243, 220, 1);
+}
+.block-color-teal_background {
+	background: rgba(232, 241, 236, 1);
+}
+.block-color-blue_background {
+	background: rgba(229, 242, 252, 1);
+}
+.block-color-purple_background {
+	background: rgba(243, 235, 249, 1);
+}
+.block-color-pink_background {
+	background: rgba(250, 233, 241, 1);
+}
+.block-color-red_background {
+	background: rgba(252, 233, 231, 1);
+}
+.select-value-color-default { background-color: rgba(42, 28, 0, 0.07); }
+.select-value-color-gray { background-color: rgba(28, 19, 1, 0.11); }
+.select-value-color-brown { background-color: rgba(127, 51, 0, 0.156); }
+.select-value-color-orange { background-color: rgba(196, 88, 0, 0.203); }
+.select-value-color-yellow { background-color: rgba(209, 156, 0, 0.282); }
+.select-value-color-green { background-color: rgba(0, 96, 38, 0.156); }
+.select-value-color-blue { background-color: rgba(0, 118, 217, 0.203); }
+.select-value-color-purple { background-color: rgba(92, 0, 163, 0.141); }
+.select-value-color-pink { background-color: rgba(183, 0, 78, 0.152); }
+.select-value-color-red { background-color: rgba(206, 24, 0, 0.164); }
+
+.checkbox {
+	display: inline-flex;
+	vertical-align: text-bottom;
+	width: 16;
+	height: 16;
+	background-size: 16px;
+	margin-left: 2px;
+	margin-right: 5px;
+}
+
+.checkbox-on {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20width%3D%2216%22%20height%3D%2216%22%20fill%3D%22%2358A9D7%22%2F%3E%0A%3Cpath%20d%3D%22M6.71429%2012.2852L14%204.9995L12.7143%203.71436L6.71429%209.71378L3.28571%206.2831L2%207.57092L6.71429%2012.2852Z%22%20fill%3D%22white%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+
+.checkbox-off {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20x%3D%220.75%22%20y%3D%220.75%22%20width%3D%2214.5%22%20height%3D%2214.5%22%20fill%3D%22white%22%20stroke%3D%22%2336352F%22%20stroke-width%3D%221.5%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+	
+</style></head><body><article id="2da56320-92ca-8089-ad1e-c1bb8c7fcd5a" class="page sans"><header><h1 class="page-title" dir="auto">Team Reorganization Discussion</h1><p class="page-description" dir="auto"></p><table class="properties"><tbody><tr class="property-row property-row-status"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/burst_gray.svg" style="width:14px;height:14px;display:block"/></span>Processing</th><td><span class="status-value select-value-color-green"><div class="status-dot status-dot-color-green"></div>Processed</span></td></tr><tr class="property-row property-row-text"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/description_gray.svg" style="width:14px;height:14px;display:block"/></span>Agenda</th><td>George Madison team transfer discussion, career alignment assessment (BI/data analytics), upcoming data project staffing, first visit game plan adjustment, Stuart Purview collaboration</td></tr><tr class="property-row property-row-date"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/calendar_gray.svg" style="width:14px;height:14px;display:block"/></span>Date</th><td><time>December 31, 2025</time></td></tr><tr class="property-row property-row-multi_select"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/list_gray.svg" style="width:14px;height:14px;display:block"/></span>Attendees</th><td><span class="selected-value select-value-color-pink">Internal</span></td></tr><tr class="property-row property-row-select"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/arrow-circle-down_gray.svg" style="width:14px;height:14px;display:block"/></span>Meeting Type</th><td><span class="selected-value select-value-color-default">1:1</span></td></tr><tr class="property-row property-row-person"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/friends_gray.svg" style="width:14px;height:14px;display:block"/></span>Organizer</th><td><span class="user"><img src="https://lh3.googleusercontent.com/a/ACg8ocLHfVvdl28jS936w7CBB6TObsUa1P-X8cbdsUSKdeEn_MD7Bw=s96-c" class="icon user-icon"/>Steve </span></td></tr><tr class="property-row property-row-select"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/arrow-circle-down_gray.svg" style="width:14px;height:14px;display:block"/></span>Priority</th><td><span class="selected-value select-value-color-yellow">Medium</span></td></tr><tr class="property-row property-row-checkbox"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/checkmark-square_gray.svg" style="width:14px;height:14px;display:block"/></span>Has Cluely Transcript</th><td><div class="checkbox checkbox-off"></div></td></tr><tr class="property-row property-row-checkbox"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/checkmark-square_gray.svg" style="width:14px;height:14px;display:block"/></span>Has Final Transcript</th><td><div class="checkbox checkbox-off"></div></td></tr><tr class="property-row property-row-select"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/arrow-circle-down_gray.svg" style="width:14px;height:14px;display:block"/></span>Status</th><td><span class="selected-value select-value-color-brown">Completed</span></td></tr><tr class="property-row property-row-checkbox"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/checkmark-square_gray.svg" style="width:14px;height:14px;display:block"/></span>Has Notion Transcript</th><td><div class="checkbox checkbox-on"></div></td></tr><tr class="property-row property-row-checkbox"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/checkmark-square_gray.svg" style="width:14px;height:14px;display:block"/></span>Has Teams Transcript</th><td><div class="checkbox checkbox-off"></div></td></tr><tr class="property-row property-row-checkbox"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/checkmark-square_gray.svg" style="width:14px;height:14px;display:block"/></span>Merged to Feed</th><td><div class="checkbox checkbox-off"></div></td></tr></tbody></table></header><div class="page-body"><div style="display:contents" dir="ltr"><div id="23345033-af74-4e17-a4b8-fc0905d67482" class="transcription"><div style="border-bottom:0.05em solid;border-bottom-color:rgba(42, 28, 0, 0.07)">Summary<br/></div><div style="display:contents" dir="auto"><h3 id="fe508f4f-42ee-4a90-9724-f2eb01b97731" class="">George Madison&#x27;s Background</h3></div><div style="display:contents" dir="auto"><ul id="68a5f9f9-aaaf-4188-9767-735b44226441" class="bulleted-list"><li style="list-style-type:disc">Holds a Master&#x27;s in Data Analytics Engineering from Metro State <a href="Team%20Reorganization%20Discussion%202da5632092ca8089ad1ec1bb8c7fcd5a.html">[1]</a> <a href="Team%20Reorganization%20Discussion%202da5632092ca8089ad1ec1bb8c7fcd5a.html">[2]</a></li></ul></div><div style="display:contents" dir="auto"><ul id="06421cc0-b592-4819-98fb-d2db1abf7d00" class="bulleted-list"><li style="list-style-type:disc">Graduated in 2022 <a href="Team%20Reorganization%20Discussion%202da5632092ca8089ad1ec1bb8c7fcd5a.html">[1]</a></li></ul></div><div style="display:contents" dir="auto"><ul id="c4ad4408-14c9-4754-811e-c9fdfd6de22d" class="bulleted-list"><li style="list-style-type:disc">Currently working as a strategic initiative portfolio analyst and data science analytics consultant <a href="Team%20Reorganization%20Discussion%202da5632092ca8089ad1ec1bb8c7fcd5a.html">[3]</a></li></ul></div><div style="display:contents" dir="auto"><h3 id="b0e3214a-6679-440f-9c71-38db70236aae" class="">Current Situation</h3></div><div style="display:contents" dir="auto"><ul id="30663b00-2463-47c8-b5cb-0816f50ffc7f" class="bulleted-list"><li style="list-style-type:disc">George is currently assigned to the business analyst team <a href="Team%20Reorganization%20Discussion%202da5632092ca8089ad1ec1bb8c7fcd5a.html">[4]</a></li></ul></div><div style="display:contents" dir="auto"><ul id="a76a356a-e266-4de1-a2a0-3a88c52afc0f" class="bulleted-list"><li style="list-style-type:disc">There&#x27;s concern that his current placement may be holding him back from pursuing his interests in BI and data analytics <a href="Team%20Reorganization%20Discussion%202da5632092ca8089ad1ec1bb8c7fcd5a.html">[4]</a></li></ul></div><div style="display:contents" dir="auto"><h3 id="beeab1a3-a150-4ded-8b67-4d9fb928c177" class="">Proposed Team Transfer</h3></div><div style="display:contents" dir="auto"><ul id="627a6c51-5c0f-4798-8542-9cf87d281296" class="bulleted-list"><li style="list-style-type:disc"><span class="user">@Steve </span> is considering talking to Mike about moving George to a different team better aligned with his skills <a href="Team%20Reorganization%20Discussion%202da5632092ca8089ad1ec1bb8c7fcd5a.html">[5]</a> <a href="Team%20Reorganization%20Discussion%202da5632092ca8089ad1ec1bb8c7fcd5a.html">[4]</a></li></ul></div><div style="display:contents" dir="auto"><ul id="d3990928-c846-4d3e-b9cb-e08325880df5" class="bulleted-list"><li style="list-style-type:disc">The move would support George&#x27;s career interests in BI and data analytics work <a href="Team%20Reorganization%20Discussion%202da5632092ca8089ad1ec1bb8c7fcd5a.html">[4]</a></li></ul></div><div style="display:contents" dir="auto"><ul id="6a96c3aa-cf1a-4961-80d7-25acd6e9acb5" class="bulleted-list"><li style="list-style-type:disc">Team members with George&#x27;s background typically want to be included in relevant company initiatives <a href="Team%20Reorganization%20Discussion%202da5632092ca8089ad1ec1bb8c7fcd5a.html">[6]</a></li></ul></div><div style="display:contents" dir="auto"><h3 id="163ee5cd-5ae9-4ef8-a3d7-57e80d7f54f0" class="">Upcoming Data Project</h3></div><div style="display:contents" dir="auto"><ul id="7a435f09-3b2e-44d1-af53-80586c27a33a" class="bulleted-list"><li style="list-style-type:disc">A major data project is coming up that would be &quot;right up his alley&quot; <a href="Team%20Reorganization%20Discussion%202da5632092ca8089ad1ec1bb8c7fcd5a.html">[7]</a></li></ul></div><div style="display:contents" dir="auto"><ul id="e0932072-e33f-4f9f-904a-fc7e2f1d15f9" class="bulleted-list"><li style="list-style-type:disc">Not including George in this project would be problematic given his background and expertise <a href="Team%20Reorganization%20Discussion%202da5632092ca8089ad1ec1bb8c7fcd5a.html">[7]</a></li></ul></div><div style="display:contents" dir="auto"><ul id="1ce5ff30-43b8-44a0-b0e7-5f73cac359bc" class="bulleted-list"><li style="list-style-type:disc">The team agreed this is an important consideration <a href="Team%20Reorganization%20Discussion%202da5632092ca8089ad1ec1bb8c7fcd5a.html">[7]</a></li></ul></div><div style="display:contents" dir="auto"><h3 id="daf2a49e-1cf9-4eb8-b6aa-137810de6288" class="">Related Considerations</h3></div><div style="display:contents" dir="auto"><ul id="20e55f91-9738-4fb0-a591-9314ce31f7f5" class="bulleted-list"><li style="list-style-type:disc">Need to clarify what George wants to pursue career-wise <a href="Team%20Reorganization%20Discussion%202da5632092ca8089ad1ec1bb8c7fcd5a.html">[4]</a></li></ul></div><div style="display:contents" dir="auto"><ul id="51c7d9e9-57de-4672-9623-397ca0cf8924" class="bulleted-list"><li style="list-style-type:disc">Policies may need to be established, though the team transfer might not affect them <a href="Team%20Reorganization%20Discussion%202da5632092ca8089ad1ec1bb8c7fcd5a.html">[8]</a></li></ul></div><div style="display:contents" dir="auto"><ul id="a9928d12-e5a3-4379-8500-96a70c907043" class="bulleted-list"><li style="list-style-type:disc">Stuart is working on a purview project and is noted as someone good to collaborate with <a href="Team%20Reorganization%20Discussion%202da5632092ca8089ad1ec1bb8c7fcd5a.html">[9]</a> <a href="Team%20Reorganization%20Discussion%202da5632092ca8089ad1ec1bb8c7fcd5a.html">[10]</a></li></ul></div><div style="display:contents" dir="auto"><h3 id="52b64195-3162-42da-ad06-8d1c7e6c6148" class="">Action Items</h3></div><div style="display:contents" dir="auto"><ul id="7fd9d3f1-4b6b-4b40-9cb3-95b771cc3ed6" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked"><span class="user">@Steve </span> to discuss with Mike about transferring George to the new team <a href="Team%20Reorganization%20Discussion%202da5632092ca8089ad1ec1bb8c7fcd5a.html">[5]</a> <a href="Team%20Reorganization%20Discussion%202da5632092ca8089ad1ec1bb8c7fcd5a.html">[11]</a></span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="575b0b5d-51fb-4905-af32-ab24e6cfbe4f" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked"><span class="user">@Steve </span> to clarify George&#x27;s career goals and interests <a href="Team%20Reorganization%20Discussion%202da5632092ca8089ad1ec1bb8c7fcd5a.html">[4]</a></span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="486aa163-93bc-423b-9352-c586982e68a3" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked"><span class="user">@Steve </span> to discuss adjusted game plan for first visit in upcoming one-on-one meeting <a href="Team%20Reorganization%20Discussion%202da5632092ca8089ad1ec1bb8c7fcd5a.html">[11]</a></span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="f3ca6fb4-82d4-4e96-be8b-1bac6ffa012b" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked"><span class="user">@Steve </span> to follow up after his meeting <a href="Team%20Reorganization%20Discussion%202da5632092ca8089ad1ec1bb8c7fcd5a.html">[11]</a></span><div class="indented"></div></li></ul></div><div style="border-bottom:0.05em solid;border-bottom-color:rgba(42, 28, 0, 0.07)">Notes<br/></div><div style="display:contents" dir="ltr"><figure class="block-color-purple_background callout" style="white-space:pre-wrap;display:flex" id="7e4ad355-119a-49cc-9e5c-35caa837b3f5"><div style="font-size:1.5em"><span class="icon">🎯</span></div><div style="width:100%"><div style="display:contents" dir="auto"><p id="6a67d5d4-18c2-47f9-b470-618578bd8411" class=""><strong>Key Outcome:</strong> Potential team transfer for George Madison to align his data analytics background with upcoming data initiatives.</p></div></div></figure></div><div style="display:contents" dir="auto"><hr id="c2b30ebe-6e0b-4591-99de-18df23f8f629"/></div><div style="display:contents" dir="auto"><h3 id="932d63af-b270-4ea9-ab45-d407367935f5" class="">👤 George Madison — Background</h3></div><div style="display:contents" dir="auto"><ul id="287ed665-66ee-4085-8299-1143b31aa565" class="bulleted-list"><li style="list-style-type:disc"><code>Fact:</code> Master&#x27;s in Data Analytics Engineering from Metro State (2022)</li></ul></div><div style="display:contents" dir="auto"><ul id="305843c9-f463-4b08-befc-98778cd79022" class="bulleted-list"><li style="list-style-type:disc"><code>Fact:</code> Current role: Strategic Initiative Portfolio Analyst / Data Science Analytics Consultant</li></ul></div><div style="display:contents" dir="auto"><ul id="d8c38db7-d376-47dc-9d68-ea478a1b3be4" class="bulleted-list"><li style="list-style-type:disc"><code>Fact:</code> Currently assigned to the <strong>business analyst team</strong></li></ul></div><div style="display:contents" dir="auto"><hr id="1098fccf-12a0-4647-a7e2-b61ddb0537de"/></div><div style="display:contents" dir="auto"><h3 id="d3b78949-4120-45a5-8a01-5c64c7cf3393" class="">🔄 Proposed Team Transfer</h3></div><div style="display:contents" dir="auto"><ul id="53eefd86-a2e4-4ca5-99b8-99b5757190b9" class="bulleted-list"><li style="list-style-type:disc"><code>Decision:</code> Steve to discuss with Mike about moving George to this team (data/BI focus)</li></ul></div><div style="display:contents" dir="auto"><ul id="823910ba-3557-419b-ac52-1543936faa17" class="bulleted-list"><li style="list-style-type:disc"><code>Fact:</code> George&#x27;s interests align with BI and data analytics work</li></ul></div><div style="display:contents" dir="auto"><ul id="787e7bd3-c713-4b96-9db0-facaf03bc92a" class="bulleted-list"><li style="list-style-type:disc"><code>Risk:</code> Current placement may be holding him back from pursuing his career interests</li></ul></div><div style="display:contents" dir="auto"><ul id="85a10a47-5cc5-42bc-bf01-569f761a14a1" class="bulleted-list"><li style="list-style-type:disc"><code>Fact:</code> Team transfer may not affect policies — George would just need to adhere to them</li></ul></div><div style="display:contents" dir="auto"><hr id="8d4a6084-3bb7-45cf-8d22-846734259754"/></div><div style="display:contents" dir="auto"><h3 id="2089dcb4-c956-4e88-a7f4-64c2484db9f7" class="">📊 Upcoming Data Project</h3></div><div style="display:contents" dir="auto"><ul id="1233aaf2-97d5-4268-b2a2-eea78768de45" class="bulleted-list"><li style="list-style-type:disc"><code>Fact:</code> Major data project coming up that aligns with George&#x27;s background</li></ul></div><div style="display:contents" dir="auto"><ul id="d9d3168a-d4dc-4e10-b51c-fa84108c364b" class="bulleted-list"><li style="list-style-type:disc"><code>Risk:</code> Not including George would be problematic given his expertise</li></ul></div><div style="display:contents" dir="auto"><ul id="5b4e069b-fbdc-45fc-9733-4adaa52b21bc" class="bulleted-list"><li style="list-style-type:disc"><code>Open Question:</code> What does George want to pursue career-wise? (needs clarification)</li></ul></div><div style="display:contents" dir="auto"><hr id="7e414b25-a080-40f9-a895-d55a598db040"/></div><div style="display:contents" dir="auto"><h3 id="ec6f0876-5b3a-40c5-bae6-b6a5bdc06ee2" class="">🤝 Related Collaboration</h3></div><div style="display:contents" dir="auto"><ul id="46e8f200-1a29-4643-9471-44d3dcbfce8b" class="bulleted-list"><li style="list-style-type:disc"><code>Fact:</code> Stuart is working on a <strong>Purview project</strong></li></ul></div><div style="display:contents" dir="auto"><ul id="d3feac9a-8319-443b-af1f-3cc3ae61098a" class="bulleted-list"><li style="list-style-type:disc"><code>Fact:</code> Stuart is a good collaborator — Patrick talks to him almost every day</li></ul></div><div style="display:contents" dir="auto"><hr id="e7f39c41-a525-4a9b-a8cf-83f40a2329cd"/></div><div style="display:contents" dir="auto"><h3 id="4918658e-60f3-460a-aa03-3d29209be4a5" class="">✅ Action Items</h3></div><div style="display:contents" dir="auto"><ul id="b6a8ee7c-1d73-4af9-a4f2-e0e27692f2b6" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked"><code>Next step:</code> Steve to discuss with Mike about transferring George to the data team</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="5b4d9124-c53f-4977-8262-ee4214e63e00" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked"><code>Next step:</code> Steve to clarify George&#x27;s career goals and interests</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="cb9b5ae4-c4a3-4fe1-819b-14e4c235cac2" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked"><code>Next step:</code> Steve to discuss adjusted game plan for first visit in upcoming one-on-one</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="be92676b-3364-409d-a22c-d91504342b9b" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked"><code>Next step:</code> Steve to follow up after Mike meeting</span><div class="indented"></div></li></ul></div><div style="border-bottom:0.05em solid;border-bottom-color:rgba(42, 28, 0, 0.07)">Transcript<br/></div><div style="display:contents" dir="auto"><p id="cb187aae-7e6e-4991-a80b-06ce58df7980" class="">I can probably share it with you if you keep it to yourself too, but...</p></div><div style="display:contents" dir="auto"><p id="5cd09e62-7b9d-454e-abb8-e4e37097051a" class="">Oh, that&#x27;s okay. Oh, this is fine. Oh. Good looking Resumes, strategic initiative portfolio analyst, that&#x27;s a mouthful. Data science analytics consultant. I&#x27;m assuming you got it. Mmm... When did he graduate from college?</p></div><div style="display:contents" dir="auto"><p id="388ee6e4-152c-4eed-8619-6cbe7303ea85" class="">George Madison, 2022, 2015 from Metro State.</p></div><div style="display:contents" dir="auto"><p id="a6e2c6af-e47e-45ed-82e7-f1a39a71065d" class="">Master&#x27;s in Data Analytics Engineering. They didn&#x27;t even have those when I was in college.</p></div><div style="display:contents" dir="auto"><p id="a7d7b87a-c5a6-48ae-bdf8-a8bc1eb38997" class="">My point being is I&#x27;m kind of contemplating talking to Mike about shifting him over to this team rather than having...</p></div><div style="display:contents" dir="auto"><p id="94ff12a0-4999-4660-beae-db486640673a" class="">Well, as of right now, what team would he be assigned to?</p></div><div style="display:contents" dir="auto"><p id="e4fd54eb-30d0-4533-ab61-f437fce4fccd" class="">Right now he&#x27;s on someone else&#x27;s team. He&#x27;s on the business analyst team. Oh. So I was talking with the other, I&#x27;m thinking, you know what? With what he&#x27;s wanting to get into with BI and stuff like this, I think we&#x27;re I mean, kind of holding them back. And that I think that&#x27;s what he wants to get into is back to data analytics and stuff like that. I need to suss that out a little bit more. But it also is going to help to drive what policies we put in place.</p></div><div style="display:contents" dir="auto"><p id="b2620b50-290b-4b25-9b82-1e60a7b96949" class="">Maybe not. Maybe it won&#x27;t affect the policies at all we put in place, but he&#x27;s just going to have to adhere to them too.</p></div><div style="display:contents" dir="auto"><p id="31cd5c9e-5aa3-4b9c-a6f4-40899eb9a40a" class="">You mean policies as in just like... BI designs andI mean, personally, I think anyone with a background kind of like that, that&#x27;s kind of what they live for. any kind of initiative going on at the company, not being included in some way is kind of, Not offensive, but like...</p></div><div style="display:contents" dir="auto"><p id="e6992893-044f-4702-bf8a-e33834f883ac" class="">You&#x27;re like, what am I doing wrong that I&#x27;m not-That&#x27;s the other part too, is that when we&#x27;re in this big project for data, I&#x27;m like, dude, this is going to be right up his alley if he&#x27;s not included. You&#x27;re thinking the same thing I was thinking.</p></div><div style="display:contents" dir="auto"><p id="f976d5a4-1471-4881-9356-a1eb59de9bdf" class="">Even if it&#x27;s not like official official, like... There&#x27;s no way I could imagine not saying, &quot;Yeah, I would like to be a part of it.&quot; Right. In whatever way you need. Like, Stuart was like, hey, you want to work with me on the purview thing? Like...</p></div><div style="display:contents" dir="auto"><p id="4e46c4ea-060d-4123-8f2e-62936e51cd58" class="">This is like... Yeah. Stuart&#x27;s a good guy to get involved with.</p></div><div style="display:contents" dir="auto"><p id="e2e7d504-7619-48d4-b093-b7cf2d02d436" class="">I talk to him almost every day sometimes. Perfect.</p></div><div style="display:contents" dir="auto"><p id="50ebc434-cf42-478e-a553-0ddf0b3cb6d2" class="">Perfect. But, yeah. Those are the two things I wanted to chat with you. I didn&#x27;t know my one-on-one got moved up, so I hate to be rude, but I&#x27;m going to... pop out, talk to him and talk what you and I talked about, about maybe shifting the game plan for your first visit here. I think that&#x27;s a great idea, honestly. Okay, perfect. Okay. I&#x27;m going to touch base with you after my meeting, if you don&#x27;t mind then. Sounds good.</p></div></div></div></div></article><span class="sans" style="font-size:14px;padding-top:2em"></span></body></html>

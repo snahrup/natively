@@ -1,0 +1,744 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>Technical Systems Meeting</title><style>
+/* cspell:disable-file */
+/* webkit printing magic: print all background colors */
+html {
+	-webkit-print-color-adjust: exact;
+}
+* {
+	box-sizing: border-box;
+	-webkit-print-color-adjust: exact;
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+}
+@media only screen {
+	body {
+		margin: 2em auto;
+		max-width: 900px;
+		color: rgb(55, 53, 47);
+	}
+}
+
+body {
+	line-height: 1.5;
+	white-space: pre-wrap;
+}
+
+a,
+a.visited {
+	color: inherit;
+	text-decoration: underline;
+}
+
+.pdf-relative-link-path {
+	font-size: 80%;
+	color: #444;
+}
+
+h1,
+h2,
+h3 {
+	letter-spacing: -0.01em;
+	line-height: 1.2;
+	font-weight: 600;
+	margin-bottom: 0;
+}
+
+/* Override strong tags inside headings to maintain consistent weight */
+h1 strong,
+h2 strong,
+h3 strong {
+	font-weight: 600;
+}
+
+.page-title {
+	font-size: 2.5rem;
+	font-weight: 700;
+	margin-top: 0;
+	margin-bottom: 0.75em;
+}
+
+h1 {
+	font-size: 1.875rem;
+	margin-top: 1.875rem;
+}
+
+h2 {
+	font-size: 1.5rem;
+	margin-top: 1.5rem;
+}
+
+h3 {
+	font-size: 1.25rem;
+	margin-top: 1.25rem;
+}
+
+.source {
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	padding: 1.5em;
+	word-break: break-all;
+}
+
+.callout {
+	border-radius: 10px;
+	padding: 1rem;
+}
+
+figure {
+	margin: 1.25em 0;
+	page-break-inside: avoid;
+}
+
+figcaption {
+	opacity: 0.5;
+	font-size: 85%;
+	margin-top: 0.5em;
+}
+
+mark {
+	background-color: transparent;
+}
+
+.indented {
+	padding-left: 1.5em;
+}
+
+hr {
+	background: transparent;
+	display: block;
+	width: 100%;
+	height: 1px;
+	visibility: visible;
+	border: none;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+img {
+	max-width: 100%;
+}
+
+@media only print {
+	img {
+		max-height: 100vh;
+		object-fit: contain;
+	}
+
+	table.collection-content {
+		width: 100%;
+		table-layout: fixed;
+	}
+
+	table.collection-content th,
+	table.collection-content td {
+		overflow-wrap: anywhere;
+	}
+
+	table.collection-content td > .user,
+	table.collection-content td > time {
+		white-space: pre-wrap;
+	}
+}
+
+@page {
+	margin: 1in;
+}
+
+.collection-content-wrapper {
+	overflow-x: auto;
+}
+
+@media only print {
+	.collection-content-wrapper {
+		overflow-x: visible;
+	}
+}
+
+.collection-content {
+	font-size: 0.875rem;
+}
+
+.collection-content td {
+	white-space: pre-wrap;
+	word-break: break-word;
+}
+
+.column-list {
+	display: flex;
+	gap: 46px;
+}
+
+.column {
+	min-width: 0;
+	overflow: hidden;
+}
+
+.column > *:first-child {
+	margin-top: 0;
+}
+
+.table_of_contents-item {
+	display: block;
+	font-size: 0.875rem;
+	line-height: 1.3;
+	padding: 0.125rem;
+}
+
+.table_of_contents-indent-1 {
+	margin-left: 1.5rem;
+}
+
+.table_of_contents-indent-2 {
+	margin-left: 3rem;
+}
+
+.table_of_contents-indent-3 {
+	margin-left: 4.5rem;
+}
+
+.table_of_contents-link {
+	text-decoration: none;
+	opacity: 0.7;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.18);
+}
+
+table,
+th,
+td {
+	border: 1px solid rgba(55, 53, 47, 0.09);
+	border-collapse: collapse;
+}
+
+table {
+	border-left: none;
+	border-right: none;
+}
+
+th,
+td {
+	font-weight: normal;
+	padding: 0.25em 0.5em;
+	line-height: 1.5;
+	min-height: 1.5em;
+	text-align: left;
+}
+
+th {
+	color: rgba(55, 53, 47, 0.6);
+}
+
+ol,
+ul {
+	margin: 0;
+	margin-block-start: 0.6em;
+	margin-block-end: 0.6em;
+}
+
+li > ol:first-child,
+li > ul:first-child {
+	margin-block-start: 0.6em;
+}
+
+ul > li {
+	list-style: disc;
+}
+
+ul.to-do-list {
+	padding-inline-start: 0;
+}
+
+ul.to-do-list > li {
+	list-style: none;
+}
+
+.to-do-children-checked {
+	text-decoration: line-through;
+	opacity: 0.375;
+}
+
+ul.toggle > li {
+	list-style: none;
+}
+
+ul {
+	padding-inline-start: 1.7em;
+}
+
+ul > li {
+	padding-left: 0.1em;
+}
+
+ol {
+	padding-inline-start: 1.6em;
+}
+
+ol.numbered-list.numbered-list-digits-2 {
+	padding-inline-start: 2em;
+}
+
+ol.numbered-list.numbered-list-digits-3plus {
+	padding-inline-start: 2.4em;
+}
+
+ol > li {
+	padding-left: 0.2em;
+}
+
+.mono ol {
+	padding-inline-start: 2em;
+}
+
+.mono ol > li {
+	text-indent: -0.4em;
+}
+
+.toggle {
+	padding-inline-start: 0em;
+	list-style-type: none;
+}
+
+/* Indent toggle children */
+.toggle > li > details {
+	padding-left: 1.7em;
+}
+
+.toggle > li > details > summary {
+	margin-left: -1.1em;
+}
+
+.selected-value {
+	display: inline-block;
+	padding: 0 0.5em;
+	background: rgba(206, 205, 202, 0.5);
+	border-radius: 3px;
+	margin-right: 0.5em;
+	margin-top: 0.3em;
+	margin-bottom: 0.3em;
+	white-space: nowrap;
+}
+
+.collection-title {
+	display: inline-block;
+	margin-right: 1em;
+}
+
+.page-description {
+	margin-bottom: 2em;
+}
+
+.simple-table {
+	margin-top: 1em;
+	font-size: 0.875rem;
+	empty-cells: show;
+}
+.simple-table td {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table th {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table-header-color {
+	background: rgb(247, 246, 243);
+	color: black;
+}
+.simple-table-header {
+	font-weight: 500;
+}
+
+time {
+	opacity: 0.5;
+}
+
+.icon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	max-width: 1.2em;
+	max-height: 1.2em;
+	text-decoration: none;
+	vertical-align: text-bottom;
+	margin-right: 0.5em;
+}
+
+img.icon {
+	border-radius: 3px;
+}
+
+.callout img.notion-static-icon {
+	width: 1em;
+	height: 1em;
+}
+
+.callout p {
+	margin: 0;
+}
+
+.callout h1,
+.callout h2,
+.callout h3 {
+	margin: 0 0 0.6rem;
+}
+
+.user-icon {
+	width: 1.5em;
+	height: 1.5em;
+	border-radius: 100%;
+	margin-right: 0.5rem;
+}
+
+.user-icon-inner {
+	font-size: 0.8em;
+}
+
+.text-icon {
+	border: 1px solid #000;
+	text-align: center;
+}
+
+.page-cover-image {
+	display: block;
+	object-fit: cover;
+	width: 100%;
+	max-height: 30vh;
+}
+
+.page-header-icon {
+	font-size: 3rem;
+	margin-bottom: 1rem;
+}
+
+.page-header-icon-with-cover {
+	margin-top: -0.72em;
+	margin-left: 0.07em;
+}
+
+.page-header-icon img {
+	border-radius: 3px;
+}
+
+.link-to-page {
+	margin: 1em 0;
+	padding: 0;
+	border: none;
+	font-weight: 500;
+}
+
+p > .user {
+	opacity: 0.5;
+}
+
+td > .user,
+td > time {
+	white-space: nowrap;
+}
+
+input[type="checkbox"] {
+	transform: scale(1.5);
+	margin-right: 0.6em;
+	vertical-align: middle;
+}
+
+p {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+.image {
+	border: none;
+	margin: 1.5em 0;
+	padding: 0;
+	border-radius: 0;
+	text-align: center;
+}
+
+.code,
+code {
+	background: rgba(135, 131, 120, 0.15);
+	border-radius: 3px;
+	padding: 0.2em 0.4em;
+	border-radius: 3px;
+	font-size: 85%;
+	tab-size: 2;
+}
+
+code {
+	color: #eb5757;
+}
+
+.code {
+	padding: 1.5em 1em;
+}
+
+.code-wrap {
+	white-space: pre-wrap;
+	word-break: break-all;
+}
+
+.code > code {
+	background: none;
+	padding: 0;
+	font-size: 100%;
+	color: inherit;
+}
+
+blockquote {
+	font-size: 1em;
+	margin: 1em 0;
+	padding-left: 1em;
+	border-left: 3px solid rgb(55, 53, 47);
+}
+
+blockquote.quote-large {
+	font-size: 1.25em;
+}
+
+.bookmark {
+	text-decoration: none;
+	max-height: 8em;
+	padding: 0;
+	display: flex;
+	width: 100%;
+	align-items: stretch;
+}
+
+.bookmark-title {
+	font-size: 0.85em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	height: 1.75em;
+	white-space: nowrap;
+}
+
+.bookmark-text {
+	display: flex;
+	flex-direction: column;
+}
+
+.bookmark-info {
+	flex: 4 1 180px;
+	padding: 12px 14px 14px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.bookmark-image {
+	width: 33%;
+	flex: 1 1 180px;
+	display: block;
+	position: relative;
+	object-fit: cover;
+	border-radius: 1px;
+}
+
+.bookmark-description {
+	color: rgba(55, 53, 47, 0.6);
+	font-size: 0.75em;
+	overflow: hidden;
+	max-height: 4.5em;
+	word-break: break-word;
+}
+
+.bookmark-href {
+	font-size: 0.75em;
+	margin-top: 0.25em;
+}
+
+.sans { font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol"; }
+.code { font-family: "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace; }
+.serif { font-family: Lyon-Text, Georgia, ui-serif, serif; }
+.mono { font-family: iawriter-mono, Nitti, Menlo, Courier, monospace; }
+.pdf .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK JP'; }
+.pdf:lang(zh-CN) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK SC'; }
+.pdf:lang(zh-TW) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK TC'; }
+.pdf:lang(ko-KR) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK KR'; }
+.pdf .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.pdf .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK JP'; }
+.pdf:lang(zh-CN) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK SC'; }
+.pdf:lang(zh-TW) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK TC'; }
+.pdf:lang(ko-KR) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK KR'; }
+.pdf .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.highlight-default {
+	color: rgba(44, 44, 43, 1);
+}
+.highlight-gray {
+	color: rgba(125, 122, 117, 1);
+	fill: rgba(125, 122, 117, 1);
+}
+.highlight-brown {
+	color: rgba(159, 118, 90, 1);
+	fill: rgba(159, 118, 90, 1);
+}
+.highlight-orange {
+	color: rgba(210, 123, 45, 1);
+	fill: rgba(210, 123, 45, 1);
+}
+.highlight-yellow {
+	color: rgba(203, 148, 52, 1);
+	fill: rgba(203, 148, 52, 1);
+}
+.highlight-teal {
+	color: rgba(80, 148, 110, 1);
+	fill: rgba(80, 148, 110, 1);
+}
+.highlight-blue {
+	color: rgba(56, 125, 201, 1);
+	fill: rgba(56, 125, 201, 1);
+}
+.highlight-purple {
+	color: rgba(154, 107, 180, 1);
+	fill: rgba(154, 107, 180, 1);
+}
+.highlight-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.highlight-red {
+	color: rgba(207, 81, 72, 1);
+	fill: rgba(207, 81, 72, 1);
+}
+.highlight-default_background {
+	color: rgba(44, 44, 43, 1);
+}
+.highlight-gray_background {
+	background: rgba(42, 28, 0, 0.07);
+}
+.highlight-brown_background {
+	background: rgba(139, 46, 0, 0.086);
+}
+.highlight-orange_background {
+	background: rgba(224, 101, 1, 0.129);
+}
+.highlight-yellow_background {
+	background: rgba(211, 168, 0, 0.137);
+}
+.highlight-teal_background {
+	background: rgba(0, 100, 45, 0.09);
+}
+.highlight-blue_background {
+	background: rgba(0, 124, 215, 0.094);
+}
+.highlight-purple_background {
+	background: rgba(102, 0, 178, 0.078);
+}
+.highlight-pink_background {
+	background: rgba(197, 0, 93, 0.086);
+}
+.highlight-red_background {
+	background: rgba(223, 22, 0, 0.094);
+}
+.block-color-default {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray {
+	color: rgba(125, 122, 117, 1);
+	fill: rgba(125, 122, 117, 1);
+}
+.block-color-brown {
+	color: rgba(159, 118, 90, 1);
+	fill: rgba(159, 118, 90, 1);
+}
+.block-color-orange {
+	color: rgba(210, 123, 45, 1);
+	fill: rgba(210, 123, 45, 1);
+}
+.block-color-yellow {
+	color: rgba(203, 148, 52, 1);
+	fill: rgba(203, 148, 52, 1);
+}
+.block-color-teal {
+	color: rgba(80, 148, 110, 1);
+	fill: rgba(80, 148, 110, 1);
+}
+.block-color-blue {
+	color: rgba(56, 125, 201, 1);
+	fill: rgba(56, 125, 201, 1);
+}
+.block-color-purple {
+	color: rgba(154, 107, 180, 1);
+	fill: rgba(154, 107, 180, 1);
+}
+.block-color-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.block-color-red {
+	color: rgba(207, 81, 72, 1);
+	fill: rgba(207, 81, 72, 1);
+}
+.block-color-default_background {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray_background {
+	background: rgba(240, 239, 237, 1);
+}
+.block-color-brown_background {
+	background: rgba(245, 237, 233, 1);
+}
+.block-color-orange_background {
+	background: rgba(251, 235, 222, 1);
+}
+.block-color-yellow_background {
+	background: rgba(249, 243, 220, 1);
+}
+.block-color-teal_background {
+	background: rgba(232, 241, 236, 1);
+}
+.block-color-blue_background {
+	background: rgba(229, 242, 252, 1);
+}
+.block-color-purple_background {
+	background: rgba(243, 235, 249, 1);
+}
+.block-color-pink_background {
+	background: rgba(250, 233, 241, 1);
+}
+.block-color-red_background {
+	background: rgba(252, 233, 231, 1);
+}
+.select-value-color-default { background-color: rgba(42, 28, 0, 0.07); }
+.select-value-color-gray { background-color: rgba(28, 19, 1, 0.11); }
+.select-value-color-brown { background-color: rgba(127, 51, 0, 0.156); }
+.select-value-color-orange { background-color: rgba(196, 88, 0, 0.203); }
+.select-value-color-yellow { background-color: rgba(209, 156, 0, 0.282); }
+.select-value-color-green { background-color: rgba(0, 96, 38, 0.156); }
+.select-value-color-blue { background-color: rgba(0, 118, 217, 0.203); }
+.select-value-color-purple { background-color: rgba(92, 0, 163, 0.141); }
+.select-value-color-pink { background-color: rgba(183, 0, 78, 0.152); }
+.select-value-color-red { background-color: rgba(206, 24, 0, 0.164); }
+
+.checkbox {
+	display: inline-flex;
+	vertical-align: text-bottom;
+	width: 16;
+	height: 16;
+	background-size: 16px;
+	margin-left: 2px;
+	margin-right: 5px;
+}
+
+.checkbox-on {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20width%3D%2216%22%20height%3D%2216%22%20fill%3D%22%2358A9D7%22%2F%3E%0A%3Cpath%20d%3D%22M6.71429%2012.2852L14%204.9995L12.7143%203.71436L6.71429%209.71378L3.28571%206.2831L2%207.57092L6.71429%2012.2852Z%22%20fill%3D%22white%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+
+.checkbox-off {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20x%3D%220.75%22%20y%3D%220.75%22%20width%3D%2214.5%22%20height%3D%2214.5%22%20fill%3D%22white%22%20stroke%3D%22%2336352F%22%20stroke-width%3D%221.5%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+	
+</style></head><body><article id="2e156320-92ca-80a2-acfc-da7a902a106d" class="page sans"><header><h1 class="page-title" dir="auto">Technical Systems Meeting</h1><p class="page-description" dir="auto"></p><table class="properties"><tbody><tr class="property-row property-row-status"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/burst_gray.svg" style="width:14px;height:14px;display:block"/></span>Processing</th><td><span class="status-value select-value-color-green"><div class="status-dot status-dot-color-green"></div>Processed</span></td></tr><tr class="property-row property-row-text"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/description_gray.svg" style="width:14px;height:14px;display:block"/></span>Agenda</th><td>Factory Talk/PLC integration challenges, Hot List status, Hazmat report updates, MP batch card issues, Hazardous ingredients report, Authentication/Entrez ID setup, ETQ BI build progress, M3 order confirmation date retrieval, Contract developer staffing</td></tr><tr class="property-row property-row-date"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/calendar_gray.svg" style="width:14px;height:14px;display:block"/></span>Date</th><td><time>January 7, 2026</time></td></tr><tr class="property-row property-row-multi_select"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/list_gray.svg" style="width:14px;height:14px;display:block"/></span>Attendees</th><td><span class="selected-value select-value-color-pink">Internal</span></td></tr><tr class="property-row property-row-select"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/arrow-circle-down_gray.svg" style="width:14px;height:14px;display:block"/></span>Meeting Type</th><td><span class="selected-value select-value-color-red">Standup</span></td></tr><tr class="property-row property-row-person"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/friends_gray.svg" style="width:14px;height:14px;display:block"/></span>Organizer</th><td><span class="user"><span class="icon text-icon user-icon"><span class="user-icon-inner">P</span></span>Patrick Stiller</span></td></tr><tr class="property-row property-row-select"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/arrow-circle-down_gray.svg" style="width:14px;height:14px;display:block"/></span>Priority</th><td><span class="selected-value select-value-color-yellow">Medium</span></td></tr><tr class="property-row property-row-checkbox"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/checkmark-square_gray.svg" style="width:14px;height:14px;display:block"/></span>Has Cluely Transcript</th><td><div class="checkbox checkbox-off"></div></td></tr><tr class="property-row property-row-checkbox"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/checkmark-square_gray.svg" style="width:14px;height:14px;display:block"/></span>Has Final Transcript</th><td><div class="checkbox checkbox-off"></div></td></tr><tr class="property-row property-row-select"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/arrow-circle-down_gray.svg" style="width:14px;height:14px;display:block"/></span>Status</th><td><span class="selected-value select-value-color-brown">Completed</span></td></tr><tr class="property-row property-row-checkbox"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/checkmark-square_gray.svg" style="width:14px;height:14px;display:block"/></span>Has Notion Transcript</th><td><div class="checkbox checkbox-on"></div></td></tr><tr class="property-row property-row-checkbox"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/checkmark-square_gray.svg" style="width:14px;height:14px;display:block"/></span>Has Teams Transcript</th><td><div class="checkbox checkbox-off"></div></td></tr><tr class="property-row property-row-checkbox"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/checkmark-square_gray.svg" style="width:14px;height:14px;display:block"/></span>Merged to Feed</th><td><div class="checkbox checkbox-off"></div></td></tr></tbody></table></header><div class="page-body"><div style="display:contents" dir="ltr"><div id="2e156320-92ca-80e3-89fc-d43b0d217797" class="transcription"><div style="border-bottom:0.05em solid;border-bottom-color:rgba(42, 28, 0, 0.07)">Summary<br/></div><div style="display:contents" dir="auto"><h3 id="2e156320-92ca-811b-950b-f6a4e5241ba1" class="">System Integration Challenges</h3></div><div style="display:contents" dir="auto"><ul id="2e156320-92ca-81a7-a65d-f3a508abbd02" class="bulleted-list"><li style="list-style-type:disc">Discussion about Factory Talk compatibility with resin plants versus gel coat operations ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e156320-92ca-81e3-aba6-cca2fa0fc485" class="bulleted-list"><li style="list-style-type:disc">Plex system integration considerations and PLC transaction challenges ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e156320-92ca-818a-87c0-fbb0617988e4" class="bulleted-list"><li style="list-style-type:disc">MAS system was originally developed for resin plants, causing limitations for gel coat operations ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e156320-92ca-810e-be62-c4ac44de12a2" class="bulleted-list"><li style="list-style-type:disc">Resin plant workflows require step-by-step processes, while gel coat operations need more flexibility that wasn&#x27;t built into the current system ‣</li></ul></div><div style="display:contents" dir="auto"><h3 id="2e156320-92ca-8183-95a9-ec5d94e4331d" class="">Hot List Status</h3></div><div style="display:contents" dir="auto"><ul id="2e156320-92ca-81a5-ae18-f71ed781f3e1" class="bulleted-list"><li style="list-style-type:disc">Hot list is currently in the hands of the team and being used ‣ ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e156320-92ca-81e3-8004-ea256bcd85aa" class="bulleted-list"><li style="list-style-type:disc">No new changes or requests came up in recent meeting that would require different functionality ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e156320-92ca-8157-ad90-f2bed304b5a4" class="bulleted-list"><li style="list-style-type:disc">Nate is preparing documentation about scheduling issues that cascade downstream ‣<div style="display:contents" dir="auto"><ul id="2e156320-92ca-8119-b997-cb888fe08e81" class="bulleted-list"><li style="list-style-type:circle">Issues not handled upfront in scheduling create problems for downstream teams</li></ul></div><div style="display:contents" dir="auto"><ul id="2e156320-92ca-81c3-9cef-d21354ac5f16" class="bulleted-list"><li style="list-style-type:circle">Documentation will be sent to Brandon to support needed improvements ‣ ‣</li></ul></div></li></ul></div><div style="display:contents" dir="auto"><h3 id="2e156320-92ca-815b-bd24-dcc6647dbe49" class="">Reports and Data Issues</h3></div><div style="display:contents" dir="auto"><ul id="2e156320-92ca-8174-a12d-df6c63328cab" class="bulleted-list"><li style="list-style-type:disc">Hazmat report sent to Alicia with plans to convert to SSRS format next month ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e156320-92ca-81ed-a52f-dd624f300e8a" class="bulleted-list"><li style="list-style-type:disc">Work needed with Kerry and Crystal to improve SDS data quality ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e156320-92ca-8171-9b52-faf4e758fefe" class="bulleted-list"><li style="list-style-type:disc">MP batch card issue identified with Rachel Jason ‣<div style="display:contents" dir="auto"><ul id="2e156320-92ca-81b0-b93c-ea506c6ec195" class="bulleted-list"><li style="list-style-type:circle">Missing SMC product number lookup data ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e156320-92ca-8150-909a-def95a83fd0b" class="bulleted-list"><li style="list-style-type:circle">System needs custom fields for multiple machine lines ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e156320-92ca-81f6-8a7c-e71a15444c36" class="bulleted-list"><li style="list-style-type:circle">Default fallback to line one if other lines aren&#x27;t configured ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e156320-92ca-815a-b55e-e8c478408cfc" class="bulleted-list"><li style="list-style-type:circle">Current test case failing due to missing line one data ‣ ‣</li></ul></div></li></ul></div><div style="display:contents" dir="auto"><ul id="2e156320-92ca-818a-85cb-ee9d9100a0e9" class="bulleted-list"><li style="list-style-type:disc">Hazardous ingredients report needs additional fields and data cleanup ‣ ‣ ‣ ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e156320-92ca-8162-9806-d66105f13df6" class="bulleted-list"><li style="list-style-type:disc">Attachments issue requires passing additional information to distinguish between formula types ‣ ‣ ‣<div style="display:contents" dir="auto"><ul id="2e156320-92ca-81b9-9289-d97bcb88da67" class="bulleted-list"><li style="list-style-type:circle">System needs to differentiate between global item attachments and formula-specific attachments ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e156320-92ca-81d7-b8fa-d391cc26c371" class="bulleted-list"><li style="list-style-type:circle">Unique identifier needs to be identified and passed through stored procedure ‣ ‣</li></ul></div></li></ul></div><div style="display:contents" dir="auto"><h3 id="2e156320-92ca-8124-8d26-ede40070550f" class="">Authentication and Security Updates</h3></div><div style="display:contents" dir="auto"><ul id="2e156320-92ca-814d-8c38-d96aad270520" class="bulleted-list"><li style="list-style-type:disc">Working with TLI to set up Entrez ID for internal applications ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e156320-92ca-817e-b6f0-c86c581db899" class="bulleted-list"><li style="list-style-type:disc">Plan to move to Entrez ID for improved multi-device access (phone, tablets) ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e156320-92ca-8195-8f50-c379a6e03e68" class="bulleted-list"><li style="list-style-type:disc">Currently MAS uses dual authentication while AMB uses on-prem Active Directory ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e156320-92ca-811c-9e17-ce238a213714" class="bulleted-list"><li style="list-style-type:disc">Meeting scheduled with Michael Thiel to work on authentication setup ‣</li></ul></div><div style="display:contents" dir="auto"><h3 id="2e156320-92ca-81a0-bad3-dd9fb0bf184d" class="">Technical Development Work</h3></div><div style="display:contents" dir="auto"><ul id="2e156320-92ca-819a-aa08-e16938765043" class="bulleted-list"><li style="list-style-type:disc">ETQ BI build in progress with Power BI transformations mostly complete ‣ ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e156320-92ca-8161-a88c-fd1a1638e74a" class="bulleted-list"><li style="list-style-type:disc">ETQ has non-standard table relationships that require reviewing existing report code ‣ ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e156320-92ca-8179-8f93-db002d934922" class="bulleted-list"><li style="list-style-type:disc">Presentation scheduled for Monday on molding product sales BI ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e156320-92ca-81b7-85a2-c762acc5efe9" class="bulleted-list"><li style="list-style-type:disc">ATQ/ATL/ETL still on M3 and needs to be moved to production ‣ ‣</li></ul></div><div style="display:contents" dir="auto"><h3 id="2e156320-92ca-81eb-9f65-c29ce26beccf" class="">M3 and Order Confirmations</h3></div><div style="display:contents" dir="auto"><ul id="2e156320-92ca-8184-9e2f-f0e1d8b1d8e8" class="bulleted-list"><li style="list-style-type:disc">Order confirmation date retrieval proving more complex than expected ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e156320-92ca-81e8-b781-d7dd2d199384" class="bulleted-list"><li style="list-style-type:disc">May require multiple API calls or table syncing ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e156320-92ca-81f3-8824-cb8f5a73a107" class="bulleted-list"><li style="list-style-type:disc">Need to clarify exact requirements with Michelle ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e156320-92ca-8104-b7a9-f666f1cf228c" class="bulleted-list"><li style="list-style-type:disc">Considering reaching out to Infor for table information ‣ ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e156320-92ca-8101-84cb-d73af39cd129" class="bulleted-list"><li style="list-style-type:disc">Every M3 document creation has an associated job, but linking mechanism unclear ‣ ‣</li></ul></div><div style="display:contents" dir="auto"><h3 id="2e156320-92ca-81dd-95df-e4f1600457b2" class="">Staffing Updates</h3></div><div style="display:contents" dir="auto"><ul id="2e156320-92ca-815d-86d3-dcbd9b4d58db" class="bulleted-list"><li style="list-style-type:disc">Team exploring six-month contract developer to help with workload ‣</li></ul></div><div style="display:contents" dir="auto"><h3 id="2e156320-92ca-8118-aadc-f41ff3cc65a4" class="">Action Items</h3></div><div style="display:contents" dir="auto"><ul id="2e156320-92ca-815e-8efe-e3611924bb41" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Tallarico to convert hazmat report into SSRS format next month ‣</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="2e156320-92ca-8116-8081-d91849f348e6" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Kerry and Crystal to improve SDS data quality ‣</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="2e156320-92ca-81f8-9d4c-c4170b5a5753" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Rachel Jason to add missing data piece for MP batch card ‣</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="2e156320-92ca-819c-a346-e306729ac972" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked"><span class="user">@Steve </span> and Jason to work on batch card lookup logic ‣</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="2e156320-92ca-8122-962b-c18b4eb11d44" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Consider mass update to ensure all items have line one defaults ‣</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="2e156320-92ca-811d-a671-cfadd9b344c9" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Add two additional fields for Crystal&#x27;s hazardous ingredients work ‣</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="2e156320-92ca-8174-8b3c-d319802a8d9c" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Investigate formula-specific attachment unique identifier ‣ ‣</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="2e156320-92ca-815f-b700-d051e59f157c" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Schedule meeting with Tallarico about ETL differences ‣</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="2e156320-92ca-815c-8183-e9bef8acd2b0" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Review ETQ report code when building new queries ‣</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="2e156320-92ca-81a3-bc09-f722de585e6c" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Get more information from Kelly on ticket requests ‣</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="2e156320-92ca-81c0-9836-ebc822458f99" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Schedule meeting with Michelle to clarify order confirmation requirements ‣</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="2e156320-92ca-8187-b941-c36a59a5dc27" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Reach out to Infor about M3 table information for order confirmations ‣</span><div class="indented"></div></li></ul></div><div style="border-bottom:0.05em solid;border-bottom-color:rgba(42, 28, 0, 0.07)">Notes<br/></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-80ef-bef2-d25f030598d6" class="">
+</p></div><div style="border-bottom:0.05em solid;border-bottom-color:rgba(42, 28, 0, 0.07)">Transcript<br/></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-8085-9b91-f9488cfafe84" class="">specific to factory talk, which is really only the resin plants, which kind of leaves gel coats... What are we going to do with them? Because I don&#x27;t know that. I mean, maybe it works. I guess Plex works with. with anything and maybe it doesn&#x27;t, maybe it just workplace nice with the PLCs. So I don&#x27;t know. But... The struggles we&#x27;ve been having with the PLC transactions, maybe it makes sense to stay in that suite so that, I don&#x27;t know.</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-8010-8abd-d85607b4059f" class="">God bless. Well, anyways, we saw yesterday in our meeting with Brandon and Mitch and Joe, it&#x27;s kind of like there&#x27;s, It works for resin, it works for gel coat, and it&#x27;s kind of that back and forth a little bit too. Yeah, that&#x27;s the problem we&#x27;re developing at MAS, &#x27;cause we developed it for resin plants and gel coats were kind of secondary and they never really got the system that they needed to do what they do.</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-805e-bbb5-c02fe98461e9" class="">And it&#x27;s kind of, you know, it&#x27;s locked in. It needs to be step-by-step or as gel coats a little more free form where they need to have flexibility that was not built into it. So it&#x27;s.</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-8090-8600-c732bbe8b389" class="">Um, Hot list you want to talk about one dollar? I think there&#x27;s anything to talk about on hot list. It&#x27;s in their hands.</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-80b6-99dc-c4e7d1424634" class="">They&#x27;re using it.</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-80d0-98bb-c64282c9811d" class="">There was nothing that came up yesterday that they wanted that said would work and be any different. I mean. the ponder, I&#x27;d love to do Barry and... And it was job for them.</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-807f-908e-e0ef73f879ca" class="">Well, I was gonna say Nate has a, a kind of a Documentation will say because when we&#x27;re out there, remember he was talking about. Basically, you know, shit rolls downhill. So he&#x27;s getting the... He&#x27;s trying to... They&#x27;re getting the bulk of the issues because anything they don&#x27;t do up front in scheduling is making it all the way to them. So he has kind of a list that he&#x27;s planning to send to Brandon.</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-8007-9ab5-ebc0c9ae8818" class="">Because I told him, you can&#x27;t just go tell Brandon that, oh, you&#x27;ve got to show documentation of what you&#x27;re seeing. So he&#x27;s putting together some stuff to... Try to help. Move that along, so we&#x27;ll see. Yeah, there. No, I think that&#x27;s quite a bit. There&#x27;s just, you know, like some stuff. Okay.</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-80ac-80dc-d33e5999df1a" class="">Start by going home, Kerry. I sent Alicia her updated hazmat report today, I think. This next month I can have Telerico dump that one into an actual SSRS instead of just running the query. to the point where she&#x27;s just got to work with carrying crystal and whatever that group is. to get some data better in the SDS. Pardon? Ah, it&#x27;s after.</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-80e0-877d-e86e45bda4a1" class="">It&#x27;s tax report.</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-800b-873e-e964b6547195" class="">I talked to Rachel Jason this morning on the MP batch card and. I interpreted what you said and she goes, oh, Let me look at. So I think she is missing said piece. So I think whatever piece is missing, she&#x27;s going to try to get in there. Yeah, because we&#x27;re supposed to look up like the SMC product number. So it was one, then the table we need to grab it from had no one. And it&#x27;s like, Oh no.</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-80c6-ada9-c8bc32075264" class="">I thought that was, isn&#x27;t it called SMC or something?</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-80ea-9a8a-ca6808abe8de" class="">Right, but the point is, is when we loaded them in, they got, one FORMULA LOADED IN, AND WE PUT IN CUSTOM FIELDS ON AN ITEM FOR only one machine. So what the project is, is now they can add the custom fields on the item with the machine settings, and there&#x27;s You know, number one, custom fields. Sequence one. Yeah. Custom, you know, custom fields. Number one relates to line one custom fields. Number two relates to line two custom fields.</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-8057-86fd-fa9254830df5" class="">Number three relates to a third. So, but in that process, because. I knew they weren&#x27;t going to get them all set up before they approved the batch card and yada, yada, yada. I asked them specifically, I said, Do you want us to default back to number one if we don&#x27;t get a match on two, three, and four. The one she was trying to test doesn&#x27;t have number one set up, so it&#x27;s failing.</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-8026-a3bd-c0cbe38bcc72" class="">Yeah, there&#x27;s no way to even default because it&#x27;s like, okay, now what do we default to?</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-801c-ab62-d710ac48a5c0" class="">And she goes, yes, we do want it to do that. So she&#x27;s got to... data on her side too.</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-80b7-a70a-f97311996558" class="">I forgot about working with TLI for those two to set up Entrez ID for our internal application so there&#x27;s no more. and stuff like that. So everything will be going through our industry standard How hard would it be to...</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-801d-a3b1-e784b91f9564" class="">I think the ones that are there.</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-8025-94e8-da21a7ccc7ac" class="">So the only one that right now that&#x27;s a dual is MAS because all AMB and everything uses Active Directory just on-prem. But with Michael Thiel, I want to get to the Entrez D1 where we can do, then you can get to your phone, you can do it on your phone, you can do it on tablets, you can do it once you get... I&#x27;m working with him after this. We&#x27;re not going to solve all the world&#x27;s problems today, but it is introduction because I think it&#x27;s unfamiliar territory for both of us.</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-808b-bf9f-ebf871976fae" class="">Okay.</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-80cb-b738-e73fd927b502" class="">There&#x27;s other reports, but that&#x27;s the hot ones. Yes, ma&#x27;am. Oh, we have the batch.</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-801f-8488-e753dcc74b65" class="">So it sounds like they might do when they say two, but they didn&#x27;t put it in and they wanted to go to one.</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-800e-aeb5-c1b1733cfe46" class="">One is the default if the other ones have not been entered into the system. So if she does that and then if that fixes, if that&#x27;s the problem that they&#x27;re missing data. then once she gets back to me, then you and I have to work on today getting that batch. Yeah, it wouldn&#x27;t fix the current because there&#x27;s no one, but I can put a lookup in the table to see if one exists at the time I grab the... value of which one.</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-80b6-9c8f-e8b5599fb4b1" class="">Right, but if it fails, then that&#x27;s their, because they didn&#x27;t do what they asked to be done.</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-8035-a383-c6e080c4e7f8" class="">Yeah, well, if I leave it the way it is, then it would fail if they didn&#x27;t put it in right. And then it&#x27;s like, &quot;I failed, oh.&quot;Go back.</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-80fc-866b-deb865ea84ee" class="">Does it make sense to do a mass update so that we get a one-on-one? They all have a one. They should all have a one. That&#x27;s the default one to set up. Yeah, this one was a little bit different. Then we&#x27;re looking at. Trying to.</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-80be-8bd3-d8dc212ff256" class="">Take someStop, it has to do with your report, but the hazardous ingredients, you know, they want it from another dropdown list or they can edit.</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-80e3-96b4-d54b3c7efd18" class="">Oh, that&#x27;s that from Crystal.</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-80ac-b9fc-cb7b86184fae" class="">And that list is really messy from adage because we got repeat ISOs and, you know, because of the way they put it in.</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-807d-bd10-cd2a560b7a8a" class="">Yeah, she wants to test some more data.</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-8023-9aae-e76ea2a3f7c8" class="">Try to clean it up for... Right now, maybe just. I can edit off of view and then have the view send the fields.</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-805f-84b7-f242b1d4239e" class="">I would just give her the fields, the two. I would just add those two fields in that she wants to see because that&#x27;s what they need to do to do their job. We can ask her if she wants us to download stuff and so she can... do a cleanup process, but at a certain point, the way that SDS stuff works, she almost has to do it all manually anyway.</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-8099-b1ef-d31c535ed3c1" class="">Then we got The, um... Attachments or I mean, that&#x27;s more information on that because that should be pretty straightforward. So I don&#x27;t know what disease is seeing or what&#x27;s going on because I thought that would be. So what it is is we&#x27;re only yeah, we&#x27;re only sending the product over for the attachments. Well, the product alone. When one product can say I want these pressure documents or the non-pressure documents, how do you know?</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-80cf-9fce-e559493e5588" class="">I need to know from something. It could be twofold. There&#x27;s global attachments that&#x27;s just for that item across the board and then there&#x27;s formula specific attachments and I think that&#x27;s where this problem is coming in is that he&#x27;s attaching a K1 attachment to that specific formula, which gets a unique identifier, which is only print on that K1 formula. That&#x27;s right.</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-8000-a9d5-f0e31a48ba67" class="">Yeah, but how do you know a K1 formula from a K2 formula?</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-80a1-9101-d3c28d90678f" class="">We&#x27;re not sending that information. I can send the information, but I need nowhere to get it. I&#x27;m telling you right now it&#x27;s in there. When you go to print the attachment, it looks at that item ID, but it also looks at the formula unique identifier for a specific formula. Yeah, currently the start procedure, it&#x27;s not getting past it. I can pass the batch number or any other field. to handle that. But...</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-801f-81a5-ccf574165373" class="">I NEED TO KNOW WHAT FIELD I&#x27;M PASSING, WHAT I&#x27;M LOOKING FOR. AND THEN I COULD LIMIT THE LIST. I DON&#x27;T HAVE TIME TO LOOK AT IT RIGHT AWAY, BUT THERE IS There is a unique identifier that&#x27;s being passed. It might not be passed through the SOAR procedure, but it&#x27;s in there looking it up to find out which one it is. It might be going off the batch ID and taking the formula key and then getting those attachments that way.</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-805d-9587-cc5f15245953" class="">It&#x27;s in there, but...</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-8005-a7f4-fbddf480ec7c" class="">Yeah, yeah, because I can check the batch ID and do a lookup, so I just need to know what I&#x27;m looking up.</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-8017-9dbc-d9559dc2e7c0" class="">All right. Well, Oh, yeah. Okay. I have some of that kind of prep, but I just don&#x27;t know what to look up. Okay. Yeah, let me, yeah. Thank you. Oh. You did? To the... ATQ, ATL, ATL. Is that still on M3? Yeah. Yes, we haven&#x27;t moved it to product. I&#x27;m trying to figure out how I... Did that before the break. So I&#x27;m still looking at that. The differences between ETL production and M3?</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-80d9-ab5f-ea93bddbd373" class="">Yeah, &#x27;cause it still doesn&#x27;t seem like it&#x27;s updated.</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-8091-b281-e8a009b4b655" class="">Is this thing on?</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-80e7-8018-c70ca81e287a" class="">No, but--Yeah, somebody&#x27;s listening.</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-808e-8d22-c01073660807" class="">Is it Arno? It plugged in. It&#x27;s not connected to the meeting. Oh, connected to the meeting. Okay. I just never seen the lights on before. I know.</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-80dc-ade1-fe793606fd58" class="">I&#x27;m staring at you. At me? At all of us.</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-80d6-a191-eb2dab4ff463" class="">Did you are you digging in still? Did you set up a meeting to talk with Tallarico yet or?</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-80c4-826f-db7e29d72081" class="">No, I&#x27;m trying to figure out how I. Okay. Anything else? Uh-huh. Yes, knock him. It was something.</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-80dd-a6c5-f5f407a97016" class="">I&#x27;m really not sure. Yes.</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-80d3-b304-f21a5f9fa137" class="">For the BI, the ETQ BI might build. Hmm? He&#x27;s done most of the transformations on the Power BI, so... I would be writing a sequel. See for Thank you. Ratings equal for that. Then We have the presentation for molding product sales BI on Monday. Getting documentation and prepping for that. Did you... GO AND LOOK AT THE CODE IN SOME OF THE ETL REPORTS IF YOU&#x27;RE GOING TO GRAB SEQUEL BECAUSE THINGS THAT SHOULD LOGICALLY JOIN DO NOT IN ETQ.</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-80fd-b475-e22d62adeee0" class="">OH, FOR ETQ? Yeah, he had done some research and he has the table needs and the fields and where to get them. That doesn&#x27;t seem to be... They say start working on it and then like it doesn&#x27;t make sense. Yeah. He has started.</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-809b-99ec-d33b42cbfc9f" class="">As well or?</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-80a5-922b-c61f55d5753f" class="">Well, I&#x27;m just letting her know that... you know, There&#x27;s some ID field, like I can&#x27;t remember, something ID. And you will see it in many tables. And it doesn&#x27;t mean they are not the same thing in every table. So you have to, if you&#x27;re, just look at the ATQ reports if you have any issues where you&#x27;re like... Peace. baffling you. And is there are some Some of it&#x27;s stuff that Chris figured out. There is some very weird ways to get some of the data.</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-8020-9721-c6539c12d40e" class="">What seems like should be in one table is like... five tables away. Yeah. Okay. that the tickets you sent me yesterday. I&#x27;m trying to get-Kelly. Okay.</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-8012-9c4e-de6905b297f7" class="">I&#x27;m trying to get more information. Did I ask her too if that&#x27;s going to be something that she says we need regularly or if it&#x27;s just a one-off? She says just a one-off so they can decide what they&#x27;re going to do some updates for.</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-80b2-af80-d5f76d9a3a97" class="">Honestly, if people still start telling me what they want, I&#x27;m just gonna start giving them what they ask for. That&#x27;s all you can do. Give me this table. Well, that order confirmation by Jason and I took some time to look at it. Doesn&#x27;t even seem that straightforward, right, Jason? Like to just pull that confirmation date.</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-8039-949d-d785e19f8e63" class="">Yeah, well, we&#x27;re trying to figure out a bit than tables and through APIs, through a couple of calls, I think we can get...</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-8075-a7f4-e1193e35833f" class="">I got a noise. Should keep working on that or probably reach out to Michelle.</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-8005-990b-d397cdb1c6ed" class="">Are we hitting a wall at this point? And do we need to reach out to...</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-804b-b587-c2827d2cb62c" class="">I might need a meeting with him to also get, with her to also get more on what she really needs.</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-80c1-bd6c-e34f1508ec52" class="">Here yesterday too. We talked to her. Is there anything we can reach out to Infor to get more information on this one or is it... Pretty much tried everything we can think of.</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-80b0-967e-ccbe16654396" class="">Yeah, I was going to do that.</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-8097-b670-d87081ea65dd" class="">Yeah, &#x27;cause MPAR might know if there&#x27;s a table we could sync up because if we had that in a table, that&#x27;d be so much easier.</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-807e-9c58-df66b2c7b22d" class="">There has to be, I don&#x27;t know how, I mean, every time a document is created in M3, there&#x27;s a job that ran it. But I don&#x27;t know how we... I DON&#x27;T KNOW WHAT IT WOULD BE IN THOSE TO LINK THEM BACK APPROPRIATELY.</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-8031-9b4f-cdf702c4d912" class="">WHEN WE WERE DOING or training withSergeant, real Sergeant Tom, whatever his name was. That&#x27;s right, his name was Tom. Um, We ended up working with Acme Management. So there are ways to call get information from IDM. Yeah, I mean... One of the heavy ones we worked on. Well, I think the idea too is that a job is run. So I&#x27;m sure there&#x27;s a key that you can-Whether it&#x27;s a table we can pull down.</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-802e-ab55-d4f9de20e887" class="">You&#x27;d have to know what table. Did it just die? No, you probably have a call coming in.</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-80f7-bcd3-dcb007573e05" class="">Good. Good. Good. Good. Good. Good. Good. Good. Good. Good. Good. Good. Good. Good. Good. Good. Good. Good. Good. Good. Good. Good. Good. Good. Good. Good. Good. Good. Good. Good. Good. Good. Good. Good. Good. Good. Good. Good. Good. Good. Good. Good. Good. Good. Good. Good. Good. Good. Good. Good. Good. Good. Good. Good. Good. Good. Good. Good. Good. Good. Good. Good. Good. Good. Good. Good. Good.</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-80da-9245-dc5fca19160e" class="">Good. Good. Good. Good. Good. Good. Good. Good. Good. Good. Good. Good. Good. Good. Good. Good. Good. Good. Good. Good. Good. Good. Good. Good. Good. Good. Good. Good. Good. Good. Good. Good. Good. Good. Good. Good. Good. Good. Good. Good. Good. Good. Good. Good. Good. Good. Good. Good. Good. Good. Good. Good. Good. Good. Good. Good. Good. Good. Good. Good. Good. Good. Good. Good. Good. Steve, you still there?</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-8023-bb1c-c71aaa963056" class="">Yep. Okay. But on the break, call me. All right. More to come on that, right? Perfect. Just for everyone&#x27;s info, we&#x27;re also looking at getting a six month contract developer to assist getting some stuff off of NASA&#x27;s plate. Some of these tying up some loose ends so that he can focus on some of the other things coming down with current documentation for MES, what that&#x27;s going to look like going forward.</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-8010-a633-faf5ecca9f4e" class="">So just give me a heads up on that. Um... Anything else? I&#x27;m not going to call on Steve, let&#x27;s go around. Steve, I&#x27;ll touch base with you and fill in some of the gaps that we had here. Because there&#x27;s a lot of terminologies and stuff that we use here that we use day to day that it just becomes second nature. If that&#x27;s gonna be the case, then we should set up offline discussion to fill in some of that versus We&#x27;ll go through that then.</p></div><div style="display:contents" dir="auto"><p id="2e156320-92ca-8014-baad-f9e5de791464" class="">Yeah, I didn&#x27;t want to interrupt things and slow things down. So I was taking notes about all of that stuff so that we could circle back up later. I don&#x27;t have anything else. So anyone else does? Anyone, any questions? Done. So thank you, everyone. Thanks, guys.</p></div></div></div></div></article><span class="sans" style="font-size:14px;padding-top:2em"></span></body></html>

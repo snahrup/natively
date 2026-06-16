@@ -1,0 +1,743 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>Data Architecture Discovery Session</title><style>
+/* cspell:disable-file */
+/* webkit printing magic: print all background colors */
+html {
+	-webkit-print-color-adjust: exact;
+}
+* {
+	box-sizing: border-box;
+	-webkit-print-color-adjust: exact;
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+}
+@media only screen {
+	body {
+		margin: 2em auto;
+		max-width: 900px;
+		color: rgb(55, 53, 47);
+	}
+}
+
+body {
+	line-height: 1.5;
+	white-space: pre-wrap;
+}
+
+a,
+a.visited {
+	color: inherit;
+	text-decoration: underline;
+}
+
+.pdf-relative-link-path {
+	font-size: 80%;
+	color: #444;
+}
+
+h1,
+h2,
+h3 {
+	letter-spacing: -0.01em;
+	line-height: 1.2;
+	font-weight: 600;
+	margin-bottom: 0;
+}
+
+/* Override strong tags inside headings to maintain consistent weight */
+h1 strong,
+h2 strong,
+h3 strong {
+	font-weight: 600;
+}
+
+.page-title {
+	font-size: 2.5rem;
+	font-weight: 700;
+	margin-top: 0;
+	margin-bottom: 0.75em;
+}
+
+h1 {
+	font-size: 1.875rem;
+	margin-top: 1.875rem;
+}
+
+h2 {
+	font-size: 1.5rem;
+	margin-top: 1.5rem;
+}
+
+h3 {
+	font-size: 1.25rem;
+	margin-top: 1.25rem;
+}
+
+.source {
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	padding: 1.5em;
+	word-break: break-all;
+}
+
+.callout {
+	border-radius: 10px;
+	padding: 1rem;
+}
+
+figure {
+	margin: 1.25em 0;
+	page-break-inside: avoid;
+}
+
+figcaption {
+	opacity: 0.5;
+	font-size: 85%;
+	margin-top: 0.5em;
+}
+
+mark {
+	background-color: transparent;
+}
+
+.indented {
+	padding-left: 1.5em;
+}
+
+hr {
+	background: transparent;
+	display: block;
+	width: 100%;
+	height: 1px;
+	visibility: visible;
+	border: none;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+img {
+	max-width: 100%;
+}
+
+@media only print {
+	img {
+		max-height: 100vh;
+		object-fit: contain;
+	}
+
+	table.collection-content {
+		width: 100%;
+		table-layout: fixed;
+	}
+
+	table.collection-content th,
+	table.collection-content td {
+		overflow-wrap: anywhere;
+	}
+
+	table.collection-content td > .user,
+	table.collection-content td > time {
+		white-space: pre-wrap;
+	}
+}
+
+@page {
+	margin: 1in;
+}
+
+.collection-content-wrapper {
+	overflow-x: auto;
+}
+
+@media only print {
+	.collection-content-wrapper {
+		overflow-x: visible;
+	}
+}
+
+.collection-content {
+	font-size: 0.875rem;
+}
+
+.collection-content td {
+	white-space: pre-wrap;
+	word-break: break-word;
+}
+
+.column-list {
+	display: flex;
+	gap: 46px;
+}
+
+.column {
+	min-width: 0;
+	overflow: hidden;
+}
+
+.column > *:first-child {
+	margin-top: 0;
+}
+
+.table_of_contents-item {
+	display: block;
+	font-size: 0.875rem;
+	line-height: 1.3;
+	padding: 0.125rem;
+}
+
+.table_of_contents-indent-1 {
+	margin-left: 1.5rem;
+}
+
+.table_of_contents-indent-2 {
+	margin-left: 3rem;
+}
+
+.table_of_contents-indent-3 {
+	margin-left: 4.5rem;
+}
+
+.table_of_contents-link {
+	text-decoration: none;
+	opacity: 0.7;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.18);
+}
+
+table,
+th,
+td {
+	border: 1px solid rgba(55, 53, 47, 0.09);
+	border-collapse: collapse;
+}
+
+table {
+	border-left: none;
+	border-right: none;
+}
+
+th,
+td {
+	font-weight: normal;
+	padding: 0.25em 0.5em;
+	line-height: 1.5;
+	min-height: 1.5em;
+	text-align: left;
+}
+
+th {
+	color: rgba(55, 53, 47, 0.6);
+}
+
+ol,
+ul {
+	margin: 0;
+	margin-block-start: 0.6em;
+	margin-block-end: 0.6em;
+}
+
+li > ol:first-child,
+li > ul:first-child {
+	margin-block-start: 0.6em;
+}
+
+ul > li {
+	list-style: disc;
+}
+
+ul.to-do-list {
+	padding-inline-start: 0;
+}
+
+ul.to-do-list > li {
+	list-style: none;
+}
+
+.to-do-children-checked {
+	text-decoration: line-through;
+	opacity: 0.375;
+}
+
+ul.toggle > li {
+	list-style: none;
+}
+
+ul {
+	padding-inline-start: 1.7em;
+}
+
+ul > li {
+	padding-left: 0.1em;
+}
+
+ol {
+	padding-inline-start: 1.6em;
+}
+
+ol.numbered-list.numbered-list-digits-2 {
+	padding-inline-start: 2em;
+}
+
+ol.numbered-list.numbered-list-digits-3plus {
+	padding-inline-start: 2.4em;
+}
+
+ol > li {
+	padding-left: 0.2em;
+}
+
+.mono ol {
+	padding-inline-start: 2em;
+}
+
+.mono ol > li {
+	text-indent: -0.4em;
+}
+
+.toggle {
+	padding-inline-start: 0em;
+	list-style-type: none;
+}
+
+/* Indent toggle children */
+.toggle > li > details {
+	padding-left: 1.7em;
+}
+
+.toggle > li > details > summary {
+	margin-left: -1.1em;
+}
+
+.selected-value {
+	display: inline-block;
+	padding: 0 0.5em;
+	background: rgba(206, 205, 202, 0.5);
+	border-radius: 3px;
+	margin-right: 0.5em;
+	margin-top: 0.3em;
+	margin-bottom: 0.3em;
+	white-space: nowrap;
+}
+
+.collection-title {
+	display: inline-block;
+	margin-right: 1em;
+}
+
+.page-description {
+	margin-bottom: 2em;
+}
+
+.simple-table {
+	margin-top: 1em;
+	font-size: 0.875rem;
+	empty-cells: show;
+}
+.simple-table td {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table th {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table-header-color {
+	background: rgb(247, 246, 243);
+	color: black;
+}
+.simple-table-header {
+	font-weight: 500;
+}
+
+time {
+	opacity: 0.5;
+}
+
+.icon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	max-width: 1.2em;
+	max-height: 1.2em;
+	text-decoration: none;
+	vertical-align: text-bottom;
+	margin-right: 0.5em;
+}
+
+img.icon {
+	border-radius: 3px;
+}
+
+.callout img.notion-static-icon {
+	width: 1em;
+	height: 1em;
+}
+
+.callout p {
+	margin: 0;
+}
+
+.callout h1,
+.callout h2,
+.callout h3 {
+	margin: 0 0 0.6rem;
+}
+
+.user-icon {
+	width: 1.5em;
+	height: 1.5em;
+	border-radius: 100%;
+	margin-right: 0.5rem;
+}
+
+.user-icon-inner {
+	font-size: 0.8em;
+}
+
+.text-icon {
+	border: 1px solid #000;
+	text-align: center;
+}
+
+.page-cover-image {
+	display: block;
+	object-fit: cover;
+	width: 100%;
+	max-height: 30vh;
+}
+
+.page-header-icon {
+	font-size: 3rem;
+	margin-bottom: 1rem;
+}
+
+.page-header-icon-with-cover {
+	margin-top: -0.72em;
+	margin-left: 0.07em;
+}
+
+.page-header-icon img {
+	border-radius: 3px;
+}
+
+.link-to-page {
+	margin: 1em 0;
+	padding: 0;
+	border: none;
+	font-weight: 500;
+}
+
+p > .user {
+	opacity: 0.5;
+}
+
+td > .user,
+td > time {
+	white-space: nowrap;
+}
+
+input[type="checkbox"] {
+	transform: scale(1.5);
+	margin-right: 0.6em;
+	vertical-align: middle;
+}
+
+p {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+.image {
+	border: none;
+	margin: 1.5em 0;
+	padding: 0;
+	border-radius: 0;
+	text-align: center;
+}
+
+.code,
+code {
+	background: rgba(135, 131, 120, 0.15);
+	border-radius: 3px;
+	padding: 0.2em 0.4em;
+	border-radius: 3px;
+	font-size: 85%;
+	tab-size: 2;
+}
+
+code {
+	color: #eb5757;
+}
+
+.code {
+	padding: 1.5em 1em;
+}
+
+.code-wrap {
+	white-space: pre-wrap;
+	word-break: break-all;
+}
+
+.code > code {
+	background: none;
+	padding: 0;
+	font-size: 100%;
+	color: inherit;
+}
+
+blockquote {
+	font-size: 1em;
+	margin: 1em 0;
+	padding-left: 1em;
+	border-left: 3px solid rgb(55, 53, 47);
+}
+
+blockquote.quote-large {
+	font-size: 1.25em;
+}
+
+.bookmark {
+	text-decoration: none;
+	max-height: 8em;
+	padding: 0;
+	display: flex;
+	width: 100%;
+	align-items: stretch;
+}
+
+.bookmark-title {
+	font-size: 0.85em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	height: 1.75em;
+	white-space: nowrap;
+}
+
+.bookmark-text {
+	display: flex;
+	flex-direction: column;
+}
+
+.bookmark-info {
+	flex: 4 1 180px;
+	padding: 12px 14px 14px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.bookmark-image {
+	width: 33%;
+	flex: 1 1 180px;
+	display: block;
+	position: relative;
+	object-fit: cover;
+	border-radius: 1px;
+}
+
+.bookmark-description {
+	color: rgba(55, 53, 47, 0.6);
+	font-size: 0.75em;
+	overflow: hidden;
+	max-height: 4.5em;
+	word-break: break-word;
+}
+
+.bookmark-href {
+	font-size: 0.75em;
+	margin-top: 0.25em;
+}
+
+.sans { font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol"; }
+.code { font-family: "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace; }
+.serif { font-family: Lyon-Text, Georgia, ui-serif, serif; }
+.mono { font-family: iawriter-mono, Nitti, Menlo, Courier, monospace; }
+.pdf .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK JP'; }
+.pdf:lang(zh-CN) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK SC'; }
+.pdf:lang(zh-TW) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK TC'; }
+.pdf:lang(ko-KR) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK KR'; }
+.pdf .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.pdf .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK JP'; }
+.pdf:lang(zh-CN) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK SC'; }
+.pdf:lang(zh-TW) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK TC'; }
+.pdf:lang(ko-KR) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK KR'; }
+.pdf .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.highlight-default {
+	color: rgba(44, 44, 43, 1);
+}
+.highlight-gray {
+	color: rgba(125, 122, 117, 1);
+	fill: rgba(125, 122, 117, 1);
+}
+.highlight-brown {
+	color: rgba(159, 118, 90, 1);
+	fill: rgba(159, 118, 90, 1);
+}
+.highlight-orange {
+	color: rgba(210, 123, 45, 1);
+	fill: rgba(210, 123, 45, 1);
+}
+.highlight-yellow {
+	color: rgba(203, 148, 52, 1);
+	fill: rgba(203, 148, 52, 1);
+}
+.highlight-teal {
+	color: rgba(80, 148, 110, 1);
+	fill: rgba(80, 148, 110, 1);
+}
+.highlight-blue {
+	color: rgba(56, 125, 201, 1);
+	fill: rgba(56, 125, 201, 1);
+}
+.highlight-purple {
+	color: rgba(154, 107, 180, 1);
+	fill: rgba(154, 107, 180, 1);
+}
+.highlight-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.highlight-red {
+	color: rgba(207, 81, 72, 1);
+	fill: rgba(207, 81, 72, 1);
+}
+.highlight-default_background {
+	color: rgba(44, 44, 43, 1);
+}
+.highlight-gray_background {
+	background: rgba(42, 28, 0, 0.07);
+}
+.highlight-brown_background {
+	background: rgba(139, 46, 0, 0.086);
+}
+.highlight-orange_background {
+	background: rgba(224, 101, 1, 0.129);
+}
+.highlight-yellow_background {
+	background: rgba(211, 168, 0, 0.137);
+}
+.highlight-teal_background {
+	background: rgba(0, 100, 45, 0.09);
+}
+.highlight-blue_background {
+	background: rgba(0, 124, 215, 0.094);
+}
+.highlight-purple_background {
+	background: rgba(102, 0, 178, 0.078);
+}
+.highlight-pink_background {
+	background: rgba(197, 0, 93, 0.086);
+}
+.highlight-red_background {
+	background: rgba(223, 22, 0, 0.094);
+}
+.block-color-default {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray {
+	color: rgba(125, 122, 117, 1);
+	fill: rgba(125, 122, 117, 1);
+}
+.block-color-brown {
+	color: rgba(159, 118, 90, 1);
+	fill: rgba(159, 118, 90, 1);
+}
+.block-color-orange {
+	color: rgba(210, 123, 45, 1);
+	fill: rgba(210, 123, 45, 1);
+}
+.block-color-yellow {
+	color: rgba(203, 148, 52, 1);
+	fill: rgba(203, 148, 52, 1);
+}
+.block-color-teal {
+	color: rgba(80, 148, 110, 1);
+	fill: rgba(80, 148, 110, 1);
+}
+.block-color-blue {
+	color: rgba(56, 125, 201, 1);
+	fill: rgba(56, 125, 201, 1);
+}
+.block-color-purple {
+	color: rgba(154, 107, 180, 1);
+	fill: rgba(154, 107, 180, 1);
+}
+.block-color-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.block-color-red {
+	color: rgba(207, 81, 72, 1);
+	fill: rgba(207, 81, 72, 1);
+}
+.block-color-default_background {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray_background {
+	background: rgba(240, 239, 237, 1);
+}
+.block-color-brown_background {
+	background: rgba(245, 237, 233, 1);
+}
+.block-color-orange_background {
+	background: rgba(251, 235, 222, 1);
+}
+.block-color-yellow_background {
+	background: rgba(249, 243, 220, 1);
+}
+.block-color-teal_background {
+	background: rgba(232, 241, 236, 1);
+}
+.block-color-blue_background {
+	background: rgba(229, 242, 252, 1);
+}
+.block-color-purple_background {
+	background: rgba(243, 235, 249, 1);
+}
+.block-color-pink_background {
+	background: rgba(250, 233, 241, 1);
+}
+.block-color-red_background {
+	background: rgba(252, 233, 231, 1);
+}
+.select-value-color-default { background-color: rgba(42, 28, 0, 0.07); }
+.select-value-color-gray { background-color: rgba(28, 19, 1, 0.11); }
+.select-value-color-brown { background-color: rgba(127, 51, 0, 0.156); }
+.select-value-color-orange { background-color: rgba(196, 88, 0, 0.203); }
+.select-value-color-yellow { background-color: rgba(209, 156, 0, 0.282); }
+.select-value-color-green { background-color: rgba(0, 96, 38, 0.156); }
+.select-value-color-blue { background-color: rgba(0, 118, 217, 0.203); }
+.select-value-color-purple { background-color: rgba(92, 0, 163, 0.141); }
+.select-value-color-pink { background-color: rgba(183, 0, 78, 0.152); }
+.select-value-color-red { background-color: rgba(206, 24, 0, 0.164); }
+
+.checkbox {
+	display: inline-flex;
+	vertical-align: text-bottom;
+	width: 16;
+	height: 16;
+	background-size: 16px;
+	margin-left: 2px;
+	margin-right: 5px;
+}
+
+.checkbox-on {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20width%3D%2216%22%20height%3D%2216%22%20fill%3D%22%2358A9D7%22%2F%3E%0A%3Cpath%20d%3D%22M6.71429%2012.2852L14%204.9995L12.7143%203.71436L6.71429%209.71378L3.28571%206.2831L2%207.57092L6.71429%2012.2852Z%22%20fill%3D%22white%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+
+.checkbox-off {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20x%3D%220.75%22%20y%3D%220.75%22%20width%3D%2214.5%22%20height%3D%2214.5%22%20fill%3D%22white%22%20stroke%3D%22%2336352F%22%20stroke-width%3D%221.5%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+	
+</style></head><body><article id="6e9db7b3-00bf-47ac-9b44-7fcd5eec0b1c" class="page sans"><header><h1 class="page-title" dir="auto">Data Architecture Discovery Session</h1><p class="page-description" dir="auto"></p><table class="properties"><tbody><tr class="property-row property-row-status"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/burst_gray.svg" style="width:14px;height:14px;display:block"/></span>Processing</th><td><span class="status-value select-value-color-green"><div class="status-dot status-dot-color-green"></div>Processed</span></td></tr><tr class="property-row property-row-text"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/description_gray.svg" style="width:14px;height:14px;display:block"/></span>Agenda</th><td>High-level data systems overview, ERP walkthrough (M3), MES operational hub, cross-system key (Batch ID), data quality challenges, systems inventory (ANV, OATES, MPD SHAR, Optiva, CPR, EAM, ETQ, ION, SSRS)</td></tr><tr class="property-row property-row-date"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/calendar_gray.svg" style="width:14px;height:14px;display:block"/></span>Date</th><td><time>December 8, 2025</time></td></tr><tr class="property-row property-row-multi_select"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/list_gray.svg" style="width:14px;height:14px;display:block"/></span>Attendees</th><td><span class="selected-value select-value-color-pink">Internal</span></td></tr><tr class="property-row property-row-select"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/arrow-circle-down_gray.svg" style="width:14px;height:14px;display:block"/></span>Meeting Type</th><td><span class="selected-value select-value-color-orange">Team Meeting</span></td></tr><tr class="property-row property-row-person"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/friends_gray.svg" style="width:14px;height:14px;display:block"/></span>Organizer</th><td><span class="user"><img src="https://lh3.googleusercontent.com/a/ACg8ocLHfVvdl28jS936w7CBB6TObsUa1P-X8cbdsUSKdeEn_MD7Bw=s96-c" class="icon user-icon"/>Steve </span></td></tr><tr class="property-row property-row-select"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/arrow-circle-down_gray.svg" style="width:14px;height:14px;display:block"/></span>Priority</th><td><span class="selected-value select-value-color-red">High</span></td></tr><tr class="property-row property-row-checkbox"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/checkmark-square_gray.svg" style="width:14px;height:14px;display:block"/></span>Has Cluely Transcript</th><td><div class="checkbox checkbox-off"></div></td></tr><tr class="property-row property-row-checkbox"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/checkmark-square_gray.svg" style="width:14px;height:14px;display:block"/></span>Has Final Transcript</th><td><div class="checkbox checkbox-on"></div></td></tr><tr class="property-row property-row-select"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/arrow-circle-down_gray.svg" style="width:14px;height:14px;display:block"/></span>Status</th><td><span class="selected-value select-value-color-brown">Completed</span></td></tr><tr class="property-row property-row-checkbox"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/checkmark-square_gray.svg" style="width:14px;height:14px;display:block"/></span>Has Notion Transcript</th><td><div class="checkbox checkbox-on"></div></td></tr><tr class="property-row property-row-checkbox"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/checkmark-square_gray.svg" style="width:14px;height:14px;display:block"/></span>Has Teams Transcript</th><td><div class="checkbox checkbox-off"></div></td></tr><tr class="property-row property-row-number"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/hashtag_gray.svg" style="width:14px;height:14px;display:block"/></span>Mtg #</th><td>3</td></tr><tr class="property-row property-row-checkbox"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/checkmark-square_gray.svg" style="width:14px;height:14px;display:block"/></span>Merged to Feed</th><td><div class="checkbox checkbox-off"></div></td></tr></tbody></table></header><div class="page-body"><div style="display:contents" dir="ltr"><div id="36e761d7-56a1-4161-8e75-9820a5fdec23" class="transcription"><div style="border-bottom:0.05em solid;border-bottom-color:rgba(42, 28, 0, 0.07)">Summary<br/></div><div style="display:contents" dir="auto"><h3 id="4cb50261-4ccd-4985-b2fe-e978518e9467" class="">Meeting Purpose</h3></div><div style="display:contents" dir="auto"><ul id="0464528f-3f70-40a2-b678-4393557284ef" class="bulleted-list"><li style="list-style-type:disc">Introductory session to familiarize Steve with the company&#x27;s various data systems and databases</li></ul></div><div style="display:contents" dir="auto"><ul id="7fcae94f-87aa-4041-87ec-adf7f98a0f1e" class="bulleted-list"><li style="list-style-type:disc">High-level overview of data sources that will need to be integrated into a unified data lake</li></ul></div><div style="display:contents" dir="auto"><ul id="12d156db-3523-40b3-ba3d-46dbb29be87f" class="bulleted-list"><li style="list-style-type:disc">Beginning of discovery process for Steve to understand how data flows between systems</li></ul></div><div style="display:contents" dir="auto"><h3 id="997450e9-5135-46d0-b69a-99742858d26b" class="">Company Structure</h3></div><div style="display:contents" dir="auto"><ul id="8de61f6a-5289-45c7-b100-942d75bd60db" class="bulleted-list"><li style="list-style-type:disc">Three main business entities discussed:<div style="display:contents" dir="auto"><ul id="42cc4c5e-37c3-4577-99df-412206da392b" class="bulleted-list"><li style="list-style-type:circle">Interplastic (also known as TRD - Thermoset Resin Division)</li></ul></div><div style="display:contents" dir="auto"><ul id="cd771ae8-9416-4d4c-9b1f-ed29a2c55aa6" class="bulleted-list"><li style="list-style-type:circle">Molding Products (formerly MPD - Molding Products Division)</li></ul></div><div style="display:contents" dir="auto"><ul id="d532b37d-6ee9-4d6a-9ce7-d6d6d7960ca4" class="bulleted-list"><li style="list-style-type:circle">North American Composites (NAC)</li></ul></div><div style="display:contents" dir="auto"><ul id="ee7ef722-ab77-47ee-8423-0914875cf817" class="bulleted-list"><li style="list-style-type:circle">HK (mentioned briefly)</li></ul></div></li></ul></div><div style="display:contents" dir="auto"><h3 id="1468df68-7296-41fb-8052-b853ea93ef10" class="">ERP Systems</h3></div><div style="display:contents" dir="auto"><ul id="1045c662-0dcb-432c-9611-ea7981f46afa" class="bulleted-list"><li style="list-style-type:disc">Legacy ERP systems:<div style="display:contents" dir="auto"><ul id="cc74f3e5-c1a5-47b0-9c22-7fe9b1cf0e6e" class="bulleted-list"><li style="list-style-type:circle">Adage (for NAC and Molding Products)</li></ul></div><div style="display:contents" dir="auto"><ul id="5b7f8320-8acb-417d-8925-225a6923c275" class="bulleted-list"><li style="list-style-type:circle">Distinct legacy ERP for Interplastic and HK</li></ul></div></li></ul></div><div style="display:contents" dir="auto"><ul id="413b7ea1-ca9d-4cf1-bba7-108f0c9d7a9b" class="bulleted-list"><li style="list-style-type:disc">M3 - Current ERP system with multiple database instances:<div style="display:contents" dir="auto"><ul id="37e5c66e-63f4-4f49-9a58-7cb3afaa2e1a" class="bulleted-list"><li style="list-style-type:circle">M3 Prod Actual - real-time data directly from production</li></ul></div><div style="display:contents" dir="auto"><ul id="a5547a06-d679-4d1a-bca4-a76a15751bc4" class="bulleted-list"><li style="list-style-type:circle">M3 Prod - log shipping copy with 30-minute delay to avoid direct production queries</li></ul></div><div style="display:contents" dir="auto"><ul id="4d3d9660-571e-4b85-b209-e8c9261969ea" class="bulleted-list"><li style="list-style-type:circle">M3 Cloud Prod - cloud-hosted instances</li></ul></div></li></ul></div><div style="display:contents" dir="auto"><h3 id="5a6ed695-a95f-42d0-8c56-fecbf874247d" class="">Manufacturing Systems</h3></div><div style="display:contents" dir="auto"><ul id="7a91575e-ac3b-4c2c-ba05-fc1a6d912eca" class="bulleted-list"><li style="list-style-type:disc">MES (Manufacturing Execution System) - central hub connecting controls, Optiva, and M3<div style="display:contents" dir="auto"><ul id="67210372-6582-4e3a-af03-ba05ff0726b0" class="bulleted-list"><li style="list-style-type:circle">Manages batching information</li></ul></div><div style="display:contents" dir="auto"><ul id="6abde99a-60b1-47e8-9509-0fe54cb8c75b" class="bulleted-list"><li style="list-style-type:circle">Communicates with M3 for inventory management</li></ul></div><div style="display:contents" dir="auto"><ul id="8fc3fd81-7493-40c8-a8c8-a20b94e5f68b" class="bulleted-list"><li style="list-style-type:circle">Different MES solutions used across facilities</li></ul></div></li></ul></div><div style="display:contents" dir="auto"><ul id="831bf018-c0e3-4031-92b0-ea4578c46b9c" class="bulleted-list"><li style="list-style-type:disc">A&amp;V (Acidity &amp; Viscosity) - Extension of MES<div style="display:contents" dir="auto"><ul id="05c9b55f-52a5-4fd0-bd07-d9e41d87f10d" class="bulleted-list"><li style="list-style-type:circle">Real-time tool for monitoring cooking processes</li></ul></div><div style="display:contents" dir="auto"><ul id="79211c49-d368-405f-9395-6e960f37ec1d" class="bulleted-list"><li style="list-style-type:circle">Tracks test results against &quot;golden batch&quot; curves</li></ul></div><div style="display:contents" dir="auto"><ul id="9446b569-989d-4e54-b828-4cd74100a566" class="bulleted-list"><li style="list-style-type:circle">Combines automated instrument readings (viscosity) with manual measurements (acid number)</li></ul></div></li></ul></div><div style="display:contents" dir="auto"><ul id="60cffe78-c279-4413-9f94-83dc3ac51802" class="bulleted-list"><li style="list-style-type:disc">MPD SHAR - Described as &quot;MES light&quot; for Molding Products</li></ul></div><div style="display:contents" dir="auto"><ul id="0f4a8adf-4ac4-4c7a-a087-c846180ca10a" class="bulleted-list"><li style="list-style-type:disc">PCD (Process Controlled Data) - Interfaces with PLCs for raw material charging</li></ul></div><div style="display:contents" dir="auto"><h3 id="7dccae21-55b4-4d23-8557-02809c021cf0" class="">Product Information Systems</h3></div><div style="display:contents" dir="auto"><ul id="8d94f225-ac78-4153-87cd-4ce55980c7f7" class="bulleted-list"><li style="list-style-type:disc">Optiva - PLM (Product Lifecycle Management) system<div style="display:contents" dir="auto"><ul id="3d5e63b7-cae2-4108-aa74-4efe9871a89c" class="bulleted-list"><li style="list-style-type:circle">Stores formulas, specifications, and revisions</li></ul></div><div style="display:contents" dir="auto"><ul id="f62c9bef-d411-41f6-a660-a1337d6bbedc" class="bulleted-list"><li style="list-style-type:circle">Used by R&amp;D and QC technicians</li></ul></div><div style="display:contents" dir="auto"><ul id="653d0f16-0fb8-423f-9565-0abe38d3491e" class="bulleted-list"><li style="list-style-type:circle">Contains raw material specifications and finished goods test requirements</li></ul></div></li></ul></div><div style="display:contents" dir="auto"><ul id="1ed12482-d6b2-47eb-8c6c-4c578e832c9e" class="bulleted-list"><li style="list-style-type:disc">SDS - Safety Data Sheets system<div style="display:contents" dir="auto"><ul id="4a61eab2-50ed-465f-983f-5e370bdc4f78" class="bulleted-list"><li style="list-style-type:circle">Documentation for proper handling of chemical products</li></ul></div></li></ul></div><div style="display:contents" dir="auto"><h3 id="8dcf33db-9804-48cb-b62e-2df67f285662" class="">Support Systems</h3></div><div style="display:contents" dir="auto"><ul id="48542403-4680-461e-944e-29d1109a7bc8" class="bulleted-list"><li style="list-style-type:disc">CPR (Capital Planning Requests) - For capital expenditure planning and approvals<div style="display:contents" dir="auto"><ul id="8a4d04d3-30d0-44d8-96f9-c7a2d01ff86a" class="bulleted-list"><li style="list-style-type:circle">Loosely tied to M3 through purchase orders</li></ul></div></li></ul></div><div style="display:contents" dir="auto"><ul id="26dd3349-170d-444a-8db3-a4f7c2d2a9e1" class="bulleted-list"><li style="list-style-type:disc">EAM (Enterprise Asset Management) - For maintenance management</li></ul></div><div style="display:contents" dir="auto"><ul id="262a41b9-84e1-4fad-87b2-def816e408c3" class="bulleted-list"><li style="list-style-type:disc">ETQ (Excellence Through Quality) - For HSE and quality control</li></ul></div><div style="display:contents" dir="auto"><ul id="a6208b26-9cb9-49d1-8c24-ac77082f9e93" class="bulleted-list"><li style="list-style-type:disc">AS (Advanced Scheduler) - For production scheduling and resource planning</li></ul></div><div style="display:contents" dir="auto"><ul id="43140c30-49c8-45ff-a836-e0debe9ebe28" class="bulleted-list"><li style="list-style-type:disc">ION - Infor middleware for application integration<div style="display:contents" dir="auto"><ul id="11b34bcf-5aff-4cac-9fc0-1cfd7ba93650" class="bulleted-list"><li style="list-style-type:circle">Manages data transfer between M3 and other applications</li></ul></div></li></ul></div><div style="display:contents" dir="auto"><h3 id="68350415-1df0-44a7-963d-bb4302c587bd" class="">Reporting Systems</h3></div><div style="display:contents" dir="auto"><ul id="dd5bfe92-850b-4ed7-b7d8-fa7cf4770704" class="bulleted-list"><li style="list-style-type:disc">SSRS (SQL Server Reporting Services) - Current primary reporting platform<div style="display:contents" dir="auto"><ul id="642839a8-227f-4ab6-b966-1f5d26a013a0" class="bulleted-list"><li style="list-style-type:circle">Different report folders for different business units</li></ul></div></li></ul></div><div style="display:contents" dir="auto"><ul id="bf0d4ee4-1228-43a0-aef7-fdff4b408889" class="bulleted-list"><li style="list-style-type:disc">Limited Power BI deployment</li></ul></div><div style="display:contents" dir="auto"><h3 id="4323ad03-c063-4846-a2fd-c281b8bf25db" class="">Data Integration Challenges</h3></div><div style="display:contents" dir="auto"><ul id="6b1017b0-4543-4727-9e57-c11f904ed8c4" class="bulleted-list"><li style="list-style-type:disc">Multiple data entry methods leading to data quality concerns<div style="display:contents" dir="auto"><ul id="85cde26e-d633-4308-b5a2-e953684d7f82" class="bulleted-list"><li style="list-style-type:circle">Manual entries vs. automated PLC-driven measurements</li></ul></div><div style="display:contents" dir="auto"><ul id="d7a154cd-64a5-470d-978a-98f4873910a2" class="bulleted-list"><li style="list-style-type:circle">Operators sometimes entering expected values rather than actual measurements</li></ul></div></li></ul></div><div style="display:contents" dir="auto"><ul id="5a1e2e71-610d-4bff-888b-c4907914e8de" class="bulleted-list"><li style="list-style-type:disc">Different processes across business units</li></ul></div><div style="display:contents" dir="auto"><ul id="546465c1-053a-4ba8-be0c-be6b0565bf08" class="bulleted-list"><li style="list-style-type:disc">Need for data domain restructuring</li></ul></div><div style="display:contents" dir="auto"><ul id="c1126fe6-00a5-4917-87ad-d484a8e4a6a5" class="bulleted-list"><li style="list-style-type:disc">Company is working toward &quot;One lake&quot; database/interface for reporting</li></ul></div><div style="border-bottom:0.05em solid;border-bottom-color:rgba(42, 28, 0, 0.07)">Notes<br/></div><div style="display:contents" dir="auto"><h2 id="489a90a5-bab2-488d-b49a-1fe2c97276f8" class="">🎯 Session Purpose</h2></div><div style="display:contents" dir="auto"><p id="341cb898-9d55-44cb-8d04-5640023c4cf2" class="">Introductory session to familiarize Steve with IP Corp&#x27;s various data systems, databases, and data flows. High-level overview of sources that will be integrated into unified Fabric data lake.</p></div><div style="display:contents" dir="auto"><hr id="b4cdde86-6a67-46bc-9c4b-fa3f258dd6eb"/></div><div style="display:contents" dir="auto"><h2 id="74e18dbd-2afe-43a4-ac23-e131f16db1c4" class="">🏢 Company Structure Confirmed</h2></div><div style="display:contents" dir="auto"><p id="d18b105e-f44f-41d9-ad6b-a08c26ade7c7" class=""><strong>Four Operating Entities:</strong></p></div><div style="display:contents" dir="auto"><ul id="b7a40c24-7914-47ac-8ec5-70a22d98e850" class="bulleted-list"><li style="list-style-type:disc"><strong>Interplastic</strong> (also known as TRD - Thermoset Resin Division) — <em>some take offense to &quot;TRD&quot;</em></li></ul></div><div style="display:contents" dir="auto"><ul id="633fc095-8be9-4f22-98a6-8c4e890d0b03" class="bulleted-list"><li style="list-style-type:disc"><strong>Molding Products</strong> (formerly MPD - Molding Products Division) — <em>some take offense to &quot;MPD&quot;</em></li></ul></div><div style="display:contents" dir="auto"><ul id="99e6f00b-ca9f-4361-bf83-39101835238a" class="bulleted-list"><li style="list-style-type:disc"><strong>North American Composites (NAC)</strong> — <em>acronym still accepted</em></li></ul></div><div style="display:contents" dir="auto"><ul id="f55f179e-b65a-4fae-93f3-eb483cb0a5f3" class="bulleted-list"><li style="list-style-type:disc"><strong>HK Research</strong> (mentioned briefly)</li></ul></div><div style="display:contents" dir="auto"><hr id="78764787-0979-480c-a876-db20765f1def"/></div><div style="display:contents" dir="auto"><h2 id="cd75d506-64a5-4466-b526-4d80c7545ace" class="">💾 ERP Systems</h2></div><div style="display:contents" dir="auto"><p id="a34e342b-0482-4ccd-ba72-f7e7a3ae4f29" class=""><strong>Legacy ERPs:</strong></p></div><div style="display:contents" dir="auto"><ul id="2c207cc4-054a-4f32-ad9e-f8183206d9b0" class="bulleted-list"><li style="list-style-type:disc"><strong>Adage</strong> — for NAC and Molding Products</li></ul></div><div style="display:contents" dir="auto"><ul id="539d602f-58cb-401c-9a90-1ff89684b49e" class="bulleted-list"><li style="list-style-type:disc">Distinct legacy ERP for Interplastic and HK</li></ul></div><div style="display:contents" dir="auto"><p id="c3cd1008-8ab6-4575-9612-d4ff6134e112" class=""><strong>Current ERP — M3 (Infor M3):</strong></p></div><div style="display:contents" dir="ltr"><table id="f67a80ee-cd32-49b3-898f-4582d90fa5c0" class="simple-table"><thead class="simple-table-header"><div style="display:contents" dir="ltr"><tr id="eaf67a42-e9c4-4343-b0b7-b35d0fd71c9b"><th id="{hUk" class="simple-table-header-color simple-table-header">Instance</th><th id="zIqY" class="simple-table-header-color simple-table-header">Description</th></tr></div></thead><tbody><div style="display:contents" dir="ltr"><tr id="aaec8b59-e60a-4daf-9121-5af5b7c9425c"><td id="{hUk" class=""><strong>M3 Prod Actual</strong></td><td id="zIqY" class="">Real-time, direct to production</td></tr></div><div style="display:contents" dir="ltr"><tr id="b33b5e46-ff7c-48b2-a2f6-3e15dbfebd86"><td id="{hUk" class=""><strong>M3 Prod</strong></td><td id="zIqY" class="">Log shipping copy, <strong>30-min delay</strong> (for reporting)</td></tr></div><div style="display:contents" dir="ltr"><tr id="e4c0b0ca-c9d5-46e2-8ff7-062582ead013"><td id="{hUk" class=""><strong>M3 Cloud Prod</strong></td><td id="zIqY" class="">Cloud-hosted instances</td></tr></div></tbody></table></div><div style="display:contents" dir="auto"><hr id="0dd1ef5c-8115-47c6-b6ac-d752a186d728"/></div><div style="display:contents" dir="auto"><h2 id="15f611b8-e6aa-4a56-a8fe-9b666ac0ab13" class="">🏭 Manufacturing Systems</h2></div><div style="display:contents" dir="auto"><h3 id="830e7337-eb8a-4a17-b946-441bf9456f5a" class="">MES (Manufacturing Execution System)</h3></div><div style="display:contents" dir="auto"><ul id="0a9867ed-3fff-42b6-bead-72e3d3594c99" class="bulleted-list"><li style="list-style-type:disc"><strong>Central hub</strong> connecting controls, Optiva, and M3</li></ul></div><div style="display:contents" dir="auto"><ul id="50ed57c2-a8f5-4453-b7d5-c172c5f89fa5" class="bulleted-list"><li style="list-style-type:disc">Manages batching information</li></ul></div><div style="display:contents" dir="auto"><ul id="86f5e284-5726-4a08-89a3-b8e8a0cf009a" class="bulleted-list"><li style="list-style-type:disc">Home-built application</li></ul></div><div style="display:contents" dir="auto"><ul id="d0b8dc09-1366-4b6b-8597-f4ee5c8f1e5b" class="bulleted-list"><li style="list-style-type:disc">Different MES solutions used across facilities</li></ul></div><div style="display:contents" dir="auto"><ul id="ac85e03a-3a62-4291-b07e-143dd923cab6" class="bulleted-list"><li style="list-style-type:disc"><strong>Key contact:</strong> Matt Pennaz</li></ul></div><div style="display:contents" dir="auto"><h3 id="8908a270-d11e-499f-8b33-1870a767a72a" class="">ANV (Acidity &amp; Viscosity)</h3></div><div style="display:contents" dir="auto"><ul id="42e6abf4-fb12-491d-a118-a248de049d18" class="bulleted-list"><li style="list-style-type:disc"><strong>Extension of MES</strong> — lives in same database</li></ul></div><div style="display:contents" dir="auto"><ul id="842a0022-5765-4791-9acd-e45a8ddcc118" class="bulleted-list"><li style="list-style-type:disc">Real-time tool for monitoring cooking processes</li></ul></div><div style="display:contents" dir="auto"><ul id="e8252798-91fc-4798-9826-67eb923f9428" class="bulleted-list"><li style="list-style-type:disc">Tracks test results against &quot;golden batch&quot; curves</li></ul></div><div style="display:contents" dir="auto"><ul id="85ef2434-5611-4ed2-87b4-c1237381b7ed" class="bulleted-list"><li style="list-style-type:disc"><strong>Two data points:</strong><div style="display:contents" dir="auto"><ul id="053264e2-394e-4b60-bac1-98ac99ee0d7f" class="bulleted-list"><li style="list-style-type:circle"><strong>Acid number</strong> — <em>manual entry by operator</em></li></ul></div><div style="display:contents" dir="auto"><ul id="885b810d-b1e9-432e-b1f1-41d6b6792194" class="bulleted-list"><li style="list-style-type:circle"><strong>Viscosity</strong> — <em>automated from viscometer instrument</em></li></ul></div></li></ul></div><div style="display:contents" dir="auto"><ul id="f43245c5-d9ae-456d-834d-3fdbea054e9f" class="bulleted-list"><li style="list-style-type:disc">Recommends adjustments (maleic or glycol) to get batch back on curve</li></ul></div><div style="display:contents" dir="auto"><ul id="71b70964-20cc-40ed-98bf-7eb36d55f03a" class="bulleted-list"><li style="list-style-type:disc">Also known as <strong>ONIX</strong> by some</li></ul></div><div style="display:contents" dir="auto"><h3 id="72440e1d-3474-4099-9f6a-91e756d4fa44" class="">OATS Application</h3></div><div style="display:contents" dir="auto"><ul id="1bfa5314-4068-4967-b253-da9fa198ae15" class="bulleted-list"><li style="list-style-type:disc">Also in MES database</li></ul></div><div style="display:contents" dir="auto"><ul id="68f1e7b7-8af4-4412-b913-60e4ec805049" class="bulleted-list"><li style="list-style-type:disc">All tied together by <strong>batch ID</strong> (main key across all systems)</li></ul></div><div style="display:contents" dir="auto"><h3 id="758d21bf-7699-4e2a-941d-143aa4ae83e3" class="">MPD SHAR</h3></div><div style="display:contents" dir="auto"><ul id="6f3753e6-6c2d-4724-beda-b7173c398349" class="bulleted-list"><li style="list-style-type:disc">Big mixer system</li></ul></div><div style="display:contents" dir="auto"><ul id="32e52cd6-8ffb-4d79-a402-16fb096fc53a" class="bulleted-list"><li style="list-style-type:disc">Described as <strong>&quot;MES light&quot;</strong> for Molding Products</li></ul></div><div style="display:contents" dir="auto"><h3 id="4e5a93e7-813c-4316-a50b-a8446e86063a" class="">PCD (Process Controlled Data)</h3></div><div style="display:contents" dir="auto"><ul id="8819902b-c79d-4672-aa19-dc8b1ee00010" class="bulleted-list"><li style="list-style-type:disc">Interfaces with PLCs for raw material charging</li></ul></div><div style="display:contents" dir="auto"><ul id="8f1eb264-1a81-4717-b219-df20b8ae4aa5" class="bulleted-list"><li style="list-style-type:disc">Parameters for specific products that talk to PLCs</li></ul></div><div style="display:contents" dir="auto"><hr id="3e404598-6d66-4158-8d30-ef2fb086d5bf"/></div><div style="display:contents" dir="auto"><h2 id="a1cfe22b-46fa-4453-96fd-7895b6667acc" class="">📦 Product Information Systems</h2></div><div style="display:contents" dir="auto"><h3 id="fc3712c2-9b9e-4de3-9fb1-636eff2dfc2e" class="">Optiva (PLM - Product Lifecycle Management)</h3></div><div style="display:contents" dir="auto"><ul id="fac6e67c-e2d4-4c4c-b2ec-b7a7b72222c8" class="bulleted-list"><li style="list-style-type:disc">Stores formulas, specifications, revisions</li></ul></div><div style="display:contents" dir="auto"><ul id="e49bc586-348f-4799-bbd8-51b166956e70" class="bulleted-list"><li style="list-style-type:disc">Used by R&amp;D and QC technicians</li></ul></div><div style="display:contents" dir="auto"><ul id="c67f83a0-9bc2-4166-9ae1-938d679d4ba0" class="bulleted-list"><li style="list-style-type:disc">Contains raw material specs and finished goods test requirements</li></ul></div><div style="display:contents" dir="auto"><h3 id="b53d04d1-ee9f-473a-bc29-6fdb3d6de4df" class="">SDS (Safety Data Sheets)</h3></div><div style="display:contents" dir="auto"><ul id="b13973c5-f09c-4a40-8d74-6e6ff9a1a818" class="bulleted-list"><li style="list-style-type:disc">Formerly MSDS (Material Safety Data Sheets)</li></ul></div><div style="display:contents" dir="auto"><ul id="ee9fe129-465f-42d1-abb1-89ad00773d69" class="bulleted-list"><li style="list-style-type:disc">Documentation for proper handling of chemical products</li></ul></div><div style="display:contents" dir="auto"><hr id="c55c5f61-4d44-4bc8-91dc-99ad31a78ce0"/></div><div style="display:contents" dir="auto"><h2 id="c8b05cb1-d83a-400b-9899-58855e11aa06" class="">🔧 Support Systems</h2></div><div style="display:contents" dir="auto"><h3 id="41162b7d-4d4d-418b-924a-8236d2e45df2" class="">CPR (Capital Planning Requests)</h3></div><div style="display:contents" dir="auto"><ul id="e01a7682-844a-4449-a3b8-f9f57fc7cdd9" class="bulleted-list"><li style="list-style-type:disc">For capital expenditure planning and approvals</li></ul></div><div style="display:contents" dir="auto"><ul id="879f6057-0922-49bc-b0ee-57f61b6d4388" class="bulleted-list"><li style="list-style-type:disc">Built off EAM structure</li></ul></div><div style="display:contents" dir="auto"><ul id="865e1dd0-09fb-47ec-9242-63f73ba5b30e" class="bulleted-list"><li style="list-style-type:disc"><strong>Loosely tied to M3</strong> through purchase orders</li></ul></div><div style="display:contents" dir="auto"><h3 id="58d3cf6a-9cca-4825-ab5a-24bd8697ff85" class="">EAM (Enterprise Asset Management)</h3></div><div style="display:contents" dir="auto"><ul id="dfcf1d3a-8872-438b-9c8a-56f146342c93" class="bulleted-list"><li style="list-style-type:disc">For maintenance management</li></ul></div><div style="display:contents" dir="auto"><ul id="5d086111-a456-483c-ac4d-d3ceca074af3" class="bulleted-list"><li style="list-style-type:disc">Tracks equipment maintenance schedules and replacements</li></ul></div><div style="display:contents" dir="auto"><h3 id="0967db84-dc80-42f5-8c7f-5e01721de4e9" class="">ETQ (Excellence Through Quality)</h3></div><div style="display:contents" dir="auto"><ul id="8427af93-3c64-4fcf-9858-201ce64b01ec" class="bulleted-list"><li style="list-style-type:disc">For HSE (Health, Safety, Environment) and QC</li></ul></div><div style="display:contents" dir="auto"><ul id="e973efab-549c-4bb0-8d48-5722b6e13e2f" class="bulleted-list"><li style="list-style-type:disc">Multiple modules</li></ul></div><div style="display:contents" dir="auto"><ul id="4ac4bc77-b0d8-48c6-9605-e5e7de709b88" class="bulleted-list"><li style="list-style-type:disc"><strong>Key contact:</strong> Matt Francis handles data integration from M3</li></ul></div><div style="display:contents" dir="auto"><h3 id="27e6bf33-e76b-443a-b102-5a86dc0edf16" class="">AS (Advanced Scheduler)</h3></div><div style="display:contents" dir="auto"><ul id="a267aae9-89b3-4f91-9e4e-c326ef15cf79" class="bulleted-list"><li style="list-style-type:disc">Production scheduling and resource planning</li></ul></div><div style="display:contents" dir="auto"><ul id="df869124-7197-46c0-b1ba-fb3ad0805460" class="bulleted-list"><li style="list-style-type:disc">Plants throw data onto Gantt chart to schedule batches</li></ul></div><div style="display:contents" dir="auto"><ul id="b7a1c983-b930-48b5-8dbf-9d5f5ca43a23" class="bulleted-list"><li style="list-style-type:disc">Helps determine resource availability and timing</li></ul></div><div style="display:contents" dir="auto"><h3 id="80b5f478-1f0d-4862-acbf-b4e3c62611f6" class="">ION (Infor Open Network)</h3></div><div style="display:contents" dir="auto"><ul id="ed99c6f7-30de-497b-bb23-fc83902c0b25" class="bulleted-list"><li style="list-style-type:disc"><strong>Middleware</strong> for application integration</li></ul></div><div style="display:contents" dir="auto"><ul id="e209ef27-aea3-4704-97dd-336fcc3dcc70" class="bulleted-list"><li style="list-style-type:disc">Manages data transfer between M3 and other apps via BODs (Business Object Documents)</li></ul></div><div style="display:contents" dir="auto"><ul id="88d561c9-7578-40cb-998a-c3a511b64431" class="bulleted-list"><li style="list-style-type:disc">Used for troubleshooting</li></ul></div><div style="display:contents" dir="auto"><ul id="767c7e48-4900-42c4-94a4-e5955f1c25f3" class="bulleted-list"><li style="list-style-type:disc"><strong>Potential value:</strong> Logging/monitoring data may be useful in Fabric</li></ul></div><div style="display:contents" dir="auto"><ul id="3f10efd5-3a15-457f-a24a-c6090e1c7f08" class="bulleted-list"><li style="list-style-type:disc"><strong>Key contact:</strong> Matt Francis uses regularly for troubleshooting</li></ul></div><div style="display:contents" dir="auto"><hr id="ddd0d4e6-8127-4ab4-b72d-3ca7e50779ab"/></div><div style="display:contents" dir="auto"><h2 id="5e75ff0a-5e00-430a-aa34-2c8424ab07c7" class="">📊 Reporting Systems</h2></div><div style="display:contents" dir="auto"><h3 id="a7564e7d-f38d-4d1c-8101-4f1e673c2b1e" class="">SSRS (SQL Server Reporting Services)</h3></div><div style="display:contents" dir="auto"><ul id="794c6dc6-bbad-40a5-8102-b973fd48eca2" class="bulleted-list"><li style="list-style-type:disc">Current primary reporting platform</li></ul></div><div style="display:contents" dir="auto"><ul id="5398aa4f-4b09-46e2-bf59-6c8c885f2b48" class="bulleted-list"><li style="list-style-type:disc">Different folders for different BUs</li></ul></div><div style="display:contents" dir="auto"><ul id="2a38ddac-8c3a-4df2-b3dc-c8a6cb2d2b6f" class="bulleted-list"><li style="list-style-type:disc"><strong>Needs restructuring</strong> — currently organized as &quot;interplastic + everything else&quot;</li></ul></div><div style="display:contents" dir="auto"><ul id="ecc6b6d9-3647-4349-815c-8438d3512203" class="bulleted-list"><li style="list-style-type:disc"><strong>Key contact:</strong> Kerri Voiss is keeper of SSRS</li></ul></div><div style="display:contents" dir="auto"><h3 id="a140a3da-35a6-4e4c-975c-f816e6ae2e7c" class="">Power BI</h3></div><div style="display:contents" dir="auto"><ul id="e0354b2b-bbad-4abf-bc1e-d8061825ed97" class="bulleted-list"><li style="list-style-type:disc">Limited deployment currently</li></ul></div><div style="display:contents" dir="auto"><hr id="2fae0e72-7f95-4250-9a72-a7175198c1f4"/></div><div style="display:contents" dir="auto"><h2 id="29799ab6-390c-4d3d-8263-258a9cda9484" class="">⚠️ Data Quality Challenges</h2></div><div style="display:contents" dir="auto"><h3 id="efcff81f-2df3-40de-8c8e-3a3b81c65c36" class="">Manual vs. Automated Entry</h3></div><div style="display:contents" dir="auto"><ul id="426945c3-1db5-419b-81f5-8f8808e9d51f" class="bulleted-list"><li style="list-style-type:disc"><strong>PLC-driven measurements</strong> are exact (down to 0.00)</li></ul></div><div style="display:contents" dir="auto"><ul id="6c70e2fe-3d70-4f11-8ae8-333f04adadc8" class="bulleted-list"><li style="list-style-type:disc"><strong>Manual entries</strong> often have operators entering expected values, not actual<div style="display:contents" dir="auto"><ul id="ecd550af-a038-4d7e-9db2-a83294fa2bc4" class="bulleted-list"><li style="list-style-type:circle"><em>Example:</em> Recipe calls for 20,600 lbs, they put in exactly 20,600 — &quot;amazing accuracy&quot;</li></ul></div></li></ul></div><div style="display:contents" dir="auto"><ul id="9a90b837-ec63-4167-ad07-9483c3a77195" class="bulleted-list"><li style="list-style-type:disc">Makes traceability and analysis challenging</li></ul></div><div style="display:contents" dir="auto"><ul id="39c218b0-4e03-4a9e-9526-46fc7bae6eff" class="bulleted-list"><li style="list-style-type:disc">Good PLC data enables bad batch investigation</li></ul></div><div style="display:contents" dir="auto"><h3 id="80b00998-b027-4397-a3a0-06ffaf73cdc1" class="">System Variations</h3></div><div style="display:contents" dir="auto"><ul id="f11968b5-a6ba-4921-a02d-4d8b0508eb84" class="bulleted-list"><li style="list-style-type:disc"><strong>Three different ways</strong> of doing things across facilities</li></ul></div><div style="display:contents" dir="auto"><ul id="23bbfa0d-d50f-41ca-9e0a-40baa9bec4a1" class="bulleted-list"><li style="list-style-type:disc">Need for data domain restructuring</li></ul></div><div style="display:contents" dir="auto"><ul id="a6279a3a-0b12-4d7a-9653-08873ceb8112" class="bulleted-list"><li style="list-style-type:disc">Goal: <strong>&quot;One lake&quot;</strong> database/interface for reporting</li></ul></div><div style="display:contents" dir="auto"><hr id="c9d2a766-5544-422e-a39d-93381cc029a3"/></div><div style="display:contents" dir="auto"><h2 id="f62e9cbc-5c8d-48f7-9c3a-c2e85bd91949" class="">🔗 Key Data Flows</h2></div><div style="display:contents" dir="auto"><h3 id="af79c24b-0dc2-4876-a6f9-12ccbcf86be5" class="">MES → M3</h3></div><div style="display:contents" dir="auto"><ul id="4937526f-182b-4af7-85d4-ed35509fcd1a" class="bulleted-list"><li style="list-style-type:disc">Primarily for <strong>inventory management</strong></li></ul></div><div style="display:contents" dir="auto"><ul id="0e08628a-6d56-4cc3-a3ae-ad099ec7d4e7" class="bulleted-list"><li style="list-style-type:disc">Does NOT update costing or formulation details</li></ul></div><div style="display:contents" dir="auto"><ul id="5e83b33e-91d4-43d9-afd2-141c1af9fba6" class="bulleted-list"><li style="list-style-type:disc">Reduces raw material inventory based on consumption</li></ul></div><div style="display:contents" dir="auto"><ul id="9a0b56af-e336-40e8-999f-a4829c806409" class="bulleted-list"><li style="list-style-type:disc">Increases finished goods inventory based on production</li></ul></div><div style="display:contents" dir="auto"><h3 id="014a6d70-6678-4d20-8721-a796971f6d4d" class="">Batch Traceability</h3></div><div style="display:contents" dir="auto"><ul id="01457d83-9117-4fa6-aac6-b2694269af09" class="bulleted-list"><li style="list-style-type:disc">Each batch has a <strong>GUID</strong> tied to specific plant formula</li></ul></div><div style="display:contents" dir="auto"><ul id="3587d4e7-14b0-40d3-bb8c-4df79b3d6cd1" class="bulleted-list"><li style="list-style-type:disc">Batch records link to product/formulation IDs from M3</li></ul></div><div style="display:contents" dir="auto"><ul id="66eaaee9-2ff1-4585-8dd6-10e461cb6ff0" class="bulleted-list"><li style="list-style-type:disc">Full traceability from lowest granularity to higher hierarchies ✅</li></ul></div><div style="display:contents" dir="auto"><hr id="6ba7e0b2-de34-4247-9850-02a066fe0291"/></div><div style="display:contents" dir="auto"><h2 id="4ebabb7b-2e61-4d5e-aa8b-7db090553609" class="">👥 Key People Mentioned</h2></div><div style="display:contents" dir="ltr"><table id="1e2286ca-c005-4aea-ad1c-9bac56ddffac" class="simple-table"><thead class="simple-table-header"><div style="display:contents" dir="ltr"><tr id="b8440ebc-882e-4800-b7e8-e2905ac155d7"><th id="zrbE" class="simple-table-header-color simple-table-header">Name</th><th id="@QhI" class="simple-table-header-color simple-table-header">Role</th><th id="&lt;~Kw" class="simple-table-header-color simple-table-header">Notes</th></tr></div></thead><tbody><div style="display:contents" dir="ltr"><tr id="67a9e8d7-a912-4093-926f-56fdb1d316eb"><td id="zrbE" class=""><strong>Greg</strong></td><td id="@QhI" class="">IT (meeting host)</td><td id="&lt;~Kw" class="">Walking through systems overview</td></tr></div><div style="display:contents" dir="ltr"><tr id="94b0b9b1-d955-47a4-89c0-0d2ea5b2c6e3"><td id="zrbE" class=""><strong>Matt Pennaz</strong></td><td id="@QhI" class="">MES developer</td><td id="&lt;~Kw" class="">&quot;Survivor&quot; of MES application; deep knowledge</td></tr></div><div style="display:contents" dir="ltr"><tr id="89dd473b-234b-4851-ac18-bfdcd4ce3f8d"><td id="zrbE" class=""><strong>Matt Francis</strong></td><td id="@QhI" class="">IT</td><td id="&lt;~Kw" class="">ETQ integration; ION troubleshooting; ERP knowledge</td></tr></div><div style="display:contents" dir="ltr"><tr id="1780d364-f53c-48af-964b-706a9864fa46"><td id="zrbE" class=""><strong>Eudias</strong></td><td id="@QhI" class="">IT</td><td id="&lt;~Kw" class="">Setting up follow-up database meetings</td></tr></div><div style="display:contents" dir="ltr"><tr id="c1febe74-0c8b-4a41-8994-2c5c4036de02"><td id="zrbE" class=""><strong>Kerri Voiss</strong></td><td id="@QhI" class="">SSRS &amp; Reporting Lead</td><td id="&lt;~Kw" class="">Owns Reporting Portal; ~19 yrs at company</td></tr></div><div style="display:contents" dir="ltr"><tr id="946da1ee-92e1-42cf-ae7f-f993be26c8ad"><td id="zrbE" class=""><strong>Patrick</strong></td><td id="@QhI" class="">IT Manager - Dev Services</td><td id="&lt;~Kw" class="">Primary day-to-day contact</td></tr></div></tbody></table></div><div style="border-bottom:0.05em solid;border-bottom-color:rgba(42, 28, 0, 0.07)">Transcript<br/></div></div></div><div style="display:contents" dir="auto"><hr id="8be010d9-7425-4e37-a992-a14c24258da3"/></div><div style="display:contents" dir="auto"><h2 id="c7eda867-cbab-489d-9d44-f8dd2d474e67" class="">✅ ACTION ITEMS (Consolidated)</h2></div><div style="display:contents" dir="auto"><p id="fe5d6766-c573-4b6a-93ca-b96c5dd73b31" class=""><strong>Eudias Kifem</strong></p></div><div style="display:contents" dir="auto"><ul id="32b2f5b0-3e29-496b-82e9-467da9ba9efa" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Set up meetings to show database systems in more detail</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><p id="4f013d66-fca5-45f9-b129-73582eb79366" class=""><strong>Steve</strong></p></div><div style="display:contents" dir="auto"><ul id="e249ed94-22a0-41b2-91d2-d0ca4d10d3dd" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Review and consolidate information gathered</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="7d9a678a-1a3c-4ebe-80bc-07bc33129080" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Discuss data domain restructuring strategy</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><p id="f12dabe3-867b-4786-9f77-c72e8bf05892" class=""><strong>Greg</strong></p></div><div style="display:contents" dir="auto"><ul id="3bda44e0-4e2a-4961-8801-4e19b5cce891" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Search for previously created systems documentation</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="7be60627-da97-4212-9cc0-97db157b9bcc" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Prepare high-level systems overview for next session</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><p id="b665d376-062d-446b-8c52-2f8af599ce1a" class=""><strong>Team</strong></p></div><div style="display:contents" dir="auto"><ul id="ea2a189d-f478-4b0b-844a-e68125ec6852" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Plan kickoff meeting with stakeholders</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="27943688-3c81-48b3-96b3-ec46cb00ac77" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Further sessions to discuss systems in more detail</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="6b48d3df-b02c-44cc-98b4-2badba69e5ad" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Identify which source systems will remain outside Fabric</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><hr id="26105858-821b-4615-acbe-6cbb8abea814"/></div><div style="display:contents" dir="auto"><h2 id="911c813b-5a33-4caf-9715-6d8941077526" class="">📊 EVIDENCE MATRIX</h2></div><div style="display:contents" dir="ltr"><table id="7e0c8f29-a99e-498c-9624-8f3ee2aa0460" class="simple-table"><thead class="simple-table-header"><div style="display:contents" dir="ltr"><tr id="4c0f864c-1165-415a-87b3-7ff1fb1e21c8"><th id="||Pb" class="simple-table-header-color simple-table-header">ID</th><th id="uD&gt;c" class="simple-table-header-color simple-table-header">Type</th><th id="UGaX" class="simple-table-header-color simple-table-header">Source</th><th id="dNst" class="simple-table-header-color simple-table-header">Timestamp</th><th id="`GrJ" class="simple-table-header-color simple-table-header">Exact Quote</th></tr></div></thead><tbody><div style="display:contents" dir="ltr"><tr id="6205d2e5-bd5a-4122-bae8-829a51476584"><td id="||Pb" class="">DISC-FACT-1</td><td id="uD&gt;c" class="">Fact</td><td id="UGaX" class="">Matt Pennaz</td><td id="dNst" class="">~25:00</td><td id="`GrJ" class="">&quot;They&#x27;re all tied together by this batch ID that&#x27;s going to be your main key across all systems.&quot;</td></tr></div><div style="display:contents" dir="ltr"><tr id="4bd56ddd-baee-45e9-b78e-c58fcc272f45"><td id="||Pb" class="">DISC-FACT-2</td><td id="uD&gt;c" class="">Fact</td><td id="UGaX" class="">Greg</td><td id="dNst" class="">~08:00</td><td id="`GrJ" class="">&quot;M3 prod actual is real-time pointed directly to the M3 databases, whereas M3 prod would be... log shipping copy... up to half an hour delayed.&quot;</td></tr></div><div style="display:contents" dir="ltr"><tr id="6252db05-8a37-4c0c-8b16-86bd4a64d9d6"><td id="||Pb" class="">DISC-FACT-3</td><td id="uD&gt;c" class="">Fact</td><td id="UGaX" class="">Matt Pennaz</td><td id="dNst" class="">~22:00</td><td id="`GrJ" class="">&quot;A&amp;V, MES, and our OATS application are all under one MES database, so they&#x27;re all in the same house.&quot;</td></tr></div><div style="display:contents" dir="ltr"><tr id="847c00d7-82f4-4ac9-aea6-6c205484e362"><td id="||Pb" class="">DISC-FACT-4</td><td id="uD&gt;c" class="">Fact</td><td id="UGaX" class="">Matt Pennaz</td><td id="dNst" class="">~28:00</td><td id="`GrJ" class="">&quot;MES kind of the hub between, say, the controls and Optiva and M3... they go back and forth quite a bit.&quot;</td></tr></div><div style="display:contents" dir="ltr"><tr id="06e1338f-9ec2-4ffa-8815-bb939b7c10b5"><td id="||Pb" class="">DISC-FACT-5</td><td id="uD&gt;c" class="">Fact</td><td id="UGaX" class="">Matt Pennaz</td><td id="dNst" class="">~30:00</td><td id="`GrJ" class="">&quot;When it comes down to M3, primarily just reducing and increasing inventory, whether problem direct consumption or finished goods.&quot;</td></tr></div><div style="display:contents" dir="ltr"><tr id="8a75ac06-c38f-4a41-8e43-5a5af95960a4"><td id="||Pb" class="">DISC-FACT-6</td><td id="uD&gt;c" class="">Fact</td><td id="UGaX" class="">Patrick</td><td id="dNst" class="">~34:00</td><td id="`GrJ" class="">&quot;That&#x27;s also another reason why we started talking about MES. What that looks like for them in the future... we kind of have three different ways of doing things right across the facility.&quot;</td></tr></div><div style="display:contents" dir="ltr"><tr id="8b6c2ecc-a696-42cd-bfb9-ec7856a74943"><td id="||Pb" class="">DISC-QUAL-1</td><td id="uD&gt;c" class="">Data Quality</td><td id="UGaX" class="">Matt Pennaz</td><td id="dNst" class="">~32:00</td><td id="`GrJ" class="">&quot;They were calling for $20,600 and they put in $20,600... It&#x27;s amazing how accurately they put in everything exactly like it needs to be.&quot;</td></tr></div><div style="display:contents" dir="ltr"><tr id="9be6077f-00f0-44bb-9069-bbd614e27fdb"><td id="||Pb" class="">DISC-QUAL-2</td><td id="uD&gt;c" class="">Data Quality</td><td id="UGaX" class="">Matt Pennaz</td><td id="dNst" class="">~33:00</td><td id="`GrJ" class="">&quot;The PLC does do down to the 0.00. So you get better analytics off that... what&#x27;s nice about having the real data is if we run into a bad batch... we&#x27;re actually able to go back.&quot;</td></tr></div><div style="display:contents" dir="ltr"><tr id="f9d4a4a3-7da9-4289-97a5-1e1a710416d3"><td id="||Pb" class="">DISC-NEXT-1</td><td id="uD&gt;c" class="">Next Step</td><td id="UGaX" class="">Greg</td><td id="dNst" class="">~40:00</td><td id="`GrJ" class="">&quot;Give me a good chance to write down some of these. Unis will set up a couple of meetings to go over with you each of the databases.&quot;</td></tr></div><div style="display:contents" dir="ltr"><tr id="9625a800-0450-484b-84dd-018b3be88524"><td id="||Pb" class="">DISC-NEXT-2</td><td id="uD&gt;c" class="">Next Step</td><td id="UGaX" class="">Patrick</td><td id="dNst" class="">~05:00</td><td id="`GrJ" class="">&quot;Can you think you can put together at least an hour a day this week to make yourself available to answer questions?&quot;</td></tr></div></tbody></table></div><div style="display:contents" dir="ltr"><figure class="block-color-blue_background callout" style="white-space:pre-wrap;display:flex" id="f1e0c279-9585-4cba-a4b4-0d3ce6126cc6"><div style="font-size:1.5em"><span class="icon">📎</span></div><div style="width:100%"><div style="display:contents" dir="auto"><p id="116830f6-2f7f-47c6-a6d6-41d56b3f99c0" class=""><strong>Full transcript recovered</strong> from: <a href="Data%20Architecture%20Discovery%20Session/Data%20Architecture%20Discovery%20Session%202c35632092ca80a482eaf29dd3094857.html">Data Architecture Discovery Session</a> — Timestamps are approximate based on transcript segment timing.</p></div></div></figure></div><div style="display:contents" dir="ltr"><figure id="2c356320-92ca-80a4-82ea-f29dd3094857" class="link-to-page"><a href="Data%20Architecture%20Discovery%20Session/Data%20Architecture%20Discovery%20Session%202c35632092ca80a482eaf29dd3094857.html">Data Architecture Discovery Session</a></figure></div></div></article><span class="sans" style="font-size:14px;padding-top:2em"></span></body></html>

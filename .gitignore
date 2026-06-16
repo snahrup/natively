@@ -179,6 +179,7 @@ native-audio-service/Sources/CopilotAudioService/Protos/
 
 # Electron release builds
 release/
+release-*/
 
 # Rust
 target/
@@ -199,7 +200,9 @@ opencode.json
 **/.claude/
 
 # Temporary working files
+.tmp/
 temp/
+temp_cluely_extract/
 planning/live-negotiation/temp/
 
 # Codebase Mapper (auto-generated)
@@ -213,3 +216,30 @@ CODEBASE.html
 # Semantica sidecar runtime
 sidecars/semantica-runtime/venv/
 sidecars/semantica-runtime/state/
+
+# --- migration guard (auto-added): keep junk & secrets out of git ---
+node_modules/
+.venv/
+venv/
+__pycache__/
+dist/
+build/
+out/
+target/
+.next/
+.turbo/
+.cache/
+*.log
+.env
+.env.*
+!.env.example
+!.env.sample
+*.key
+*.pem
+*.pfx
+*.crt
+id_rsa
+id_ed25519
+credentials.json
+credentials.toml
+*.secret

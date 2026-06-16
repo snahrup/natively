@@ -1,0 +1,743 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>Database Exploration with Eudias</title><style>
+/* cspell:disable-file */
+/* webkit printing magic: print all background colors */
+html {
+	-webkit-print-color-adjust: exact;
+}
+* {
+	box-sizing: border-box;
+	-webkit-print-color-adjust: exact;
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+}
+@media only screen {
+	body {
+		margin: 2em auto;
+		max-width: 900px;
+		color: rgb(55, 53, 47);
+	}
+}
+
+body {
+	line-height: 1.5;
+	white-space: pre-wrap;
+}
+
+a,
+a.visited {
+	color: inherit;
+	text-decoration: underline;
+}
+
+.pdf-relative-link-path {
+	font-size: 80%;
+	color: #444;
+}
+
+h1,
+h2,
+h3 {
+	letter-spacing: -0.01em;
+	line-height: 1.2;
+	font-weight: 600;
+	margin-bottom: 0;
+}
+
+/* Override strong tags inside headings to maintain consistent weight */
+h1 strong,
+h2 strong,
+h3 strong {
+	font-weight: 600;
+}
+
+.page-title {
+	font-size: 2.5rem;
+	font-weight: 700;
+	margin-top: 0;
+	margin-bottom: 0.75em;
+}
+
+h1 {
+	font-size: 1.875rem;
+	margin-top: 1.875rem;
+}
+
+h2 {
+	font-size: 1.5rem;
+	margin-top: 1.5rem;
+}
+
+h3 {
+	font-size: 1.25rem;
+	margin-top: 1.25rem;
+}
+
+.source {
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	padding: 1.5em;
+	word-break: break-all;
+}
+
+.callout {
+	border-radius: 10px;
+	padding: 1rem;
+}
+
+figure {
+	margin: 1.25em 0;
+	page-break-inside: avoid;
+}
+
+figcaption {
+	opacity: 0.5;
+	font-size: 85%;
+	margin-top: 0.5em;
+}
+
+mark {
+	background-color: transparent;
+}
+
+.indented {
+	padding-left: 1.5em;
+}
+
+hr {
+	background: transparent;
+	display: block;
+	width: 100%;
+	height: 1px;
+	visibility: visible;
+	border: none;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+img {
+	max-width: 100%;
+}
+
+@media only print {
+	img {
+		max-height: 100vh;
+		object-fit: contain;
+	}
+
+	table.collection-content {
+		width: 100%;
+		table-layout: fixed;
+	}
+
+	table.collection-content th,
+	table.collection-content td {
+		overflow-wrap: anywhere;
+	}
+
+	table.collection-content td > .user,
+	table.collection-content td > time {
+		white-space: pre-wrap;
+	}
+}
+
+@page {
+	margin: 1in;
+}
+
+.collection-content-wrapper {
+	overflow-x: auto;
+}
+
+@media only print {
+	.collection-content-wrapper {
+		overflow-x: visible;
+	}
+}
+
+.collection-content {
+	font-size: 0.875rem;
+}
+
+.collection-content td {
+	white-space: pre-wrap;
+	word-break: break-word;
+}
+
+.column-list {
+	display: flex;
+	gap: 46px;
+}
+
+.column {
+	min-width: 0;
+	overflow: hidden;
+}
+
+.column > *:first-child {
+	margin-top: 0;
+}
+
+.table_of_contents-item {
+	display: block;
+	font-size: 0.875rem;
+	line-height: 1.3;
+	padding: 0.125rem;
+}
+
+.table_of_contents-indent-1 {
+	margin-left: 1.5rem;
+}
+
+.table_of_contents-indent-2 {
+	margin-left: 3rem;
+}
+
+.table_of_contents-indent-3 {
+	margin-left: 4.5rem;
+}
+
+.table_of_contents-link {
+	text-decoration: none;
+	opacity: 0.7;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.18);
+}
+
+table,
+th,
+td {
+	border: 1px solid rgba(55, 53, 47, 0.09);
+	border-collapse: collapse;
+}
+
+table {
+	border-left: none;
+	border-right: none;
+}
+
+th,
+td {
+	font-weight: normal;
+	padding: 0.25em 0.5em;
+	line-height: 1.5;
+	min-height: 1.5em;
+	text-align: left;
+}
+
+th {
+	color: rgba(55, 53, 47, 0.6);
+}
+
+ol,
+ul {
+	margin: 0;
+	margin-block-start: 0.6em;
+	margin-block-end: 0.6em;
+}
+
+li > ol:first-child,
+li > ul:first-child {
+	margin-block-start: 0.6em;
+}
+
+ul > li {
+	list-style: disc;
+}
+
+ul.to-do-list {
+	padding-inline-start: 0;
+}
+
+ul.to-do-list > li {
+	list-style: none;
+}
+
+.to-do-children-checked {
+	text-decoration: line-through;
+	opacity: 0.375;
+}
+
+ul.toggle > li {
+	list-style: none;
+}
+
+ul {
+	padding-inline-start: 1.7em;
+}
+
+ul > li {
+	padding-left: 0.1em;
+}
+
+ol {
+	padding-inline-start: 1.6em;
+}
+
+ol.numbered-list.numbered-list-digits-2 {
+	padding-inline-start: 2em;
+}
+
+ol.numbered-list.numbered-list-digits-3plus {
+	padding-inline-start: 2.4em;
+}
+
+ol > li {
+	padding-left: 0.2em;
+}
+
+.mono ol {
+	padding-inline-start: 2em;
+}
+
+.mono ol > li {
+	text-indent: -0.4em;
+}
+
+.toggle {
+	padding-inline-start: 0em;
+	list-style-type: none;
+}
+
+/* Indent toggle children */
+.toggle > li > details {
+	padding-left: 1.7em;
+}
+
+.toggle > li > details > summary {
+	margin-left: -1.1em;
+}
+
+.selected-value {
+	display: inline-block;
+	padding: 0 0.5em;
+	background: rgba(206, 205, 202, 0.5);
+	border-radius: 3px;
+	margin-right: 0.5em;
+	margin-top: 0.3em;
+	margin-bottom: 0.3em;
+	white-space: nowrap;
+}
+
+.collection-title {
+	display: inline-block;
+	margin-right: 1em;
+}
+
+.page-description {
+	margin-bottom: 2em;
+}
+
+.simple-table {
+	margin-top: 1em;
+	font-size: 0.875rem;
+	empty-cells: show;
+}
+.simple-table td {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table th {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table-header-color {
+	background: rgb(247, 246, 243);
+	color: black;
+}
+.simple-table-header {
+	font-weight: 500;
+}
+
+time {
+	opacity: 0.5;
+}
+
+.icon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	max-width: 1.2em;
+	max-height: 1.2em;
+	text-decoration: none;
+	vertical-align: text-bottom;
+	margin-right: 0.5em;
+}
+
+img.icon {
+	border-radius: 3px;
+}
+
+.callout img.notion-static-icon {
+	width: 1em;
+	height: 1em;
+}
+
+.callout p {
+	margin: 0;
+}
+
+.callout h1,
+.callout h2,
+.callout h3 {
+	margin: 0 0 0.6rem;
+}
+
+.user-icon {
+	width: 1.5em;
+	height: 1.5em;
+	border-radius: 100%;
+	margin-right: 0.5rem;
+}
+
+.user-icon-inner {
+	font-size: 0.8em;
+}
+
+.text-icon {
+	border: 1px solid #000;
+	text-align: center;
+}
+
+.page-cover-image {
+	display: block;
+	object-fit: cover;
+	width: 100%;
+	max-height: 30vh;
+}
+
+.page-header-icon {
+	font-size: 3rem;
+	margin-bottom: 1rem;
+}
+
+.page-header-icon-with-cover {
+	margin-top: -0.72em;
+	margin-left: 0.07em;
+}
+
+.page-header-icon img {
+	border-radius: 3px;
+}
+
+.link-to-page {
+	margin: 1em 0;
+	padding: 0;
+	border: none;
+	font-weight: 500;
+}
+
+p > .user {
+	opacity: 0.5;
+}
+
+td > .user,
+td > time {
+	white-space: nowrap;
+}
+
+input[type="checkbox"] {
+	transform: scale(1.5);
+	margin-right: 0.6em;
+	vertical-align: middle;
+}
+
+p {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+.image {
+	border: none;
+	margin: 1.5em 0;
+	padding: 0;
+	border-radius: 0;
+	text-align: center;
+}
+
+.code,
+code {
+	background: rgba(135, 131, 120, 0.15);
+	border-radius: 3px;
+	padding: 0.2em 0.4em;
+	border-radius: 3px;
+	font-size: 85%;
+	tab-size: 2;
+}
+
+code {
+	color: #eb5757;
+}
+
+.code {
+	padding: 1.5em 1em;
+}
+
+.code-wrap {
+	white-space: pre-wrap;
+	word-break: break-all;
+}
+
+.code > code {
+	background: none;
+	padding: 0;
+	font-size: 100%;
+	color: inherit;
+}
+
+blockquote {
+	font-size: 1em;
+	margin: 1em 0;
+	padding-left: 1em;
+	border-left: 3px solid rgb(55, 53, 47);
+}
+
+blockquote.quote-large {
+	font-size: 1.25em;
+}
+
+.bookmark {
+	text-decoration: none;
+	max-height: 8em;
+	padding: 0;
+	display: flex;
+	width: 100%;
+	align-items: stretch;
+}
+
+.bookmark-title {
+	font-size: 0.85em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	height: 1.75em;
+	white-space: nowrap;
+}
+
+.bookmark-text {
+	display: flex;
+	flex-direction: column;
+}
+
+.bookmark-info {
+	flex: 4 1 180px;
+	padding: 12px 14px 14px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.bookmark-image {
+	width: 33%;
+	flex: 1 1 180px;
+	display: block;
+	position: relative;
+	object-fit: cover;
+	border-radius: 1px;
+}
+
+.bookmark-description {
+	color: rgba(55, 53, 47, 0.6);
+	font-size: 0.75em;
+	overflow: hidden;
+	max-height: 4.5em;
+	word-break: break-word;
+}
+
+.bookmark-href {
+	font-size: 0.75em;
+	margin-top: 0.25em;
+}
+
+.sans { font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol"; }
+.code { font-family: "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace; }
+.serif { font-family: Lyon-Text, Georgia, ui-serif, serif; }
+.mono { font-family: iawriter-mono, Nitti, Menlo, Courier, monospace; }
+.pdf .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK JP'; }
+.pdf:lang(zh-CN) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK SC'; }
+.pdf:lang(zh-TW) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK TC'; }
+.pdf:lang(ko-KR) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK KR'; }
+.pdf .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.pdf .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK JP'; }
+.pdf:lang(zh-CN) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK SC'; }
+.pdf:lang(zh-TW) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK TC'; }
+.pdf:lang(ko-KR) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK KR'; }
+.pdf .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.highlight-default {
+	color: rgba(44, 44, 43, 1);
+}
+.highlight-gray {
+	color: rgba(125, 122, 117, 1);
+	fill: rgba(125, 122, 117, 1);
+}
+.highlight-brown {
+	color: rgba(159, 118, 90, 1);
+	fill: rgba(159, 118, 90, 1);
+}
+.highlight-orange {
+	color: rgba(210, 123, 45, 1);
+	fill: rgba(210, 123, 45, 1);
+}
+.highlight-yellow {
+	color: rgba(203, 148, 52, 1);
+	fill: rgba(203, 148, 52, 1);
+}
+.highlight-teal {
+	color: rgba(80, 148, 110, 1);
+	fill: rgba(80, 148, 110, 1);
+}
+.highlight-blue {
+	color: rgba(56, 125, 201, 1);
+	fill: rgba(56, 125, 201, 1);
+}
+.highlight-purple {
+	color: rgba(154, 107, 180, 1);
+	fill: rgba(154, 107, 180, 1);
+}
+.highlight-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.highlight-red {
+	color: rgba(207, 81, 72, 1);
+	fill: rgba(207, 81, 72, 1);
+}
+.highlight-default_background {
+	color: rgba(44, 44, 43, 1);
+}
+.highlight-gray_background {
+	background: rgba(42, 28, 0, 0.07);
+}
+.highlight-brown_background {
+	background: rgba(139, 46, 0, 0.086);
+}
+.highlight-orange_background {
+	background: rgba(224, 101, 1, 0.129);
+}
+.highlight-yellow_background {
+	background: rgba(211, 168, 0, 0.137);
+}
+.highlight-teal_background {
+	background: rgba(0, 100, 45, 0.09);
+}
+.highlight-blue_background {
+	background: rgba(0, 124, 215, 0.094);
+}
+.highlight-purple_background {
+	background: rgba(102, 0, 178, 0.078);
+}
+.highlight-pink_background {
+	background: rgba(197, 0, 93, 0.086);
+}
+.highlight-red_background {
+	background: rgba(223, 22, 0, 0.094);
+}
+.block-color-default {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray {
+	color: rgba(125, 122, 117, 1);
+	fill: rgba(125, 122, 117, 1);
+}
+.block-color-brown {
+	color: rgba(159, 118, 90, 1);
+	fill: rgba(159, 118, 90, 1);
+}
+.block-color-orange {
+	color: rgba(210, 123, 45, 1);
+	fill: rgba(210, 123, 45, 1);
+}
+.block-color-yellow {
+	color: rgba(203, 148, 52, 1);
+	fill: rgba(203, 148, 52, 1);
+}
+.block-color-teal {
+	color: rgba(80, 148, 110, 1);
+	fill: rgba(80, 148, 110, 1);
+}
+.block-color-blue {
+	color: rgba(56, 125, 201, 1);
+	fill: rgba(56, 125, 201, 1);
+}
+.block-color-purple {
+	color: rgba(154, 107, 180, 1);
+	fill: rgba(154, 107, 180, 1);
+}
+.block-color-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.block-color-red {
+	color: rgba(207, 81, 72, 1);
+	fill: rgba(207, 81, 72, 1);
+}
+.block-color-default_background {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray_background {
+	background: rgba(240, 239, 237, 1);
+}
+.block-color-brown_background {
+	background: rgba(245, 237, 233, 1);
+}
+.block-color-orange_background {
+	background: rgba(251, 235, 222, 1);
+}
+.block-color-yellow_background {
+	background: rgba(249, 243, 220, 1);
+}
+.block-color-teal_background {
+	background: rgba(232, 241, 236, 1);
+}
+.block-color-blue_background {
+	background: rgba(229, 242, 252, 1);
+}
+.block-color-purple_background {
+	background: rgba(243, 235, 249, 1);
+}
+.block-color-pink_background {
+	background: rgba(250, 233, 241, 1);
+}
+.block-color-red_background {
+	background: rgba(252, 233, 231, 1);
+}
+.select-value-color-default { background-color: rgba(42, 28, 0, 0.07); }
+.select-value-color-gray { background-color: rgba(28, 19, 1, 0.11); }
+.select-value-color-brown { background-color: rgba(127, 51, 0, 0.156); }
+.select-value-color-orange { background-color: rgba(196, 88, 0, 0.203); }
+.select-value-color-yellow { background-color: rgba(209, 156, 0, 0.282); }
+.select-value-color-green { background-color: rgba(0, 96, 38, 0.156); }
+.select-value-color-blue { background-color: rgba(0, 118, 217, 0.203); }
+.select-value-color-purple { background-color: rgba(92, 0, 163, 0.141); }
+.select-value-color-pink { background-color: rgba(183, 0, 78, 0.152); }
+.select-value-color-red { background-color: rgba(206, 24, 0, 0.164); }
+
+.checkbox {
+	display: inline-flex;
+	vertical-align: text-bottom;
+	width: 16;
+	height: 16;
+	background-size: 16px;
+	margin-left: 2px;
+	margin-right: 5px;
+}
+
+.checkbox-on {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20width%3D%2216%22%20height%3D%2216%22%20fill%3D%22%2358A9D7%22%2F%3E%0A%3Cpath%20d%3D%22M6.71429%2012.2852L14%204.9995L12.7143%203.71436L6.71429%209.71378L3.28571%206.2831L2%207.57092L6.71429%2012.2852Z%22%20fill%3D%22white%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+
+.checkbox-off {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20x%3D%220.75%22%20y%3D%220.75%22%20width%3D%2214.5%22%20height%3D%2214.5%22%20fill%3D%22white%22%20stroke%3D%22%2336352F%22%20stroke-width%3D%221.5%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+	
+</style></head><body><article id="b13b1c35-a5fd-4aa7-8dbf-0d0388458b36" class="page sans"><header><h1 class="page-title" dir="auto">Database Exploration with Eudias</h1><p class="page-description" dir="auto"></p><table class="properties"><tbody><tr class="property-row property-row-status"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/burst_gray.svg" style="width:14px;height:14px;display:block"/></span>Processing</th><td><span class="status-value select-value-color-green"><div class="status-dot status-dot-color-green"></div>Processed</span></td></tr><tr class="property-row property-row-date"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/calendar_gray.svg" style="width:14px;height:14px;display:block"/></span>Date</th><td><time>December 17, 2025</time></td></tr><tr class="property-row property-row-multi_select"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/list_gray.svg" style="width:14px;height:14px;display:block"/></span>Attendees</th><td><span class="selected-value select-value-color-pink">Internal</span></td></tr><tr class="property-row property-row-select"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/arrow-circle-down_gray.svg" style="width:14px;height:14px;display:block"/></span>Meeting Type</th><td><span class="selected-value select-value-color-orange">Team Meeting</span></td></tr><tr class="property-row property-row-person"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/friends_gray.svg" style="width:14px;height:14px;display:block"/></span>Organizer</th><td><span class="user"><img src="https://lh3.googleusercontent.com/a/ACg8ocLHfVvdl28jS936w7CBB6TObsUa1P-X8cbdsUSKdeEn_MD7Bw=s96-c" class="icon user-icon"/>Steve </span></td></tr><tr class="property-row property-row-select"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/arrow-circle-down_gray.svg" style="width:14px;height:14px;display:block"/></span>Priority</th><td><span class="selected-value select-value-color-red">High</span></td></tr><tr class="property-row property-row-checkbox"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/checkmark-square_gray.svg" style="width:14px;height:14px;display:block"/></span>Has Cluely Transcript</th><td><div class="checkbox checkbox-on"></div></td></tr><tr class="property-row property-row-checkbox"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/checkmark-square_gray.svg" style="width:14px;height:14px;display:block"/></span>Has Final Transcript</th><td><div class="checkbox checkbox-on"></div></td></tr><tr class="property-row property-row-select"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/arrow-circle-down_gray.svg" style="width:14px;height:14px;display:block"/></span>Status</th><td><span class="selected-value select-value-color-brown">Completed</span></td></tr><tr class="property-row property-row-checkbox"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/checkmark-square_gray.svg" style="width:14px;height:14px;display:block"/></span>Has Notion Transcript</th><td><div class="checkbox checkbox-off"></div></td></tr><tr class="property-row property-row-checkbox"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/checkmark-square_gray.svg" style="width:14px;height:14px;display:block"/></span>Has Teams Transcript</th><td><div class="checkbox checkbox-on"></div></td></tr><tr class="property-row property-row-checkbox"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/checkmark-square_gray.svg" style="width:14px;height:14px;display:block"/></span>Merged to Feed</th><td><div class="checkbox checkbox-off"></div></td></tr></tbody></table></header><div class="page-body"><div style="display:contents" dir="ltr"><figure class="block-color-blue_background callout" style="white-space:pre-wrap;display:flex" id="9308a5c6-af4c-4ca1-aebe-a3e2e710b033"><div style="font-size:1.5em"><span class="icon">🗃️</span></div><div style="width:100%"><div style="display:contents" dir="auto"><p id="91171581-3171-4019-9eb5-6170e884b165" class=""><strong>Database Exploration with Eudias</strong></p></div><div style="display:contents" dir="auto"><p id="32db5fa7-442f-41e6-90d8-bd32e5187011" class="">SQL access setup, M3 structure walkthrough, Fabric ingestion strategy, and Power BI workspace design patterns.</p></div></div></figure></div><div style="display:contents" dir="auto"><hr id="d908350f-af42-45a4-8826-40df81aad077"/></div><div style="display:contents" dir="auto"><h2 id="e34b749b-dafb-4099-9ae2-2c399626edcf" class="">📋 Cluely Summary</h2></div><div style="display:contents" dir="auto"><hr id="3fde1c7e-c08a-43d3-9c89-7f0da72ec0e3"/></div><div style="display:contents" dir="auto"><h3 id="86e71dcc-4c23-4a06-8f09-703138fe49db" class="">✅ Action Items</h3></div><div style="display:contents" dir="ltr"><figure class="block-color-purple_background callout" style="white-space:pre-wrap;display:flex" id="8b229fe0-3a84-4d87-a938-ec9766f33aff"><div style="font-size:1.5em"><span class="icon">📌</span></div><div style="width:100%"><div style="display:contents" dir="auto"><p id="69ad8388-95b1-4b59-963f-e4c3d570820c" class=""><strong>Next step:</strong> Receive single SQL login (SQL Reader) for all M3 databases; add to password manager.</p></div><div style="display:contents" dir="auto"><p id="62044052-d170-4aad-bde1-aebe69f23532" class=""><strong>Next step:</strong> Verify VPN is active; test connection to <strong>M3_Test</strong> and <strong>MES_Test</strong> servers.</p></div><div style="display:contents" dir="auto"><p id="df3181f6-1c85-4a91-8527-ca1ab7699ea5" class=""><strong>Next step:</strong> Run provided schema-access queries in SSMS; export list of databases, schemas, and permissions.</p></div><div style="display:contents" dir="auto"><p id="17c54411-4127-459b-b550-5b6dc56fd9b9" class=""><strong>Next step:</strong> Execute table-size inventory; rank tables from largest to smallest for ingestion priority.</p></div><div style="display:contents" dir="auto"><p id="ff2700f7-247d-4794-b5b3-3417542df5c4" class=""><strong>Next step:</strong> Create a matrix documenting every table name, column list, and business context.</p></div><div style="display:contents" dir="auto"><p id="8a0bdf93-6dac-4cc4-bc3a-b0a3827d881e" class=""><strong>Next step:</strong> Resend the one-time credential download link (or extend expiration).</p></div><div style="display:contents" dir="auto"><p id="7102dc29-547e-4fc6-96ad-531dcfeede34" class=""><strong>Next step:</strong> Schedule follow-up demo tomorrow 10 AM to review additional DBs and Power BI UI branding.</p></div><div style="display:contents" dir="auto"><p id="a822f393-8f6a-412f-a902-b188d6dff0ba" class=""><strong>Next step:</strong> Provide recommended DAX and Power BI Service training resources.</p></div><div style="display:contents" dir="auto"><p id="21a67f9d-09c4-408e-bb3c-1c533f6deb66" class=""><strong>Next step:</strong> Apply Power BI app branding (logo, corporate colors) per IP Corp capacity.</p></div></div></figure></div><div style="display:contents" dir="auto"><hr id="465f8830-0d8a-4fd2-8a19-49977db0778c"/></div><div style="display:contents" dir="auto"><h3 id="1c22c869-4a1b-4fee-b60a-c337edd5b78b" class="">🔐 Connectivity &amp; Access</h3></div><div style="display:contents" dir="ltr"><table id="3f54aba7-77f4-47ae-8b0b-0efd0eada7f6" class="simple-table"><thead class="simple-table-header"><div style="display:contents" dir="ltr"><tr id="e9aad35e-4551-483d-ac96-7161d5c75f65"><th id="yblp" class="simple-table-header-color simple-table-header">Topic</th><th id="EzY?" class="simple-table-header-color simple-table-header">Details</th></tr></div></thead><tbody><div style="display:contents" dir="ltr"><tr id="ba44f57b-899e-4979-b9f7-77822fbc07cb"><td id="yblp" class=""><strong>Credentials</strong></td><td id="EzY?" class="">Forwarded via Teams; need to open link and download client</td></tr></div><div style="display:contents" dir="ltr"><tr id="6a3f4121-2998-4e25-9eb6-9189838e8f39"><td id="yblp" class=""><strong>SSMS Config</strong></td><td id="EzY?" class="">Click <strong>OK</strong>, enable &quot;Trust server certificate&quot;, keep <strong>Encrypt = Mandatory</strong></td></tr></div><div style="display:contents" dir="ltr"><tr id="ff07308d-5dc3-48ed-9508-f346f9ff4d87"><td id="yblp" class=""><strong>Cert Mismatch</strong></td><td id="EzY?" class="">Use server FQDN instead of IP if cert mismatch persists</td></tr></div><div style="display:contents" dir="ltr"><tr id="c8c7dbd0-1550-40bf-92ec-4c3b5301900e"><td id="yblp" class=""><strong>Read-Only Access</strong></td><td id="EzY?" class="">Use SQL Reader login; cannot create users on read-only DB</td></tr></div><div style="display:contents" dir="ltr"><tr id="d050814d-6a8c-4ad7-9822-73cb334edc5f"><td id="yblp" class=""><strong>VPN</strong></td><td id="EzY?" class="">Ensure VPN connection before attempting SSMS login</td></tr></div></tbody></table></div><div style="display:contents" dir="auto"><hr id="491a7dae-305b-41ec-bb1f-503679ce289e"/></div><div style="display:contents" dir="auto"><h3 id="5a8dbdfb-a95c-4137-9442-2970fce84a39" class="">🏗️ M3 On-Prem Structure</h3></div><div style="display:contents" dir="ltr"><figure class="block-color-yellow_background callout" style="white-space:pre-wrap;display:flex" id="49e29e9c-affe-43e9-ba3b-cd0a8962b85c"><div style="font-size:1.5em"><span class="icon">💡</span></div><div style="width:100%"><div style="display:contents" dir="auto"><p id="ac7817a5-09f9-42f2-894a-f53b7aaaffe3" class=""><code>Fact:</code> On-prem M3 hosts <strong>Interplastic</strong> and <strong>HK</strong> data; schemas prefixed (e.g., <code>MBXJDTA</code>).</p></div><div style="display:contents" dir="auto"><p id="f5a7307c-8dbc-4cd0-bc4d-f045540032ba" class=""><code>Fact:</code> Cloud M3 (NAC/MP) lacks schema prefixes.</p></div><div style="display:contents" dir="auto"><p id="26fc9e0c-ab05-4c4b-9c2e-f9344b60d558" class=""><code>Fact:</code> Key schema: <strong>MVXJDTA</strong> (contains OOLINE, OCUSMA, etc.).</p></div><div style="display:contents" dir="auto"><p id="06e2c3e1-fe1b-473d-a515-27d44b0fbae2" class=""><code>Fact:</code> Queries must be fully qualified: <code>SELECT TOP 10 * FROM MBXJDTA.CUSTOMERS</code></p></div></div></figure></div><div style="display:contents" dir="auto"><hr id="cd837d7a-aec7-42b6-b4ed-5df808394cfa"/></div><div style="display:contents" dir="auto"><h3 id="0ced9ea9-a1a7-499f-b859-284c0568f046" class="">📦 Data Ingestion Strategy</h3></div><div style="display:contents" dir="auto"><ul id="34f2c82b-9eef-4dec-96d4-758ce850213d" class="bulleted-list"><li style="list-style-type:disc"><strong>Bronze layer:</strong> Dump raw tables to Fabric Lakehouse as Parquet files</li></ul></div><div style="display:contents" dir="auto"><ul id="72a751d5-b74c-438e-aaa6-862b006fd97d" class="bulleted-list"><li style="list-style-type:disc"><strong>Prioritization:</strong> Rank tables by size/value; prioritize high-impact tables (Customers, OLINE)</li></ul></div><div style="display:contents" dir="auto"><ul id="9b9d57a9-1872-41bb-b892-1a5042abeaee" class="bulleted-list"><li style="list-style-type:disc"><strong>Security:</strong> Use internal CA or trusted cert for long-term secure connections</li></ul></div><div style="display:contents" dir="auto"><ul id="cedac207-8737-4c57-954e-dce05379e252" class="bulleted-list"><li style="list-style-type:disc"><strong>Capacity:</strong> Auto-scale capacity to handle refresh spikes; avoid over-provisioning</li></ul></div><div style="display:contents" dir="auto"><hr id="32e12771-4964-4f17-bed4-5cea4ca79b41"/></div><div style="display:contents" dir="auto"><h3 id="cc8ed652-d3d7-492c-b38f-75e2b024c341" class="">📊 Power BI Workspace &amp; App Design</h3></div><div style="display:contents" dir="ltr"><table id="a01b6ad9-ed9d-4edc-9593-c99b08697702" class="simple-table"><thead class="simple-table-header"><div style="display:contents" dir="ltr"><tr id="036899b5-fcb6-4039-a39c-db062d89ec0b"><th id="JkFh" class="simple-table-header-color simple-table-header">Pattern</th><th id="RnWA" class="simple-table-header-color simple-table-header">Guidance</th></tr></div></thead><tbody><div style="display:contents" dir="ltr"><tr id="e2d70b24-eee0-4bed-99f3-a9a9d5c8fed6"><td id="JkFh" class=""><strong>Workspace Organization</strong></td><td id="RnWA" class="">Organized by entity (NAC, Interplastic, HK) and domain (Accounting, Inventory)</td></tr></div><div style="display:contents" dir="ltr"><tr id="1f4987da-0499-48dd-a0ac-1be785cffec7"><td id="JkFh" class=""><strong>Power BI Apps</strong></td><td id="RnWA" class="">Use Apps to present a single URL per entity; hide underlying workspace</td></tr></div><div style="display:contents" dir="ltr"><tr id="ab2650f5-7910-4d5d-95bf-6dce25877e62"><td id="JkFh" class=""><strong>Permissions</strong></td><td id="RnWA" class="">Assign permissions at the app level; avoid giving workspace access unless needed for dev</td></tr></div><div style="display:contents" dir="ltr"><tr id="68ab422a-a437-4b2e-8388-9d49531b1004"><td id="JkFh" class=""><strong>Naming</strong></td><td id="RnWA" class="">Implement consistent naming conventions for workspaces, reports, and pages</td></tr></div><div style="display:contents" dir="ltr"><tr id="808ed732-e2df-4a62-b8dd-448f57706211"><td id="JkFh" class=""><strong>Branding</strong></td><td id="RnWA" class="">Customize app branding per capacity (logo on left, corporate colors)</td></tr></div></tbody></table></div><div style="display:contents" dir="auto"><hr id="49242b27-96b9-449c-8813-0da2651271b7"/></div><div style="display:contents" dir="auto"><h3 id="86d1ecc9-55fa-426d-a871-1ab162bb3bf3" class="">🏠 Lakehouse &amp; Fabric Architecture</h3></div><div style="display:contents" dir="ltr"><figure class="block-color-teal_background callout" style="white-space:pre-wrap;display:flex" id="c9bf1b29-2922-4f6c-a283-bdeea08a9fa0"><div style="font-size:1.5em"><span class="icon">🔗</span></div><div style="width:100%"><div style="display:contents" dir="auto"><p id="63ab580c-d1eb-4c83-9692-920cf6c477ff" class=""><code>Fact:</code> Separate capacities per entity to allow cross-entity reporting while maintaining isolation.</p></div><div style="display:contents" dir="auto"><p id="774161c6-89ef-4493-aad5-8476598e9b56" class=""><code>Fact:</code> Gold layer provides curated views; reports connect directly to Gold warehouse, not semantic models across capacities.</p></div><div style="display:contents" dir="auto"><p id="082fd841-73fe-4625-932d-9c1fb7397714" class=""><code>Fact:</code> Semantic models can be shared across workspaces within the same capacity.</p></div></div></figure></div><div style="display:contents" dir="auto"><hr id="01351661-2111-4a81-9f5a-8cf7cb732a2b"/></div><div style="display:contents" dir="auto"><h3 id="09a7139d-db04-4e38-8f3d-7fe96d72741d" class="">📖 Naming &amp; Documentation</h3></div><div style="display:contents" dir="auto"><ul id="2881f9fd-20d4-4b6f-811d-54c16376d5c2" class="bulleted-list"><li style="list-style-type:disc">Standardize table and column names; create a reference &quot;grouped tables&quot; DB</li></ul></div><div style="display:contents" dir="auto"><ul id="633f4e98-09b4-4fe0-ac33-7dc65ab1590f" class="bulleted-list"><li style="list-style-type:disc">Document each table&#x27;s purpose, key identifiers, and relationships</li></ul></div><div style="display:contents" dir="auto"><ul id="b920d7d5-c207-4f49-83f4-de90f4879790" class="bulleted-list"><li style="list-style-type:disc">Capture transformation logic (e.g., flags in metadata-driven tables) for auditability</li></ul></div><div style="display:contents" dir="auto"><hr id="1ff293b2-b664-48fc-bb8a-aabc44ecf419"/></div><div style="display:contents" dir="auto"><h3 id="d7b3fef5-e367-49c3-a885-9996fa93b736" class="">📅 Date Handling in Power BI</h3></div><div style="display:contents" dir="ltr"><figure class="block-color-gray_background callout" style="white-space:pre-wrap;display:flex" id="a06b6274-409e-4e60-9dbc-cd1bb7383869"><div style="font-size:1.5em"><span class="icon">📆</span></div><div style="width:100%"><div style="display:contents" dir="auto"><p id="acec76d7-09c5-4bb7-b95f-dba3aedc4f58" class=""><code>Fact:</code> Prefer a <strong>single calendar table</strong> for all date dimensions; use relationships to propagate date filters.</p></div><div style="display:contents" dir="auto"><p id="e7b8d911-de68-4594-a439-313777564b85" class=""><code>Fact:</code> Avoid multiple independent date tables to simplify user experience.</p></div><div style="display:contents" dir="auto"><p id="413f882c-2d98-43af-aee6-6b17ee0fe59d" class=""><code>Fact:</code> Document date granularity (day, week, month) and any calculated fields.</p></div></div></figure></div><div style="display:contents" dir="auto"><hr id="5fd07532-c1a5-4739-9b0f-422af76f148c"/></div><div style="display:contents" dir="auto"><h2 id="64f511c3-f3bf-4a98-b4c1-8f789ef52fce" class="">🎙️ Cluely Transcript</h2></div><div style="display:contents" dir="auto"><ul id="66983cac-08f4-4bf3-b546-9e31d523fa38" class="toggle"><li><details open=""><summary>Raw Transcript (~2 hours)</summary><div style="display:contents" dir="auto"><p id="4ab1a972-1c89-4051-8912-8a7c94658f42" class=""><strong>Duration:</strong> ~2:13:00</p></div><div style="display:contents" dir="auto"><p id="65471e64-60f3-43e3-bd81-aebad1e75261" class=""><strong>Participants:</strong> Steve (Consultant), Eudias (IP Corp Data &amp; Analytics)</p></div><div style="display:contents" dir="auto"><p id="7a3205b7-52b5-42b6-bcf7-f6cd85fc32dd" class="">The full transcript covers:</p></div><div style="display:contents" dir="auto"><ul id="181a6245-7d1a-4dc6-9228-6f0183f834d9" class="bulleted-list"><li style="list-style-type:disc">SQL credential setup and 1Password sharing</li></ul></div><div style="display:contents" dir="auto"><ul id="5737ba46-5455-4015-ba51-c6f833260bf4" class="bulleted-list"><li style="list-style-type:disc">SSMS configuration and connectivity troubleshooting</li></ul></div><div style="display:contents" dir="auto"><ul id="5e188ed7-f5ff-4fd0-9141-5cf1e43b05e5" class="bulleted-list"><li style="list-style-type:disc">M3 on-prem database structure walkthrough (schemas, tables)</li></ul></div><div style="display:contents" dir="auto"><ul id="be6de9c4-4827-48d3-82db-496f56a0cb55" class="bulleted-list"><li style="list-style-type:disc">Metadata Publisher for field definitions</li></ul></div><div style="display:contents" dir="auto"><ul id="4dd58553-3653-4a82-b44e-490ebe87d752" class="bulleted-list"><li style="list-style-type:disc">Fabric Bronze/Silver/Gold architecture discussion</li></ul></div><div style="display:contents" dir="auto"><ul id="02d1835f-62ad-4fb0-ab6c-3ed283253961" class="bulleted-list"><li style="list-style-type:disc">Power BI workspace/app design patterns</li></ul></div><div style="display:contents" dir="auto"><ul id="ac8813b4-ad59-4129-b3f4-111e6e1dcf4d" class="bulleted-list"><li style="list-style-type:disc">Capacity strategy per entity (NAC, Interplastic/HK, MP)</li></ul></div><div style="display:contents" dir="auto"><ul id="67dd41c4-8000-4a55-82a9-d09dcbb31ffd" class="bulleted-list"><li style="list-style-type:disc">Semantic model sharing limitations across capacities</li></ul></div><div style="display:contents" dir="auto"><ul id="9b9dce7c-55c2-4b49-b933-f1317d80b5b2" class="bulleted-list"><li style="list-style-type:disc">Custom branding for Power BI adoption</li></ul></div><div style="display:contents" dir="auto"><ul id="c9896b47-6a67-4c71-8c0b-2d5573cdf5c4" class="bulleted-list"><li style="list-style-type:disc">DAX context concepts and training recommendations</li></ul></div><div style="display:contents" dir="auto"><ul id="7b28fd76-1d65-4bf4-8658-a895bb9ff500" class="bulleted-list"><li style="list-style-type:disc">Stored procedures and ETL patterns review</li></ul></div><div style="display:contents" dir="auto"><ul id="278f365d-72f8-4b07-ac17-a14b2551ea31" class="bulleted-list"><li style="list-style-type:disc">Date dimension handling and calendar tables</li></ul></div><div style="display:contents" dir="auto"><p id="954fb4d2-51ba-4372-bc3b-3345eaec4868" class=""><em>Full raw transcript available in source materials.</em></p></div></details></li></ul></div><div style="display:contents" dir="auto"><hr id="b7453238-446c-402b-934c-e7320efb4b25"/></div><div style="display:contents" dir="auto"><h3 id="f06824b8-8c06-4727-8ef3-717ff4f77ede" class="">🤖 Cluely Real-Time Prompts</h3></div><div style="display:contents" dir="ltr"><figure class="block-color-gray_background callout" style="white-space:pre-wrap;display:flex" id="a94d0c15-fd11-425e-a73a-7f79fa0f9ea3"><div style="font-size:1.5em"><span class="icon">💬</span></div><div style="width:100%"><div style="display:contents" dir="auto"><p id="058385ca-cb29-432a-b658-c90391017307" class=""><strong>Key prompts used during meeting:</strong></p></div><div style="display:contents" dir="auto"><p id="afbf9697-93d7-40ea-b218-95380891ab2d" class=""><strong>11:09 AM</strong> — <em>&quot;yeah exactly, the syntax and logic stay the same — it&#x27;s just the interface or workflow that changes depending on the tool or environment&quot;</em></p></div><div style="display:contents" dir="auto"><p id="e795f0fd-2f47-4fab-a2a4-b45137314188" class=""><strong>11:20 AM</strong> — SSMS connection fix: Turn on &quot;Trust server certificate&quot;, leave Encrypt = Mandatory, use FQDN if cert mismatch</p></div><div style="display:contents" dir="auto"><p id="06ca398d-f9ac-47fa-b801-fae452d11bae" class=""><strong>11:24 AM</strong> — SQL queries to check schema access permissions</p></div><div style="display:contents" dir="auto"><p id="af6caaec-3525-48bb-990a-729de6a17cb0" class=""><strong>11:31 AM</strong> — <em>&quot;Got it. This M3 on prem is the Interplastic and HK lane, so queries here use their schema prefixes and fully qualified names. NAC and MP live on the M3 cloud instance, different server, same model.&quot;</em></p></div><div style="display:contents" dir="auto"><p id="c72d4055-4e93-428e-9df1-ee9639b882fb" class=""><strong>11:46 AM</strong> — <em>&quot;Got it: on‑prem M3 lives in MBXJDTA and friends while cloud drops the schema prefix, so I&#x27;ll anchor on your curated domain DB to avoid noise and use Metadata Publisher to map fields, then join OOLINE to OCUSMA on CUNO for a clean customer order slice.&quot;</em></p></div><div style="display:contents" dir="auto"><p id="e2a90607-9d9e-430c-9c49-8f0ff06f4550" class=""><strong>11:58 AM</strong> — <em>&quot;Given the red‑line security boundaries, a lakehouse in Parquet with partitions by company and date lets us land broadly but serve tightly, then expose only curated Gold views; first step is a fast size/usage profile to rank M3 tables and drop the dead weight.&quot;</em></p></div><div style="display:contents" dir="auto"><p id="27e74985-94f3-4824-a8fd-867bfe3644ba" class=""><strong>12:40 PM</strong> — <em>&quot;Makes sense: Interplastic and HK sit in M3 on prem with MVXJDTA as the working schema; we&#x27;ll stage raw tables to a Lakehouse in Parquet for Bronze, then do the joins in Fabric, using the grouped reference DB and Metadata Publisher to decode objects like OLINE and keep table selection focused.&quot;</em></p></div></div></figure></div><div style="display:contents" dir="auto"><hr id="4bba34d2-acf8-4712-bfe8-505e26fbb736"/></div><div style="display:contents" dir="auto"><h2 id="d070f146-f96e-42b2-83fe-8bc342d9ea21" class="">📝 Teams Transcript</h2></div><div style="display:contents" dir="ltr"><figure class="block-color-blue_background callout" style="white-space:pre-wrap;display:flex" id="06eb178a-32ee-49b3-8535-422314b04c9a"><div style="font-size:1.5em"><span class="icon">📹</span></div><div style="width:100%"><div style="display:contents" dir="auto"><p id="f252fbb2-c739-4fb5-802d-ab470404eb8b" class=""><strong>Source:</strong> Microsoft Teams auto-transcription</p></div><div style="display:contents" dir="auto"><p id="e468ab78-5e58-458c-8413-10ce3952df11" class=""><strong>Participants:</strong> Steve Nahrup (Consultant), Eudias Kifem (IP Corp), Patrick Stiller (brief cameo ~1:49)</p></div><div style="display:contents" dir="auto"><p id="4e5715c5-a4bb-4a72-9d1c-45b81854929a" class=""><strong>Duration:</strong> 2:12:32</p></div></div></figure></div><div style="display:contents" dir="auto"><ul id="17a691df-d7b8-46bf-93d6-e024066d6e8b" class="toggle"><li><details open=""><summary>Full Teams Transcript — Key Excerpts</summary><div style="display:contents" dir="auto"><h3 id="e1f11111-08ca-4ff4-b14a-b2d8a6856243" class="">🔐 Opening — Credential Setup (0:00–5:00)</h3></div><div style="display:contents" dir="auto"><p id="95744d6c-6ffa-4adb-90ce-755f3e4f83f1" class=""><strong>Eudias</strong> [0:35]: <em>&quot;If you share your screen and open up Management Studio, we could try to see if it will get you in the database.&quot;</em></p></div><div style="display:contents" dir="auto"><p id="f89b0fa2-ee63-460e-ba05-d634883a29ae" class=""><strong>Steve</strong> [0:52]: <em>&quot;I just need to. I didn&#x27;t download that quite yet... Should download it yesterday. It&#x27;ll take two seconds.&quot;</em></p></div><div style="display:contents" dir="auto"><p id="41953960-06d3-4dba-afeb-0b6d17cc621e" class=""><strong>Steve</strong> [2:21]: <em>&quot;I accidentally had my caps lock on when I was creating the password, so it&#x27;s inverted from what it would usually be.&quot;</em></p></div><div style="display:contents" dir="auto"><hr id="23732571-f3e4-4ec9-ba0a-2ac84bc3eb50"/></div><div style="display:contents" dir="auto"><h3 id="6c657141-cd2e-4a24-997b-d153157491d3" class="">📊 Capacity &amp; Auto-Scaling (~56:50–58:00)</h3></div><div style="display:contents" dir="auto"><p id="b3ed556e-3ef6-4399-8356-6e4e0e892e6c" class=""><strong>Steve</strong> [56:50]: <em>&quot;Sizing it so that it can basically auto size. So if there are very large spikes when there&#x27;s a refresh or something like that it can spin up, use a little bit more and then spin down so that it&#x27;s not pricing us out.&quot;</em></p></div><div style="display:contents" dir="auto"><p id="2662e015-e79b-4bc7-92e0-b160c8d6ca64" class=""><strong>Steve</strong> [57:23]: <em>&quot;Pay for auto sizing or auto scaling and it will automatically once it red lines spins up and then spins back down. So right sizes it as needed.&quot;</em></p></div><div style="display:contents" dir="auto"><p id="52b2b26b-af45-4d1a-a33d-6e1b33cf7fd4" class=""><strong>Steve</strong> [57:39]: <em>&quot;We need to rank the size of the tables, the value of the tables, identify which ones we would 100% bring in. What would be the downside of not bringing in some tables that we initially identify as not essential for reporting.&quot;</em></p></div><div style="display:contents" dir="auto"><hr id="f65a165a-0e8f-4458-8a44-2a67019e6189"/></div><div style="display:contents" dir="auto"><h3 id="d01dbc49-ddce-4f99-a131-742545009360" class="">🏢 Fabric Strategy — Entity Isolation (~58:00–1:01:00)</h3></div><div style="display:contents" dir="auto"><p id="ba373171-ae49-4986-a67f-a2c192bea66e" class=""><strong>Eudias</strong> [58:02]: <em>&quot;One of the things I was going to be asking was about the fabric strategy... How do we want to design this? We have different companies — I would say 3 now since Interplastic and HK are kind of merging together.&quot;</em></p></div><div style="display:contents" dir="auto"><p id="a2d52547-aac6-404c-b824-aca99ed9be7b" class=""><strong>Eudias</strong> [58:37]: <em>&quot;Will it be like have a capacity just for NAC and then another one for Interplastic or another one for MP? Or we&#x27;re gonna do it by department like accounting or inventory?&quot;</em></p></div><div style="display:contents" dir="auto"><p id="7e120e05-8617-4e87-94b8-eb96a6a349e1" class=""><strong>Steve</strong> [59:16]: <em>&quot;These companies need to be isolated. There is going to be a need to share things between them, but they cannot have an open connection in terms of just free flowing data between them. They need to be partitioned by company.&quot;</em></p></div><div style="display:contents" dir="auto"><p id="a9109535-b79d-4d3f-9d18-62467624f2db" class=""><strong>Steve</strong> [59:48]: <em>&quot;The ability needs to be there if as an executive of this multi-subsidiary company I want to see something across all of them. I can do that and it&#x27;s not a pain. So it&#x27;s a higher level ability to do it if we need to, but we shouldn&#x27;t shove everything all together.&quot;</em></p></div><div style="display:contents" dir="auto"><p id="3ea705d0-628e-4f1e-92b4-bfaa72cafc33" class=""><strong>Steve</strong> [1:00:30]: <em>&quot;I personally think that it would be best to do the capacities like 1 capacity per entity and then in each of those capacities it&#x27;s separated by domains — like accounting and product.&quot;</em></p></div><div style="display:contents" dir="auto"><p id="f62247aa-c695-474b-b7a2-5dd9c6272d71" class=""><strong>Steve</strong> [1:00:58]: <em>&quot;It at least gives people at a higher level the ability to see across the entire data estate. But if there was an audit or compliance thing... or they need to acquire another company or merge — it&#x27;s not an absolute disaster trying to figure out how it&#x27;s going to fit into our existing structure. It&#x27;s just tack on one more capacity.&quot;</em></p></div><div style="display:contents" dir="auto"><hr id="31282e7e-eb70-4098-8550-eef428f237ba"/></div><div style="display:contents" dir="auto"><h3 id="619a644a-f27a-4a9d-a176-7180c9f8e05a" class="">🔗 Semantic Model Limitations (~1:21:00–1:22:30)</h3></div><div style="display:contents" dir="auto"><p id="53f667a0-549b-4998-984b-4486b2efb43e" class=""><strong>Steve</strong> [1:21:10]: <em>&quot;You can&#x27;t do it across — like you can&#x27;t say I want to pull data from this semantic model in this capacity.&quot;</em></p></div><div style="display:contents" dir="auto"><p id="510f5145-9e46-4126-a77b-5782edf55f5d" class=""><strong>Eudias</strong> [1:21:19]: <em>&quot;Oh, OK. So they need to be in the same capacity.&quot;</em></p></div><div style="display:contents" dir="auto"><p id="1dbc5789-b2a6-4777-a8f8-dfec92660ad4" class=""><strong>Steve</strong> [1:21:24]: <em>&quot;Correct. But those gold level data models are really just pulling from the gold warehouse. You&#x27;ve already done all the transformations. So you would be able to create a report and connect to the OneLake warehouse directly.&quot;</em></p></div><div style="display:contents" dir="auto"><p id="3a425884-f120-43a9-86a7-5acb22879861" class=""><strong>Steve</strong> [1:22:01]: <em>&quot;It&#x27;s really just semantics. You&#x27;re pulling straight from the same source as the other semantic model pulled from. You&#x27;re just not pulling from that semantic model itself.&quot;</em></p></div><div style="display:contents" dir="auto"><p id="00884a55-a347-4d7d-ab9a-ddac2b5be990" class=""><strong>Eudias</strong> [1:22:19]: <em>&quot;So you won&#x27;t be able to reuse the semantic model across capacities. You would just have to go directly.&quot;</em></p></div><div style="display:contents" dir="auto"><p id="961bd451-9110-44c0-8adc-78e2fc237539" class=""><strong>Steve</strong> [1:22:34]: <em>&quot;Based on everything, it seems like you&#x27;re thinking about all of the right stuff and have all the right questions, which is really exciting. I think you&#x27;re gonna love this.&quot;</em></p></div><div style="display:contents" dir="auto"><hr id="1e27cccf-5fad-4475-b91e-929a21e83966"/></div><div style="display:contents" dir="auto"><h3 id="8e565b56-a137-478d-87ce-4d4539cb173f" class="">🎨 Power BI Adoption &amp; Branding (~1:23:25–1:25:00)</h3></div><div style="display:contents" dir="auto"><p id="4adfe7dc-5651-4c0c-a2f5-a4a4ef33a57c" class=""><strong>Steve</strong> [1:23:44]: <em>&quot;When trying to get an organization familiar with Power BI and get the adoption rate up, I have come to realize that the more they can make it look like an internal UI — something that&#x27;s not foreign to them — the much higher the adoption rate is in my experience.&quot;</em></p></div><div style="display:contents" dir="auto"><p id="0aaf3e94-9118-404a-b3c2-48d416a7f743" class=""><strong>Steve</strong> [1:24:23]: <em>&quot;I could have temporary access to work with somebody to just update the UI of Power BI. It takes like no time at all, like literally 3 seconds.&quot;</em></p></div><div style="display:contents" dir="auto"><hr id="c16624f2-9562-45de-a7bd-838f6638f30d"/></div><div style="display:contents" dir="auto"><h3 id="e3aa994c-284d-4856-be9d-d4f87d90e4fb" class="">⚙️ Metadata-Driven Architecture (~1:45:00–1:47:00)</h3></div><div style="display:contents" dir="auto"><p id="f24c4df8-32c0-4327-a808-a1c604f52b00" class=""><strong>Steve</strong> [1:45:12]: <em>&quot;I thought this was a metadata driven architecture. I was like, wow, OK, so maybe we got more done than I thought.&quot;</em></p></div><div style="display:contents" dir="auto"><p id="45d58d78-775d-42dc-8672-3679b09b23f2" class=""><strong>Eudias</strong> [1:45:19]: <em>&quot;No, no, it&#x27;s not. It&#x27;s just a link table that we&#x27;ve used for ETL.&quot;</em></p></div><div style="display:contents" dir="auto"><p id="733f39e3-4594-4330-baf7-5790e87b914c" class=""><strong>Steve</strong> [1:45:26]: <em>&quot;This is the type of table that is like the linchpin within a metadata driven architecture. The ones and zeros are the flags that determine the dynamic ETL pipelines down the road. If it&#x27;s a one, then it&#x27;ll run a certain way versus a zero.&quot;</em></p></div><div style="display:contents" dir="auto"><p id="33996df2-0444-430c-af33-71a58474c6c1" class=""><strong>Steve</strong> [1:46:04]: <em>&quot;It takes its cues from this table. So you have multiple processes, but one process is to actually populate this table and then the following processes are driven entirely on this table.&quot;</em></p></div><div style="display:contents" dir="auto"><hr id="6b5a2a19-1182-4e2f-bfea-9f5c3afdaeb8"/></div><div style="display:contents" dir="auto"><h3 id="3181b225-8b04-4448-a78f-cf4b410e8425" class="">👋 Patrick Joins (~1:49:00)</h3></div><div style="display:contents" dir="auto"><p id="1e4d5dc6-e685-4e9b-9819-3f63dca85f62" class=""><strong>Patrick</strong> [1:49:23]: <em>&quot;Are you hogging all of his time? Yes, I am. Good for you.&quot;</em></p></div><div style="display:contents" dir="auto"><p id="42416cda-bece-44a9-9879-29c2daec5c4a" class=""><strong>Steve</strong> [1:49:26]: <em>&quot;We&#x27;re coming up on 2 hours, so yeah, it&#x27;s been very productive.&quot;</em></p></div><div style="display:contents" dir="auto"><p id="dfce3e60-d44d-442c-8528-d2b19f79c885" class=""><strong>Patrick</strong> [1:49:37]: <em>&quot;This is the person to talk to. She&#x27;ll get you there. We&#x27;ll figure it out. I&#x27;m gonna duck out. If you need me, you&#x27;ll have to track me down.&quot;</em></p></div><div style="display:contents" dir="auto"><hr id="a1ae55f9-0245-4de8-b84c-8e2c77570718"/></div><div style="display:contents" dir="auto"><h3 id="d02cc643-367e-42e5-9cb3-72e4fcb829c0" class="">🧠 DAX Context Discussion (~2:05:30–2:06:30)</h3></div><div style="display:contents" dir="auto"><p id="6caee841-1149-43e2-b250-b034fba54aea" class=""><strong>Eudias</strong> [2:05:33]: <em>&quot;They are talking about filter flow, things like that.&quot;</em></p></div><div style="display:contents" dir="auto"><p id="ae119369-1785-4d59-8ee6-457b2dcbb145" class=""><strong>Steve</strong> [2:05:36]: <em>&quot;It doesn&#x27;t click like there isn&#x27;t a point in time. I mean, there is a time when it clicks, but you don&#x27;t get there until you just do it over and over. You learn context, then you feel like all of it fits together and you finally understand it.&quot;</em></p></div><div style="display:contents" dir="auto"><p id="23b3acb5-45be-4ffc-9e38-6e60318365c7" class=""><strong>Eudias</strong> [2:06:23]: <em>&quot;The only DAX function that I&#x27;m most comfortable with but I&#x27;m not fully mastered is CALCULATE.&quot;</em></p></div><div style="display:contents" dir="auto"><p id="d7784c5a-fe09-45b2-abb0-4814fa75e434" class=""><strong>Steve</strong> [2:06:25]: <em>&quot;Yeah, that&#x27;s the basis of everything. You can do a lot with it.&quot;</em></p></div><div style="display:contents" dir="auto"><hr id="6804ee26-d206-4aeb-bfc7-cb1abdb70efe"/></div><div style="display:contents" dir="auto"><h3 id="ed44f285-4e15-4dca-a5d2-92f359818df2" class="">📦 Stored Procedures &amp; Power BI Source (~2:06:40–2:08:00)</h3></div><div style="display:contents" dir="auto"><p id="815b03b3-2938-4853-9998-d94dde4f8f5a" class=""><strong>Eudias</strong> [2:06:40]: <em>&quot;Every day I&#x27;m running this stored procedure and loading that NAC sales BI. Every morning the stored procedure runs and inserts records into this table, then the BI refreshes and picks up the new data.&quot;</em></p></div><div style="display:contents" dir="auto"><p id="70b1c0ac-8a2a-458b-b483-4c7c83b81f45" class=""><strong>Eudias</strong> [2:07:00]: <em>&quot;This is joining to the M3 cloud. The tables are the same, it&#x27;s just that M3 cloud doesn&#x27;t have schema.&quot;</em></p></div><div style="display:contents" dir="auto"><p id="947b8e0d-3c80-4e71-b55d-20b5d059cdee" class=""><strong>Eudias</strong> [2:07:49]: <em>&quot;It takes a while to figure out what to even put in it. There&#x27;s nothing telling you that if you&#x27;re looking for this, look at this table. You have to go in there and be like &#x27;I&#x27;m looking for this. Does this table have the things I am trying to get?&#x27; You keep going through different tables until you get the one that you really want.&quot;</em></p></div><div style="display:contents" dir="auto"><hr id="710c71e2-0b20-42f4-ab00-c0543977f422"/></div><div style="display:contents" dir="auto"><h3 id="a65998c8-0e7d-4f70-882e-1c84e56849d6" class="">🤝 Wrap-Up (~2:11:30–2:12:30)</h3></div><div style="display:contents" dir="auto"><p id="c6e6bc4b-da3f-4df3-a06f-ae039e97ddaf" class=""><strong>Eudias</strong> [2:11:36]: <em>&quot;This was really great. I really appreciate this, clears a lot of my questions.&quot;</em></p></div><div style="display:contents" dir="auto"><p id="e70f9ab2-936f-419f-a9a1-d51d5f339548" class=""><strong>Steve</strong> [2:11:50]: <em>&quot;Don&#x27;t ever feel like you can&#x27;t bring any of that kind of stuff up to me — actual concerns or questions about the architecture. I welcome it. I&#x27;m not doing it and pushing it on you guys. Whatever you guys want, but just all working towards the same goal.&quot;</em></p></div><div style="display:contents" dir="auto"><p id="a48944f4-d394-4c02-b98d-766ca27b3b04" class=""><strong>Eudias</strong> [2:12:29]: <em>&quot;All right. Thank you so much.&quot;</em></p></div><div style="display:contents" dir="auto"><p id="c8a72034-16b1-46ad-8409-7a77bc6a6751" class=""><strong>Steve</strong> [2:12:30]: <em>&quot;Thank you. Have a good one, Eudias. Bye.&quot;</em></p></div></details></li></ul></div><div style="display:contents" dir="ltr"><figure id="a6daf0b7-108f-4146-af09-f2b55021e83d" class="link-to-page"><a href="Database%20Exploration%20with%20Eudias/Full%20Cluely%20Transcript%20%E2%80%94%20Database%20Exploration%20with%20a6daf0b7108f4146af09f2b55021e83d.html"><span class="icon">🎙️</span>Full Cluely Transcript — Database Exploration with Eudias</a></figure></div><div style="display:contents" dir="auto"><hr id="99c4a1fb-0572-4849-8123-914c6dd29ec0"/></div><div style="display:contents" dir="auto"><h2 id="b07c85a1-24b5-4a21-8845-b4e1e1990149" class="">✅ Action Items</h2></div><div style="display:contents" dir="ltr"><figure class="block-color-purple_background callout" style="white-space:pre-wrap;display:flex" id="04d77d91-e103-4ee5-87fc-2951f936ed98"><div style="font-size:1.5em"><span class="icon">📌</span></div><div style="width:100%"><div style="display:contents" dir="auto"><p id="a43c970a-e1f4-4ab4-a04e-fbbcf6adeb99" class=""><strong>Steve:</strong></p></div><div style="display:contents" dir="auto"><ul id="50c9157d-3a4f-4c44-93fa-ae5f2936a8f4" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked"><code>Next step:</code> Receive single SQL login (SQL Reader) for all M3 databases; add to password manager [E-016]</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="4f16d4ae-18b2-4458-aa05-7621f271dc6d" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked"><code>Next step:</code> Verify VPN is active; test connection to <strong>M3_Test</strong> and <strong>MES_Test</strong> servers [E-017]</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="aeee48ef-ddb4-4d8b-b150-dcc499b1640d" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked"><code>Next step:</code> Run provided schema-access queries in SSMS; export list of databases, schemas, and permissions [E-018]</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="0a1a26cd-09dd-4c0d-a764-ad7e27aab0ab" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked"><code>Next step:</code> Execute table-size inventory; rank tables from largest to smallest for ingestion priority [E-019]</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="4ca9142b-cf79-45ca-ad41-4931169f153d" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked"><code>Next step:</code> Create a matrix documenting every table name, column list, and business context [E-020]</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="02bbd58c-add1-40dd-a1a0-66d16a2c7084" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked"><code>Next step:</code> Send Mike an email about Power BI branding/UI customization access [E-008]</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="f31e2a4a-2782-49b2-8d1d-c85c6f39e4e8" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked"><code>Next step:</code> Provide recommended DAX and Power BI Service training resources to Eudias [E-021]</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><p id="9f3bb508-5da4-49d2-86eb-713da8938e69" class=""><strong>IP Corp Team (Eudias):</strong></p></div><div style="display:contents" dir="auto"><ul id="48146f83-457c-4c9b-97e4-cd4cacd7584d" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked"><code>Next step:</code> Resend the one-time credential download link (or extend expiration) [E-022]</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="505ffa4c-20de-4d7a-8a66-c33a399d5acd" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked"><code>Next step:</code> Schedule follow-up demo tomorrow 10 AM to review additional DBs [E-023]</span><div class="indented"></div></li></ul></div></div></figure></div><div style="display:contents" dir="auto"><hr id="f761c144-8db0-44d8-98db-2eb7e987c9c0"/></div><div style="display:contents" dir="auto"><h2 id="bb3c3766-364b-46af-a53d-cd1e5c98664d" class="">🧾 Evidence Matrix</h2></div><div style="display:contents" dir="ltr"><figure class="block-color-red_background callout" style="white-space:pre-wrap;display:flex" id="9e8fd401-ac38-4297-876c-7a3604950a11"><div style="font-size:1.5em"><span class="icon">🔒</span></div><div style="width:100%"><div style="display:contents" dir="auto"><p id="a4ec09eb-0d36-499f-95b2-35fe8081e9eb" class=""><strong>Source:</strong> Microsoft Teams Transcript (GOSPEL)</p></div><div style="display:contents" dir="auto"><p id="7e7503cc-f23c-45eb-87a4-9448ffb24853" class=""><strong>Full Transcript:</strong> <a href="Database%20Exploration%20with%20Eudias/Full%20Teams%20Transcript%20%E2%80%94%20Database%20Exploration%20with%20%2008e559a70e954f9e976afbfe8b70bad0.html"><span class="icon">📜</span>Full Teams Transcript — Database Exploration with Eudias</a></p></div></div></figure></div><div style="display:contents" dir="ltr"><table id="778dae28-5abe-4a95-a244-7fd38307ac5f" class="simple-table"><thead class="simple-table-header"><div style="display:contents" dir="ltr"><tr id="ed58c622-41d9-4f04-aec4-07109f4442dc"><th id="tw^w" class="simple-table-header-color simple-table-header">Item ID</th><th id="byYW" class="simple-table-header-color simple-table-header">Type</th><th id="Tzyg" class="simple-table-header-color simple-table-header">Speaker</th><th id="GN{`" class="simple-table-header-color simple-table-header">Timestamp</th><th id="M`xN" class="simple-table-header-color simple-table-header">Evidence Snippet</th><th id="UCd}" class="simple-table-header-color simple-table-header">Context</th><th id="i_\:" class="simple-table-header-color simple-table-header">Confidence</th></tr></div></thead><tbody><div style="display:contents" dir="ltr"><tr id="65803dff-0f8d-4a1f-9dbc-7139bd0fada6"><td id="tw^w" class=""><strong>E-001</strong></td><td id="byYW" class="">Fact</td><td id="Tzyg" class="">Steve</td><td id="GN{`" class="">59:16</td><td id="M`xN" class=""><em>&quot;These companies need to be isolated... they cannot have an open connection in terms of just free flowing data between them, like they need to be kind of partitioned&quot;</em></td><td id="UCd}" class="">Decision — Entity isolation requirement confirmed with Mike</td><td id="i_\:" class="">High</td></tr></div><div style="display:contents" dir="ltr"><tr id="608c78c7-d615-40ac-a7ea-442adc05f27f"><td id="tw^w" class=""><strong>E-002</strong></td><td id="byYW" class="">Fact</td><td id="Tzyg" class="">Steve</td><td id="GN{`" class="">59:48</td><td id="M`xN" class=""><em>&quot;The ability needs to be there if as an executive of this multi-subsidiary company I want to see something across all of them. I can do that and it&#x27;s not a pain&quot;</em></td><td id="UCd}" class="">Decision — Cross-entity executive access required</td><td id="i_\:" class="">High</td></tr></div><div style="display:contents" dir="ltr"><tr id="7d85e5ae-4d34-4143-ae37-28501620beff"><td id="tw^w" class=""><strong>E-003</strong></td><td id="byYW" class="">Decision</td><td id="Tzyg" class="">Steve</td><td id="GN{`" class="">1:00:30</td><td id="M`xN" class=""><em>&quot;I personally think that it would be best to do the capacities like 1 capacity per entity and then in each of those capacities it&#x27;s separated by domains&quot;</em></td><td id="UCd}" class="">Candidate Proposal — Architecture recommendation</td><td id="i_\:" class="">High</td></tr></div><div style="display:contents" dir="ltr"><tr id="5389870b-f594-49c5-ae71-da2e35062830"><td id="tw^w" class=""><strong>E-004</strong></td><td id="byYW" class="">Fact</td><td id="Tzyg" class="">Steve</td><td id="GN{`" class="">1:00:58</td><td id="M`xN" class=""><em>&quot;If there was an audit or compliance thing... or they need to acquire another company or merge — it&#x27;s not an absolute disaster trying to figure out how it&#x27;s going to fit&quot;</em></td><td id="UCd}" class="">Rationale — M&amp;A and audit flexibility</td><td id="i_\:" class="">High</td></tr></div><div style="display:contents" dir="ltr"><tr id="978e1408-65ed-4429-a2b5-8860a05e24b2"><td id="tw^w" class=""><strong>E-005</strong></td><td id="byYW" class="">Fact</td><td id="Tzyg" class="">Steve</td><td id="GN{`" class="">1:21:10</td><td id="M`xN" class=""><em>&quot;You can&#x27;t do it across — like you can&#x27;t say I want to pull data from this semantic model in this capacity&quot;</em></td><td id="UCd}" class="">Constraint — Technical limitation of Fabric</td><td id="i_\:" class="">High</td></tr></div><div style="display:contents" dir="ltr"><tr id="bb78a9f8-80b8-4e06-b8ab-49b31ea5bb50"><td id="tw^w" class=""><strong>E-006</strong></td><td id="byYW" class="">Fact</td><td id="Tzyg" class="">Steve</td><td id="GN{`" class="">1:21:45</td><td id="M`xN" class=""><em>&quot;You would be able to create a report and connect to the OneLake warehouse... So that would work because you&#x27;re hitting the warehouse, you&#x27;re not hitting the semantic model&quot;</em></td><td id="UCd}" class="">Workaround — Direct warehouse connection</td><td id="i_\:" class="">High</td></tr></div><div style="display:contents" dir="ltr"><tr id="445a3703-2bab-4cf7-a3bb-2c35d895d8f4"><td id="tw^w" class=""><strong>E-007</strong></td><td id="byYW" class="">Fact</td><td id="Tzyg" class="">Steve</td><td id="GN{`" class="">1:22:34</td><td id="M`xN" class=""><em>&quot;It seems like you&#x27;re thinking about all of the right stuff and have all the right questions, which is really exciting&quot;</em></td><td id="UCd}" class="">Observation — Eudias asking good questions</td><td id="i_\:" class="">High</td></tr></div><div style="display:contents" dir="ltr"><tr id="4eaf81c2-394f-4f3c-940d-228b7428adce"><td id="tw^w" class=""><strong>E-008</strong></td><td id="byYW" class="">Next step</td><td id="Tzyg" class="">Steve</td><td id="GN{`" class="">1:23:44</td><td id="M`xN" class=""><em>&quot;The more that they can make it look like an internal UI... the much higher the adoption rate is in my experience&quot;</em></td><td id="UCd}" class="">Best Practice — Power BI branding for adoption</td><td id="i_\:" class="">High</td></tr></div><div style="display:contents" dir="ltr"><tr id="bb51866b-ea5c-44e8-b3b9-591b1fdbe152"><td id="tw^w" class=""><strong>E-009</strong></td><td id="byYW" class="">Fact</td><td id="Tzyg" class="">Eudias</td><td id="GN{`" class="">1:45:19</td><td id="M`xN" class=""><em>&quot;No, no, it&#x27;s not. It&#x27;s just a link table that we&#x27;ve used for ETL&quot;</em></td><td id="UCd}" class="">Clarification — Current state is NOT metadata-driven</td><td id="i_\:" class="">High</td></tr></div><div style="display:contents" dir="ltr"><tr id="1801a65b-5b5b-424c-979d-1bfc80d4b323"><td id="tw^w" class=""><strong>E-010</strong></td><td id="byYW" class="">Fact</td><td id="Tzyg" class="">Steve</td><td id="GN{`" class="">1:45:26</td><td id="M`xN" class=""><em>&quot;This is the type of table that is like the linchpin within a metadata driven architecture... the ones and zeros are the flags that determine the dynamic ETL pipelines&quot;</em></td><td id="UCd}" class="">Education — Metadata-driven architecture explained</td><td id="i_\:" class="">High</td></tr></div><div style="display:contents" dir="ltr"><tr id="5048a3b6-7f46-475b-9e1c-9ac760be4ac4"><td id="tw^w" class=""><strong>E-011</strong></td><td id="byYW" class="">Fact</td><td id="Tzyg" class="">Steve</td><td id="GN{`" class="">2:05:36</td><td id="M`xN" class=""><em>&quot;It doesn&#x27;t click... there is a time when it clicks, but you don&#x27;t get there until you just do it over and over&quot;</em></td><td id="UCd}" class="">Guidance — DAX learning curve</td><td id="i_\:" class="">High</td></tr></div><div style="display:contents" dir="ltr"><tr id="69fbbe2a-6e64-423d-9fa4-342928091816"><td id="tw^w" class=""><strong>E-012</strong></td><td id="byYW" class="">Fact</td><td id="Tzyg" class="">Steve</td><td id="GN{`" class="">2:06:25</td><td id="M`xN" class=""><em>&quot;Yeah, that&#x27;s the basis of everything&quot;</em> (re: CALCULATE)</td><td id="UCd}" class="">Guidance — CALCULATE is foundational DAX</td><td id="i_\:" class="">High</td></tr></div><div style="display:contents" dir="ltr"><tr id="85d22d40-b7ca-4341-a388-874ff7b9b0eb"><td id="tw^w" class=""><strong>E-013</strong></td><td id="byYW" class="">Fact</td><td id="Tzyg" class="">Eudias</td><td id="GN{`" class="">2:06:40</td><td id="M`xN" class=""><em>&quot;Every day I&#x27;m running this stored procedure and loading that NAC sales BI... the stored procedure runs and inserts records into this table and then the BI refreshes&quot;</em></td><td id="UCd}" class="">Current State — Existing ETL pattern</td><td id="i_\:" class="">High</td></tr></div><div style="display:contents" dir="ltr"><tr id="5d3afee8-b713-4aca-b427-ed4dc358c92d"><td id="tw^w" class=""><strong>E-014</strong></td><td id="byYW" class="">Risk</td><td id="Tzyg" class="">Eudias</td><td id="GN{`" class="">2:07:49</td><td id="M`xN" class=""><em>&quot;There&#x27;s nothing that is telling you that if you&#x27;re looking for this, look at this table. You have to go in there and be like &#x27;I&#x27;m looking for this. Does this table have the things I am trying to get?&#x27;&quot;</em></td><td id="UCd}" class="">Pain Point — M3 table discovery is manual</td><td id="i_\:" class="">High</td></tr></div><div style="display:contents" dir="ltr"><tr id="b3068292-65e5-4fb1-be0f-a074e9b3a52e"><td id="tw^w" class=""><strong>E-015</strong></td><td id="byYW" class="">Fact</td><td id="Tzyg" class="">Steve</td><td id="GN{`" class="">2:11:50</td><td id="M`xN" class=""><em>&quot;Don&#x27;t ever feel like you can&#x27;t bring any of that kind of stuff up to me — actual concerns or questions about the architecture. I welcome it.&quot;</em></td><td id="UCd}" class="">Relationship — Open door policy established</td><td id="i_\:" class="">High</td></tr></div><div style="display:contents" dir="ltr"><tr id="dc7cb5e6-1a7c-401b-a008-da26bb192b87"><td id="tw^w" class=""><strong>E-016</strong></td><td id="byYW" class="">Next step</td><td id="Tzyg" class="">Steve</td><td id="GN{`" class="">57:39</td><td id="M`xN" class=""><em>&quot;We need to rank the size of the tables, the value of the tables, identify which ones we would 100% bring in&quot;</em></td><td id="UCd}" class="">Action — Table prioritization exercise</td><td id="i_\:" class="">High</td></tr></div><div style="display:contents" dir="ltr"><tr id="6fbec72f-c640-4d7b-bb1b-75ab56c3b747"><td id="tw^w" class=""><strong>E-017</strong></td><td id="byYW" class="">Fact</td><td id="Tzyg" class="">Eudias</td><td id="GN{`" class="">2:07:00</td><td id="M`xN" class=""><em>&quot;M3 cloud doesn&#x27;t have schema&quot;</em></td><td id="UCd}" class="">Technical — Cloud M3 has no schema prefix</td><td id="i_\:" class="">High</td></tr></div></tbody></table></div><div style="display:contents" dir="auto"><hr id="ff4243ae-3b18-412e-9028-2ac9f00af8c6"/></div><div style="display:contents" dir="ltr"><figure class="block-color-teal_background callout" style="white-space:pre-wrap;display:flex" id="aff35921-e5b9-489b-a91b-34664dd89aa9"><div style="font-size:1.5em"><span class="icon">✅</span></div><div style="width:100%"><div style="display:contents" dir="auto"><p id="5b596cc2-be04-4f64-a2e8-70853eeff944" class=""><strong>Processing Status:</strong> This meeting has been fully processed per the IP Corporation Engagement Atlas workflow.</p></div><div style="display:contents" dir="auto"><ul id="f3e8a2f1-07a4-45f7-8e39-720c7fed532e" class="bulleted-list"><li style="list-style-type:disc">✅ Full transcript created as sub-page with key quote anchors</li></ul></div><div style="display:contents" dir="auto"><ul id="95c14ee9-ede1-4115-b90d-5f64c84e5292" class="bulleted-list"><li style="list-style-type:disc">✅ Evidence Matrix populated with Item IDs</li></ul></div><div style="display:contents" dir="auto"><ul id="5105eb72-196b-4448-8f74-2130b56b3279" class="bulleted-list"><li style="list-style-type:disc">✅ Action items consolidated (outside meeting-notes block)</li></ul></div><div style="display:contents" dir="auto"><ul id="83747934-74db-471e-bafd-ae6114d8479c" class="bulleted-list"><li style="list-style-type:disc">✅ Key excerpts linked to transcript source</li></ul></div></div></figure></div><div style="display:contents" dir="ltr"><figure id="08e559a7-0e95-4f9e-976a-fbfe8b70bad0" class="link-to-page"><a href="Database%20Exploration%20with%20Eudias/Full%20Teams%20Transcript%20%E2%80%94%20Database%20Exploration%20with%20%2008e559a70e954f9e976afbfe8b70bad0.html"><span class="icon">📜</span>Full Teams Transcript — Database Exploration with Eudias</a></figure></div><div style="display:contents" dir="ltr"><figure id="34356a65-5ef2-484b-b944-03c02d79f616" class="link-to-page"><a href="Database%20Exploration%20with%20Eudias/Full%20Teams%20Transcript%20%E2%80%94%20Database%20Exploration%20with%20%2034356a655ef2484bb94403c02d79f616.html"><span class="icon">📹</span>Full Teams Transcript — Database Exploration with Eudias</a></figure></div></div></article><span class="sans" style="font-size:14px;padding-top:2em"></span></body></html>

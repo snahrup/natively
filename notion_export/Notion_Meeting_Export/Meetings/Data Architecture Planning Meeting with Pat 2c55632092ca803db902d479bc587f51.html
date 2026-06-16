@@ -1,0 +1,744 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>Data Architecture Planning Meeting with Pat</title><style>
+/* cspell:disable-file */
+/* webkit printing magic: print all background colors */
+html {
+	-webkit-print-color-adjust: exact;
+}
+* {
+	box-sizing: border-box;
+	-webkit-print-color-adjust: exact;
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+}
+@media only screen {
+	body {
+		margin: 2em auto;
+		max-width: 900px;
+		color: rgb(55, 53, 47);
+	}
+}
+
+body {
+	line-height: 1.5;
+	white-space: pre-wrap;
+}
+
+a,
+a.visited {
+	color: inherit;
+	text-decoration: underline;
+}
+
+.pdf-relative-link-path {
+	font-size: 80%;
+	color: #444;
+}
+
+h1,
+h2,
+h3 {
+	letter-spacing: -0.01em;
+	line-height: 1.2;
+	font-weight: 600;
+	margin-bottom: 0;
+}
+
+/* Override strong tags inside headings to maintain consistent weight */
+h1 strong,
+h2 strong,
+h3 strong {
+	font-weight: 600;
+}
+
+.page-title {
+	font-size: 2.5rem;
+	font-weight: 700;
+	margin-top: 0;
+	margin-bottom: 0.75em;
+}
+
+h1 {
+	font-size: 1.875rem;
+	margin-top: 1.875rem;
+}
+
+h2 {
+	font-size: 1.5rem;
+	margin-top: 1.5rem;
+}
+
+h3 {
+	font-size: 1.25rem;
+	margin-top: 1.25rem;
+}
+
+.source {
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	padding: 1.5em;
+	word-break: break-all;
+}
+
+.callout {
+	border-radius: 10px;
+	padding: 1rem;
+}
+
+figure {
+	margin: 1.25em 0;
+	page-break-inside: avoid;
+}
+
+figcaption {
+	opacity: 0.5;
+	font-size: 85%;
+	margin-top: 0.5em;
+}
+
+mark {
+	background-color: transparent;
+}
+
+.indented {
+	padding-left: 1.5em;
+}
+
+hr {
+	background: transparent;
+	display: block;
+	width: 100%;
+	height: 1px;
+	visibility: visible;
+	border: none;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+img {
+	max-width: 100%;
+}
+
+@media only print {
+	img {
+		max-height: 100vh;
+		object-fit: contain;
+	}
+
+	table.collection-content {
+		width: 100%;
+		table-layout: fixed;
+	}
+
+	table.collection-content th,
+	table.collection-content td {
+		overflow-wrap: anywhere;
+	}
+
+	table.collection-content td > .user,
+	table.collection-content td > time {
+		white-space: pre-wrap;
+	}
+}
+
+@page {
+	margin: 1in;
+}
+
+.collection-content-wrapper {
+	overflow-x: auto;
+}
+
+@media only print {
+	.collection-content-wrapper {
+		overflow-x: visible;
+	}
+}
+
+.collection-content {
+	font-size: 0.875rem;
+}
+
+.collection-content td {
+	white-space: pre-wrap;
+	word-break: break-word;
+}
+
+.column-list {
+	display: flex;
+	gap: 46px;
+}
+
+.column {
+	min-width: 0;
+	overflow: hidden;
+}
+
+.column > *:first-child {
+	margin-top: 0;
+}
+
+.table_of_contents-item {
+	display: block;
+	font-size: 0.875rem;
+	line-height: 1.3;
+	padding: 0.125rem;
+}
+
+.table_of_contents-indent-1 {
+	margin-left: 1.5rem;
+}
+
+.table_of_contents-indent-2 {
+	margin-left: 3rem;
+}
+
+.table_of_contents-indent-3 {
+	margin-left: 4.5rem;
+}
+
+.table_of_contents-link {
+	text-decoration: none;
+	opacity: 0.7;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.18);
+}
+
+table,
+th,
+td {
+	border: 1px solid rgba(55, 53, 47, 0.09);
+	border-collapse: collapse;
+}
+
+table {
+	border-left: none;
+	border-right: none;
+}
+
+th,
+td {
+	font-weight: normal;
+	padding: 0.25em 0.5em;
+	line-height: 1.5;
+	min-height: 1.5em;
+	text-align: left;
+}
+
+th {
+	color: rgba(55, 53, 47, 0.6);
+}
+
+ol,
+ul {
+	margin: 0;
+	margin-block-start: 0.6em;
+	margin-block-end: 0.6em;
+}
+
+li > ol:first-child,
+li > ul:first-child {
+	margin-block-start: 0.6em;
+}
+
+ul > li {
+	list-style: disc;
+}
+
+ul.to-do-list {
+	padding-inline-start: 0;
+}
+
+ul.to-do-list > li {
+	list-style: none;
+}
+
+.to-do-children-checked {
+	text-decoration: line-through;
+	opacity: 0.375;
+}
+
+ul.toggle > li {
+	list-style: none;
+}
+
+ul {
+	padding-inline-start: 1.7em;
+}
+
+ul > li {
+	padding-left: 0.1em;
+}
+
+ol {
+	padding-inline-start: 1.6em;
+}
+
+ol.numbered-list.numbered-list-digits-2 {
+	padding-inline-start: 2em;
+}
+
+ol.numbered-list.numbered-list-digits-3plus {
+	padding-inline-start: 2.4em;
+}
+
+ol > li {
+	padding-left: 0.2em;
+}
+
+.mono ol {
+	padding-inline-start: 2em;
+}
+
+.mono ol > li {
+	text-indent: -0.4em;
+}
+
+.toggle {
+	padding-inline-start: 0em;
+	list-style-type: none;
+}
+
+/* Indent toggle children */
+.toggle > li > details {
+	padding-left: 1.7em;
+}
+
+.toggle > li > details > summary {
+	margin-left: -1.1em;
+}
+
+.selected-value {
+	display: inline-block;
+	padding: 0 0.5em;
+	background: rgba(206, 205, 202, 0.5);
+	border-radius: 3px;
+	margin-right: 0.5em;
+	margin-top: 0.3em;
+	margin-bottom: 0.3em;
+	white-space: nowrap;
+}
+
+.collection-title {
+	display: inline-block;
+	margin-right: 1em;
+}
+
+.page-description {
+	margin-bottom: 2em;
+}
+
+.simple-table {
+	margin-top: 1em;
+	font-size: 0.875rem;
+	empty-cells: show;
+}
+.simple-table td {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table th {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table-header-color {
+	background: rgb(247, 246, 243);
+	color: black;
+}
+.simple-table-header {
+	font-weight: 500;
+}
+
+time {
+	opacity: 0.5;
+}
+
+.icon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	max-width: 1.2em;
+	max-height: 1.2em;
+	text-decoration: none;
+	vertical-align: text-bottom;
+	margin-right: 0.5em;
+}
+
+img.icon {
+	border-radius: 3px;
+}
+
+.callout img.notion-static-icon {
+	width: 1em;
+	height: 1em;
+}
+
+.callout p {
+	margin: 0;
+}
+
+.callout h1,
+.callout h2,
+.callout h3 {
+	margin: 0 0 0.6rem;
+}
+
+.user-icon {
+	width: 1.5em;
+	height: 1.5em;
+	border-radius: 100%;
+	margin-right: 0.5rem;
+}
+
+.user-icon-inner {
+	font-size: 0.8em;
+}
+
+.text-icon {
+	border: 1px solid #000;
+	text-align: center;
+}
+
+.page-cover-image {
+	display: block;
+	object-fit: cover;
+	width: 100%;
+	max-height: 30vh;
+}
+
+.page-header-icon {
+	font-size: 3rem;
+	margin-bottom: 1rem;
+}
+
+.page-header-icon-with-cover {
+	margin-top: -0.72em;
+	margin-left: 0.07em;
+}
+
+.page-header-icon img {
+	border-radius: 3px;
+}
+
+.link-to-page {
+	margin: 1em 0;
+	padding: 0;
+	border: none;
+	font-weight: 500;
+}
+
+p > .user {
+	opacity: 0.5;
+}
+
+td > .user,
+td > time {
+	white-space: nowrap;
+}
+
+input[type="checkbox"] {
+	transform: scale(1.5);
+	margin-right: 0.6em;
+	vertical-align: middle;
+}
+
+p {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+.image {
+	border: none;
+	margin: 1.5em 0;
+	padding: 0;
+	border-radius: 0;
+	text-align: center;
+}
+
+.code,
+code {
+	background: rgba(135, 131, 120, 0.15);
+	border-radius: 3px;
+	padding: 0.2em 0.4em;
+	border-radius: 3px;
+	font-size: 85%;
+	tab-size: 2;
+}
+
+code {
+	color: #eb5757;
+}
+
+.code {
+	padding: 1.5em 1em;
+}
+
+.code-wrap {
+	white-space: pre-wrap;
+	word-break: break-all;
+}
+
+.code > code {
+	background: none;
+	padding: 0;
+	font-size: 100%;
+	color: inherit;
+}
+
+blockquote {
+	font-size: 1em;
+	margin: 1em 0;
+	padding-left: 1em;
+	border-left: 3px solid rgb(55, 53, 47);
+}
+
+blockquote.quote-large {
+	font-size: 1.25em;
+}
+
+.bookmark {
+	text-decoration: none;
+	max-height: 8em;
+	padding: 0;
+	display: flex;
+	width: 100%;
+	align-items: stretch;
+}
+
+.bookmark-title {
+	font-size: 0.85em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	height: 1.75em;
+	white-space: nowrap;
+}
+
+.bookmark-text {
+	display: flex;
+	flex-direction: column;
+}
+
+.bookmark-info {
+	flex: 4 1 180px;
+	padding: 12px 14px 14px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.bookmark-image {
+	width: 33%;
+	flex: 1 1 180px;
+	display: block;
+	position: relative;
+	object-fit: cover;
+	border-radius: 1px;
+}
+
+.bookmark-description {
+	color: rgba(55, 53, 47, 0.6);
+	font-size: 0.75em;
+	overflow: hidden;
+	max-height: 4.5em;
+	word-break: break-word;
+}
+
+.bookmark-href {
+	font-size: 0.75em;
+	margin-top: 0.25em;
+}
+
+.sans { font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol"; }
+.code { font-family: "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace; }
+.serif { font-family: Lyon-Text, Georgia, ui-serif, serif; }
+.mono { font-family: iawriter-mono, Nitti, Menlo, Courier, monospace; }
+.pdf .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK JP'; }
+.pdf:lang(zh-CN) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK SC'; }
+.pdf:lang(zh-TW) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK TC'; }
+.pdf:lang(ko-KR) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK KR'; }
+.pdf .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.pdf .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK JP'; }
+.pdf:lang(zh-CN) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK SC'; }
+.pdf:lang(zh-TW) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK TC'; }
+.pdf:lang(ko-KR) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK KR'; }
+.pdf .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.highlight-default {
+	color: rgba(44, 44, 43, 1);
+}
+.highlight-gray {
+	color: rgba(125, 122, 117, 1);
+	fill: rgba(125, 122, 117, 1);
+}
+.highlight-brown {
+	color: rgba(159, 118, 90, 1);
+	fill: rgba(159, 118, 90, 1);
+}
+.highlight-orange {
+	color: rgba(210, 123, 45, 1);
+	fill: rgba(210, 123, 45, 1);
+}
+.highlight-yellow {
+	color: rgba(203, 148, 52, 1);
+	fill: rgba(203, 148, 52, 1);
+}
+.highlight-teal {
+	color: rgba(80, 148, 110, 1);
+	fill: rgba(80, 148, 110, 1);
+}
+.highlight-blue {
+	color: rgba(56, 125, 201, 1);
+	fill: rgba(56, 125, 201, 1);
+}
+.highlight-purple {
+	color: rgba(154, 107, 180, 1);
+	fill: rgba(154, 107, 180, 1);
+}
+.highlight-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.highlight-red {
+	color: rgba(207, 81, 72, 1);
+	fill: rgba(207, 81, 72, 1);
+}
+.highlight-default_background {
+	color: rgba(44, 44, 43, 1);
+}
+.highlight-gray_background {
+	background: rgba(42, 28, 0, 0.07);
+}
+.highlight-brown_background {
+	background: rgba(139, 46, 0, 0.086);
+}
+.highlight-orange_background {
+	background: rgba(224, 101, 1, 0.129);
+}
+.highlight-yellow_background {
+	background: rgba(211, 168, 0, 0.137);
+}
+.highlight-teal_background {
+	background: rgba(0, 100, 45, 0.09);
+}
+.highlight-blue_background {
+	background: rgba(0, 124, 215, 0.094);
+}
+.highlight-purple_background {
+	background: rgba(102, 0, 178, 0.078);
+}
+.highlight-pink_background {
+	background: rgba(197, 0, 93, 0.086);
+}
+.highlight-red_background {
+	background: rgba(223, 22, 0, 0.094);
+}
+.block-color-default {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray {
+	color: rgba(125, 122, 117, 1);
+	fill: rgba(125, 122, 117, 1);
+}
+.block-color-brown {
+	color: rgba(159, 118, 90, 1);
+	fill: rgba(159, 118, 90, 1);
+}
+.block-color-orange {
+	color: rgba(210, 123, 45, 1);
+	fill: rgba(210, 123, 45, 1);
+}
+.block-color-yellow {
+	color: rgba(203, 148, 52, 1);
+	fill: rgba(203, 148, 52, 1);
+}
+.block-color-teal {
+	color: rgba(80, 148, 110, 1);
+	fill: rgba(80, 148, 110, 1);
+}
+.block-color-blue {
+	color: rgba(56, 125, 201, 1);
+	fill: rgba(56, 125, 201, 1);
+}
+.block-color-purple {
+	color: rgba(154, 107, 180, 1);
+	fill: rgba(154, 107, 180, 1);
+}
+.block-color-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.block-color-red {
+	color: rgba(207, 81, 72, 1);
+	fill: rgba(207, 81, 72, 1);
+}
+.block-color-default_background {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray_background {
+	background: rgba(240, 239, 237, 1);
+}
+.block-color-brown_background {
+	background: rgba(245, 237, 233, 1);
+}
+.block-color-orange_background {
+	background: rgba(251, 235, 222, 1);
+}
+.block-color-yellow_background {
+	background: rgba(249, 243, 220, 1);
+}
+.block-color-teal_background {
+	background: rgba(232, 241, 236, 1);
+}
+.block-color-blue_background {
+	background: rgba(229, 242, 252, 1);
+}
+.block-color-purple_background {
+	background: rgba(243, 235, 249, 1);
+}
+.block-color-pink_background {
+	background: rgba(250, 233, 241, 1);
+}
+.block-color-red_background {
+	background: rgba(252, 233, 231, 1);
+}
+.select-value-color-default { background-color: rgba(42, 28, 0, 0.07); }
+.select-value-color-gray { background-color: rgba(28, 19, 1, 0.11); }
+.select-value-color-brown { background-color: rgba(127, 51, 0, 0.156); }
+.select-value-color-orange { background-color: rgba(196, 88, 0, 0.203); }
+.select-value-color-yellow { background-color: rgba(209, 156, 0, 0.282); }
+.select-value-color-green { background-color: rgba(0, 96, 38, 0.156); }
+.select-value-color-blue { background-color: rgba(0, 118, 217, 0.203); }
+.select-value-color-purple { background-color: rgba(92, 0, 163, 0.141); }
+.select-value-color-pink { background-color: rgba(183, 0, 78, 0.152); }
+.select-value-color-red { background-color: rgba(206, 24, 0, 0.164); }
+
+.checkbox {
+	display: inline-flex;
+	vertical-align: text-bottom;
+	width: 16;
+	height: 16;
+	background-size: 16px;
+	margin-left: 2px;
+	margin-right: 5px;
+}
+
+.checkbox-on {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20width%3D%2216%22%20height%3D%2216%22%20fill%3D%22%2358A9D7%22%2F%3E%0A%3Cpath%20d%3D%22M6.71429%2012.2852L14%204.9995L12.7143%203.71436L6.71429%209.71378L3.28571%206.2831L2%207.57092L6.71429%2012.2852Z%22%20fill%3D%22white%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+
+.checkbox-off {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20x%3D%220.75%22%20y%3D%220.75%22%20width%3D%2214.5%22%20height%3D%2214.5%22%20fill%3D%22white%22%20stroke%3D%22%2336352F%22%20stroke-width%3D%221.5%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+	
+</style></head><body><article id="2c556320-92ca-803d-b902-d479bc587f51" class="page sans"><header><h1 class="page-title" dir="auto">Data Architecture Planning Meeting with Pat</h1><p class="page-description" dir="auto"></p><table class="properties"><tbody><tr class="property-row property-row-status"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/burst_gray.svg" style="width:14px;height:14px;display:block"/></span>Processing</th><td><span class="status-value select-value-color-green"><div class="status-dot status-dot-color-green"></div>Processed</span></td></tr><tr class="property-row property-row-text"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/description_gray.svg" style="width:14px;height:14px;display:block"/></span>Agenda</th><td>Architecture planning session with Patrick, discovery priorities, stakeholder alignment</td></tr><tr class="property-row property-row-date"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/calendar_gray.svg" style="width:14px;height:14px;display:block"/></span>Date</th><td><time>December 9, 2025</time></td></tr><tr class="property-row property-row-multi_select"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/list_gray.svg" style="width:14px;height:14px;display:block"/></span>Attendees</th><td><span class="selected-value select-value-color-pink">Internal</span></td></tr><tr class="property-row property-row-select"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/arrow-circle-down_gray.svg" style="width:14px;height:14px;display:block"/></span>Meeting Type</th><td><span class="selected-value select-value-color-default">1:1</span></td></tr><tr class="property-row property-row-person"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/friends_gray.svg" style="width:14px;height:14px;display:block"/></span>Organizer</th><td><span class="user"><img src="https://lh3.googleusercontent.com/a/ACg8ocLHfVvdl28jS936w7CBB6TObsUa1P-X8cbdsUSKdeEn_MD7Bw=s96-c" class="icon user-icon"/>Steve </span></td></tr><tr class="property-row property-row-select"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/arrow-circle-down_gray.svg" style="width:14px;height:14px;display:block"/></span>Priority</th><td><span class="selected-value select-value-color-yellow">Medium</span></td></tr><tr class="property-row property-row-checkbox"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/checkmark-square_gray.svg" style="width:14px;height:14px;display:block"/></span>Has Cluely Transcript</th><td><div class="checkbox checkbox-off"></div></td></tr><tr class="property-row property-row-checkbox"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/checkmark-square_gray.svg" style="width:14px;height:14px;display:block"/></span>Has Final Transcript</th><td><div class="checkbox checkbox-off"></div></td></tr><tr class="property-row property-row-select"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/arrow-circle-down_gray.svg" style="width:14px;height:14px;display:block"/></span>Status</th><td><span class="selected-value select-value-color-brown">Completed</span></td></tr><tr class="property-row property-row-checkbox"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/checkmark-square_gray.svg" style="width:14px;height:14px;display:block"/></span>Has Notion Transcript</th><td><div class="checkbox checkbox-on"></div></td></tr><tr class="property-row property-row-checkbox"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/checkmark-square_gray.svg" style="width:14px;height:14px;display:block"/></span>Has Teams Transcript</th><td><div class="checkbox checkbox-off"></div></td></tr><tr class="property-row property-row-number"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/hashtag_gray.svg" style="width:14px;height:14px;display:block"/></span>Mtg #</th><td>5</td></tr><tr class="property-row property-row-checkbox"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/checkmark-square_gray.svg" style="width:14px;height:14px;display:block"/></span>Merged to Feed</th><td><div class="checkbox checkbox-off"></div></td></tr></tbody></table></header><div class="page-body"><div style="display:contents" dir="ltr"><div id="2c556320-92ca-804a-8e86-ec96a4a25f4c" class="transcription"><div style="border-bottom:0.05em solid;border-bottom-color:rgba(42, 28, 0, 0.07)">Summary<br/></div><div style="display:contents" dir="auto"><h3 id="2c556320-92ca-818b-8942-e732a05f4f47" class="">Background Context</h3></div><div style="display:contents" dir="auto"><ul id="2c556320-92ca-810e-af3f-f085ca44f746" class="bulleted-list"><li style="list-style-type:disc">Meeting focused on data architecture, systems integration, and team introductions ‣ ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2c556320-92ca-8157-9b66-d2c718a3bd35" class="bulleted-list"><li style="list-style-type:disc">Pat will be out of office for surgery on Friday and possibly Monday/Tuesday ‣ ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2c556320-92ca-81db-9e83-d02419e1f204" class="bulleted-list"><li style="list-style-type:disc">The organization has multiple companies (Interplastic, HK Research, NAC, Molding Products) with different systems ‣ ‣</li></ul></div><div style="display:contents" dir="auto"><h3 id="2c556320-92ca-8155-a8a8-ec1f902ae180" class="">Core Systems Overview</h3></div><div style="display:contents" dir="auto"><ul id="2c556320-92ca-8126-b106-c673a5494f89" class="bulleted-list"><li style="list-style-type:disc">M3: Core ERP system with both on-premises and cloud instances ‣ ‣ ‣<div style="display:contents" dir="auto"><ul id="2c556320-92ca-81d8-be27-c671646ee6e8" class="bulleted-list"><li style="list-style-type:circle">Has older structure with 6-character table/field names</li></ul></div><div style="display:contents" dir="auto"><ul id="2c556320-92ca-81ef-9f79-dac995850123" class="bulleted-list"><li style="list-style-type:circle">Metadata publisher available for data definitions</li></ul></div></li></ul></div><div style="display:contents" dir="auto"><ul id="2c556320-92ca-8123-9f25-e1bb0f6d5f4e" class="bulleted-list"><li style="list-style-type:disc">MES: Manufacturing system used by Interplastic and HK only ‣ ‣ ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2c556320-92ca-8142-9c0e-e47ff7af6a6d" class="bulleted-list"><li style="list-style-type:disc">Salesforce: CRM system with bi-directional communication to M3 ‣ ‣ ‣<div style="display:contents" dir="auto"><ul id="2c556320-92ca-8106-b181-c4e2cdbcb673" class="bulleted-list"><li style="list-style-type:circle">Primarily used for customer inputs that inform R&amp;D formulations ‣ ‣ ‣</li></ul></div></li></ul></div><div style="display:contents" dir="auto"><h3 id="2c556320-92ca-81a9-8391-f7080103bfe2" class="">Team Structure</h3></div><div style="display:contents" dir="auto"><ul id="2c556320-92ca-81ba-8982-e0ae2e514926" class="bulleted-list"><li style="list-style-type:disc">Matt Panaz: Senior developer with knowledge of manufacturing systems and M3 ‣ ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2c556320-92ca-81a3-a6eb-dd234839ea4b" class="bulleted-list"><li style="list-style-type:disc">Matt Francis: Data engineer with expertise in M3 data and integrations ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2c556320-92ca-817d-b7c1-ef39a0ff915b" class="bulleted-list"><li style="list-style-type:disc">Carrie Voice: Handles SSRS reports ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2c556320-92ca-8148-b537-df837205255b" class="bulleted-list"><li style="list-style-type:disc">Yudius/Udias: Newer team member transitioning from DBA to Power BI work ‣ ‣</li></ul></div><div style="display:contents" dir="auto"><h3 id="2c556320-92ca-81fc-9eba-d79a804eee6f" class="">Current Data Architecture State</h3></div><div style="display:contents" dir="auto"><ul id="2c556320-92ca-813f-9839-c827c761531f" class="bulleted-list"><li style="list-style-type:disc">Systems diagrams were shared and reviewed with corrections needed ‣ ‣ ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2c556320-92ca-81ba-8e6b-f48c37ff1b91" class="bulleted-list"><li style="list-style-type:disc">Many bi-directional integrations create complexity in documentation ‣ ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2c556320-92ca-818a-b4f8-da49d2d413e8" class="bulleted-list"><li style="list-style-type:disc">The team is just beginning to explore Microsoft Fabric ‣ ‣ ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2c556320-92ca-81bc-a7c7-dd3143b00687" class="bulleted-list"><li style="list-style-type:disc">No current implementation of Purview for data catalog/glossary ‣</li></ul></div><div style="display:contents" dir="auto"><h3 id="2c556320-92ca-81cb-bb01-d3f80ac6bb74" class="">Data Architecture Vision</h3></div><div style="display:contents" dir="auto"><ul id="2c556320-92ca-8109-bfd9-da70bc95f4c5" class="bulleted-list"><li style="list-style-type:disc">Need for proper environment setup (dev/test/prod) for new data architecture ‣ ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2c556320-92ca-8183-aff5-f7f9fa70e8f6" class="bulleted-list"><li style="list-style-type:disc">Plans to establish a &quot;gold standard&quot; for data that everyone can agree on ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2c556320-92ca-8147-a837-e633a2cb154e" class="bulleted-list"><li style="list-style-type:disc">Implementing proper data governance with defined boundaries between companies ‣ ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2c556320-92ca-8146-9c6e-d605eb8c4398" class="bulleted-list"><li style="list-style-type:disc">Need to identify data stewards and decision makers ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2c556320-92ca-814f-8e32-ff59c7b09398" class="bulleted-list"><li style="list-style-type:disc">Automation of metadata and descriptions in Purview to avoid manual bottlenecks ‣ ‣</li></ul></div><div style="display:contents" dir="auto"><h3 id="2c556320-92ca-8164-9dd9-f19475e9f923" class="">Next Steps</h3></div><div style="display:contents" dir="auto"><ul id="2c556320-92ca-81f7-8b9b-e04448fdb222" class="bulleted-list"><li style="list-style-type:disc">Meet with Mike to discuss future state and cloud migration plans ‣ ‣ ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2c556320-92ca-81f2-8e6f-d2bdf705b7da" class="bulleted-list"><li style="list-style-type:disc">Continued review and revision of system diagrams ‣ ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2c556320-92ca-8114-87b6-f23bcd57afa9" class="bulleted-list"><li style="list-style-type:disc">Engage with stakeholders for requirements gathering ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2c556320-92ca-812e-803b-ef8995eea0d9" class="bulleted-list"><li style="list-style-type:disc">Connect with team members while Pat is out for surgery ‣ ‣ ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2c556320-92ca-8136-8af6-d25badfb8556" class="bulleted-list"><li style="list-style-type:disc">Plan for future in-person meetings (after holiday season) ‣ ‣</li></ul></div><div style="display:contents" dir="auto"><h3 id="2c556320-92ca-81a1-b013-cad6f59098e5" class="">Action Items</h3></div><div style="display:contents" dir="auto"><ul id="2c556320-92ca-813c-9d9e-ea478c55f889" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Revise system diagrams based on Pat&#x27;s feedback ‣ ‣</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="2c556320-92ca-818c-840c-e7076f0870bc" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Set up meetings with individual team members ‣</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="2c556320-92ca-81c6-8524-f7593146b0d1" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Meet with Mike on Friday to discuss architecture plans ‣</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="2c556320-92ca-81c1-97dc-df931ed35118" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Get access to metadata publisher for M3 data definitions ‣</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="2c556320-92ca-8173-8ffe-fe2ae5502d4c" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Define environment strategy for dev/test/prod ‣ ‣</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="2c556320-92ca-813d-9dba-c90a06afc3c4" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Plan for future in-person meetings (after December) ‣ ‣</span><div class="indented"></div></li></ul></div><div style="border-bottom:0.05em solid;border-bottom-color:rgba(42, 28, 0, 0.07)">Notes<br/></div><div style="display:contents" dir="auto"><p id="2c556320-92ca-8088-ab0d-c07abc426789" class="">
+</p></div><div style="border-bottom:0.05em solid;border-bottom-color:rgba(42, 28, 0, 0.07)">Transcript<br/></div><div style="display:contents" dir="auto"><p id="2c556320-92ca-8009-962b-eb9ef145f6e3" class="">You got the co-workers with you, huh? Yeah, she got hand, foot, and mouth, so I had to go pick her up real quick. Oh, yeah? My granddaughter went to deal with that. That&#x27;s no fun. No, not at all, but... No. Thankfully, as an adult, you don&#x27;t generally have to have to worry about it. Yeah. But, uh, other kids are very susceptible to it. My wife caught it last time she...</p></div><div style="display:contents" dir="auto"><p id="2c556320-92ca-8094-8084-c3deb56a73bb" class="">Really? My older niece did. I said generally you don&#x27;t have to. My older niece is 17, 18 and she caught it when she was down there. Yeah, I was like, you better not give that to me, but I&#x27;m glad.</p></div><div style="display:contents" dir="auto"><p id="2c556320-92ca-8062-b980-e540697306fd" class="">I&#x27;m glad I was at least able to pick her up. And I&#x27;m glad I had the meeting with... Yudius? Yeah. How far did you guys get? Kind of work together to really make that reporting layer between Those transaction databases that are just like they look foreign to people because they&#x27;re all alphanumeric like essentially codes like they&#x27;re</p></div><div style="display:contents" dir="auto"><p id="2c556320-92ca-8075-aadb-f0258a65f72b" class="">Yeah, and the one thing, if it sounds like you&#x27;re talking about M3, they&#x27;re an older structure where I think the table names are all six characters long. The fields are almost 6 characters long. There is a metadata publisher that gives you all the information about each of the tables. And it gives you information on M3 as well. We can get you access to that so you can start to see some of that. That will give you some of the data definitions as well.</p></div><div style="display:contents" dir="auto"><p id="2c556320-92ca-809b-941e-f7c081100cac" class="">It can be quite useful and almost impossible to complete this without it. Yeah, I was asking her about that kind of stuff and then I also, and I wanted her to know like, yes. Meeting with her is helpful to know like you know what things are but I also want to really get an idea of</p></div><div style="display:contents" dir="auto"><p id="2c556320-92ca-80ac-b160-d6a3bca32815" class="">How she uses You know how she uses these things what her processes are like So that just because part of part of my job isn&#x27;t is to also come in and not just say you know what? This is how you guys should use it, but rather, hey, what am I gonna deliver to you that will actually just make your job a lot easier and at the same time, like, because people want- I think that approach is gonna get you a lot further out anyways. I got one person that, if you came up with that, this is how you gotta do it.</p></div><div style="display:contents" dir="auto"><p id="2c556320-92ca-80f5-8444-cbd54fb65311" class="">you would get a you know go yourself yeah kind of mentality it&#x27;s like you know that&#x27;s not gonna be conducive so i&#x27;m i&#x27;m not i&#x27;m not trying to push any foreign Agenda or technology on anybody. I&#x27;m just trying to figure out how to best Kind of merge the two so that it helps them</p></div><div style="display:contents" dir="auto"><p id="2c556320-92ca-804a-ae68-cb27860c7f1d" class="">And all of this stuff that I&#x27;m trying to get you right now is to try to get you introduced to the immediate team and the data team and the development team. To understand how they&#x27;re using it. We&#x27;re gonna still get into talking with the stakeholders. And that&#x27;s where you&#x27;re gonna talk a little bit more with Mike. And I wish I could be there, but the timing on this is I have, I will be.</p></div><div style="display:contents" dir="auto"><p id="2c556320-92ca-80c9-83a9-fa302799893c" class="">I&#x27;ll be out of commission on Friday. I&#x27;m having surgery and I will not be back Monday, possibly Tuesday. And then I&#x27;ll be back in the office. You got a light introduction to my team and I&#x27;d like to pull you into one of our stand-ups so you can have a little bit more introduction to them.</p></div><div style="display:contents" dir="auto"><p id="2c556320-92ca-801a-b929-c99de3822acf" class="">If you look at the org structure, you can see each of the people that report to me. Matt Panaz is my senior developer and then their titles should be up to date too. He has been here one year less than I have. He is one of the lone survivors of developing MES. He&#x27;s also developed, like I said, the AMD, ALEL, some of those other MES related applications.</p></div><div style="display:contents" dir="auto"><p id="2c556320-92ca-800e-afa9-c6dbe44fba62" class="">He&#x27;s very in tune to the manufacturing systems. He&#x27;s also had a very wider knowledge of M3s. and how NAC uses it to some degree. But his strong suit would definitely be the manufacturer&#x27;s side. I mean, he&#x27;s traveling with me today. He&#x27;s not here right now, so I&#x27;ll talk a little bit, but. Yeah.</p></div><div style="display:contents" dir="auto"><p id="2c556320-92ca-804e-b2c1-f5a66bef212a" class="">Strong skill set. I mean, and we all have our strengths and our weaknesses too. Then Matt Francis. I hired him. 6 or 8 years ago. As a developer. He&#x27;s done some light development. He actually got more into now he&#x27;s my data engineer if you will. He&#x27;s done a lot of data migration from the legacy systems to pull these all up, to talk to each other, to the integrations. So if you want to talk to someone that knows M3 data...</p></div><div style="display:contents" dir="auto"><p id="2c556320-92ca-80d0-a5c7-c8b0a2d8ea6d" class="">It would be between Matt Francis and Carrie Voice. Carrie Voice being the person that writes most of the SSRS reports. Got it. If you end up needing them to pull in, get more information from my team while I&#x27;m under sedation or just not in, I&#x27;m not gonna be offended if it keeps you moving to some degree.</p></div><div style="display:contents" dir="auto"><p id="2c556320-92ca-80a1-bbea-e640476ebcb3" class="">You might have to make your own meetings. And Udias, since now you&#x27;ve gotten to know her, she&#x27;d be a good person to introduce you to them a little bit. If that would help at all. Say, hey Udias. I know Pat&#x27;s out these next couple days. Would you mind introducing me to other people on the team? And then you&#x27;re going to talk to Mike on Friday as well.</p></div><div style="display:contents" dir="auto"><p id="2c556320-92ca-804c-920e-ea63bc822ca4" class="">Talk about timing. I have her making me take bites of her apple so that she can Because she can&#x27;t bite through the skin on the apple. So I have to like pre-bite it for how old is she? Uh about a year and a half Sometimes more than you want her to be. But I think, I think I&#x27;ll most likely take you up on, you know, if it&#x27;s okay asking you to help me kind of navigate the personnel.</p></div><div style="display:contents" dir="auto"><p id="2c556320-92ca-80ed-9f16-cfcf0de2979b" class="">You&#x27;ll find some stronger personnels, you&#x27;ll find some more laid back personnels. I kind of want to step out of your way a little bit and let you find out for yourself each of their skills. Have them take a take an hour and set up a meeting with each one all yeah I mean if you want it actually that might not be a bad approach to you could set up a meeting For each one of them on Friday just to say hey introduction</p></div><div style="display:contents" dir="auto"><p id="2c556320-92ca-80bc-8966-f69c42acf666" class="">My approach in terms of the high-level visuals being able to go into meetings with like the high-level visuals for pretty much everyone that I meet with just to let them see like what I&#x27;m what I&#x27;m thinking and I&#x27;m not coming in with like a Predefined list of technologies and things that have worked out of the box at other companies that I think will like That I will shove down your throat like that&#x27;s the last thing on earth. I want to do so like</p></div><div style="display:contents" dir="auto"><p id="2c556320-92ca-8003-ae60-f3d4e092a757" class="">but also letting people know that I&#x27;m really trying to work with them to make their lives better. And there&#x27;s going to be some people that are going to feel like you&#x27;re stepping on their toes. You know, I&#x27;m okay with it. Yeah. Your skill set deserves to be having a skill set that needs to be recognized, and we need to learn in some cases.</p></div><div style="display:contents" dir="auto"><p id="2c556320-92ca-80f2-9d7a-c1fd61a154bd" class="">There will be areas where we have more knowledge and we&#x27;ll help bring you up to speed too. You will recognize we&#x27;re the stronger personalities and we&#x27;re the more... Okay, what do you need? What can I get you? Yep. You will get them. And I purposely kind of want to stay out of the way a little bit. You met Yudius. Yep. Um, she&#x27;s a little on the greener side.</p></div><div style="display:contents" dir="auto"><p id="2c556320-92ca-802f-a28d-fe8aac4032e4" class="">She is coming up to speed. She started as a DBA and she&#x27;s now starting to get into power BI. The positives I&#x27;ve seen with her is that she&#x27;s gone out to. Before I had the opportunity to say, hey, go study some Power BI, go do a certificate, I was going to sign her up for a certificate class and whatnot, and she found out she had already signed herself up.</p></div><div style="display:contents" dir="auto"><p id="2c556320-92ca-80d9-b4f1-f765f8599c79" class="">I&#x27;m happy to see that kind of behavior. created an mcp to handle one lake some with power bi and i essentially just pulled them all in and took like the best of all of them and kind of Um, yeah, like it would be amazing, so like, yeah, just, and you&#x27;re gonna, my stronger personality team members will be a little bit more critical and they can do things better, but I will, I&#x27;m working on.</p></div><div style="display:contents" dir="auto"><p id="2c556320-92ca-8093-92e0-fc1ba0cea35d" class="">Calling that tone. If you run into it, please talk to me. If you are having some challenges from personnel, please talk to me. So I don&#x27;t want that to happen for you. The specific questions that were kind of outstanding, I guess, because as I&#x27;m doing this and as I&#x27;m like familiarizing myself and trying to figure out how things are going to be kind of documented in that kind of interactive data catalog business glossary type of way.</p></div><div style="display:contents" dir="auto"><p id="2c556320-92ca-80ba-9af2-f640153b482e" class="">through Purview. Do we know anything regarding like, you guys currently use Purview? Do we need to like? We do not. We do not use Purview. I think the other day we were starting to get into a little bit of the Power BI and we set up a little bit of the fabric.</p></div><div style="display:contents" dir="auto"><p id="2c556320-92ca-8005-80ae-cc998694d44b" class="">Fabric is so green to it. Yeah, I can tell that we can log in and see things. That&#x27;s about how green we are to that. Got it. We&#x27;ve not played that much with it. And I, you know, originally got. approval with mike to go in and start playing around and maybe even reach out to a couple uh small hands that we like our we&#x27;ve got a company cyber troll that we worked with our controls</p></div><div style="display:contents" dir="auto"><p id="2c556320-92ca-8099-8155-e2fdf6638023" class="">that did a quick song and dance of how to use fabric and I was going to reach out to them but then we got you on shortly after that and I got pulled into another direction. So we have a very basic trial, and also the unwritten but stated statement was, yeah you can go in and play as long as when the data architect aka you come on board that we just wipe things clean.</p></div><div style="display:contents" dir="auto"><p id="2c556320-92ca-809f-a1ef-c3b849c3b0f5" class="">And that was part of the things we want to talk to you too about is how do we set up a multiple environments dev test and prod or I mean, this is a different This is new to me, so I&#x27;m not familiar if you do it that way, or if you have completely different tenets, or how you go about that.</p></div><div style="display:contents" dir="auto"><p id="2c556320-92ca-8010-8627-e715557b5916" class="">Three different workspaces per domain, like a playground kind of thing. Once they&#x27;re ready to start building the model, they&#x27;ll push it to the next workspace, but I&#x27;ve seen that. That has its own problems because then you have three workspaces for every one original workspace that you would have normally had. That triples the amount of, you know, admin work that needs to go into.</p></div><div style="display:contents" dir="auto"><p id="2c556320-92ca-8040-a036-d286ad89e29d" class="">Overseeing that so it and that doesn&#x27;t really and that&#x27;s just at the Workspace power bi kind of level that doesn&#x27;t have anything to do with Everyone can agree, you know, this is literally the gold standard of our data. Everyone can agree on it. That&#x27;s what&#x27;s... I mean, everything will be flowing into... Right. And I assume before we get anywhere near that, we&#x27;re going to be meeting with stakeholders.</p></div><div style="display:contents" dir="auto"><p id="2c556320-92ca-8043-81dc-cf1b6798a5bd" class="">We&#x27;re going to cover some of those domains. Yeah. Okay. I mean, yeah. What I just did... Described as like literally the final stretch of it like it all yeah, but six months down the road even before we start. Yeah, okay Perfect and forgive my ignorance So like I said, I&#x27;m a big dummy that comes from the infrastructure background I started to dabble in dev and data a little bit, you know, so</p></div><div style="display:contents" dir="auto"><p id="2c556320-92ca-8039-8e73-ee3092274fef" class="">and honestly talking about this at the beginning is probably just the easiest part because once we get into the weeds on it it&#x27;s going to be pulling our hair out trying to make it seem like it&#x27;s just as easy as I kind of laid out at the beginning, because it never is. So I&#x27;m not under the illusion that it&#x27;s just going to be, oh yeah, just move things here, transform it, and then...</p></div><div style="display:contents" dir="auto"><p id="2c556320-92ca-80ea-a491-ddf786b0641a" class="">This is not going to be a simple task, especially when we have five different companies that have some significant boundaries. I honestly would say that those boundaries are not even very well defined and need to be defined better. That&#x27;s what I was kind of picking up on.</p></div><div style="display:contents" dir="auto"><p id="2c556320-92ca-80c1-8ea0-c46945a8dace" class="">Terms of how like, and I&#x27;ll even say I&#x27;m not the best one to ask. I&#x27;m not some of that sometimes you need to actually start talking to the data owners. You need to start talking to the executives that make the decisions on. Which personnel can and cannot see some of that data across horizontally and vertically, even for that matter, because I mean, so there are.</p></div><div style="display:contents" dir="auto"><p id="2c556320-92ca-8086-8f33-dff65f10f34c" class="">When deciding who the stewards of the data are, there are stewards in the sense that this person works with the data the most, so they can tell you the most about the day-to-day. And then there are the decision makers who can be like, no. We are not doing that. It shouldn&#x27;t be like that. I have a list of people. Mike has a list of people. You and I are going to be talking a lot more than that. And then the other thing too, and I kind of left it... You saw I put a kind of a rough...</p></div><div style="display:contents" dir="auto"><p id="2c556320-92ca-8058-a6c5-ddb63553c3cb" class="">outline together for you and like to discuss. Yeah. I&#x27;m anxious to get you out and meet the crew as soon as possible and that might be well before stakeholders. So I mean, honestly, the sooner the better, in my opinion, not not trying to rush anybody. I just it it&#x27;s always kind of it just things go better after in person. So what time tomorrow? Does that work for you then? Yeah. I mean, no.</p></div><div style="display:contents" dir="auto"><p id="2c556320-92ca-8018-9006-c616d867d43e" class="">I would like to be there, no offense. Oh, no, no, definitely. I&#x27;m guessing, and the other hard part, too, is we&#x27;re running through the Christmas-New Year season, so... You&#x27;re gonna have a lot of people here that are gonna be on vacation. I&#x27;d rather you, and that&#x27;s where you and Mike are gonna need to, we&#x27;re up to iron some more stuff out and make sure people are available too. Oh, I was just letting you know that I&#x27;m not opposed to coming up there.</p></div><div style="display:contents" dir="auto"><p id="2c556320-92ca-80f5-855b-cc2509a07915" class="">I don&#x27;t have any expectation of coming up in December. I didn&#x27;t think so, and I want to time it correctly for you too. I appreciate that. In the meantime, I&#x27;m trying to... Keep you busy and learning a little bit more here and there, trying to feed you as much as I can and be available as much as I can. Like I said, the timing sucked for my surgery. I&#x27;m sorry if it&#x27;s not.</p></div><div style="display:contents" dir="auto"><p id="2c556320-92ca-80e1-9e8c-ea9443f84ede" class="">To personal, what&#x27;s the surgery? I have a, I&#x27;m a fat old guy and I need an umbilical hernia surgery. Got it. So I had an appendicitis that was really bad many many years ago. And now that has played a factor in giving me an umbilical hernia. And then last, what&#x27;s the, I guess, what&#x27;s the rebound time? Oh great.</p></div><div style="display:contents" dir="auto"><p id="2c556320-92ca-80e7-ba0e-ed17f15e6bf6" class="">My phone is now unavailable for however long. Thank you, no. She just started typing in passwords. It&#x27;s okay. It&#x27;s fine, I don&#x27;t need my phone. So are there plans to have more? Yeah. No, I think she&#x27;s it. Oh, okay. Oh, the other thing I wanted to mention. To answer your question, the rebound time, they&#x27;ve said as far as, you know...</p></div><div style="display:contents" dir="auto"><p id="2c556320-92ca-804e-ab14-e627f2de166f" class="">It&#x27;s an outpatient, but will I be lightweight lifting for a while? I mean, I might be actually leaving my laptop at work or at home. and uh not not carrying it as much i mean 20 pound lifting capacity i&#x27;ll tell you right now my laptop bag is much heavier than that so yeah uh and then last week tuesday i had you know</p></div><div style="display:contents" dir="auto"><p id="2c556320-92ca-80d3-8c24-d9f97ebe12b4" class="">Although, personally, when I did my checkride, so I was taking the day off to get that done, too, so. Oh, I mean, it&#x27;s not the worst thing in the world to leave your laptop at the end of the day. I kind of miss sometimes having... I had a desktop computer when I first started. Like, you turn it off and you left the office and that was it. That was it.</p></div><div style="display:contents" dir="auto"><p id="2c556320-92ca-809b-aed0-f672df322e4c" class="">Everyone&#x27;s like, no, I don&#x27;t want a laptop to bring home with me. Yeah, I mean, I came up through the ranks, starting in accounting many, many years ago, then transitioned into IT and help desk. You signed up and went home and that was it. You had a phone number that they could reach you if that was if it was necessary. You drove in.</p></div><div style="display:contents" dir="auto"><p id="2c556320-92ca-804b-9a55-df84400ba364" class="">If you&#x27;re busy and you need to wrap it, you call it at any time and we&#x27;ll catch up a little more tomorrow. There were times where we would have a promotion running for like Abercrombie or one of our clients and it&#x27;s like huge. Abercrombie and Finch. Yeah, biggest promotion of the year.</p></div><div style="display:contents" dir="auto"><p id="2c556320-92ca-806c-acae-d45549ac5e4f" class="">We&#x27;re talking like, you know, 8 months of work leading up to like a 2 week period and servers go out and they had to like run out and get physical servers, throw them in the back of their car and drive like... across like two states to the freaking on-premise server. My first intro into real IT, I would call it, I mean because I helped as a</p></div><div style="display:contents" dir="auto"><p id="2c556320-92ca-80b2-813a-f78f55d0d606" class="">Compute is a, yeah, I&#x27;m still nursing it, sorry. I started working in accounts payable and kind of side dallying and, you know, printers and minor stuff. But then when I really got into it and... We would do, like I said, a cash register store in a box, and I would go out in the field and install cash registers and servers and network systems for Children&#x27;s Place and stuff like that.</p></div><div style="display:contents" dir="auto"><p id="2c556320-92ca-80bc-bb9c-c8ffc388efb7" class="">Yeah, and having to troubleshoot them. The jack of all trades. Honestly, I was up in, I was at college bars up in the ceiling installing mobile SMS trivia. Like, network systems is pretty interesting. Yeah, I had to climb underneath the Burlington, Massachusetts mall subfloor.</p></div><div style="display:contents" dir="auto"><p id="2c556320-92ca-80e1-802f-f66d1717d194" class="">To run cable because the electricians didn&#x27;t want to do it, which by the way, it was also that area would be a, what do we call that when we It&#x27;s a union position too, so technically I wasn&#x27;t supposed to do it, but they were okay with me doing it because they did not want to do it. And when I got, and it was supposed to be rigid conduit.</p></div><div style="display:contents" dir="auto"><p id="2c556320-92ca-807c-8df7-d9f687c7405f" class="">And they put in flex conduit and try to pull cables at 150 feet through flex conduit that they raided together so they could pull the conduits. I was not a happy camper that time. I think you got me on that one. I&#x27;m sure we can share tons of stories. I enjoy that kind of stuff. I&#x27;m not trying to one-up you either. I enjoy that.</p></div><div style="display:contents" dir="auto"><p id="2c556320-92ca-80b6-b8e4-d7325a3ddbff" class="">These are things that I kind of mocked up last night. I&#x27;ll put them in the chat really quick so you can take a look at them. Speaking of which, speaking of those, I kind of did some circles and touch-ups of the images that you sent. If you&#x27;ve got any questions on those.</p></div><div style="display:contents" dir="auto"><p id="2c556320-92ca-80fa-96cf-de46f31e064b" class="">I grabbed them as soon as you sent them. Yeah, I saw you saw a couple of them right away, so yeah I&#x27;m on my iPad. So bear with me if I don&#x27;t see okay. Yep. All right. I&#x27;m seeing the chat window now So they&#x27;re they&#x27;re uploading right now, but they&#x27;re There&#x27;s some overlap, but I was just kind of thinking through like, uh, because I&#x27;ve actually somewhat built it already Within my own kind of like LLM. I built it kind of wrapped in my own thing</p></div><div style="display:contents" dir="auto"><p id="2c556320-92ca-8045-b8ad-fd906298ba40" class="">Okay, connect to this server. I need to, you know, I need to see what columns related to, you know, I don&#x27;t know, like this. Part are in this database like do basically building the query and then it like return It&#x27;s able to basically profile the data do whatever you need to do as opposed to like just digging through it all</p></div><div style="display:contents" dir="auto"><p id="2c556320-92ca-809a-8f41-e1f263d86be8" class="">But then you&#x27;re able to say, okay, now create a data factory pipeline that, you know, copies the entire schema into one lake, if the one lake... Okay. If the OneLake instance doesn&#x27;t exist, create it, dump it in there, and set that pipeline up to recur hourly or daily or whatever. And then from there you&#x27;re... I think you&#x27;re going to get along pretty well with Panez, hopefully pretty well. He gets into a lot of AI and large language models, stuff that he wants to get into too.</p></div><div style="display:contents" dir="auto"><p id="2c556320-92ca-805b-beb2-f08f554497e7" class="">So I built it knowing that there&#x27;s going to be a need for IP security and compliance and stuff. Especially regarding like... Needing to keep it within the Microsoft stack. So the way I built it was basically like- So Pascal Case, what do you mean there? Pascal Case naming, so the camel case? Yeah, camel case. Okay, all right.</p></div><div style="display:contents" dir="auto"><p id="2c556320-92ca-8096-90b9-c62309fa6c68" class="">That was just an example that I was thinking of, but because being able to do a lot of this stuff in a way that their guardrails are in place so that when somebody... Asks to do something, create a report, or basically create a data model from there. without mandating that the person be a complete expert in. But at some point I assume we&#x27;ll also sit down and go through some of these things that you&#x27;re talking about so we can have a better understanding.</p></div><div style="display:contents" dir="auto"><p id="2c556320-92ca-80bc-83ca-f4a3e868da5a" class="">It&#x27;s kind of like, you know, I don&#x27;t know what your skill set is as far as DIY around the house or whatever, like you said, a true jack of all trades, master of none. or if you&#x27;re uh very much get this box that you work in but i can take any youtube video within reason and go wrench on a car i&#x27;m not gonna go pull an engine out</p></div><div style="display:contents" dir="auto"><p id="2c556320-92ca-80be-8b4a-eac05af790cd" class="">Although that is on my bucket list someday, maybe. But the more I can get my hands on some of these tools, the more I learn, the more hands I learn and stuff like that. So I assume at some point you&#x27;ll show us some of these. Oh, 100%. I mean, there&#x27;s definitely going to be training to learn how to use all of them individually, regardless.</p></div><div style="display:contents" dir="auto"><p id="2c556320-92ca-803e-bd89-f2fa9502967a" class="">It&#x27;s just the... There are some things that I feel like in order for a true end-to-end, I guess, to do this from end-to-end in a way that it&#x27;s not going to consistently get bottlenecked somewhere, where something people forget to populate. You know, the data properly, and you have empty descriptions up in purview. Simple things like that should be automated, in my mind.</p></div><div style="display:contents" dir="auto"><p id="2c556320-92ca-8041-af78-c269dd6e580d" class="">And so having those kind of guardrails so that people don&#x27;t have to really think about it. It just does it and it doesn&#x27;t slap in general, you know. Something that they could get off Google or something. It&#x27;s using the context of IP corporation. It knows At at this level in the database. This is the description that best fits it because of</p></div><div style="display:contents" dir="auto"><p id="2c556320-92ca-802b-8b71-c75f8f615386" class="">What table it&#x27;s in, what people would use it for, but that same column when pulled into the context of a specific report, it has a completely different meaning because it&#x27;s used for something else. So it&#x27;s not going to pull that description in. Does that make sense? Okay, yeah, yeah. It&#x27;s gonna make, it makes some sense. It&#x27;s gonna make a lot more sense when I start seeing it and playing with it. 100%. And yeah.</p></div><div style="display:contents" dir="auto"><p id="2c556320-92ca-8096-928b-c6fcd4103480" class="">On that note too, I wanna go real quick, if you don&#x27;t mind, can I go over my touch-ups with you real quick just so you understand what I&#x27;m doing here? Let me see if I can do, I think I can share using here, share screen.</p></div><div style="display:contents" dir="auto"><p id="2c556320-92ca-8005-96e2-d5fd319c2d64" class="">Start broadcast. I&#x27;ve never done this with the iPad, so we&#x27;ll see how it goes.</p></div><div style="display:contents" dir="auto"><p id="2c556320-92ca-80e0-a35c-d68abfdd765c" class="">I am more of a Windows guy. I&#x27;m assuming you can see what I&#x27;m looking at here when I click on it. And I can&#x27;t switch side to side, so we&#x27;ll just take this one first. And we kind of talked on some of these and I&#x27;m going to be completely forgetful on which ones we&#x27;ve addressed and which ones we didn&#x27;t. I don&#x27;t know how, starting in the lower left-hand corner, it&#x27;s hard for me to point. I don&#x27;t think you can see where I&#x27;m pointing, but lower left-hand corner, I said prim and cloud.</p></div><div style="display:contents" dir="auto"><p id="2c556320-92ca-80ac-8307-f43af6e43613" class="">I don&#x27;t know if you want those to be more defined than version A and version B. That&#x27;s up to you. Don&#x27;t care. Interplastic and HK are the closest. If you wanted to put HK with Interplastic. And then that symbol that you have is a manufacturing symbol. If that were the case, then I would say NEC doesn&#x27;t really belong there, but molding products could have gone in his place and they do buy competitor.</p></div><div style="display:contents" dir="auto"><p id="2c556320-92ca-8055-8dd6-e507b6672472" class="">And grab this first one here too. This one here, Molding Products is spelled wrong, M-O-L-D-I-N-G. And as, again, look at the org chart, you&#x27;ll see the spellings. So I circled carry NAS, NAS, there&#x27;s a spelling down below there too. We don&#x27;t have, I think it&#x27;s called plant PAX.</p></div><div style="display:contents" dir="auto"><p id="2c556320-92ca-808e-8ed2-fd21943487cc" class="">We have Factor Talk, so I wrote that down there. And some of these are bidirectional. MES and M3 are bidirectional. Salesforce and M3 are mostly actually reversed. Yeah, should Salesforce be the system of record and it takes information 2 and 3, versus right now, as Salesforce is really not the system of record, it&#x27;s M3S.</p></div><div style="display:contents" dir="auto"><p id="2c556320-92ca-8018-8e91-d4d28561446e" class="">I had this issue last year in terms of the Salesforce question. I think I remember talking to you about this during our interview times too. Yeah, sometimes it&#x27;s not that clean of an answer, but at the same time... It is not. Sometimes you just have to make exceptions. And then just right up above there are two unknown sources. We know the sources, it&#x27;s just... I don&#x27;t know that outside of IT they know the sources as well.</p></div><div style="display:contents" dir="auto"><p id="2c556320-92ca-8040-8313-eba781c0c428" class="">Got it. So I&#x27;ll set it up. That one looks pretty good.</p></div><div style="display:contents" dir="auto"><p id="2c556320-92ca-8016-8076-e9d53286e2e4" class="">And then the last one, let&#x27;s see, so I did that one, this one right here. This one, there&#x27;s just no way to do this clean. Matt and I talked a little bit about this. What might be a way of doing this is you almost have to have this diagram for each of what I would say to...</p></div><div style="display:contents" dir="auto"><p id="2c556320-92ca-80f3-82df-c13031ee1487" class="">At least the two main core systems, MES and M3, and then identify which data pieces go back and forth. Because otherwise you&#x27;re just going to get this. something like Prezi or something where you&#x27;re able to kind of like at a high level, then you click into it, it like zooms in and then you can see like, yeah, break out. Okay. So I think I was on the right track with that one. Okay.</p></div><div style="display:contents" dir="auto"><p id="2c556320-92ca-8055-a2eb-d9837bfc885a" class="">And like I said, I pulled Salesforce is actually going to talk more directly with M3. In fact, I can&#x27;t.</p></div><div style="display:contents" dir="auto"><p id="2c556320-92ca-8014-85c3-ea01a422964f" class="">There&#x27;s some areas of Salesforce that isn&#x27;t M3. I wouldn&#x27;t say that it&#x27;s directly MES, but it isn&#x27;t M3. There&#x27;s some. there&#x27;s some lab stuff where the part of our business is we go out and we ask our customers hey what product are you looking what are you looking for your product to do</p></div><div style="display:contents" dir="auto"><p id="2c556320-92ca-80db-bdfb-fbf34322168d" class="">And then we&#x27;ll go make a chemical that does that. Like I think I talked about how we&#x27;ll have some that have a faster reaction time or slower reaction time. Or... It has to have some flexibility or no flexibility. So they&#x27;ll get a lot of, and we can go into that in more depth and look at the lab service request. That stuff comes in from Salesforce and then it&#x27;s going to go to the lab.</p></div><div style="display:contents" dir="auto"><p id="2c556320-92ca-8049-beae-e1a2946839c5" class="">It has always turned into a spaghetti mess because you have a lot of things that talk back and forth and other systems. So it basically goes up and down in terms of hierarchy and then like level of granularity. Yes. Left to right, up and down. Something like a Prezi would actually be the only thing that would make that make sense. Okay, and ADP, I mean, let me start from, I don&#x27;t know, it&#x27;s gonna be hard to follow, up and stop by intelligent authoring.</p></div><div style="display:contents" dir="auto"><p id="2c556320-92ca-80fe-aaf1-d5719b7bb0be" class="">Because that&#x27;s the one almost every one of these on here. You&#x27;ve called out an application. We talked about this before SDS is more of a industry standard safety data sheets Our application is IA. The rest of these are all applications that you see on the screen here. So if we wanted to try to have some apples to apples, we talked about Salesforce is talking to M3.</p></div><div style="display:contents" dir="auto"><p id="2c556320-92ca-80ca-ae0b-d1a03df411d3" class="">It does talk to both M3 Cloud and M3 On-Prem, depending on whether it&#x27;s molding products, NAC, HK research, or interplastic. And that&#x27;s a good area where I would talk about Matt Hansen on that one. Got it. So in terms of the R&amp;D feedback loop, so that one would be like where customer input from Salesforce would drive. That would be customer input, yeah. So that would drive the Salesforce formulation.</p></div><div style="display:contents" dir="auto"><p id="2c556320-92ca-80c9-8468-f64b0475fac3" class="">Yeah, yeah. Very, very loosely. I wouldn&#x27;t say it directly drives it. It&#x27;s not like it&#x27;s going to drop it into Optiva and Optiva&#x27;s going to consume it. It&#x27;s more like they&#x27;re gonna get an email notification saying, hey, I need this. And it&#x27;s gonna start a communication. They&#x27;ll do some PLM work. They&#x27;ll put it in a PIVA manually. They&#x27;ll try to do a couple of test runs of this or that. I&#x27;ll send it to the customer and I&#x27;ll...</p></div><div style="display:contents" dir="auto"><p id="2c556320-92ca-8004-bd2c-e3893355c143" class="">I don&#x27;t know what their sample size, whether it&#x27;s anywhere from a pint to a 5-gallon pail, or even bigger. So more so... It informs the formulation process rather than directly integrating with the... Yeah, that&#x27;s a good way of putting it, yes. It&#x27;s loosely coupled. And when we get into the stakeholders, again, you&#x27;re going to meet some of these...</p></div><div style="display:contents" dir="auto"><p id="2c556320-92ca-806b-98f9-f2e51e3d19a9" class="">At least the higher-end R&amp;D people know. Got it.</p></div><div style="display:contents" dir="auto"><p id="2c556320-92ca-80bb-aa90-fb0f9f9a7d05" class="">So that covers Salesforce and it is a bi-directional communication, mostly Salesforce going from entry to Salesforce. There&#x27;s a couple of spots where it&#x27;s bidirectional. Yeah, whenever the bidirectional instances come up, I more or less just say let&#x27;s document them, but let&#x27;s not.</p></div><div style="display:contents" dir="auto"><p id="2c556320-92ca-80f2-8a2a-e853e73b4a5e" class="">Let&#x27;s not promote the fact that we&#x27;re passing stuff in because then everyone will want to for some reason. So M3 to MES is bi-directional. That one is very bi-directional. Okay.</p></div><div style="display:contents" dir="auto"><p id="2c556320-92ca-8061-8b76-d26fe850f8d5" class="">MES does not talk to M3 cloud. It does talk to the shard down in there.</p></div><div style="display:contents" dir="auto"><p id="2c556320-92ca-80b0-82a9-defbe9d47f01" class="">And I gotta dig into that a little bit more. That&#x27;s a good map NAS description. So MES is primarily HK and interplastic. So it&#x27;s N300 prime at this point. which you have on the middle one in the far left. So MES is exchanging data with both the on-prem and M3 cloud instances, but just through different routes via ION? No, it is not.</p></div><div style="display:contents" dir="auto"><p id="2c556320-92ca-8089-8c39-c29c0b099c70" class="">No, maybe I misstated it. MES is interplastic and HK only. HK and interplastic are M3 on-prem only. Today. Okay.</p></div><div style="display:contents" dir="auto"><p id="2c556320-92ca-80d3-9138-efbee5ccb797" class="">And part of all the work that you are working on is going to drive some of the changes. And that&#x27;s what Michael will probably talk about tomorrow. That&#x27;s going to drive all the changes of getting us. with HK and Interplastic in the cloud.</p></div><div style="display:contents" dir="auto"><p id="2c556320-92ca-8086-9c47-db4dc9167d45" class="">So M.A.S. will need to talk to it. And it might not be the M.A.S. we know and love today, or know and hate today, however you want to put it. Okay.</p></div><div style="display:contents" dir="auto"><p id="2c556320-92ca-8070-9dca-edcaea59206b" class="">So this is a very busy one, and how you&#x27;re going to fix and clean these is really if you just took off Ashworks. Yeah, and drop that upper line to go through IAM and drop the one that&#x27;s going up to M3. Or at least not have MES talk to M3 cloud. Yeah, that&#x27;s what I would say.</p></div><div style="display:contents" dir="auto"><p id="2c556320-92ca-80f2-b4a0-e027fa3ac103" class="">And then Oates talks to MES. And then like I said, M3 is really more the core, and MES can move on the outside, but then you&#x27;re going to have to pull Oates and ANB to the other side. And that actually might work, because then you leave SQL and Salesforce right at the top of the M3. That would be actually more accurate, if you just put NES where M3 is and kind of...</p></div><div style="display:contents" dir="auto"><p id="2c556320-92ca-8003-aa45-e4549f678e3c" class="">It&#x27;ll probably require one more review on your part, one or two, to get the final thing. Because, I mean, ideally, yes, these are mockups and stuff, but at the end of the day, the goal&#x27;s still to deliver. in actual graph that you guys can leverage, so. I would say you can probably talk to Mike and say, hey, we&#x27;ve been working on these, and I know these, we need to have some corrections here, some better understandings.</p></div><div style="display:contents" dir="auto"><p id="2c556320-92ca-8081-9967-dd40b4e6131e" class="">you know handing up that information back and forth uh we&#x27;ll work to correct them before we get in front of the stakeholders but what you had would work fine to talk with him and you can kind of use these as your notes for him that&#x27;s up to you. The idea would be that, in one way or another, this high level would also be represented in some way in the video.</p></div><div style="display:contents" dir="auto"><p id="2c556320-92ca-8017-b3e8-c5242d58a145" class="">purview. But like just because this is obviously part of the data estate at a really high level and having people being able to see okay this is where you know. Column lineage level type of mapping from you know the Power BI. And I&#x27;ll even say that a lot of people outside of IT are going to know some of those nuances.</p></div><div style="display:contents" dir="auto"><p id="2c556320-92ca-8035-8eee-ec7c64617d85" class="">Yeah, so there&#x27;s a lot you could probably get by with them. There&#x27;s gonna be a few more here and a little more, so yeah.</p></div><div style="display:contents" dir="auto"><p id="2c556320-92ca-8013-a02e-e1c53c8c8546" class="">Okay, I&#x27;ll make those changes and I&#x27;ll just I&#x27;ll shoot them over to you as they&#x27;re kind of revised and My fair warning to you is is Friday Monday. I got a pocket No problem. I will try to make myself available Monday. I have no guarantees. I don&#x27;t know what I&#x27;m going to be on, so I&#x27;ll wait with that. Not a problem. Tomorrow...</p></div><div style="display:contents" dir="auto"><p id="2c556320-92ca-80ac-b3c8-f5d61de4dcfa" class="">So that&#x27;s at what, 1030 Central? Yeah, I&#x27;m just on my iPad so my availability of seeing stuff and getting moving around is not as... This is a laptop, so we&#x27;ll go see if I&#x27;m getting that. I&#x27;ll look at my calendar. My calendar ironically got very busy more than I thought.</p></div><div style="display:contents" dir="auto"><p id="2c556320-92ca-804b-9f6a-c639e1b4cd90" class="">All right, so tomorrow is Thursday. Yep. I can share my... well, you could actually... you should be able to open up Outlook and see my availability. You wouldn&#x27;t be able to see the items. Now let me just look here. My 10 a.m. could move.</p></div><div style="display:contents" dir="auto"><p id="2c556320-92ca-8083-a1db-e766e5fe791e" class="">If you&#x27;re going to be looking at it in the Eastern time zone, my 4pm, your 5pm could move if need be too. Everything else is kind of locked in.</p></div><div style="display:contents" dir="auto"><p id="2c556320-92ca-8097-b5b0-edfeb1efe3cf" class="">Thank you.</p></div><div style="display:contents" dir="auto"><p id="2c556320-92ca-80bd-89d1-d55bfa1270da" class="">You didn&#x27;t lose her did you? No my my wife stepped in and she ended up rescuing him. Yeah I think she took yeah she jumped on their grenade for me. I just went into my old office. Any other questions you got for me? I know I kind of pulled this meeting together, you know, impromptu. No, I appreciate it.</p></div><div style="display:contents" dir="auto"><p id="2c556320-92ca-80b9-bd93-d4b3261b2eef" class="">No, this helps. Drinking from the fire hose is totally fine. I mean, I captured it. Let me get a couple more IV connections for you. Yeah, I mean honestly like you might not think that I&#x27;m capturing everything that we talk about, but I go back and I review everything that we actually discussed during it.</p></div><div style="display:contents" dir="auto"><p id="2c556320-92ca-8084-a4ee-cf827495d5e4" class="">Like, in detail. So, whether or not you&#x27;re speaking through something or not, I catch it eventually, like, afterwards. I don&#x27;t doubt it. So, everyone&#x27;s got their own way. Well, I&#x27;m gonna let you get back to it. Okay. And then I&#x27;m gonna try to touch base with you again tomorrow, at least. And then I&#x27;ll recap with you when I&#x27;m when I&#x27;m back, whether Monday, Tuesday or Wednesday.</p></div><div style="display:contents" dir="auto"><p id="2c556320-92ca-8030-ac98-fd089cbb9be2" class="">Okay, are you traveling back to Minneapolis tonight? Yeah, I&#x27;m sitting down and enjoying some downtime in the lounge right now, and then we&#x27;ll be back into the good old-fashioned snow that we remember. Here in no time. Yeah, it&#x27;s kind of nice here. Yeah, we&#x27;ve kind of enjoyed the weather down here.</p></div><div style="display:contents" dir="auto"><p id="2c556320-92ca-8029-99b5-e43ac752708f" class="">While I think sometimes it hit 32 down here, this is very calm compared to up there right now. Yeah, not sure what snow is comparatively. Um, I&#x27;ll make sure that you get an opportunity. I&#x27;ll be able to react with me myself with the Chicago types now. There you go. All right. All right. Well.</p></div><div style="display:contents" dir="auto"><p id="2c556320-92ca-80dc-a009-cacb5dda4631" class="">You have a good evening, sir.</p></div></div></div></div></article><span class="sans" style="font-size:14px;padding-top:2em"></span></body></html>

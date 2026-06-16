@@ -1,0 +1,785 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>IP Corp — Data Architecture Review &amp; DB Systems — 2025-12-09</title><style>
+/* cspell:disable-file */
+/* webkit printing magic: print all background colors */
+html {
+	-webkit-print-color-adjust: exact;
+}
+* {
+	box-sizing: border-box;
+	-webkit-print-color-adjust: exact;
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+}
+@media only screen {
+	body {
+		margin: 2em auto;
+		max-width: 900px;
+		color: rgb(55, 53, 47);
+	}
+}
+
+body {
+	line-height: 1.5;
+	white-space: pre-wrap;
+}
+
+a,
+a.visited {
+	color: inherit;
+	text-decoration: underline;
+}
+
+.pdf-relative-link-path {
+	font-size: 80%;
+	color: #444;
+}
+
+h1,
+h2,
+h3 {
+	letter-spacing: -0.01em;
+	line-height: 1.2;
+	font-weight: 600;
+	margin-bottom: 0;
+}
+
+/* Override strong tags inside headings to maintain consistent weight */
+h1 strong,
+h2 strong,
+h3 strong {
+	font-weight: 600;
+}
+
+.page-title {
+	font-size: 2.5rem;
+	font-weight: 700;
+	margin-top: 0;
+	margin-bottom: 0.75em;
+}
+
+h1 {
+	font-size: 1.875rem;
+	margin-top: 1.875rem;
+}
+
+h2 {
+	font-size: 1.5rem;
+	margin-top: 1.5rem;
+}
+
+h3 {
+	font-size: 1.25rem;
+	margin-top: 1.25rem;
+}
+
+.source {
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	padding: 1.5em;
+	word-break: break-all;
+}
+
+.callout {
+	border-radius: 10px;
+	padding: 1rem;
+}
+
+figure {
+	margin: 1.25em 0;
+	page-break-inside: avoid;
+}
+
+figcaption {
+	opacity: 0.5;
+	font-size: 85%;
+	margin-top: 0.5em;
+}
+
+mark {
+	background-color: transparent;
+}
+
+.indented {
+	padding-left: 1.5em;
+}
+
+hr {
+	background: transparent;
+	display: block;
+	width: 100%;
+	height: 1px;
+	visibility: visible;
+	border: none;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+img {
+	max-width: 100%;
+}
+
+@media only print {
+	img {
+		max-height: 100vh;
+		object-fit: contain;
+	}
+
+	table.collection-content {
+		width: 100%;
+		table-layout: fixed;
+	}
+
+	table.collection-content th,
+	table.collection-content td {
+		overflow-wrap: anywhere;
+	}
+
+	table.collection-content td > .user,
+	table.collection-content td > time {
+		white-space: pre-wrap;
+	}
+}
+
+@page {
+	margin: 1in;
+}
+
+.collection-content-wrapper {
+	overflow-x: auto;
+}
+
+@media only print {
+	.collection-content-wrapper {
+		overflow-x: visible;
+	}
+}
+
+.collection-content {
+	font-size: 0.875rem;
+}
+
+.collection-content td {
+	white-space: pre-wrap;
+	word-break: break-word;
+}
+
+.column-list {
+	display: flex;
+	gap: 46px;
+}
+
+.column {
+	min-width: 0;
+	overflow: hidden;
+}
+
+.column > *:first-child {
+	margin-top: 0;
+}
+
+.table_of_contents-item {
+	display: block;
+	font-size: 0.875rem;
+	line-height: 1.3;
+	padding: 0.125rem;
+}
+
+.table_of_contents-indent-1 {
+	margin-left: 1.5rem;
+}
+
+.table_of_contents-indent-2 {
+	margin-left: 3rem;
+}
+
+.table_of_contents-indent-3 {
+	margin-left: 4.5rem;
+}
+
+.table_of_contents-link {
+	text-decoration: none;
+	opacity: 0.7;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.18);
+}
+
+table,
+th,
+td {
+	border: 1px solid rgba(55, 53, 47, 0.09);
+	border-collapse: collapse;
+}
+
+table {
+	border-left: none;
+	border-right: none;
+}
+
+th,
+td {
+	font-weight: normal;
+	padding: 0.25em 0.5em;
+	line-height: 1.5;
+	min-height: 1.5em;
+	text-align: left;
+}
+
+th {
+	color: rgba(55, 53, 47, 0.6);
+}
+
+ol,
+ul {
+	margin: 0;
+	margin-block-start: 0.6em;
+	margin-block-end: 0.6em;
+}
+
+li > ol:first-child,
+li > ul:first-child {
+	margin-block-start: 0.6em;
+}
+
+ul > li {
+	list-style: disc;
+}
+
+ul.to-do-list {
+	padding-inline-start: 0;
+}
+
+ul.to-do-list > li {
+	list-style: none;
+}
+
+.to-do-children-checked {
+	text-decoration: line-through;
+	opacity: 0.375;
+}
+
+ul.toggle > li {
+	list-style: none;
+}
+
+ul {
+	padding-inline-start: 1.7em;
+}
+
+ul > li {
+	padding-left: 0.1em;
+}
+
+ol {
+	padding-inline-start: 1.6em;
+}
+
+ol.numbered-list.numbered-list-digits-2 {
+	padding-inline-start: 2em;
+}
+
+ol.numbered-list.numbered-list-digits-3plus {
+	padding-inline-start: 2.4em;
+}
+
+ol > li {
+	padding-left: 0.2em;
+}
+
+.mono ol {
+	padding-inline-start: 2em;
+}
+
+.mono ol > li {
+	text-indent: -0.4em;
+}
+
+.toggle {
+	padding-inline-start: 0em;
+	list-style-type: none;
+}
+
+/* Indent toggle children */
+.toggle > li > details {
+	padding-left: 1.7em;
+}
+
+.toggle > li > details > summary {
+	margin-left: -1.1em;
+}
+
+.selected-value {
+	display: inline-block;
+	padding: 0 0.5em;
+	background: rgba(206, 205, 202, 0.5);
+	border-radius: 3px;
+	margin-right: 0.5em;
+	margin-top: 0.3em;
+	margin-bottom: 0.3em;
+	white-space: nowrap;
+}
+
+.collection-title {
+	display: inline-block;
+	margin-right: 1em;
+}
+
+.page-description {
+	margin-bottom: 2em;
+}
+
+.simple-table {
+	margin-top: 1em;
+	font-size: 0.875rem;
+	empty-cells: show;
+}
+.simple-table td {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table th {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table-header-color {
+	background: rgb(247, 246, 243);
+	color: black;
+}
+.simple-table-header {
+	font-weight: 500;
+}
+
+time {
+	opacity: 0.5;
+}
+
+.icon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	max-width: 1.2em;
+	max-height: 1.2em;
+	text-decoration: none;
+	vertical-align: text-bottom;
+	margin-right: 0.5em;
+}
+
+img.icon {
+	border-radius: 3px;
+}
+
+.callout img.notion-static-icon {
+	width: 1em;
+	height: 1em;
+}
+
+.callout p {
+	margin: 0;
+}
+
+.callout h1,
+.callout h2,
+.callout h3 {
+	margin: 0 0 0.6rem;
+}
+
+.user-icon {
+	width: 1.5em;
+	height: 1.5em;
+	border-radius: 100%;
+	margin-right: 0.5rem;
+}
+
+.user-icon-inner {
+	font-size: 0.8em;
+}
+
+.text-icon {
+	border: 1px solid #000;
+	text-align: center;
+}
+
+.page-cover-image {
+	display: block;
+	object-fit: cover;
+	width: 100%;
+	max-height: 30vh;
+}
+
+.page-header-icon {
+	font-size: 3rem;
+	margin-bottom: 1rem;
+}
+
+.page-header-icon-with-cover {
+	margin-top: -0.72em;
+	margin-left: 0.07em;
+}
+
+.page-header-icon img {
+	border-radius: 3px;
+}
+
+.link-to-page {
+	margin: 1em 0;
+	padding: 0;
+	border: none;
+	font-weight: 500;
+}
+
+p > .user {
+	opacity: 0.5;
+}
+
+td > .user,
+td > time {
+	white-space: nowrap;
+}
+
+input[type="checkbox"] {
+	transform: scale(1.5);
+	margin-right: 0.6em;
+	vertical-align: middle;
+}
+
+p {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+.image {
+	border: none;
+	margin: 1.5em 0;
+	padding: 0;
+	border-radius: 0;
+	text-align: center;
+}
+
+.code,
+code {
+	background: rgba(135, 131, 120, 0.15);
+	border-radius: 3px;
+	padding: 0.2em 0.4em;
+	border-radius: 3px;
+	font-size: 85%;
+	tab-size: 2;
+}
+
+code {
+	color: #eb5757;
+}
+
+.code {
+	padding: 1.5em 1em;
+}
+
+.code-wrap {
+	white-space: pre-wrap;
+	word-break: break-all;
+}
+
+.code > code {
+	background: none;
+	padding: 0;
+	font-size: 100%;
+	color: inherit;
+}
+
+blockquote {
+	font-size: 1em;
+	margin: 1em 0;
+	padding-left: 1em;
+	border-left: 3px solid rgb(55, 53, 47);
+}
+
+blockquote.quote-large {
+	font-size: 1.25em;
+}
+
+.bookmark {
+	text-decoration: none;
+	max-height: 8em;
+	padding: 0;
+	display: flex;
+	width: 100%;
+	align-items: stretch;
+}
+
+.bookmark-title {
+	font-size: 0.85em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	height: 1.75em;
+	white-space: nowrap;
+}
+
+.bookmark-text {
+	display: flex;
+	flex-direction: column;
+}
+
+.bookmark-info {
+	flex: 4 1 180px;
+	padding: 12px 14px 14px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.bookmark-image {
+	width: 33%;
+	flex: 1 1 180px;
+	display: block;
+	position: relative;
+	object-fit: cover;
+	border-radius: 1px;
+}
+
+.bookmark-description {
+	color: rgba(55, 53, 47, 0.6);
+	font-size: 0.75em;
+	overflow: hidden;
+	max-height: 4.5em;
+	word-break: break-word;
+}
+
+.bookmark-href {
+	font-size: 0.75em;
+	margin-top: 0.25em;
+}
+
+.sans { font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol"; }
+.code { font-family: "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace; }
+.serif { font-family: Lyon-Text, Georgia, ui-serif, serif; }
+.mono { font-family: iawriter-mono, Nitti, Menlo, Courier, monospace; }
+.pdf .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK JP'; }
+.pdf:lang(zh-CN) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK SC'; }
+.pdf:lang(zh-TW) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK TC'; }
+.pdf:lang(ko-KR) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK KR'; }
+.pdf .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.pdf .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK JP'; }
+.pdf:lang(zh-CN) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK SC'; }
+.pdf:lang(zh-TW) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK TC'; }
+.pdf:lang(ko-KR) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK KR'; }
+.pdf .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.highlight-default {
+	color: rgba(44, 44, 43, 1);
+}
+.highlight-gray {
+	color: rgba(125, 122, 117, 1);
+	fill: rgba(125, 122, 117, 1);
+}
+.highlight-brown {
+	color: rgba(159, 118, 90, 1);
+	fill: rgba(159, 118, 90, 1);
+}
+.highlight-orange {
+	color: rgba(210, 123, 45, 1);
+	fill: rgba(210, 123, 45, 1);
+}
+.highlight-yellow {
+	color: rgba(203, 148, 52, 1);
+	fill: rgba(203, 148, 52, 1);
+}
+.highlight-teal {
+	color: rgba(80, 148, 110, 1);
+	fill: rgba(80, 148, 110, 1);
+}
+.highlight-blue {
+	color: rgba(56, 125, 201, 1);
+	fill: rgba(56, 125, 201, 1);
+}
+.highlight-purple {
+	color: rgba(154, 107, 180, 1);
+	fill: rgba(154, 107, 180, 1);
+}
+.highlight-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.highlight-red {
+	color: rgba(207, 81, 72, 1);
+	fill: rgba(207, 81, 72, 1);
+}
+.highlight-default_background {
+	color: rgba(44, 44, 43, 1);
+}
+.highlight-gray_background {
+	background: rgba(42, 28, 0, 0.07);
+}
+.highlight-brown_background {
+	background: rgba(139, 46, 0, 0.086);
+}
+.highlight-orange_background {
+	background: rgba(224, 101, 1, 0.129);
+}
+.highlight-yellow_background {
+	background: rgba(211, 168, 0, 0.137);
+}
+.highlight-teal_background {
+	background: rgba(0, 100, 45, 0.09);
+}
+.highlight-blue_background {
+	background: rgba(0, 124, 215, 0.094);
+}
+.highlight-purple_background {
+	background: rgba(102, 0, 178, 0.078);
+}
+.highlight-pink_background {
+	background: rgba(197, 0, 93, 0.086);
+}
+.highlight-red_background {
+	background: rgba(223, 22, 0, 0.094);
+}
+.block-color-default {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray {
+	color: rgba(125, 122, 117, 1);
+	fill: rgba(125, 122, 117, 1);
+}
+.block-color-brown {
+	color: rgba(159, 118, 90, 1);
+	fill: rgba(159, 118, 90, 1);
+}
+.block-color-orange {
+	color: rgba(210, 123, 45, 1);
+	fill: rgba(210, 123, 45, 1);
+}
+.block-color-yellow {
+	color: rgba(203, 148, 52, 1);
+	fill: rgba(203, 148, 52, 1);
+}
+.block-color-teal {
+	color: rgba(80, 148, 110, 1);
+	fill: rgba(80, 148, 110, 1);
+}
+.block-color-blue {
+	color: rgba(56, 125, 201, 1);
+	fill: rgba(56, 125, 201, 1);
+}
+.block-color-purple {
+	color: rgba(154, 107, 180, 1);
+	fill: rgba(154, 107, 180, 1);
+}
+.block-color-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.block-color-red {
+	color: rgba(207, 81, 72, 1);
+	fill: rgba(207, 81, 72, 1);
+}
+.block-color-default_background {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray_background {
+	background: rgba(240, 239, 237, 1);
+}
+.block-color-brown_background {
+	background: rgba(245, 237, 233, 1);
+}
+.block-color-orange_background {
+	background: rgba(251, 235, 222, 1);
+}
+.block-color-yellow_background {
+	background: rgba(249, 243, 220, 1);
+}
+.block-color-teal_background {
+	background: rgba(232, 241, 236, 1);
+}
+.block-color-blue_background {
+	background: rgba(229, 242, 252, 1);
+}
+.block-color-purple_background {
+	background: rgba(243, 235, 249, 1);
+}
+.block-color-pink_background {
+	background: rgba(250, 233, 241, 1);
+}
+.block-color-red_background {
+	background: rgba(252, 233, 231, 1);
+}
+.select-value-color-default { background-color: rgba(42, 28, 0, 0.07); }
+.select-value-color-gray { background-color: rgba(28, 19, 1, 0.11); }
+.select-value-color-brown { background-color: rgba(127, 51, 0, 0.156); }
+.select-value-color-orange { background-color: rgba(196, 88, 0, 0.203); }
+.select-value-color-yellow { background-color: rgba(209, 156, 0, 0.282); }
+.select-value-color-green { background-color: rgba(0, 96, 38, 0.156); }
+.select-value-color-blue { background-color: rgba(0, 118, 217, 0.203); }
+.select-value-color-purple { background-color: rgba(92, 0, 163, 0.141); }
+.select-value-color-pink { background-color: rgba(183, 0, 78, 0.152); }
+.select-value-color-red { background-color: rgba(206, 24, 0, 0.164); }
+
+.checkbox {
+	display: inline-flex;
+	vertical-align: text-bottom;
+	width: 16;
+	height: 16;
+	background-size: 16px;
+	margin-left: 2px;
+	margin-right: 5px;
+}
+
+.checkbox-on {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20width%3D%2216%22%20height%3D%2216%22%20fill%3D%22%2358A9D7%22%2F%3E%0A%3Cpath%20d%3D%22M6.71429%2012.2852L14%204.9995L12.7143%203.71436L6.71429%209.71378L3.28571%206.2831L2%207.57092L6.71429%2012.2852Z%22%20fill%3D%22white%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+
+.checkbox-off {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20x%3D%220.75%22%20y%3D%220.75%22%20width%3D%2214.5%22%20height%3D%2214.5%22%20fill%3D%22white%22%20stroke%3D%22%2336352F%22%20stroke-width%3D%221.5%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+	
+</style></head><body><article id="2c456320-92ca-809d-aa9d-ee04078a6e1e" class="page sans"><header><h1 class="page-title" dir="auto">IP Corp — Data Architecture Review &amp; DB Systems — 2025-12-09</h1><p class="page-description" dir="auto"></p><table class="properties"><tbody><tr class="property-row property-row-status"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/burst_gray.svg" style="width:14px;height:14px;display:block"/></span>Processing</th><td><span class="status-value select-value-color-green"><div class="status-dot status-dot-color-green"></div>Processed</span></td></tr><tr class="property-row property-row-text"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/description_gray.svg" style="width:14px;height:14px;display:block"/></span>Agenda</th><td>Data architecture review, database systems deep dive, schema inventory discussion</td></tr><tr class="property-row property-row-date"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/calendar_gray.svg" style="width:14px;height:14px;display:block"/></span>Date</th><td><time>December 9, 2025</time></td></tr><tr class="property-row property-row-multi_select"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/list_gray.svg" style="width:14px;height:14px;display:block"/></span>Attendees</th><td><span class="selected-value select-value-color-pink">Internal</span></td></tr><tr class="property-row property-row-select"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/arrow-circle-down_gray.svg" style="width:14px;height:14px;display:block"/></span>Meeting Type</th><td><span class="selected-value select-value-color-orange">Team Meeting</span></td></tr><tr class="property-row property-row-person"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/friends_gray.svg" style="width:14px;height:14px;display:block"/></span>Organizer</th><td><span class="user"><img src="https://lh3.googleusercontent.com/a/ACg8ocLHfVvdl28jS936w7CBB6TObsUa1P-X8cbdsUSKdeEn_MD7Bw=s96-c" class="icon user-icon"/>Steve </span></td></tr><tr class="property-row property-row-select"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/arrow-circle-down_gray.svg" style="width:14px;height:14px;display:block"/></span>Priority</th><td><span class="selected-value select-value-color-yellow">Medium</span></td></tr><tr class="property-row property-row-checkbox"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/checkmark-square_gray.svg" style="width:14px;height:14px;display:block"/></span>Has Cluely Transcript</th><td><div class="checkbox checkbox-on"></div></td></tr><tr class="property-row property-row-checkbox"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/checkmark-square_gray.svg" style="width:14px;height:14px;display:block"/></span>Has Final Transcript</th><td><div class="checkbox checkbox-off"></div></td></tr><tr class="property-row property-row-select"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/arrow-circle-down_gray.svg" style="width:14px;height:14px;display:block"/></span>Status</th><td><span class="selected-value select-value-color-brown">Completed</span></td></tr><tr class="property-row property-row-checkbox"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/checkmark-square_gray.svg" style="width:14px;height:14px;display:block"/></span>Has Notion Transcript</th><td><div class="checkbox checkbox-on"></div></td></tr><tr class="property-row property-row-checkbox"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/checkmark-square_gray.svg" style="width:14px;height:14px;display:block"/></span>Has Teams Transcript</th><td><div class="checkbox checkbox-off"></div></td></tr><tr class="property-row property-row-number"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/hashtag_gray.svg" style="width:14px;height:14px;display:block"/></span>Mtg #</th><td>4</td></tr><tr class="property-row property-row-checkbox"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/checkmark-square_gray.svg" style="width:14px;height:14px;display:block"/></span>Merged to Feed</th><td><div class="checkbox checkbox-off"></div></td></tr></tbody></table></header><div class="page-body"><div style="display:contents" dir="ltr"><div id="bddbefbf-3ba4-4717-a94a-fce0be8f5c87" class="transcription"><div style="border-bottom:0.05em solid;border-bottom-color:rgba(42, 28, 0, 0.07)">Summary<br/></div><div style="display:contents" dir="auto"><h3 id="7b4c0af5-5fbd-4b02-9818-e8da9d330f23" class="">Architecture Diagrams Review</h3></div><div style="display:contents" dir="auto"><ul id="bbb2681e-0330-4c10-9e15-c6e5d9cd460e" class="bulleted-list"><li style="list-style-type:disc">Steve presented visual representations of the organization&#x27;s systems architecture to validate understanding and identify inaccuracies <a href="IP%20Corp%20%E2%80%94%20Data%20Architecture%20Review%20&amp;%20DB%20Systems%20%E2%80%94%20%202c45632092ca809daa9dee04078a6e1e.html">[1]</a> <a href="IP%20Corp%20%E2%80%94%20Data%20Architecture%20Review%20&amp;%20DB%20Systems%20%E2%80%94%20%202c45632092ca809daa9dee04078a6e1e.html">[2]</a> <a href="IP%20Corp%20%E2%80%94%20Data%20Architecture%20Review%20&amp;%20DB%20Systems%20%E2%80%94%20%202c45632092ca809daa9dee04078a6e1e.html">[3]</a></li></ul></div><div style="display:contents" dir="auto"><ul id="6080842d-980f-40cc-a0b7-a5dcb80e7841" class="bulleted-list"><li style="list-style-type:disc">The diagrams included three main sections: executive summary, current state visualization, and technical layout <a href="IP%20Corp%20%E2%80%94%20Data%20Architecture%20Review%20&amp;%20DB%20Systems%20%E2%80%94%20%202c45632092ca809daa9dee04078a6e1e.html">[4]</a> <a href="IP%20Corp%20%E2%80%94%20Data%20Architecture%20Review%20&amp;%20DB%20Systems%20%E2%80%94%20%202c45632092ca809daa9dee04078a6e1e.html">[5]</a></li></ul></div><div style="display:contents" dir="auto"><ul id="d11d7ddb-c7d8-4f21-bc37-2f12705d8a03" class="bulleted-list"><li style="list-style-type:disc">Several corrections were suggested regarding system names and relationships:<div style="display:contents" dir="auto"><ul id="1e8e5d61-fb9e-4267-a68d-5fc5b9fce67b" class="bulleted-list"><li style="list-style-type:circle">Plant PAX doesn&#x27;t exist but is being reviewed; it&#x27;s closer to an MES system by Rockwell <a href="IP%20Corp%20%E2%80%94%20Data%20Architecture%20Review%20&amp;%20DB%20Systems%20%E2%80%94%20%202c45632092ca809daa9dee04078a6e1e.html">[6]</a> <a href="IP%20Corp%20%E2%80%94%20Data%20Architecture%20Review%20&amp;%20DB%20Systems%20%E2%80%94%20%202c45632092ca809daa9dee04078a6e1e.html">[7]</a></li></ul></div><div style="display:contents" dir="auto"><ul id="be389ddc-7ec9-4159-8c90-94bd9424899c" class="bulleted-list"><li style="list-style-type:circle">ERP should be considered part of the core data layer <a href="IP%20Corp%20%E2%80%94%20Data%20Architecture%20Review%20&amp;%20DB%20Systems%20%E2%80%94%20%202c45632092ca809daa9dee04078a6e1e.html">[8]</a></li></ul></div><div style="display:contents" dir="auto"><ul id="41167bde-7a38-4d69-af8f-2afc4fdfc856" class="bulleted-list"><li style="list-style-type:circle">Safety Data Sheets should be labeled as &quot;Intelligent Authoring&quot; (IA) <a href="IP%20Corp%20%E2%80%94%20Data%20Architecture%20Review%20&amp;%20DB%20Systems%20%E2%80%94%20%202c45632092ca809daa9dee04078a6e1e.html">[9]</a> <a href="IP%20Corp%20%E2%80%94%20Data%20Architecture%20Review%20&amp;%20DB%20Systems%20%E2%80%94%20%202c45632092ca809daa9dee04078a6e1e.html">[10]</a></li></ul></div><div style="display:contents" dir="auto"><ul id="96ab7f18-1d5d-4ef0-933e-33bc2f4337ed" class="bulleted-list"><li style="list-style-type:circle">OATES is an acronym (O-A-T-E-S) <a href="IP%20Corp%20%E2%80%94%20Data%20Architecture%20Review%20&amp;%20DB%20Systems%20%E2%80%94%20%202c45632092ca809daa9dee04078a6e1e.html">[11]</a></li></ul></div></li></ul></div><div style="display:contents" dir="auto"><ul id="76c7a75a-c106-438f-b002-36f593d330e3" class="bulleted-list"><li style="list-style-type:disc">The visual approach was praised as helpful for understanding complex system relationships and identifying misalignments <a href="IP%20Corp%20%E2%80%94%20Data%20Architecture%20Review%20&amp;%20DB%20Systems%20%E2%80%94%20%202c45632092ca809daa9dee04078a6e1e.html">[12]</a> <a href="IP%20Corp%20%E2%80%94%20Data%20Architecture%20Review%20&amp;%20DB%20Systems%20%E2%80%94%20%202c45632092ca809daa9dee04078a6e1e.html">[13]</a></li></ul></div><div style="display:contents" dir="auto"><h3 id="219ff554-12e5-43cf-964d-d5e2f78c452f" class="">Database Systems Overview</h3></div><div style="display:contents" dir="auto"><ul id="64bb8c2b-3ef7-412e-ab4e-4e0855dd7ea8" class="bulleted-list"><li style="list-style-type:disc">The organization maintains multiple database servers with specific purposes <a href="IP%20Corp%20%E2%80%94%20Data%20Architecture%20Review%20&amp;%20DB%20Systems%20%E2%80%94%20%202c45632092ca809daa9dee04078a6e1e.html">[14]</a>:<div style="display:contents" dir="auto"><ul id="7c79e3c3-27b1-40a9-b780-4145a0eec8a8" class="bulleted-list"><li style="list-style-type:circle">Main production servers: M3DB1, M3DB2, M3DB3, SQL 2016 Live, and SQL 2019 Live <a href="IP%20Corp%20%E2%80%94%20Data%20Architecture%20Review%20&amp;%20DB%20Systems%20%E2%80%94%20%202c45632092ca809daa9dee04078a6e1e.html">[15]</a> <a href="IP%20Corp%20%E2%80%94%20Data%20Architecture%20Review%20&amp;%20DB%20Systems%20%E2%80%94%20%202c45632092ca809daa9dee04078a6e1e.html">[16]</a></li></ul></div><div style="display:contents" dir="auto"><ul id="2cec1797-1681-4f97-af8d-2457c43adb55" class="bulleted-list"><li style="list-style-type:circle">Development and test environments make up most of the other servers <a href="IP%20Corp%20%E2%80%94%20Data%20Architecture%20Review%20&amp;%20DB%20Systems%20%E2%80%94%20%202c45632092ca809daa9dee04078a6e1e.html">[15]</a></li></ul></div><div style="display:contents" dir="auto"><ul id="524e2cfe-37ea-49c3-b67f-f9ea3b7d29be" class="bulleted-list"><li style="list-style-type:circle">Some servers are scheduled for retirement <a href="IP%20Corp%20%E2%80%94%20Data%20Architecture%20Review%20&amp;%20DB%20Systems%20%E2%80%94%20%202c45632092ca809daa9dee04078a6e1e.html">[16]</a></li></ul></div></li></ul></div><div style="display:contents" dir="auto"><ul id="68c2cdb7-eb20-4404-81d4-e239945a5b0a" class="bulleted-list"><li style="list-style-type:disc">M3DB3 hosts the on-premise ERP system (M3) <a href="IP%20Corp%20%E2%80%94%20Data%20Architecture%20Review%20&amp;%20DB%20Systems%20%E2%80%94%20%202c45632092ca809daa9dee04078a6e1e.html">[17]</a></li></ul></div><div style="display:contents" dir="auto"><ul id="672426b8-4a7f-4cff-8de3-a1c8db4bf81c" class="bulleted-list"><li style="list-style-type:disc">M3DB1 hosts both M3 and MES applications <a href="IP%20Corp%20%E2%80%94%20Data%20Architecture%20Review%20&amp;%20DB%20Systems%20%E2%80%94%20%202c45632092ca809daa9dee04078a6e1e.html">[18]</a></li></ul></div><div style="display:contents" dir="auto"><ul id="fe43df9a-dc1d-4586-b851-769248bff09d" class="bulleted-list"><li style="list-style-type:disc">Data is log-shipped to SQL 2012 test server which serves as a staging environment for report writing <a href="IP%20Corp%20%E2%80%94%20Data%20Architecture%20Review%20&amp;%20DB%20Systems%20%E2%80%94%20%202c45632092ca809daa9dee04078a6e1e.html">[19]</a> <a href="IP%20Corp%20%E2%80%94%20Data%20Architecture%20Review%20&amp;%20DB%20Systems%20%E2%80%94%20%202c45632092ca809daa9dee04078a6e1e.html">[20]</a></li></ul></div><div style="display:contents" dir="auto"><h3 id="d2ed280c-1557-45a6-985a-7b9d048a85d8" class="">Data Architecture Discussion</h3></div><div style="display:contents" dir="auto"><ul id="a2beb9a0-bb38-4a4c-954d-e4e50e1e2f58" class="bulleted-list"><li style="list-style-type:disc">Current state: Transactional databases without true data warehouse functionality <a href="IP%20Corp%20%E2%80%94%20Data%20Architecture%20Review%20&amp;%20DB%20Systems%20%E2%80%94%20%202c45632092ca809daa9dee04078a6e1e.html">[21]</a></li></ul></div><div style="display:contents" dir="auto"><ul id="50fc59b3-953a-4002-98b7-3d73fb3747d2" class="bulleted-list"><li style="list-style-type:disc">The team has created some &quot;mini data warehouses&quot; for reporting purposes <a href="IP%20Corp%20%E2%80%94%20Data%20Architecture%20Review%20&amp;%20DB%20Systems%20%E2%80%94%20%202c45632092ca809daa9dee04078a6e1e.html">[22]</a> <a href="IP%20Corp%20%E2%80%94%20Data%20Architecture%20Review%20&amp;%20DB%20Systems%20%E2%80%94%20%202c45632092ca809daa9dee04078a6e1e.html">[23]</a></li></ul></div><div style="display:contents" dir="auto"><ul id="80b38fdf-11e4-4c52-b0ec-a485d231f613" class="bulleted-list"><li style="list-style-type:disc">Current ETL process involves pulling data from source systems into SQL reporting databases <a href="IP%20Corp%20%E2%80%94%20Data%20Architecture%20Review%20&amp;%20DB%20Systems%20%E2%80%94%20%202c45632092ca809daa9dee04078a6e1e.html">[24]</a> <a href="IP%20Corp%20%E2%80%94%20Data%20Architecture%20Review%20&amp;%20DB%20Systems%20%E2%80%94%20%202c45632092ca809daa9dee04078a6e1e.html">[25]</a></li></ul></div><div style="display:contents" dir="auto"><ul id="28a4d302-72b3-40ff-b588-5ef3dff4989c" class="bulleted-list"><li style="list-style-type:disc">Data refreshes are currently implemented using full truncation and reload with date-based filtering <a href="IP%20Corp%20%E2%80%94%20Data%20Architecture%20Review%20&amp;%20DB%20Systems%20%E2%80%94%20%202c45632092ca809daa9dee04078a6e1e.html">[26]</a> <a href="IP%20Corp%20%E2%80%94%20Data%20Architecture%20Review%20&amp;%20DB%20Systems%20%E2%80%94%20%202c45632092ca809daa9dee04078a6e1e.html">[27]</a> <a href="IP%20Corp%20%E2%80%94%20Data%20Architecture%20Review%20&amp;%20DB%20Systems%20%E2%80%94%20%202c45632092ca809daa9dee04078a6e1e.html">[28]</a></li></ul></div><div style="display:contents" dir="auto"><ul id="a8b04d9e-9385-42c6-a62f-fae0b46b3c7f" class="bulleted-list"><li style="list-style-type:disc">Discussion around implementing a medallion architecture (bronze/silver/gold layers) in Microsoft Fabric <a href="IP%20Corp%20%E2%80%94%20Data%20Architecture%20Review%20&amp;%20DB%20Systems%20%E2%80%94%20%202c45632092ca809daa9dee04078a6e1e.html">[29]</a> <a href="IP%20Corp%20%E2%80%94%20Data%20Architecture%20Review%20&amp;%20DB%20Systems%20%E2%80%94%20%202c45632092ca809daa9dee04078a6e1e.html">[30]</a> <a href="IP%20Corp%20%E2%80%94%20Data%20Architecture%20Review%20&amp;%20DB%20Systems%20%E2%80%94%20%202c45632092ca809daa9dee04078a6e1e.html">[31]</a></li></ul></div><div style="display:contents" dir="auto"><ul id="18e209cc-eb9d-46f2-8048-e72478926639" class="bulleted-list"><li style="list-style-type:disc">Udias is currently using star schema for simplicity in Power BI reporting <a href="IP%20Corp%20%E2%80%94%20Data%20Architecture%20Review%20&amp;%20DB%20Systems%20%E2%80%94%20%202c45632092ca809daa9dee04078a6e1e.html">[32]</a> <a href="IP%20Corp%20%E2%80%94%20Data%20Architecture%20Review%20&amp;%20DB%20Systems%20%E2%80%94%20%202c45632092ca809daa9dee04078a6e1e.html">[33]</a></li></ul></div><div style="display:contents" dir="auto"><h3 id="de265b0f-ec71-4dcd-a2f1-45d2c38ee8a1" class="">Knowledge Management</h3></div><div style="display:contents" dir="auto"><ul id="567888d2-d583-4c7c-80f7-52a46230d94a" class="bulleted-list"><li style="list-style-type:disc">Team acknowledged SharePoint as a &quot;black hole of documentation&quot; <a href="IP%20Corp%20%E2%80%94%20Data%20Architecture%20Review%20&amp;%20DB%20Systems%20%E2%80%94%20%202c45632092ca809daa9dee04078a6e1e.html">[34]</a></li></ul></div><div style="display:contents" dir="auto"><ul id="015d81c0-3007-4d8a-8456-a56330b95d30" class="bulleted-list"><li style="list-style-type:disc">Previously discussed using Confluence as a potential knowledge base <a href="IP%20Corp%20%E2%80%94%20Data%20Architecture%20Review%20&amp;%20DB%20Systems%20%E2%80%94%20%202c45632092ca809daa9dee04078a6e1e.html">[34]</a></li></ul></div><div style="display:contents" dir="auto"><ul id="c079d22b-a1fb-44be-863e-7c82749977dc" class="bulleted-list"><li style="list-style-type:disc">Prezi was suggested as an effective tool for visualizing complex relationships for non-technical stakeholders <a href="IP%20Corp%20%E2%80%94%20Data%20Architecture%20Review%20&amp;%20DB%20Systems%20%E2%80%94%20%202c45632092ca809daa9dee04078a6e1e.html">[35]</a> <a href="IP%20Corp%20%E2%80%94%20Data%20Architecture%20Review%20&amp;%20DB%20Systems%20%E2%80%94%20%202c45632092ca809daa9dee04078a6e1e.html">[36]</a> <a href="IP%20Corp%20%E2%80%94%20Data%20Architecture%20Review%20&amp;%20DB%20Systems%20%E2%80%94%20%202c45632092ca809daa9dee04078a6e1e.html">[37]</a></li></ul></div><div style="display:contents" dir="auto"><h3 id="90ab2edf-715b-4349-86de-be131c084ac9" class="">Action Items</h3></div><div style="display:contents" dir="auto"><ul id="73f70757-dac2-4cbb-bb0e-8f096ece4657" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Steve to update diagrams based on feedback received <a href="IP%20Corp%20%E2%80%94%20Data%20Architecture%20Review%20&amp;%20DB%20Systems%20%E2%80%94%20%202c45632092ca809daa9dee04078a6e1e.html">[38]</a> <a href="IP%20Corp%20%E2%80%94%20Data%20Architecture%20Review%20&amp;%20DB%20Systems%20%E2%80%94%20%202c45632092ca809daa9dee04078a6e1e.html">[39]</a></span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="528fa48f-f297-488a-857a-9dbf8281901a" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Steve to compile notes from the meeting and send a recap <a href="IP%20Corp%20%E2%80%94%20Data%20Architecture%20Review%20&amp;%20DB%20Systems%20%E2%80%94%20%202c45632092ca809daa9dee04078a6e1e.html">[40]</a> <a href="IP%20Corp%20%E2%80%94%20Data%20Architecture%20Review%20&amp;%20DB%20Systems%20%E2%80%94%20%202c45632092ca809daa9dee04078a6e1e.html">[41]</a></span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="2e2ab90b-4abc-4343-85f8-7f8ea89f7027" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Meeting to be scheduled with Mike to review understanding and discuss next steps <a href="IP%20Corp%20%E2%80%94%20Data%20Architecture%20Review%20&amp;%20DB%20Systems%20%E2%80%94%20%202c45632092ca809daa9dee04078a6e1e.html">[42]</a> <a href="IP%20Corp%20%E2%80%94%20Data%20Architecture%20Review%20&amp;%20DB%20Systems%20%E2%80%94%20%202c45632092ca809daa9dee04078a6e1e.html">[43]</a> <a href="IP%20Corp%20%E2%80%94%20Data%20Architecture%20Review%20&amp;%20DB%20Systems%20%E2%80%94%20%202c45632092ca809daa9dee04078a6e1e.html">[39]</a></span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="8dcad730-b267-4f30-8728-5bbc342dbc35" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Confirm data ownership/stewardship for domains and applications <a href="IP%20Corp%20%E2%80%94%20Data%20Architecture%20Review%20&amp;%20DB%20Systems%20%E2%80%94%20%202c45632092ca809daa9dee04078a6e1e.html">[44]</a> <a href="IP%20Corp%20%E2%80%94%20Data%20Architecture%20Review%20&amp;%20DB%20Systems%20%E2%80%94%20%202c45632092ca809daa9dee04078a6e1e.html">[45]</a> <a href="IP%20Corp%20%E2%80%94%20Data%20Architecture%20Review%20&amp;%20DB%20Systems%20%E2%80%94%20%202c45632092ca809daa9dee04078a6e1e.html">[46]</a></span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="225013b3-af4a-4ad9-92c5-b60395923e65" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Add missing applications to diagrams (scheduling, EAM, CPR) <a href="IP%20Corp%20%E2%80%94%20Data%20Architecture%20Review%20&amp;%20DB%20Systems%20%E2%80%94%20%202c45632092ca809daa9dee04078a6e1e.html">[47]</a> <a href="IP%20Corp%20%E2%80%94%20Data%20Architecture%20Review%20&amp;%20DB%20Systems%20%E2%80%94%20%202c45632092ca809daa9dee04078a6e1e.html">[48]</a></span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="ed7e72cf-a619-4518-b6ff-389d356c469b" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Set up follow-up meeting to continue database review <a href="IP%20Corp%20%E2%80%94%20Data%20Architecture%20Review%20&amp;%20DB%20Systems%20%E2%80%94%20%202c45632092ca809daa9dee04078a6e1e.html">[49]</a> <a href="IP%20Corp%20%E2%80%94%20Data%20Architecture%20Review%20&amp;%20DB%20Systems%20%E2%80%94%20%202c45632092ca809daa9dee04078a6e1e.html">[50]</a></span><div class="indented"></div></li></ul></div><div style="border-bottom:0.05em solid;border-bottom-color:rgba(42, 28, 0, 0.07)">Notes<br/></div><div style="display:contents" dir="auto"><p id="279f4d53-7486-471e-8f09-736ca2b8e7db" class="">
+</p></div><div style="border-bottom:0.05em solid;border-bottom-color:rgba(42, 28, 0, 0.07)">Transcript<br/></div><div style="display:contents" dir="auto"><p id="e3db1e33-9e67-4e88-87f5-442ba139c74b" class="">See if we have any better luck. Uh, I believe we will. Unless they fire off another... Salvo? Yeah, I don&#x27;t know what that was. I&#x27;ve never seen an electric cord. Do you want to start going through the database servers and kind of explaining the systems? Is that a good use of time for you, Steve? Yeah.</p></div><div style="display:contents" dir="auto"><p id="303fc09c-1bc8-4bbb-8f44-cfaa60523040" class="">Did you happen to send or show Udias, like, I guess, my... I did not. If you want to start there, that is totally fine. I actually thought that was pretty good. I don&#x27;t want to take credit for someone else&#x27;s work, so I&#x27;d rather let you go ahead and show it.</p></div><div style="display:contents" dir="auto"><p id="ecc31af8-b365-4f43-b88d-4d931b1fe727" class="">When it&#x27;s presented from my end, it shows what I&#x27;ve retained, my understanding of the concepts and how they fit together, and then allows you guys to easily identify missing parts. Things that are missing, things that are misunderstood, things that are misinterpreted, etc. So I&#x27;m just very visual, but here is...</p></div><div style="display:contents" dir="auto"><p id="52a532b3-3b4a-4820-a9b7-1c65dc2a6c77" class="">Executive Summary</p></div><div style="display:contents" dir="auto"><p id="7bda78a3-9196-4984-91c8-9cae0a5b1f2b" class="">Let me share my screen.</p></div><div style="display:contents" dir="auto"><p id="af80abb8-2ca1-4665-8e2d-a4ba3e8e4626" class="">Let me know when you can see it.</p></div><div style="display:contents" dir="auto"><p id="c653c2ce-465a-406e-b49f-7abcea2de254" class="">Yeah, that&#x27;s cool.</p></div><div style="display:contents" dir="auto"><p id="894775ab-66ad-43ec-987d-55ff4778c1df" class="">Yeah, feel free to start putting your input in here as well, ladies, because, I mean, everyone has a little bit of input on helping. Some people get upset about names, but... Oh, yeah. Those are the little things that... I... I... honestly... it...</p></div><div style="display:contents" dir="auto"><p id="08644446-19a3-4f18-abbd-fb118709e7d3" class="">I needed to update the model on the back end. I didn&#x27;t go through with a fine tooth comb and spell check it. No, no, no, you&#x27;re fine. A spell check would never fix it anyways. I just happened to catch it there. So, and as is P-E-N-N-A-Z. But if you go and look at my...</p></div><div style="display:contents" dir="auto"><p id="d2e4d183-cbc0-4fd5-aedb-28d44c73ec82" class="">
+</p></div><div style="display:contents" dir="auto"><p id="6e04142e-f116-4699-9385-457f6a86ea34" class="">And then look at the organization. You&#x27;ll see those that report to me and that might help you out a little bit. Okay. Let me see.</p></div><div style="display:contents" dir="auto"><p id="64c6092f-06f2-466f-ab0c-a5ea1455cf5a" class="">So this portrait view is in three sections, so this is meant more as a stakeholder Non-technical understanding of it, just how things fit together. Little things that I took note of, like there was a ransomware attack. Things to just keep in mind in terms of IT sensitivities and things like that.</p></div><div style="display:contents" dir="auto"><p id="7b0361fe-f9f6-4bc2-b4ee-2f406167593a" class="">So it&#x27;s kind of a mixture of culture, team member like aggregation, how things kind of fit together. So this is essentially a Visual of what&#x27;s going on in my head at the moment and it&#x27;s just the best way I can figure out to display it to you guys. If you see anything that you have an issue with in terms of like, you know, obviously this is, you know, legacy, the foundation, the current state, it&#x27;s a mess. No, no offense, honestly.</p></div><div style="display:contents" dir="auto"><p id="3f52824f-2f2d-43cb-ba17-11f734489ff8" class="">It&#x27;s just not taken. We know it&#x27;s a mess. That&#x27;s why we&#x27;re, you know, having someone come in and I&#x27;ll go through the MDM process in the first place. Yeah, if there wasn&#x27;t a problem I wouldn&#x27;t be here. I hate calling it data fabric, really, just because it&#x27;s not how they market it. It&#x27;s just fabric. And so I was just looking at your, the</p></div><div style="display:contents" dir="auto"><p id="4a6dae70-6f23-4734-b0f5-a57a4f037bb2" class="">Upper right quadrant that I can see right now where you have from system to system. Still upper right quadrant, right? The mid quadrant, mid right now. Yeah, that there. So is that the what systems communicate with each other is what you&#x27;re talking about, or is that we&#x27;re moving from, okay, I think this is what systems talk to each other. Yes.</p></div><div style="display:contents" dir="auto"><p id="18436de0-4860-4893-bd7d-aef9498b9470" class="">Optiva talks to MES. Optiva also talks to M3, so I don&#x27;t know if you want to show both of those in that spot there. Yeah, I just, I couldn&#x27;t think of a visual way to do it. You can&#x27;t do it right off the bat without it coming out looking like... It would look very much like that. That&#x27;s actually a fairly accurate picture, I think. Yeah. I was trying to get it.</p></div><div style="display:contents" dir="auto"><p id="d38fdf8f-bf8a-45f6-b1ef-fd3e538eef94" class="">like the visual to be okay this is what it currently is this is what we&#x27;re trying to get it to and it&#x27;s not perfect but this is you know what i mean like it&#x27;s just more of a plant plant pax doesn&#x27;t exist uh it is um rockwell software It is you had it somewhere else in the screen I had it here. Down on the bottom area factor talk batch is what it is now plant PAX is actually.</p></div><div style="display:contents" dir="auto"><p id="e69d2aff-b1e6-4139-8070-d820404ddb12" class="">It&#x27;s closer to what you would call an MES system made by Rockwell. And that&#x27;s one that we are looking at. We don&#x27;t have plenty of... I&#x27;ll just get that for you. Got it.</p></div><div style="display:contents" dir="auto"><p id="207117f5-43af-4665-a068-6f6d19b26684" class="">I&#x27;m just going to put these all in one place. I&#x27;m starting to get confused where I put them.</p></div><div style="display:contents" dir="auto"><p id="1f1d85b4-483e-49ef-b327-181fac934e78" class="">Okay, and then...</p></div><div style="display:contents" dir="auto"><p id="b110b186-cfc6-498b-ba07-ad5a7646c393" class="">This is more or less the silos and the synergy and obviously there are some issues with the way that I understood this one so I made notes of that so I&#x27;m going to fix those. But just this is a little bit better attempt to visualize what the end objective is. Starting to throw in like, you know, batch IDs.</p></div><div style="display:contents" dir="auto"><p id="776d657f-2e2b-403b-a0e5-2fc50bfce094" class="">Overlaying it with the timeline, just kind of helping people visualize it. And then this is more technical in terms of what we actually need to. know and kind of lay out. We&#x27;ve already gone through a lot of the issues that, well, a lot of the discrepancies and inaccuracies that exist on here. So I</p></div><div style="display:contents" dir="auto"><p id="caf7c74a-bcfd-4fde-9b0a-b896278d2f99" class="">Don&#x27;t you? To get alarm, you just do it. Basically, one of the things that him and I talked about is that the ERP is actually part of the core. In fact, I would argue to say that you get ERP layer and core data are the same color. They almost, that could be considered core all the way out there. And just Salesforce needs to just move to the other side. And like I said, plant PX doesn&#x27;t really exist, but is being reviewed. Other than that.</p></div><div style="display:contents" dir="auto"><p id="43b149a7-0c04-4b35-a923-45bf8e5de709" class="">Safety data sheets that if you wanted to stay with the application theme versus what the The output is, it&#x27;s actually IA or Sphera, Intelligent Authoring. Sphera is the manufacturer, Intelligent Authoring is the application. So if you&#x27;re still sticking with the application terminology, SDS would be changed to Intelligent Off-Rammer IA. This, the SDS right here? Yeah, that would be the back-end system.</p></div><div style="display:contents" dir="auto"><p id="9af4751d-9ab0-42b2-9440-cc0feac7e185" class="">Sorry, can you repeat that one more time? Hi.</p></div><div style="display:contents" dir="auto"><p id="5ca5ac90-d687-4bc7-958c-19e8114a61f6" class="">IA, which is Intelligent Operating.</p></div><div style="display:contents" dir="auto"><p id="83069a43-1c3d-46a9-b896-2a399015a594" class="">And OATES, to be technical, is O-A-T-E-S. It&#x27;s an acronym for Online, automated, I can&#x27;t remember what it stands for. It really does not matter for the purpose of this conversation. Minor things, Steve. Minor things. This is actually quite awesome, I think. Honestly, I&#x27;ve done so many of these where...</p></div><div style="display:contents" dir="auto"><p id="79ae38ab-948b-440b-99e3-03a40224f1a9" class="">Even I&#x27;ll think that I understand it correctly. We&#x27;ll have session after session after session of sharing screens and going through Excel files where they work with it every single day, day in and day out. So it&#x27;s like... They know it like the back of their hand. They assume that I&#x27;m picking it up. I think that I&#x27;m understanding it. We get to a point a few months in and it&#x27;s like, oh well I assume that this connected to this or this, you know what I mean? There were just so many instances where I found that one side or the other was not on the same page in terms of understanding where the other person was.</p></div><div style="display:contents" dir="auto"><p id="73b22ca6-49d9-4453-b137-3c1cf574ae5e" class="">agreeing on it. So that&#x27;s, I just, I feel like the prep work and making sure that everybody clearly understands conceptually what&#x27;s going on. What the expectations are is just it&#x27;s so important not to sound too corny but it&#x27;s just like there&#x27;s no point in actually doing the work if</p></div><div style="display:contents" dir="auto"><p id="488f4b01-06dc-4312-ac6a-36478cacc01e" class="">You&#x27;re going to be shooting in the dark in terms of what the expectations are at the end of the day. So that&#x27;s why I just do this kind of stuff. Yeah, and the only reason I correct any of this is that sometimes even those little things... People will see it and go and they&#x27;ll lock on to that and then they can&#x27;t follow along when you&#x27;re getting into conversations Because they&#x27;re so engrossed in some of those little little tiny things sometimes. Yeah, you did what you&#x27;re doing here is</p></div><div style="display:contents" dir="auto"><p id="31e7f2df-2fb0-4bcd-84bd-74bec907f7fd" class="">I&#x27;m just trying to make the minor adjustments one for like you said to help with the understanding because there&#x27;s going to be stakeholders looking at this to us and my assumption is at some point, 100% Yeah, you like this. This was intended to be kind of like, what&#x27;s missing, what&#x27;s inaccurate, just because if I were to throw this up in front of a bunch of stakeholders, as it is now, I would immediately lose credibility.</p></div><div style="display:contents" dir="auto"><p id="10f5a427-5320-4830-979c-358a879f2be2" class="">And that&#x27;s what I&#x27;m trying to help out with, is a better way of putting it. Yeah, because it doesn&#x27;t make either of us look great if... I&#x27;m not going to go in front of a meeting like that and look for it. And what I&#x27;ll try to do tonight is I&#x27;ll take a look at these tonight and I&#x27;ll make any other adjustments I&#x27;m not seeing right now and send them back to you and we can get some clarifications.</p></div><div style="display:contents" dir="auto"><p id="0dc2674e-807c-49f6-889b-8f64a9595359" class="">well before you get in front of stakeholders. I don&#x27;t think Mike is gonna take any offense to any minor things. In fact, he&#x27;s been here so little, some things he may not even. No or incorrect in here, but he&#x27;s going to focus more on the bigger picture. I don&#x27;t know if you guys are familiar with Prezi? P-R-E-Z-I?</p></div><div style="display:contents" dir="auto"><p id="7d16e300-63a6-4407-ac6b-ae931ab05009" class="">No, I&#x27;ve heard of it, but I&#x27;m not familiar with it. It&#x27;s really good for things like this, and I used it one time, but I can make something that&#x27;s similar to that. But it&#x27;s basically, you start at a very high level, then you can click into it, and it like kind of zooms in, like does like a camera zoom, and it breaks.</p></div><div style="display:contents" dir="auto"><p id="847cc150-f81d-42ef-a94f-07e39fc65815" class="">I have gotten a lot of good feedback on presenting it. What&#x27;s the name? Prezi? Prezi. P-R-E-Z-I. I don&#x27;t think we should, I don&#x27;t necessarily think we should get the subscription or anything like that. It&#x27;s just No, that that kind of approach to things like this</p></div><div style="display:contents" dir="auto"><p id="fc23227c-7ac3-4065-8043-c2fbc03b20cc" class="">I&#x27;m just giving you guys feedback on what I&#x27;ve found to really stick with non-technical people because they can visualize like okay so when we click into here you zoom in and it breaks it down even further and then they can zoom out but um If there&#x27;s a big request for that, I can definitely turn this into something very similar to that. I don&#x27;t know how many people... In terms of a knowledge base, that was something that I wanted to kind of...</p></div><div style="display:contents" dir="auto"><p id="b878a0bf-d50d-42c6-a49f-c5dd7bef06ee" class="">Touch on with you guys was like, uh, we discussed confluence yesterday lightly at a high level um, but in terms of SharePoint is the black hole of documentation. We kind of agreed on that. Yeah. Yep, so we&#x27;ll get through that too. The last thing I want to do is hand you guys a SharePoint link to a bunch of directories that have obscure names and you don&#x27;t know what&#x27;s in.</p></div><div style="display:contents" dir="auto"><p id="63cef8c0-b2b6-4224-912e-8c120adc4388" class="">The folders and where to find stuff. And then a month later, you know, you see nobody&#x27;s even looked at them. A year later, maybe one person&#x27;s looked at them. I think it&#x27;s kind of pointless. So, the more accessible this is. You had this one here. You had that one up top. Isn&#x27;t there another one that you were showing too? Showed this. Did we capture them all?</p></div><div style="display:contents" dir="auto"><p id="7dbb01d5-f89d-432f-9629-5c586f24e10d" class="">Oh yeah, we did look at them. Yep, yep, yep. Okay, yeah. Scroll down. Okay. End result. Did I throw these in this chat or was it just last chat? You were in a different chat. You can definitely throw them here. I just had an impromptu meeting that I tried to put together with you to...</p></div><div style="display:contents" dir="auto"><p id="c0d43b65-9038-4e1f-90ef-542f04346403" class="">Try to pick up where we left off, not knowing how far we would get. Actually, I think we got further along than I thought.</p></div><div style="display:contents" dir="auto"><p id="cd2c5ced-f922-4a65-a5fb-292a4e91647d" class="">So you can throw them in this chat here, or I can throw them in there, or at some point we&#x27;ll put them into the black hole or Jira of Confluence if we get down that road. So these are obviously the as-is versions of them, so I&#x27;ll be updating these tonight.</p></div><div style="display:contents" dir="auto"><p id="2cf6d01a-855a-4b05-bd2e-c70d6bff66c0" class="">
+</p></div><div style="display:contents" dir="auto"><p id="49f46236-fcc3-47f6-be22-a85cd5480a38" class="">Graphics. I don&#x27;t know. I think they&#x27;re a little bit more than diagrams. They&#x27;re more ample graphics to me, but...</p></div><div style="display:contents" dir="auto"><p id="4de5a661-c7b3-48d7-9f7a-9b3d965f48c1" class="">Sometimes I get a little too artsy with it, but it&#x27;s really boring if you don&#x27;t. What application is that? I mean, the way you&#x27;re building this out of, it&#x27;s kind of cool. So it&#x27;s a mixture of things, so like I blend a lot of things together, but uh...</p></div><div style="display:contents" dir="auto"><p id="c4de4247-457b-4506-93b9-62403466d378" class="">Google&#x27;s, um, Google&#x27;s Nano Banana 3 is very, very good. I&#x27;ve heard a little bit more about this Nano Banana thing. What the heck is this? I&#x27;m seeing more and more of it. It&#x27;s just that the Nano Banana is just a random name that they gave their image generation model.</p></div><div style="display:contents" dir="auto"><p id="f9ee4cfc-dc1a-42f2-969c-e5adab1ebc43" class="">So there&#x27;s Gemini 3, which is like their main chat GPT. Yeah, their 5.1 chat GPT. And then within the interface, you can click like, you know, create an image and that&#x27;s nano banana. It&#x27;s just the reason that these things have very obscure names is because before they&#x27;re released.</p></div><div style="display:contents" dir="auto"><p id="cbb08d96-9013-4053-a40a-950df349215a" class="">Use open source models with really random names that people, you know, put on there. OpenAI and ChatGBT and all these other providers will actually put their mainstay model, like their flagship models on there. under really random names to try to obscure it just to see how people react and stuff and so that&#x27;s why they have really weird names so that&#x27;s where it comes from.</p></div><div style="display:contents" dir="auto"><p id="0c2bb6d3-6be1-41e0-832a-9c300b61bd06" class="">They do it to hide the fact that they&#x27;re giving people free access to their flagship proprietary model. I remember when you had to have an invitation to get Gmail, so my two email addresses I have still go back that far. Okay, so real quick before we shift gears and start looking at some of the databases. I&#x27;m setting up a meeting with Mike. I&#x27;m just kind of taking notes of some of the things that I want to talk about.</p></div><div style="display:contents" dir="auto"><p id="71c14ca0-d8b1-4d2c-831d-a7cefbb13a16" class="">Otherwise, I&#x27;d like to leave you guys to have it, and then obviously you have free reign to add whatever you&#x27;d like. I was just going to say, hey, you know, kind of introduced you a little bit to some of the team, talked about some of the systems that we went through.</p></div><div style="display:contents" dir="auto"><p id="fa2fd0ff-eb20-4df5-8545-b1d81db65edb" class="">We&#x27;ll have talked about some of the applications. Talk about your understanding, and I&#x27;m assuming you&#x27;re going to show some of these slides, for lack of a better term. Updated versions, yes. Updated versions and I&#x27;ll like I said, I&#x27;ll look at through them tonight too. And and then also, what are the next steps? When are you going to meet with stakeholders?</p></div><div style="display:contents" dir="auto"><p id="25d5f303-89e7-4a33-9c6c-115b6e747501" class="">and when we can start looking at possibly even having a kickoff meeting and having you travel. Those are the things that I come to mind to discuss with Mike. Anything you want me to add before I write that up?</p></div><div style="display:contents" dir="auto"><p id="7d5fbeda-b6ac-4812-8391-ba9a128bb3f8" class="">
+</p></div><div style="display:contents" dir="auto"><p id="78aff098-0297-4bf9-a377-c76231a3d1ee" class="">No, we&#x27;ve covered that. Maybe just add a note, you know, confirming data ownership, like stewardship, like the, you know, the point people either per domain or department. Like, I don&#x27;t know if you want to, how you want to approach that, but...</p></div><div style="display:contents" dir="auto"><p id="a476ea92-d8a5-4c5c-8f80-01c7b5510158" class="">If we can figure that out, like have an idea of what that&#x27;s like, who&#x27;s interested, who would be best for that, that kind of thing beforehand. That&#x27;d be ideal, but...</p></div><div style="display:contents" dir="auto"><p id="40b20801-e1bd-4210-b875-54eee7d79847" class="">Okay. So, to be honest, I was just going off the top of my head and not even have all that written down. Sorry, stakeholders. Stewardships for the domain stewardships slash ownership for the domain application and the databases we&#x27;ve gone over team introductions.</p></div><div style="display:contents" dir="auto"><p id="2381d60b-1139-451e-b91c-a2ebebda36ac" class="">
+</p></div><div style="display:contents" dir="auto"><p id="06c79f2e-cf9d-49c5-a8af-49e6dcd1daed" class="">I want to make sure I remember the stuff I said and future travels. I mean, I was planning on sending over an email that wraps all this up for you anyway. That&#x27;s fine too. I&#x27;m on the cusp of saying, I mean he&#x27;s high level but on the same token, I&#x27;m kind of thinking of setting it up for an hour and if you guys end up wrapping up early that&#x27;s fine.</p></div><div style="display:contents" dir="auto"><p id="171e8648-3c0e-4397-acf3-0b3ca343e94b" class="">Or do you think you could get through all that with him, minus me there, in a half hour?</p></div><div style="display:contents" dir="auto"><p id="7eb5e779-6607-4784-bcea-20655924aa69" class="">I mean, we could probably do it in half an hour, I think. Half hour, you think is going to be enough? Yeah. I&#x27;ll look for a slot that he doesn&#x27;t have anything, and then it rolls over, so be it. Yeah, I think half an hour would actually be better to keep their attention without saying, let&#x27;s do an hour and then drag it. Yep, you&#x27;re just meeting with Mike, at least at this stage here, and he can handle things just fine without me.</p></div><div style="display:contents" dir="auto"><p id="ba8195c2-305a-419e-bd13-1ee7316d2367" class="">I&#x27;m pretty confident in that. He&#x27;ll suss out whatever he needs, and if it goes longer, it goes longer. So, okay. Udias, with that, do you want to start looking and showing some of the databases? Possibly bring some more questions for Steve, if that works for you, Steve? Yep. Okay, sounds good. Steve, one other thing that I noticed in the other one, I saw like we don&#x27;t have some applications in there yet, so probably along the way.</p></div><div style="display:contents" dir="auto"><p id="2bd2c4e8-a4c7-42ee-a484-627eeb73f12a" class="">We could add them. Yeah, actually along those lines him and I have talked a little bit more and I&#x27;ve got a couple more that I get written down. I&#x27;m going to include in a quick. If you send a recap, Steve, I&#x27;ll respond with some of these other ones as well. Okay. Okay. All right, because I did not like scheduling, EAM, CPR.</p></div><div style="display:contents" dir="auto"><p id="ccdf4bcb-5b1e-4984-8bae-e63c3b4e76b9" class="">So those were a few that I had, but yeah, we can go over them while when we&#x27;re looking at the databases. Perfect. I talked with each one of those except for CPR. CPR we kind of talked about briefly when I think Matt was on earlier but all right. Okay. Thank you.</p></div><div style="display:contents" dir="auto"><p id="93c59575-a48e-4719-ad70-833b06720596" class="">I&#x27;ll shut up now. Go ahead.</p></div><div style="display:contents" dir="auto"><p id="c2154137-9fb1-47fe-8865-fe6a8fb46f9f" class="">Okay, all right, right, right. I will...</p></div><div style="display:contents" dir="auto"><p id="7e893611-2ed9-4ad8-ac89-41d793d3fb1b" class="">Share my screen and then, well, I&#x27;m just going to show you from Management Studio. I don&#x27;t have a pretty diagram. All right, here we go. So real quick, I&#x27;ll mention, too, I have a hard stop, that if you see me drop off at 4 o&#x27;clock and you guys want to keep going, have at it. So.</p></div><div style="display:contents" dir="auto"><p id="9351fe8b-7e85-4d9e-af4f-1a6e5e627422" class="">Okay, I mean we can connect first thing in the morning. I know like you have child care things, so do I, for a couple minutes around that time. Whatever we don&#x27;t get to, we can reconnect first thing in the morning.</p></div><div style="display:contents" dir="auto"><p id="ab0dba62-1dbb-45ed-b022-cab07b64c603" class="">So what time will you be talking now, Steve? I mean, I was going to talk like 15 minutes at like 4. Okay. I guess. So it sounds like we all have a hard stop at 4 o&#x27;clock then. Yeah. Yeah. Okay, so why don&#x27;t we just get into touch base with a little bit of the main ones, M3DB1.</p></div><div style="display:contents" dir="auto"><p id="c79d42ab-d047-42f1-8400-3c621d9fb404" class="">And then you just set up another meeting to go over a couple other servers tomorrow with whatever times you guys need to work out. I will probably not engage in that meeting as much. Okay, yeah, that sounds good. Yeah, we can just go over the service for now and restart databases tomorrow.</p></div><div style="display:contents" dir="auto"><p id="e21e6929-8925-42e3-a368-ed4e7e3e798f" class="">Okay, so we do, we don&#x27;t have like a lot of servers. These are mainly the ones, the ones you see on the screen right now are the ones that are in the That are up here in the support center. We do have some ones, some other ones in the offsite locations like that are not mentioned here. So right now you see like we have 19 and out of these.</p></div><div style="display:contents" dir="auto"><p id="f463d5bc-6abd-47dd-8dfc-bf8fdc445f10" class="">Most of them are development and test, but the main production ones would be So we do have m3db1, m3db2, m3db3, these will be like The main productions and we also have in SQL 2016 live at 2019 live. So those are the production database service. And then the rest will be classified as development and test. And then we also have a staging server here. Some of these are also.</p></div><div style="display:contents" dir="auto"><p id="e09a83f5-1770-4383-a8ad-8f86c4f75341" class="">Ready for retirement, so those are the main, are probably not being used. Oh, okay, I got you. Yeah, they&#x27;ll be removed soon. Okay, so I kind of have them summarized here so you can. See, like, these would be all production databases and their service. The main.</p></div><div style="display:contents" dir="auto"><p id="2ab52d8d-2e58-4e30-b1c8-bafc589308e8" class="">I know Patrick has mentioned that M3 is the main ERP and we have a cloud and we also have an on-prem. So the on-prem M3 is on this database, M3DB3. That&#x27;s where the on-prem M3 is. And this would be the database that hosts that M3 application. So here it is. So it&#x27;s M3db1.</p></div><div style="display:contents" dir="auto"><p id="9037318c-7cfb-47e2-aebf-5042d7e16340" class="">At one point, you might be needing access, but we do have this database replicated or log shipped to a different server, which is the SQL 2012 test. It is more like the staging database, the staging server. So it has a read-only copy of this. And that&#x27;s where Kerry and I write reports from. We mainly write from that staging.</p></div><div style="display:contents" dir="auto"><p id="44b0dbdd-965f-4617-854b-d8672c2fc470" class="">from that read-only database. So in case you need to write queries that are pulling data out of this M3 system on-premise, we probably will be using the SQL 2012 test for that.</p></div><div style="display:contents" dir="auto"><p id="45a5ed08-c91f-46d7-8509-d70014f6eaa8" class="">Okay, and on M3DB1, we do have MES is also running out of that server, so... We have M3 and MES are the main applications that are being hosted on that server. And you can kind of see also like the database sizes at the end of this. So M3 would be like one of our, what would be like the largest database we currently have because it&#x27;s hosting the ERP system.</p></div><div style="display:contents" dir="auto"><p id="5a5ed76c-a8bd-4096-85ef-c39861db4ebd" class="">And then EMEA&#x27;s will be the second largest. So, quick, quick interjection. The so this I guess I don&#x27;t know how to phrase it this conglomerate of databases Are these simply... I&#x27;m trying to figure out the theme here. Are these grouped on this server? Because they&#x27;re in a similar domain, because they have similar data, like I&#x27;m trying to... So maybe I can, you just want me to take that question. Go ahead.</p></div><div style="display:contents" dir="auto"><p id="c34a0947-acb3-4a73-a065-2a02657839fe" class="">So like I mentioned a while back when we first discussed, I kind of became the de facto database administrator and slowed up these domain servers as a. infrastructure person. So M3, DB1, DB2, DB3 were centered around the idea of the requirements needed for the M3 on-prem application.</p></div><div style="display:contents" dir="auto"><p id="92142699-d636-4419-bac0-0b2747fc0181" class="">And then the M3DevDB1, M3DevDB2, and M3DevDB3 were centered around the idea of the non-production M3DB1. Requirements for both the dev and test, okay, so that&#x27;s and then so good in terms of like the dev and test and stuff like Was that? Was that approached with the idea that it would be similar in concept or approach to what I was kind of throwing out there with the medallion?</p></div><div style="display:contents" dir="auto"><p id="9a371442-1a32-41d2-998c-abdf5256eb9f" class="">of the data in general. Those are just kind of playgrounds. They do have a version of the data. There is a cycle at which we haven&#x27;t completely established usually quarterly. We take a copy of production and move it into test so that when they&#x27;re doing some potential changes they can put they can test those changes out. I think that might answer your question a little better. Yeah, so it&#x27;s more of a functional test.</p></div><div style="display:contents" dir="auto"><p id="404dca12-f4a0-4d87-b6bb-e305cbcd2232" class="">rather than a Data test. Yeah. Yeah, it&#x27;s it&#x27;s used to ward off any issues with other outside processes and stuff prior to rolling those things to production. Okay. In most cases, yes, that is a true statement. And in fact, I can&#x27;t off the top of my head think of anywhere where it is more on the data-centric having, like you said, the</p></div><div style="display:contents" dir="auto"><p id="e09c93eb-6834-4d2c-978a-9c61d22e76f6" class="">Golden data versus the, I don&#x27;t even know what the non-golden data would be called. Yeah, yeah. Bronze, silver, gold. So, bronze. You&#x27;re able to look at essentially a one link database that has, you know, the raw data landed in from the source table as it is exactly the way it would be if you saw it in this database.</p></div><div style="display:contents" dir="auto"><p id="1aff1fc7-5d8a-4cc9-a5f9-b5c247d4eca5" class="">Once it goes through some transformation, either data factory pipelines or running through a Python notebook, Yep, yep, yep. Okay, now I&#x27;m following. I don&#x27;t think we&#x27;ll set up with that, yeah. extract that&#x27;s beneficial out of the silver data set. That&#x27;s when it&#x27;s, this is the final end-all be-all. It is exactly formatted, organized, you know, architected the way it needs to be perfectly for the reports so that there&#x27;s as little</p></div><div style="display:contents" dir="auto"><p id="8c9849f9-1628-41c4-9144-8671d0d235c1" class="">There&#x27;s a few manual transformation and weird Power BI steps in Power Query and custom joins and stuff that just shouldn&#x27;t be necessary. So that it can be more of a data store, so people can kind of, you know, create a report, pull that in, that in, that in, and not have to worry about reformatting a ton of stuff.</p></div><div style="display:contents" dir="auto"><p id="391b2024-c63e-49be-ad6e-095869f067c6" class="">birth to join and all that stuff so that&#x27;s right that&#x27;s the little spiel on what in my head that&#x27;s what okay objective Would be but okay. Yeah, I&#x27;m gonna bring you back a little because this is more transactional databases, so it won&#x27;t be They are not in any data. It&#x27;s not like a data warehouse, maybe, where that could be applicable. So right now, these are just transactional databases. So these are actually...</p></div><div style="display:contents" dir="auto"><p id="6b42ced2-3aa6-47dd-bee0-d0f17811d6e6" class="">So, if you were to do snapshots in time of this, like, there are only updates that are run on this, not only inserts, right, when changes are made? Or is it only inserts and not updates? You know what I mean? So what these databases are... They&#x27;re being whatever is being done in the front end of the application, they&#x27;re being stored in here. It&#x27;s in very rare instances that we get to do updates on it.</p></div><div style="display:contents" dir="auto"><p id="740ee6f7-3142-496c-b11a-32f6a9055686" class="">We had lost the inserts. database where if you had to, you could go back in time and see the way the data was at a certain point in time if you wanted to. Right, right. Because yeah, we do take backup so we can always, in case we need to go back, see what happened. But it&#x27;s being updated and new records are coming in regularly as users are using the applications.</p></div><div style="display:contents" dir="auto"><p id="62f33a4a-d0a9-4dd4-b6da-aa0f3a5e7445" class="">I don&#x27;t know that that relates to what you&#x27;re saying, but I mean, all like it, it, it, it does. It definitely relates to what I&#x27;m saying. Yeah. Yeah. It&#x27;s just, so in conjunction with the. Medallion architecture approach to the reporting databases within Fabric. The other part of how they&#x27;re supposed to be kept updated.</p></div><div style="display:contents" dir="auto"><p id="68131eda-7470-40d5-a466-c845dc76ffee" class="">There are two, I guess, two methods or schools of thought in that respect. One is You know, we&#x27;re just gonna do it by, you know, the date In timestamps of the certain tables and where we can, we&#x27;ll do it based off of ID or, you know, incremental, you know what I mean?</p></div><div style="display:contents" dir="auto"><p id="bc5bd1a0-5552-49de-ab31-75a72d6c2fde" class="">I understand. I get the idea. Yeah, no, we&#x27;re not really doing that here. This is just transactional. When I am doing that in... where I have, where I&#x27;m like a database that I can call a mini data warehouse, where I pull in data from this source system.</p></div><div style="display:contents" dir="auto"><p id="2e78344d-2efe-43e1-9f94-ea054f60a0eb" class="">And then I join it to like, we could join it to other sources and then use it for reporting on the BI. That&#x27;s where that will come in. But in these cases, it&#x27;s just data as it is. So nothing is being done to the data. Yeah, current state as people are updating things in the applications.</p></div><div style="display:contents" dir="auto"><p id="3e70bcdf-3194-4b87-b8ad-565e209f4f3e" class="">This is just going to show current state, to see the historical state. We don&#x27;t track that as much. Perfect. Other than there&#x27;s some, like she alluded to, there&#x27;s a couple of data warehouses that Udias and Curie have started to work with a little bit.</p></div><div style="display:contents" dir="auto"><p id="36c5e261-2227-4e7b-b6f8-7385fbb5bc29" class="">to do some of that. Again, here&#x27;s another area where we&#x27;re very green and could use some guidance. And I just saw someone start up the other meeting here. So I&#x27;m gonna actually probably wrap out. These are good conversations. Feel free to continue these conversations either today or tomorrow. I know you both have other constraints that have to come up and I understand that. So Steve, sorry things didn&#x27;t work out as far as timing today.</p></div><div style="display:contents" dir="auto"><p id="34828ab3-27d4-4443-8da0-73c5ab8bc189" class="">I think we&#x27;ve got to cut down on them, to be perfectly honest. Oh, absolutely. It was awesome seeing some of those images put together. I&#x27;m glad to see it. I&#x27;ve never seen that done before where someone tried to explain how they&#x27;re understanding things.</p></div><div style="display:contents" dir="auto"><p id="465c0b80-8946-4adc-af58-cf6ecb5ef403" class="">It really helps me to say, yep, am I explaining this well, yes or no, too. So it&#x27;s a benefit for me, too. I&#x27;m excited to see more of it. And I&#x27;m excited to... See what the user starts seeing when they see some of this down the road too. But with that, I do have to drop off. Have a good evening, guys. All right, you too. Okay, thank you. And Steve, I&#x27;ll deal up some dates and try to...</p></div><div style="display:contents" dir="auto"><p id="e8fece70-56f1-49ef-be5a-f3697dbc0fa0" class="">I&#x27;ll put together some notes tonight and send those over if I can. Feel free to send a recap and I&#x27;ll see what I can capture off of it too. Sounds good. Thanks guys. Okay, thank you.</p></div><div style="display:contents" dir="auto"><p id="3bcad9f1-738b-442e-80b5-df41badc50ab" class="">Okay, so you mentioned you&#x27;ll be leaving too soon, right? What time is it where you are? So it&#x27;s four o&#x27;clock here. It&#x27;s 4 o&#x27;clock here. Okay, so do you leave? Should we? Yeah, I was going to take that for a second. I just wanted to ask if you were familiar with...</p></div><div style="display:contents" dir="auto"><p id="96723906-3e19-4645-a5e1-4fbc12b66ed9" class="">a concept known as like a metadata driven like architecture so like um I think yeah I probably get the idea yeah I understand what So when we&#x27;re writing ETLs to essentially take data from the source database and put it in the target. A lot of times it&#x27;s not as black and white as, you know what, we&#x27;ll just do one day incrementally, you know, from one to the other. Sometimes you have to go back a few days, sometimes it&#x27;s, you know, it goes past, you know what I mean? Like sometimes there&#x27;s not.</p></div><div style="display:contents" dir="auto"><p id="fb6eff03-0e6f-4da8-859a-e4cfefb07d3d" class="">Like variables and hooks, essentially, so that it will update dynamically. So basically, where necessary, it will say, okay, what&#x27;s the highest, you know, this table has an auto increment. Identifying column. What is the highest one in this table? What is, you know, what&#x27;s the last one that we have in this table? And then it&#x27;ll, you know, dynamically populate the query to say,</p></div><div style="display:contents" dir="auto"><p id="f61d897e-80ff-452f-9274-97c40df79eaa" class="">Pull IDs from here to here because that&#x27;s what&#x27;s needed Okay, so it&#x27;s just it&#x27;s supposed to it&#x27;s pretty complicated when you&#x27;re in the weeds on setting it up But it makes a lot of sense once you see it start like running and it just like automatically works because right, yeah, I&#x27;ve heard that but I haven&#x27;t really implemented it because I&#x27;m like, okay, I probably don&#x27;t understand it super fully because what I&#x27;m doing right now is</p></div><div style="display:contents" dir="auto"><p id="4225b4cb-dc80-4396-aad7-d45805f6eb6a" class="">I&#x27;m kind of doing like a full truncation and reloading of the tables at every night. That becomes a problem when the data gets really big. You&#x27;re not doing incremental refreshes? Well, I&#x27;m doing incremental, but it&#x27;s based out of the day. I can show you here real quick, just if you still have a second.</p></div><div style="display:contents" dir="auto"><p id="c78e584a-bc70-46ac-97b2-c24dd82f40ce" class="">I&#x27;ll make room for that. This is one of my favorite aspects of... Do you use... What database system are you familiar with?</p></div><div style="display:contents" dir="auto"><p id="0e1eaeab-421f-49a6-bba3-1f73afcb53c1" class="">Do you use any databases or you&#x27;re mostly with the analytics part of? No, I just so SQL, MySQL. Postgres has been a lot more common recently. Snowflake and then also flat files are a pain in the ass just because like working with Like parquet files a lot of the time. Oh. I don&#x27;t know. A lot of people aren&#x27;t familiar with parquet files, but they&#x27;re going to become a lot more common.</p></div><div style="display:contents" dir="auto"><p id="f60cad98-fa49-4cf5-9cc3-2c5a13334383" class="">Yeah, I learned Fabric uses those a lot too, right? Yeah. And those are one of the main files that Fabric uses. Yeah, I have not worked with them. I have only worked with SQL right now, writing SQL and uploading it to Parquet. The efficiency and the file size and compression usability is like a CSV in terms of not being huge. But it also has the ability to...</p></div><div style="display:contents" dir="auto"><p id="64396c43-d11a-4204-a54b-f8a438aa96b3" class="">easily identify changes that were made like so point in time so it&#x27;s not just you know so you can have hundreds of parquet files for like One specific table and then when it&#x27;s put into Fabric it automatically just presents itself as a database table, but really it&#x27;s just a parquet file.</p></div><div style="display:contents" dir="auto"><p id="86757403-2e9d-4668-9d15-415109c8b2f6" class="">So, it looks like it&#x27;s a database in Fabric, but we can go over that later, but it helps really understanding what&#x27;s going on in the background of like, you know. Why they do certain things that they do because that really helps you Start to think through Okay, if that is actually running on parquet files, then if we&#x27;re gonna run</p></div><div style="display:contents" dir="auto"><p id="bb01ab20-13e9-497c-b2aa-06c7e0ef5507" class="">a lot more efficiently when you know what&#x27;s really going on in the weeds but i&#x27;m not trying to overwhelm you i just i love i love this kind of stuff and i love working with people that are like Really wanting to like learn it at the beginning. So don&#x27;t ever be concerned to ask questions because. Okay. Yeah.</p></div><div style="display:contents" dir="auto"><p id="fb1d9c3a-8e8a-43f8-9460-46e91b242d96" class="">Well, that would be good to understand how it works. So right now, what I&#x27;m doing is, for example, this is what I am currently using to build one of the Power BIs we have. So what we do here is I&#x27;m mostly using like SQL joins to like pull data from different tables. You could be different tables in the same database or it could be different databases.</p></div><div style="display:contents" dir="auto"><p id="ed1077b6-b7c5-466e-9e80-6faa85918784" class="">But right now they are all coming from the same database. And then what I tell the database to do is, okay, every night reload this table with data going as far back as maybe, just look at this, go back to yesterday and bring in all data with Let&#x27;s say if I&#x27;m looking at these sales, I would say bring all data, all sales that have been invoiced where the start date was like.</p></div><div style="display:contents" dir="auto"><p id="d1b374b3-e5bd-4003-bbb5-ddbfb643494f" class="">Maybe my start date and here the study in this case will be yesterday. So it&#x27;s going to go in and bring in all invoice sales from yesterday And then it will add them to what already exists on the table. So it&#x27;s kind of just... So, are you... Do you have the actual semantic model connected to this database so that you&#x27;re actually running this query in Power Query?</p></div><div style="display:contents" dir="auto"><p id="128156bc-7884-402f-98de-b5f9847d0515" class="">or yeah okay so do you have those the start date and i assume end date somewhere parameterized no right now This is all doing it in. So what it&#x27;s doing it, it pulls it out of the sauce system, which would be this sauce server here. And then it brings it into.</p></div><div style="display:contents" dir="auto"><p id="f34a5b9e-c1bf-4a6c-9ed5-140141e99086" class="">Another data, another mini data warehouse still in SQL. So that&#x27;s where all that is. So it&#x27;s everything is being hosted in one table by every line I pull from the main database. into this mini data web. I&#x27;ll stop at the beginning. OK. So I&#x27;m. How do I get access to this database?</p></div><div style="display:contents" dir="auto"><p id="0ad168bf-4af6-4dca-aa07-5dfd281df984" class="">I could give you access, so this is not where the data is coming. For example, this is ERP data, but it&#x27;s not sitting on the ERP database. Yeah, so what I&#x27;m doing is I pull it out of the ERP database and then I save it into this data warehouse here. So this is essentially just a reporting database, right? Like it&#x27;s not...</p></div><div style="display:contents" dir="auto"><p id="a5da568c-6105-48e3-b8ef-cb578c5e040d" class="">Yes, yes. It&#x27;s not hooked up to real-time production data, but there are processes running on it in order to give the reports up-to-date data from those sources. Yes. Yes, that&#x27;s right. That&#x27;s what it&#x27;s doing. So once this data is refreshed, Power BI will also get refreshed.</p></div><div style="display:contents" dir="auto"><p id="3d571866-1691-4826-95f0-961b946e8b8b" class="">with the data from this table. So it&#x27;s kind of like a three-loop process. I got it. You take it from the ERP to the ERP. To this table and then from this table and then to power BI. So that&#x27;s how it&#x27;s it&#x27;s currently working. So what you&#x27;ve essentially done inadvertently is you&#x27;ve you have.</p></div><div style="display:contents" dir="auto"><p id="63721293-1abe-4618-a7cd-d6c056cb1643" class="">This is where you&#x27;re joining and you&#x27;re seeing what needs to be joined with what, what looks good, what&#x27;s ideal for reports. You&#x27;re kind of fleshing stuff out. But it&#x27;s not connected to a real like, you know, you&#x27;re not gonna mess up any processes that are Dependent on those ERP like production systems. Yes, that&#x27;s right. That&#x27;s right. It won&#x27;t it&#x27;s I&#x27;ve created There&#x27;s just yeah for reporting. So that&#x27;s your yeah, that&#x27;s the idea.</p></div><div style="display:contents" dir="auto"><p id="f32cefd2-e33a-4e63-afe6-8a9804c2f597" class="">That&#x27;s what this is. So But it&#x27;s all happening in SQL. And then, yeah. So ideally... Ideally, we&#x27;ll be able to set this up. Like, we&#x27;ll be able to do what you&#x27;re doing here, but you won&#x27;t... In my head, it&#x27;s easy, but I know it&#x27;s never as easy as it is in my head. But I don&#x27;t know if you&#x27;re familiar with Data Wrangler. It&#x27;s a...</p></div><div style="display:contents" dir="auto"><p id="25fcd7b9-122c-46a0-bb24-9fe13f647df5" class="">It&#x27;s kind of a UI within the Power BI instance that not many people click on because they don&#x27;t really do a very good job of highlighting it. They try to make it easy for you to grab tables and reformat columns and do stuff really quick like that. It&#x27;s in the Power BI service.</p></div><div style="display:contents" dir="auto"><p id="47a421a4-a9ad-4bb3-81f7-4efe88af2599" class="">that in my head that&#x27;s what we&#x27;re trying to get to so that you&#x27;re able to like you don&#x27;t have to go into these source systems or you know SQL Server anymore, you would go in straight to the service in Power BI. If you wanted to, you could still write SQL queries against it in one link, in the silver layer and stuff, which is fine.</p></div><div style="display:contents" dir="auto"><p id="a3a876d5-1331-4dc5-83c6-08930a435bac" class="">Yes, and that&#x27;s where we&#x27;re going. That&#x27;s the goal. So that instead of me pulling these into a database, maybe there was a way to be pulling it directly into like one leg or leg house or something. A hundred percent. And then from... From the leg house, we can now use Power BI. That would be great. But right now, I don&#x27;t know how to use the leg house to do that. For now, I&#x27;m just putting it in SQL because that&#x27;s what I&#x27;m comfortable doing. I mean, it&#x27;s actually, it&#x27;s better that you guys didn&#x27;t do that.</p></div><div style="display:contents" dir="auto"><p id="4c77fcb4-dad3-4b8b-8fae-dfeb14fe0fc2" class="">Like, a lot of the times people will be like, well, we want to get our source systems in OneLake. And they just like start replicating things into OneLake. And then as soon as that happens, people are like, I need to get access to that OneLake thing. and people start pulling from it. So now you have a bunch of reports connected to the source systems. And it&#x27;s like, oh my God. It&#x27;s like, do you know how hard it is to put that genie back in the bottle?</p></div><div style="display:contents" dir="auto"><p id="3eeb5144-1e87-4f9b-abfa-48669f08ce56" class="">So it is good that you guys are actually in the state that you are. You guys are in a state that it&#x27;s ideal to accept. An outside person coming in and saying, you know what, this is what we should do so that you guys are able to get what you want out of it without the normal amount of growing pains that people usually go through because they want to do it as quick as possible.</p></div><div style="display:contents" dir="auto"><p id="a121f041-23d7-4ad2-a4eb-b77476d2d98a" class="">So it&#x27;s kind of the good with the bad approach, I guess. Yeah. So yeah, we&#x27;re really agreeing, and we&#x27;re ready to take in what you bring in. direct us through this because yeah like I said I&#x27;m quite new to all this so but what I focus on when doing all these like building power BI reports and all that.</p></div><div style="display:contents" dir="auto"><p id="1ab394b2-aa44-4e19-ab8e-7cd9b7d97921" class="">I like the star schema because it&#x27;s easy to understand. Because when you start going into the snowflake format, I know it gets so complex. Honestly, I never intentionally... model something into like a snowflake schema honestly like I okay I always start with the star schema and then I&#x27;ll accidentally</p></div><div style="display:contents" dir="auto"><p id="9895218e-a4e3-405c-980d-eeb3325215b0" class="">Make it into a snowflake just because I know like this cannot tie to this because it&#x27;ll have a circular, you know, uh, there&#x27;ll be a circular reference. So I usually always. Go in with the idea that it&#x27;s going to be a star schema, and then out of necessity, it turns into a snowflake. I never ever go in and say, I&#x27;m going to build a snowflake because that&#x27;s what I want to do. It&#x27;s never out of</p></div><div style="display:contents" dir="auto"><p id="389880f6-191c-40aa-a2da-57acdafe6e27" class="">I probably get the idea because sometimes it also will depend on how the database is originally designed. That will result in things like that without your attention. So, yeah. And people are like, how are you going to architect this snowflake or star? And it&#x27;s like, I don&#x27;t know, man, like I need to look at it. Like, let&#x27;s see.</p></div><div style="display:contents" dir="auto"><p id="2fa24d17-c070-4c80-8b99-557b8f931074" class="">Thank you for walking me through this. Okay, we probably will look more as we go on. But you might just forget about all the other existing BI. Let&#x27;s start afresh and do something, right? Do you use Tindle, like on the left-hand side of desktop, that little icon at the very bottom?</p></div><div style="display:contents" dir="auto"><p id="e75a28e8-a7d3-4cd5-a6f6-d69dff69ae9a" class="">What&#x27;s that? Tymdl, T-M-D-L, all the way on the left-hand side, where you select, like, you know, those different views in desktop, like. Where the grid is on the left. Left of there. Left of that. Like left. Left. Sorry. Oh, this one? Yeah. So that. So that&#x27;s what&#x27;s known as Tyndall. It&#x27;s a new, I guess, way for you to query and look at stuff.</p></div><div style="display:contents" dir="auto"><p id="04565723-a686-414c-9f8b-c33328683491" class="">You can look at the entire semantic model if you wanted to. Or you can run queries. I&#x27;ll go over it with you, but it&#x27;s actually a game changer. Okay. That&#x27;s great. Your eyes will pop out of your head when you&#x27;re able to see what you&#x27;re able to do in here.</p></div><div style="display:contents" dir="auto"><p id="8a54bb43-599e-4eca-b876-e19df719ba79" class="">Okay. That&#x27;s cool. I look forward to it. I&#x27;ll stop taking up your time. Okay. Thank you, Steve. I look forward to working with you. You too. Thank you. All right, okay.</p></div><div style="display:contents" dir="auto"><p id="ea97fd91-9b65-49ae-ab92-e337c2be4e1c" class="">Yes.</p></div><div style="display:contents" dir="auto"><p id="868561e3-3c27-47b6-8754-ee1a20e382df" class="">Thank you for watching.</p></div><div style="display:contents" dir="auto"><p id="9b3a2814-78f8-44f2-925a-434523c3f6e6" class="">Shit.</p></div><div style="display:contents" dir="auto"><p id="1a684b68-38a7-4260-8392-7b8492d0b653" class="">Thank you for watching.</p></div><div style="display:contents" dir="auto"><p id="2a0e50ec-ae5a-4408-8687-09f6961094cf" class="">Thank you for watching.</p></div><div style="display:contents" dir="auto"><p id="8e79ad5c-e522-44ad-ae07-3def1e18ee51" class="">Thank you for watching!</p></div><div style="display:contents" dir="auto"><p id="fad1870b-c61c-4806-a414-5c4512b61316" class="">Thank you for watching.</p></div><div style="display:contents" dir="auto"><p id="c97b44ea-1b27-42d4-a7fc-63e2a9f631f0" class="">Thank you for watching.</p></div><div style="display:contents" dir="auto"><p id="d73e6532-63b9-4505-a5c3-a52f2b9c704b" class="">Thank you for watching!</p></div><div style="display:contents" dir="auto"><p id="e9b4066c-9d74-4de7-92ad-08522cfb092e" class="">
+</p></div><div style="display:contents" dir="auto"><p id="765ff3d0-9869-4818-8218-44ba6a252165" class="">Oh!</p></div><div style="display:contents" dir="auto"><p id="32132863-b88f-4ea1-8e08-c5efa5992bbd" class="">
+</p></div><div style="display:contents" dir="auto"><p id="cdbc82cb-07cc-4760-aaf7-887e82913eab" class="">No. No, no, no. Really?</p></div><div style="display:contents" dir="auto"><p id="34a7134e-6043-42b9-b85b-0251996563cd" class="">Hey, what do you want? What do you want, Nellie?</p></div><div style="display:contents" dir="auto"><p id="b6757d36-d83f-4dc6-a1e1-ce1487e4313f" class="">No. No!</p></div><div style="display:contents" dir="auto"><p id="d212843f-a868-49a0-891c-e0ae895ef829" class="">Come on.</p></div><div style="display:contents" dir="auto"><p id="037d3c02-b2a5-416b-a042-7e81184be9fa" class="">No, no, no.</p></div><div style="display:contents" dir="auto"><p id="48817736-5565-4d5a-ab06-9a6fe458b6cd" class="">Thank you for watching!</p></div><div style="display:contents" dir="auto"><p id="2e5376d9-64ea-404d-9373-ea0b5f5cf00a" class="">Allie, would you like some hops? Yeah. Yeah? Can I...</p></div><div style="display:contents" dir="auto"><p id="a4a0f592-83e3-4528-975e-7ed9a223b8f1" class="">I just left some out for you. These are the same ones. Look. Millie, look.</p></div><div style="display:contents" dir="auto"><p id="5d706f97-4916-498c-af67-a6eee14b95f8" class="">You want me to open them? Why? Why? You understand?</p></div><div style="display:contents" dir="auto"><p id="5a5adfbe-f216-404e-9450-22e042738e56" class="">Christmas tree. Can you say tree? Tree. Tree. Tree. Tree.</p></div><div style="display:contents" dir="auto"><p id="f0157d62-fe87-4952-83e9-b2e49f13f157" class="">No. No. No mic.</p></div><div style="display:contents" dir="auto"><p id="98734de2-05af-40e0-89c5-de737719048c" class="">Now what do you mean?</p></div><div style="display:contents" dir="auto"><p id="6b66cee4-4d83-494d-8ed8-cb3cff31c5df" class="">Nice. Nursing.</p></div><div style="display:contents" dir="auto"><p id="d2c765ca-e0a4-4f86-81a2-b3e9b172fd48" class="">What? What are you trying to... What are you reaching for? Okay.</p></div><div style="display:contents" dir="auto"><p id="9748163e-3696-4914-9b6b-ccc8409e239e" class="">What are you doing?</p></div><div style="display:contents" dir="auto"><p id="29d307fe-6539-4aa1-9c9d-949bf3f1ad25" class="">Uh-oh. Yeah, play with that, huh?</p></div><div style="display:contents" dir="auto"><p id="c3089a57-0c9b-4361-82f5-ba5ef3c6d119" class="">Oh, eww!</p></div><div style="display:contents" dir="auto"><p id="8f6c3744-b9e6-47fd-aad4-fb9f6f8127e7" class="">What are you doing? What? What?</p></div><div style="display:contents" dir="auto"><p id="c1d07e42-f008-4a74-b82c-bf6cb4d48065" class="">Nice.</p></div><div style="display:contents" dir="auto"><p id="01ccd4e8-ab5b-453a-b359-fbbadd5a3408" class="">I put this thing on like every single time I change it.</p></div><div style="display:contents" dir="auto"><p id="d22b9459-5bb0-4a65-9441-714c86869258" class="">She&#x27;s supposed to get into the bedroom and get the remote control off the...</p></div><div style="display:contents" dir="auto"><p id="6256691c-86a0-421c-b850-eccb47e2bc82" class="">Thank you for watching.</p></div><div style="display:contents" dir="auto"><p id="81300203-30ed-4f8c-9bf4-2c45ed9058ae" class="">Thank you for watching!</p></div><div style="display:contents" dir="auto"><p id="9f629298-f348-416c-9c38-8cb1424796ef" class="">Okay, now a little elf helper.</p></div><div style="display:contents" dir="auto"><p id="12894532-4591-4ae5-956a-969a2f699365" class="">Thank you for watching!</p></div><div style="display:contents" dir="auto"><p id="75ffb62a-03d8-48b1-8ce6-93b45d75bc51" class="">Oh, that is so gross. What&#x27;d she do? Ew.</p></div><div style="display:contents" dir="auto"><p id="524039b7-ffe0-45ed-8967-eae59032e9de" class="">What&#x27;d she do?</p></div><div style="display:contents" dir="auto"><p id="e9ddd7e6-a7da-4ed4-98fb-ace085194828" class="">So what are you going to do?</p></div><div style="display:contents" dir="auto"><p id="b1e6026d-982f-45e6-9a42-c1ea4a5837c6" class="">It wouldn&#x27;t do that if I lasted about an hour.</p></div><div style="display:contents" dir="auto"><p id="66474a1a-3db6-43cf-8c4d-ab716fc9b265" class="">Did you clean her from whatever she was doing, Steve? No, Nellie. No.</p></div><div style="display:contents" dir="auto"><p id="b8da09dd-d48b-4735-a16b-1851e9fc52c7" class="">Thank you for watching!</p></div><div style="display:contents" dir="auto"><p id="3f9f2e08-6515-442b-9dfc-b3e64242b87e" class="">Thank you for watching!</p></div><div style="display:contents" dir="auto"><p id="47e37297-e937-4646-82cb-7ac15621114d" class="">The worst case scenario can&#x27;t hurt.</p></div><div style="display:contents" dir="auto"><p id="98ec9eb2-3e1c-4ba5-a6c5-9d816f62ba95" class="">Thank you for watching.</p></div><div style="display:contents" dir="auto"><p id="60ef8e5d-986d-4687-a2f0-cf1edbf3da9d" class="">She has two dots on her bikini line. No, those are new. They better not be something you can&#x27;t put in metal.</p></div><div style="display:contents" dir="auto"><p id="a6c359ed-f911-475f-b186-bb24c2f557be" class="">Thank you for watching!</p></div><div style="display:contents" dir="auto"><p id="944af276-e346-417d-8431-cbf24e4d648b" class="">You just said that. It might pop up on your house notepad.</p></div><div style="display:contents" dir="auto"><p id="c30efd20-36d0-4efb-9fd1-8703d15f8965" class="">Ow! Damn! Come on, Mel! Wow!</p></div><div style="display:contents" dir="auto"><p id="561753d0-333d-4009-b2e8-0724cd62623d" class="">Just poke my eye out.</p></div><div style="display:contents" dir="auto"><p id="6390cd00-7325-4df3-9246-0d28b353c4ab" class="">Steve? What? Are you going to eat or are you going to... What? Yes.</p></div><div style="display:contents" dir="auto"><p id="ed7a8e04-0d44-47c1-beb9-017ed3afa067" class="">
+</p></div></div></div><div style="display:contents" dir="auto"><hr id="46468c8f-bb3d-4654-ab27-5af759166db0"/></div><div style="display:contents" dir="auto"><h2 id="95cd8757-b0c6-4f4c-93fa-0c6b5e9ed4a0" class="">🎙️ Cluely Context (Dec 9, 2025)</h2></div><div style="display:contents" dir="ltr"><figure class="block-color-blue_background callout" style="white-space:pre-wrap;display:flex" id="d2bb146a-7abc-488c-852d-d4dcb43dc58b"><div style="font-size:1.5em"><span class="icon">📋</span></div><div style="width:100%"><div style="display:contents" dir="auto"><p id="0ba50c61-1d99-4d3c-a5ba-b0791f41376a" class=""><strong>Three-part Cluely capture:</strong> Summary, Transcript, and Usage (real-time chat interaction during the meeting). Stored per your standard to potentially leverage for future meeting prep.</p></div></div></figure></div><div style="display:contents" dir="auto"><h3 id="96169d4e-b28e-4984-8c98-377d7cf36961" class="">Cluely Summary</h3></div><div style="display:contents" dir="auto"><ul id="2a05a572-8217-490c-8bb7-0bf9dd8582fd" class="toggle"><li><details open=""><summary>Cluely Summary — System Integration Discussion: MES, M3, ION</summary><div style="display:contents" dir="auto"><p id="4bbeb635-e879-4396-a93f-e50fba670bce" class=""><strong>Action Items</strong></p></div><div style="display:contents" dir="auto"><ul id="5fdfee23-f702-4547-aaa7-b44b642e0262" class="bulleted-list"><li style="list-style-type:disc">Add note confirming data‑ownership and MDM‑governance discussions before kickoff</li></ul></div><div style="display:contents" dir="auto"><ul id="c8d72dc0-6905-42f5-9f0e-d5850939b72b" class="bulleted-list"><li style="list-style-type:disc">Send updated visual diagrams (stakeholder map, data flow) to the team tonight</li></ul></div><div style="display:contents" dir="auto"><ul id="6ce4069f-7615-44ce-83e1-b7e93a03ccc2" class="bulleted-list"><li style="list-style-type:disc">Set up kickoff meeting with Mike (incl. agenda, key discussion points) and share invite</li></ul></div><div style="display:contents" dir="auto"><ul id="f3c2576b-0f90-4f02-83ba-f6bf5b9affea" class="bulleted-list"><li style="list-style-type:disc">Email recap with extra systems (EAM, CPR, etc.) and any missing acronyms to Steve&#x27;s contacts</li></ul></div><div style="display:contents" dir="auto"><ul id="cb0254d2-2959-4fad-8063-82672eba2dc2" class="bulleted-list"><li style="list-style-type:disc">Arrange read‑only access to M3 DB 1 (via SQL‑2012 test) for query work</li></ul></div><div style="display:contents" dir="auto"><ul id="bfcda14e-6e32-466f-a7b9-844fd9dbe6ac" class="bulleted-list"><li style="list-style-type:disc">Verify CDC/change‑tracking enabled on M3 DB 1‑3 and SQL‑2019Live for Fabric ingestion</li></ul></div><div style="display:contents" dir="auto"><ul id="b5a53f56-22ce-4247-b589-f7c579d9e8ea" class="bulleted-list"><li style="list-style-type:disc">Define system‑of‑record for consumption, batch genealogy, and inventory data</li></ul></div><div style="display:contents" dir="auto"><p id="d99697f0-0da4-4cf7-98d1-0efadf485e81" class=""><strong>Systems Overview</strong></p></div><div style="display:contents" dir="auto"><ul id="18340ca4-b30d-43ba-a7fd-e38544900c31" class="bulleted-list"><li style="list-style-type:disc">Core ERP: M3 (cloud &amp; on‑prem) – primary inventory and production hub</li></ul></div><div style="display:contents" dir="auto"><ul id="549e7755-d0eb-496e-a63f-4d017cb32fd8" class="bulleted-list"><li style="list-style-type:disc">MES: central hub linking controls, Optiva, and M3; also hosts raw‑material call‑outs</li></ul></div><div style="display:contents" dir="auto"><ul id="0e28174b-c464-4471-b3eb-77680592fae8" class="bulleted-list"><li style="list-style-type:disc">ION: Infor middleware routing BODs between M3 and other apps, used mainly for troubleshooting</li></ul></div><div style="display:contents" dir="auto"><ul id="172b6f39-0c5d-4ab8-ac72-363736a52f7f" class="bulleted-list"><li style="list-style-type:disc">ETQ: Quality, HSE, and incident management app, feeds data into M3 but not primary source</li></ul></div><div style="display:contents" dir="auto"><ul id="416a6495-9ed9-4aa8-8a42-041819b277f2" class="bulleted-list"><li style="list-style-type:disc">Advanced Scheduler: Gantt‑style batch planning across plants</li></ul></div><div style="display:contents" dir="auto"><ul id="dabdf008-275e-4b44-b29b-da9eae3415c2" class="bulleted-list"><li style="list-style-type:disc">PLC/flow sensors: feed real‑time raw‑material consumption into MES</li></ul></div><div style="display:contents" dir="auto"><ul id="17b5b5ff-d264-4306-a5a9-4e2ce827fb6c" class="bulleted-list"><li style="list-style-type:disc">SDS, PCD, ANV: safety data sheets, process‑controlled data, and MES extension tables</li></ul></div><div style="display:contents" dir="auto"><p id="335f15e1-db86-4c3c-a20e-b1c85309e860" class=""><strong>Data Flow &amp; Integration</strong></p></div><div style="display:contents" dir="auto"><ul id="cbc7a9b4-b3ab-441a-991a-f8701036d43d" class="bulleted-list"><li style="list-style-type:disc">Raw‑material call‑outs drive consumption entries back into M3 (inventory reduction)</li></ul></div><div style="display:contents" dir="auto"><ul id="895738f7-2306-4bc7-90b3-0364989b3bc9" class="bulleted-list"><li style="list-style-type:disc">PLC data posted directly to M3 for accurate inventory; manual entries allowed with variance codes</li></ul></div><div style="display:contents" dir="auto"><ul id="ac145df8-f116-4ccf-9974-5f97e7f813d8" class="bulleted-list"><li style="list-style-type:disc">MES passes batch‑level data to M3 for inventory updates only (no costing updates)</li></ul></div><div style="display:contents" dir="auto"><ul id="cbbafa72-d4f4-4104-86e6-adc4cbc75a38" class="bulleted-list"><li style="list-style-type:disc">ION can expose logs/monitoring data for troubleshooting; frequency of use to be clarified</li></ul></div><div style="display:contents" dir="auto"><ul id="c34e1f4a-833e-4e66-8d39-d20b892d9f8d" class="bulleted-list"><li style="list-style-type:disc">ETQ receives quality/HSE incidents from M3 and other systems, not a primary data source</li></ul></div><div style="display:contents" dir="auto"><ul id="a93100cb-2ef6-4b81-b4d3-5ab3eccba2f3" class="bulleted-list"><li style="list-style-type:disc">Advanced Scheduler pulls resource and batch data from M3/MES to build production schedules</li></ul></div><div style="display:contents" dir="auto"><p id="782ab422-0325-49bb-8466-6f3782d6719a" class=""><strong>Acronyms &amp; Terminology</strong></p></div><div style="display:contents" dir="auto"><ul id="b389ad29-91d8-4c80-93d3-dea1f3420832" class="bulleted-list"><li style="list-style-type:disc">ANV – MES extension table (viscosity/acid number tracking)</li></ul></div><div style="display:contents" dir="auto"><ul id="e1aa2409-560b-424e-abf1-356b5b8a43a7" class="bulleted-list"><li style="list-style-type:disc">PCD – Process Controlled Data (PLC‑related charge info)</li></ul></div><div style="display:contents" dir="auto"><ul id="b0525aba-3630-47b3-a58c-c46994b660d3" class="bulleted-list"><li style="list-style-type:disc">SDS – Safety Data Sheets (material safety info)</li></ul></div><div style="display:contents" dir="auto"><ul id="cf582bc4-f53a-4802-bed5-5bf7c7667234" class="bulleted-list"><li style="list-style-type:disc">RPT – Report (generic)</li></ul></div><div style="display:contents" dir="auto"><ul id="4df6b592-de46-4d5f-a9b6-b03ad245dfa9" class="bulleted-list"><li style="list-style-type:disc">NAC – North American Composites (distributor role)</li></ul></div><div style="display:contents" dir="auto"><ul id="69e7d926-2894-43f4-8fef-c20e44e3ad30" class="bulleted-list"><li style="list-style-type:disc">MPD/SHAR – Molding Products division, connects to M3 Cloud, no MES layer</li></ul></div><div style="display:contents" dir="auto"><ul id="527b5ea6-f7e5-4b29-854f-5b72b77a32be" class="bulleted-list"><li style="list-style-type:disc">OAT/OATS – Operational Acceptance Testing</li></ul></div><div style="display:contents" dir="auto"><p id="269e88c7-28d5-43f7-bf33-7ba436f1044e" class=""><strong>Medallion Architecture &amp; Fabric Strategy</strong></p></div><div style="display:contents" dir="auto"><ul id="79e52b35-6578-49ab-9857-0da8694139c5" class="bulleted-list"><li style="list-style-type:disc">Bronze layer: raw source tables landed unchanged (e.g., M3 DB extracts)</li></ul></div><div style="display:contents" dir="auto"><ul id="3c58e8c9-4374-489c-8bbb-c34922077b3d" class="bulleted-list"><li style="list-style-type:disc">Silver layer: transformed joins, initial business logic, serves as reporting sandbox</li></ul></div><div style="display:contents" dir="auto"><ul id="d2b4fd24-87f7-4a80-a2b1-fb98e12767e7" class="bulleted-list"><li style="list-style-type:disc">Gold layer: fully modelled star schema for production Power BI reports, minimal custom queries</li></ul></div><div style="display:contents" dir="auto"><ul id="d1210ab2-af05-4432-8026-f4fd67d5ad02" class="bulleted-list"><li style="list-style-type:disc">Incremental refresh logic needed; confirm CDC/change‑tracking on source DBs</li></ul></div><div style="display:contents" dir="auto"><ul id="f9ed0eae-7174-421e-b2dd-ca7188618a7b" class="bulleted-list"><li style="list-style-type:disc">Consider Dataflows Gen2 + Lakehouse tables to replace nightly SQL reloads</li></ul></div><div style="display:contents" dir="auto"><p id="1883397b-73e9-484b-8117-74441c0d6b3d" class=""><strong>Database Landscape &amp; Access</strong></p></div><div style="display:contents" dir="auto"><ul id="10712b9c-6188-4aa1-ad63-b55834f5df1d" class="bulleted-list"><li style="list-style-type:disc">Production DBs: M3 DB 1‑3 (on‑prem ERP), SQL 2016 Live, SQL 2019 Live (core apps)</li></ul></div><div style="display:contents" dir="auto"><ul id="69a65058-6f07-43cc-9f1a-cad6b4417371" class="bulleted-list"><li style="list-style-type:disc">Staging/Read‑only copy: SQL 2012 Test (used for reporting)</li></ul></div><div style="display:contents" dir="auto"><ul id="2c5c9be8-4ce9-47c6-86be-5bf45a183d07" class="bulleted-list"><li style="list-style-type:disc">Development/Test DBs: M3 Dev DB 1‑3 (sandbox)</li></ul></div><div style="display:contents" dir="auto"><ul id="9e093964-70a4-4303-a714-f73c615c09a9" class="bulleted-list"><li style="list-style-type:disc">Current &quot;mini‑warehouse&quot; in SQL acts as a de‑facto silver layer for Power BI</li></ul></div></details></li></ul></div><div style="display:contents" dir="auto"><hr id="2d53bd97-369f-41f3-aaa2-7514a84ee1b1"/></div><div style="display:contents" dir="auto"><h3 id="9e51c17e-cad6-4113-a0c0-bc4e2e60f466" class="">Cluely Transcript</h3></div><div style="display:contents" dir="auto"><ul id="0d64de79-4366-4208-8cd3-abd1c5f7f15e" class="toggle"><li><details open=""><summary>Cluely Transcript — Dec 9, 2025 (Raw)</summary><div style="display:contents" dir="auto"><p id="162aed04-0db0-4df4-aadb-f37f2ffc9d66" class=""><em>Full transcript covering systems walkthrough with Patrick, ANV demo with Matt Pennaz, diagram review session, and database overview with Yudias — see Teams transcript above for full verbatim.</em></p></div></details></li></ul></div><div style="display:contents" dir="auto"><hr id="348c7573-f58f-4a88-a1a2-ee9a2876f8bd"/></div><div style="display:contents" dir="auto"><h3 id="5a014e6b-1f32-435a-8133-aec590dbdc02" class="">Cluely Usage</h3></div><div style="display:contents" dir="auto"><ul id="409ebf66-17d4-43de-8fe9-b7de5bdba3ab" class="toggle"><li><details open=""><summary>Cluely Usage Log — Dec 9, 2025 (Real-time chat interaction)</summary><div style="display:contents" dir="auto"><p id="b9139407-b453-4e08-93be-c7ebce616b62" class=""><strong>4:18 PM</strong> — <em>&quot;What should I say next?&quot;</em></p></div><div style="display:contents" dir="auto"><p id="e330c3dc-012b-4029-8a8f-87a9120fc6fd" class="">→ Got it. And CPR—what kind of data does that system handle?</p></div><div style="display:contents" dir="auto"><p id="a3443deb-8a9b-4248-8532-09e3aca13b14" class=""><strong>4:19 PM</strong> — <em>&quot;What should I say next?&quot;</em></p></div><div style="display:contents" dir="auto"><p id="fff0711a-f764-495d-9a9f-8bddbd11b929" class="">→ Got it. And does CPR tie back into M3 at all, or is it a standalone workflow system?</p></div><div style="display:contents" dir="auto"><p id="00e2d2ba-02b3-4665-b202-542510017c6b" class=""><strong>4:21 PM</strong> — <em>&quot;What should I say next?&quot;</em></p></div><div style="display:contents" dir="auto"><p id="ac2d6fa0-92c1-49b4-b8ce-119436a14938" class="">→ Perfect. So ETQ would mainly be a downstream system receiving data from M3 and others, rather than a primary data source for Fabric, correct?</p></div><div style="display:contents" dir="auto"><p id="d03ad047-8145-468d-9482-95a7f6579062" class=""><strong>4:22 PM</strong> — <em>&quot;wait, what did he say&quot;</em></p></div><div style="display:contents" dir="auto"><p id="9f648abd-7db1-42b1-a409-2fef58329a2c" class="">→ Got it. ION is Infor&#x27;s middleware that routes BODs between M3 and other apps, mainly used for troubleshooting, correct?</p></div><div style="display:contents" dir="auto"><p id="6d510746-bacc-4052-9d9f-beacb9c91268" class=""><strong>4:23 PM</strong> — <em>&quot;Suggest two follow-up questions&quot;</em></p></div><div style="display:contents" dir="auto"><p id="f8dda1d2-8acb-4dd5-8b27-530134911624" class="">→ • How often do you find yourself needing to look at ION data when troubleshooting issues between M3 and other systems?</p></div><div style="display:contents" dir="auto"><p id="733fd77e-f6e2-4934-bd84-293cf4e01be1" class="">→ • Is there any logging or monitoring data from ION that might be useful to surface in Fabric for visibility?</p></div><div style="display:contents" dir="auto"><p id="3ec0ce9d-d69c-4147-8204-e2f335253ae8" class=""><strong>4:25 PM</strong> — <em>&quot;are there any three letter acronyms that you don&#x27;t currently know what they mean?&quot;</em></p></div><div style="display:contents" dir="auto"><p id="2425b344-6b34-42f8-b212-1221763fe9ed" class="">→ Yes: ANV, PCD, SDS, and RPT.</p></div><div style="display:contents" dir="auto"><p id="749093cb-a349-49b1-afd7-55601eda633f" class=""><strong>4:30 PM</strong> — <em>&quot;What should I say next?&quot;</em></p></div><div style="display:contents" dir="auto"><p id="45d9c3c8-65ef-4643-b6da-48090a29b1a3" class="">→ That makes sense. So these curves are generated from live process data coming out of MES, right?</p></div><div style="display:contents" dir="auto"><p id="3296b9a1-f0f8-4507-a6a4-94e9ee513af1" class=""><strong>4:31 PM</strong> — <em>&quot;Suggest two follow-up questions&quot;</em></p></div><div style="display:contents" dir="auto"><p id="fd2344b9-9504-4524-a4c5-40db053b0840" class="">→ • How is this batch data stored once the run is complete — does it feed back into MES or stay within this ENV tool?</p></div><div style="display:contents" dir="auto"><p id="6e82193b-7529-4a2f-896b-d95ed6db4391" class="">→ • Are these viscosity and acid number readings captured automatically from instruments, or entered manually by operators?</p></div><div style="display:contents" dir="auto"><p id="6fc71952-9642-49d9-a7ac-8774e6ed720c" class=""><strong>4:33 PM</strong> — <em>&quot;Suggest two follow-up questions&quot;</em></p></div><div style="display:contents" dir="auto"><p id="f301cc4a-6fef-497a-93e6-55c6e7b99af5" class="">→ • Are these batch adjustments and test results stored in the same MES tables, or are they separated by function?</p></div><div style="display:contents" dir="auto"><p id="00ca6fce-2ad0-4d30-ace6-4ca0e13c56ec" class="">→ • Does each batch record link back to a specific product or formulation ID from M3 for traceability?</p></div><div style="display:contents" dir="auto"><p id="1c4cc87f-2010-4c4b-932c-7ea500b848a8" class=""><strong>4:35 PM</strong> — <em>&quot;Suggest two follow-up questions&quot;</em></p></div><div style="display:contents" dir="auto"><p id="ab7725db-61fb-47e3-b7c7-b7ead125546c" class="">→ • When MES passes data up to M3, is it primarily for inventory and production reporting, or does it also update costing and formulation details?</p></div><div style="display:contents" dir="auto"><p id="8e2ddcac-5b8e-4def-9d7a-7a006becb534" class="">→ • For Fabric, would MES be considered the authoritative source for batch-level data, or would we need to reconcile it with M3 records?</p></div><div style="display:contents" dir="auto"><p id="928c92fa-0e8a-40c4-b7b1-616f4e06be9a" class=""><strong>4:39 PM</strong> — <em>&quot;What should I say next?&quot;</em></p></div><div style="display:contents" dir="auto"><p id="245cc8a5-890c-48c4-af50-049ae4074b5d" class="">→ That&#x27;s super helpful, thanks. So for the PLC data flowing into MES, is that coming through the OT vendor&#x27;s Fabric work, or is it still handled entirely within your MES environment today?</p></div><div style="display:contents" dir="auto"><p id="57acf886-66cd-4765-9970-05cba239fb86" class=""><strong>4:41 PM</strong> — <em>&quot;What should I say next?&quot;</em></p></div><div style="display:contents" dir="auto"><p id="04acce58-87a5-4d77-ad16-d8d4197f0a80" class="">→ Got it. So these raw material callouts are what ultimately drive the consumption entries back into M3, right?</p></div><div style="display:contents" dir="auto"><p id="f55edd30-bbb8-46c7-8d77-84d48d3eedfa" class=""><strong>1:09 PM</strong> — <em>&quot;Recap the most recent thing that happened&quot;</em></p></div><div style="display:contents" dir="auto"><p id="567db0d9-8936-4af3-beb2-497df33ac8f0" class="">→ The meeting wrapped up with thanks and confirmation that more sessions will follow to plan a kickoff and stakeholder meeting, with a lighthearted comment about an &quot;oral exam&quot; on Friday.</p></div><div style="display:contents" dir="auto"><p id="359e7882-8a59-42b9-9a92-12b268fd930c" class=""><strong>2:07 PM</strong> — <em>&quot;What should I say next?&quot;</em></p></div><div style="display:contents" dir="auto"><p id="dfe12397-4c38-4123-b038-0b8900817d5f" class="">→ Right, so NAC acts as the distributor, sourcing from multiple manufacturers rather than producing directly.</p></div><div style="display:contents" dir="auto"><p id="63d965b3-306c-41b0-84a4-7e8d01e12fda" class=""><strong>2:08 PM</strong> — <em>&quot;What should I say next?&quot;</em></p></div><div style="display:contents" dir="auto"><p id="54b74e35-e010-47cd-b9d4-4468b5632777" class="">→ Got it, so operations are the main area where they stay distinct. Are there any shared systems or data flows between the three that we should capture in the diagram?</p></div><div style="display:contents" dir="auto"><p id="f69f8ead-4acd-446b-89df-acf3523de691" class=""><strong>2:22 PM</strong> — <em>&quot;What should I say next?&quot;</em></p></div><div style="display:contents" dir="auto"><p id="6ae10979-fb86-460a-8c3d-2bfb24029a03" class="">→ Got it, so Color and X‑Rate are part of the applications used in the paint‑making process. Are those integrated directly with MES, or do they feed data in separately?</p></div><div style="display:contents" dir="auto"><p id="388cf0c2-30a9-41b2-bce4-083b1876c263" class=""><strong>2:24 PM</strong> — <em>&quot;which systems have we walked through&quot;</em></p></div><div style="display:contents" dir="auto"><p id="a17d063e-33a7-422a-880c-7cba785a842e" class="">→ MES 3 and Advanced Scheduling, DataColor (legacy) and X‑Rate (newer), Rockwell control systems, Salesforce, Jira</p></div><div style="display:contents" dir="auto"><p id="ef1db07a-7513-46f5-9145-daac4866b147" class=""><strong>2:28 PM</strong> — <em>&quot;what on earth do I say to this&quot;</em></p></div><div style="display:contents" dir="auto"><p id="063985ba-6766-408c-adba-64ab2aa3b8af" class="">→ Got it, you&#x27;re describing a resin‑impregnated liner steam‑cured in place to reline pipe.</p></div><div style="display:contents" dir="auto"><p id="26990e9d-4d91-4052-960d-6901facdbfbd" class=""><strong>2:29 PM</strong> — <em>&quot;what kind of power bi reports would R&amp;D need&quot;</em></p></div><div style="display:contents" dir="auto"><p id="83c0950f-6948-4e16-8966-542c5a32b4e9" class="">→ [14-item R&amp;D reporting suite generated including portfolio tracker, experiment dashboard, color QC, pilot readiness, raw material analytics, compliance/EHS, cost-to-formulate, SPC, knowledge transfer, lab ops, innovation pipeline]</p></div><div style="display:contents" dir="auto"><p id="d526248a-701a-4e9d-8766-53fd51ca20a2" class=""><strong>2:33 PM</strong> — <em>&quot;What should I say next?&quot;</em></p></div><div style="display:contents" dir="auto"><p id="4e41b80d-f32f-4fc3-9596-f80f2f040869" class="">→ No worries at all, that actually helps clarify it. So the template is basically a reference batch they use to align new production runs, right?</p></div><div style="display:contents" dir="auto"><p id="b1139ea4-cd3a-452a-9817-b50cf1ddf2de" class=""><strong>3:31 PM</strong> — <em>&quot;What should I say next?&quot;</em></p></div><div style="display:contents" dir="auto"><p id="e569245c-3427-4334-a0df-9443a65c3e44" class="">→ Right, intelligent authoring, that makes sense. I&#x27;ll update that label so it&#x27;s consistent with the manufacturing systems terminology.</p></div><div style="display:contents" dir="auto"><p id="cfdf1e21-fa36-4648-a190-9304545d824d" class=""><strong>3:33 PM</strong> — <em>&quot;what does OATES stand for&quot;</em></p></div><div style="display:contents" dir="auto"><p id="1ae13e69-0815-4ca3-81b1-8f2ba517c3e6" class="">→ Operational Acceptance Testing, abbreviated OAT; sometimes people say OATS.</p></div><div style="display:contents" dir="auto"><p id="fa0df0ce-6596-42e6-b309-b7366895cb8b" class=""><strong>3:41 PM</strong> — <em>&quot;What should I say next?&quot;</em></p></div><div style="display:contents" dir="auto"><p id="2005033e-9e6c-4862-a043-893d353e2113" class="">→ Yeah, that all sounds good. Maybe just add a note about confirming the data ownership discussions and aligning on the MDM governance approach before the kickoff.</p></div><div style="display:contents" dir="auto"><p id="98fb8629-ee1e-485c-969a-c6325bd78a83" class=""><strong>3:49 PM</strong> — <em>&quot;are any of these databases ready for medallion architecture&quot;</em></p></div><div style="display:contents" dir="auto"><p id="d0b450a6-217e-407e-b260-7186926f9a93" class="">→ Before I say yes, can you confirm whether M3DB1–3 or SQL2019Live have CDC or change tracking enabled, consistent created/updated timestamps, and stable read-only views we can land to OneLake via the gateway?</p></div><div style="display:contents" dir="auto"><p id="1397f091-bc2c-468e-aafb-cccc7d9ed25e" class=""><strong>3:58 PM</strong> — <em>&quot;What should I say next?&quot;</em></p></div><div style="display:contents" dir="auto"><p id="528ba401-a7c3-4985-8751-6f51fc861f18" class="">→ Got it, so effectively the data is being updated in place rather than appended. That helps clarify how we&#x27;ll need to handle change tracking and incremental refresh logic in Fabric.</p></div><div style="display:contents" dir="auto"><p id="b78d226b-fadb-49b7-a53f-493eb19a35fe" class=""><strong>4:06 PM</strong> — <em>&quot;What should I say next?&quot;</em></p></div><div style="display:contents" dir="auto"><p id="95dcb221-62f2-48e3-ade2-ff505a4f4e28" class="">→ Got it, so you&#x27;re basically reloading the full dataset nightly based on that date filter. Are you using @startDate and @endDate as dynamic parameters tied to the last successful load?</p></div><div style="display:contents" dir="auto"><p id="7a6716ce-c92e-4e78-a732-11b83a537b9f" class=""><strong>4:08 PM</strong> — <em>&quot;What should I say next?&quot;</em></p></div><div style="display:contents" dir="auto"><p id="3e224331-2646-4a06-8e68-cca199c6d5d9" class="">→ Perfect, that makes sense. Once I have access, I can map how this mini warehouse aligns with the medallion layers and identify where incremental logic or historical tracking could be introduced.</p></div><div style="display:contents" dir="auto"><p id="aa404490-e5ec-4926-8488-29f0f76c057c" class=""><strong>4:12 PM</strong> — <em>&quot;Suggest two follow-up questions&quot;</em></p></div><div style="display:contents" dir="auto"><p id="da249f5c-d8ee-41e5-a52b-50f2a7d1a3d5" class="">→ • Would it help if I walked through how we could replicate your current SQL-based flow directly in Fabric using Dataflows Gen2 and Lakehouse tables?</p></div><div style="display:contents" dir="auto"><p id="965af2b1-f1c6-433a-acf7-9706d75c20c5" class="">→ • Do you already have a list of the key tables or joins that feed your Power BI models so we can map them to the future silver layer structure?</p></div></details></li></ul></div><div style="display:contents" dir="auto"><hr id="c337ab79-0f21-46cb-9fc2-27288113de0d"/></div><div style="display:contents" dir="auto"><h3 id="9be84265-3cc1-4aa3-8b6f-968798644273" class="">✉️ Email follow-up (copy and paste)</h3></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="9c9016bd-cd6d-4cd4-a362-22a7a49eac21" class="code code-wrap"><code class="language-Markup" style="white-space:pre-wrap;word-break:break-all">Subject: Today’s data architecture review — recap and next steps
+
+Hi Patrick and Eudias,
+
+Thanks for the time today. Quick recap and the next steps are below.
+
+Summary
+- Reviewed database servers and staging/reporting approach.
+- Confirmed that M3 and MES sit in the core layer.
+- Noted corrections to the diagrams and where PlantPAx/FactoryTalk fit.
+- Agreed to keep using the read‑only/staging copy for reporting to avoid impacting prod.
+
+Key takeaways
+- “SDS” should be tracked as Sphera Intelligent Authoring (IA).
+- Current reporting uses SQL “mini DWH”; target is Fabric medallion (bronze/silver/gold).
+- We’ll tighten the ERP/MES relationships and diagram labels for accuracy.
+
+Action items
+- Steve: Update diagrams based on today’s feedback and circulate a refreshed set.
+- Steve: Draft a light plan to evolve the current refresh pattern toward the Fabric medallion approach.
+- Patrick: If possible, put 30 minutes on Mike’s calendar for alignment.
+- Team: Identify domain stewardship/ownership candidates so we can formalize responsibilities.
+
+Follow‑ups and scheduling
+- I have time with Eudias tomorrow morning to continue the SQL and architecture walkthrough.
+- I’ll send the updated diagrams and a short checklist ahead of that session.
+
+Apologies for the earlier connectivity hiccups on my side today — appreciate your patience. And a quick kudos to Eudias for the engaged, detailed walkthrough; that was super helpful.
+
+References
+- Consolidated notes: IP Corp — Data Architecture Review &amp; DB Systems — 2025‑12‑09
+- Running context: Current Context — IP Corporation
+
+Thanks,
+Steve</code></pre></div></div></article><span class="sans" style="font-size:14px;padding-top:2em"></span></body></html>

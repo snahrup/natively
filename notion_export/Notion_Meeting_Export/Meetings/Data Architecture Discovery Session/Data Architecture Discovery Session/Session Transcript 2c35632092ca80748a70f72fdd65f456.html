@@ -1,0 +1,743 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>Session Transcript</title><style>
+/* cspell:disable-file */
+/* webkit printing magic: print all background colors */
+html {
+	-webkit-print-color-adjust: exact;
+}
+* {
+	box-sizing: border-box;
+	-webkit-print-color-adjust: exact;
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+}
+@media only screen {
+	body {
+		margin: 2em auto;
+		max-width: 900px;
+		color: rgb(55, 53, 47);
+	}
+}
+
+body {
+	line-height: 1.5;
+	white-space: pre-wrap;
+}
+
+a,
+a.visited {
+	color: inherit;
+	text-decoration: underline;
+}
+
+.pdf-relative-link-path {
+	font-size: 80%;
+	color: #444;
+}
+
+h1,
+h2,
+h3 {
+	letter-spacing: -0.01em;
+	line-height: 1.2;
+	font-weight: 600;
+	margin-bottom: 0;
+}
+
+/* Override strong tags inside headings to maintain consistent weight */
+h1 strong,
+h2 strong,
+h3 strong {
+	font-weight: 600;
+}
+
+.page-title {
+	font-size: 2.5rem;
+	font-weight: 700;
+	margin-top: 0;
+	margin-bottom: 0.75em;
+}
+
+h1 {
+	font-size: 1.875rem;
+	margin-top: 1.875rem;
+}
+
+h2 {
+	font-size: 1.5rem;
+	margin-top: 1.5rem;
+}
+
+h3 {
+	font-size: 1.25rem;
+	margin-top: 1.25rem;
+}
+
+.source {
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	padding: 1.5em;
+	word-break: break-all;
+}
+
+.callout {
+	border-radius: 10px;
+	padding: 1rem;
+}
+
+figure {
+	margin: 1.25em 0;
+	page-break-inside: avoid;
+}
+
+figcaption {
+	opacity: 0.5;
+	font-size: 85%;
+	margin-top: 0.5em;
+}
+
+mark {
+	background-color: transparent;
+}
+
+.indented {
+	padding-left: 1.5em;
+}
+
+hr {
+	background: transparent;
+	display: block;
+	width: 100%;
+	height: 1px;
+	visibility: visible;
+	border: none;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+img {
+	max-width: 100%;
+}
+
+@media only print {
+	img {
+		max-height: 100vh;
+		object-fit: contain;
+	}
+
+	table.collection-content {
+		width: 100%;
+		table-layout: fixed;
+	}
+
+	table.collection-content th,
+	table.collection-content td {
+		overflow-wrap: anywhere;
+	}
+
+	table.collection-content td > .user,
+	table.collection-content td > time {
+		white-space: pre-wrap;
+	}
+}
+
+@page {
+	margin: 1in;
+}
+
+.collection-content-wrapper {
+	overflow-x: auto;
+}
+
+@media only print {
+	.collection-content-wrapper {
+		overflow-x: visible;
+	}
+}
+
+.collection-content {
+	font-size: 0.875rem;
+}
+
+.collection-content td {
+	white-space: pre-wrap;
+	word-break: break-word;
+}
+
+.column-list {
+	display: flex;
+	gap: 46px;
+}
+
+.column {
+	min-width: 0;
+	overflow: hidden;
+}
+
+.column > *:first-child {
+	margin-top: 0;
+}
+
+.table_of_contents-item {
+	display: block;
+	font-size: 0.875rem;
+	line-height: 1.3;
+	padding: 0.125rem;
+}
+
+.table_of_contents-indent-1 {
+	margin-left: 1.5rem;
+}
+
+.table_of_contents-indent-2 {
+	margin-left: 3rem;
+}
+
+.table_of_contents-indent-3 {
+	margin-left: 4.5rem;
+}
+
+.table_of_contents-link {
+	text-decoration: none;
+	opacity: 0.7;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.18);
+}
+
+table,
+th,
+td {
+	border: 1px solid rgba(55, 53, 47, 0.09);
+	border-collapse: collapse;
+}
+
+table {
+	border-left: none;
+	border-right: none;
+}
+
+th,
+td {
+	font-weight: normal;
+	padding: 0.25em 0.5em;
+	line-height: 1.5;
+	min-height: 1.5em;
+	text-align: left;
+}
+
+th {
+	color: rgba(55, 53, 47, 0.6);
+}
+
+ol,
+ul {
+	margin: 0;
+	margin-block-start: 0.6em;
+	margin-block-end: 0.6em;
+}
+
+li > ol:first-child,
+li > ul:first-child {
+	margin-block-start: 0.6em;
+}
+
+ul > li {
+	list-style: disc;
+}
+
+ul.to-do-list {
+	padding-inline-start: 0;
+}
+
+ul.to-do-list > li {
+	list-style: none;
+}
+
+.to-do-children-checked {
+	text-decoration: line-through;
+	opacity: 0.375;
+}
+
+ul.toggle > li {
+	list-style: none;
+}
+
+ul {
+	padding-inline-start: 1.7em;
+}
+
+ul > li {
+	padding-left: 0.1em;
+}
+
+ol {
+	padding-inline-start: 1.6em;
+}
+
+ol.numbered-list.numbered-list-digits-2 {
+	padding-inline-start: 2em;
+}
+
+ol.numbered-list.numbered-list-digits-3plus {
+	padding-inline-start: 2.4em;
+}
+
+ol > li {
+	padding-left: 0.2em;
+}
+
+.mono ol {
+	padding-inline-start: 2em;
+}
+
+.mono ol > li {
+	text-indent: -0.4em;
+}
+
+.toggle {
+	padding-inline-start: 0em;
+	list-style-type: none;
+}
+
+/* Indent toggle children */
+.toggle > li > details {
+	padding-left: 1.7em;
+}
+
+.toggle > li > details > summary {
+	margin-left: -1.1em;
+}
+
+.selected-value {
+	display: inline-block;
+	padding: 0 0.5em;
+	background: rgba(206, 205, 202, 0.5);
+	border-radius: 3px;
+	margin-right: 0.5em;
+	margin-top: 0.3em;
+	margin-bottom: 0.3em;
+	white-space: nowrap;
+}
+
+.collection-title {
+	display: inline-block;
+	margin-right: 1em;
+}
+
+.page-description {
+	margin-bottom: 2em;
+}
+
+.simple-table {
+	margin-top: 1em;
+	font-size: 0.875rem;
+	empty-cells: show;
+}
+.simple-table td {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table th {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table-header-color {
+	background: rgb(247, 246, 243);
+	color: black;
+}
+.simple-table-header {
+	font-weight: 500;
+}
+
+time {
+	opacity: 0.5;
+}
+
+.icon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	max-width: 1.2em;
+	max-height: 1.2em;
+	text-decoration: none;
+	vertical-align: text-bottom;
+	margin-right: 0.5em;
+}
+
+img.icon {
+	border-radius: 3px;
+}
+
+.callout img.notion-static-icon {
+	width: 1em;
+	height: 1em;
+}
+
+.callout p {
+	margin: 0;
+}
+
+.callout h1,
+.callout h2,
+.callout h3 {
+	margin: 0 0 0.6rem;
+}
+
+.user-icon {
+	width: 1.5em;
+	height: 1.5em;
+	border-radius: 100%;
+	margin-right: 0.5rem;
+}
+
+.user-icon-inner {
+	font-size: 0.8em;
+}
+
+.text-icon {
+	border: 1px solid #000;
+	text-align: center;
+}
+
+.page-cover-image {
+	display: block;
+	object-fit: cover;
+	width: 100%;
+	max-height: 30vh;
+}
+
+.page-header-icon {
+	font-size: 3rem;
+	margin-bottom: 1rem;
+}
+
+.page-header-icon-with-cover {
+	margin-top: -0.72em;
+	margin-left: 0.07em;
+}
+
+.page-header-icon img {
+	border-radius: 3px;
+}
+
+.link-to-page {
+	margin: 1em 0;
+	padding: 0;
+	border: none;
+	font-weight: 500;
+}
+
+p > .user {
+	opacity: 0.5;
+}
+
+td > .user,
+td > time {
+	white-space: nowrap;
+}
+
+input[type="checkbox"] {
+	transform: scale(1.5);
+	margin-right: 0.6em;
+	vertical-align: middle;
+}
+
+p {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+.image {
+	border: none;
+	margin: 1.5em 0;
+	padding: 0;
+	border-radius: 0;
+	text-align: center;
+}
+
+.code,
+code {
+	background: rgba(135, 131, 120, 0.15);
+	border-radius: 3px;
+	padding: 0.2em 0.4em;
+	border-radius: 3px;
+	font-size: 85%;
+	tab-size: 2;
+}
+
+code {
+	color: #eb5757;
+}
+
+.code {
+	padding: 1.5em 1em;
+}
+
+.code-wrap {
+	white-space: pre-wrap;
+	word-break: break-all;
+}
+
+.code > code {
+	background: none;
+	padding: 0;
+	font-size: 100%;
+	color: inherit;
+}
+
+blockquote {
+	font-size: 1em;
+	margin: 1em 0;
+	padding-left: 1em;
+	border-left: 3px solid rgb(55, 53, 47);
+}
+
+blockquote.quote-large {
+	font-size: 1.25em;
+}
+
+.bookmark {
+	text-decoration: none;
+	max-height: 8em;
+	padding: 0;
+	display: flex;
+	width: 100%;
+	align-items: stretch;
+}
+
+.bookmark-title {
+	font-size: 0.85em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	height: 1.75em;
+	white-space: nowrap;
+}
+
+.bookmark-text {
+	display: flex;
+	flex-direction: column;
+}
+
+.bookmark-info {
+	flex: 4 1 180px;
+	padding: 12px 14px 14px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.bookmark-image {
+	width: 33%;
+	flex: 1 1 180px;
+	display: block;
+	position: relative;
+	object-fit: cover;
+	border-radius: 1px;
+}
+
+.bookmark-description {
+	color: rgba(55, 53, 47, 0.6);
+	font-size: 0.75em;
+	overflow: hidden;
+	max-height: 4.5em;
+	word-break: break-word;
+}
+
+.bookmark-href {
+	font-size: 0.75em;
+	margin-top: 0.25em;
+}
+
+.sans { font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol"; }
+.code { font-family: "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace; }
+.serif { font-family: Lyon-Text, Georgia, ui-serif, serif; }
+.mono { font-family: iawriter-mono, Nitti, Menlo, Courier, monospace; }
+.pdf .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK JP'; }
+.pdf:lang(zh-CN) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK SC'; }
+.pdf:lang(zh-TW) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK TC'; }
+.pdf:lang(ko-KR) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK KR'; }
+.pdf .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.pdf .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK JP'; }
+.pdf:lang(zh-CN) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK SC'; }
+.pdf:lang(zh-TW) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK TC'; }
+.pdf:lang(ko-KR) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK KR'; }
+.pdf .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.highlight-default {
+	color: rgba(44, 44, 43, 1);
+}
+.highlight-gray {
+	color: rgba(125, 122, 117, 1);
+	fill: rgba(125, 122, 117, 1);
+}
+.highlight-brown {
+	color: rgba(159, 118, 90, 1);
+	fill: rgba(159, 118, 90, 1);
+}
+.highlight-orange {
+	color: rgba(210, 123, 45, 1);
+	fill: rgba(210, 123, 45, 1);
+}
+.highlight-yellow {
+	color: rgba(203, 148, 52, 1);
+	fill: rgba(203, 148, 52, 1);
+}
+.highlight-teal {
+	color: rgba(80, 148, 110, 1);
+	fill: rgba(80, 148, 110, 1);
+}
+.highlight-blue {
+	color: rgba(56, 125, 201, 1);
+	fill: rgba(56, 125, 201, 1);
+}
+.highlight-purple {
+	color: rgba(154, 107, 180, 1);
+	fill: rgba(154, 107, 180, 1);
+}
+.highlight-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.highlight-red {
+	color: rgba(207, 81, 72, 1);
+	fill: rgba(207, 81, 72, 1);
+}
+.highlight-default_background {
+	color: rgba(44, 44, 43, 1);
+}
+.highlight-gray_background {
+	background: rgba(42, 28, 0, 0.07);
+}
+.highlight-brown_background {
+	background: rgba(139, 46, 0, 0.086);
+}
+.highlight-orange_background {
+	background: rgba(224, 101, 1, 0.129);
+}
+.highlight-yellow_background {
+	background: rgba(211, 168, 0, 0.137);
+}
+.highlight-teal_background {
+	background: rgba(0, 100, 45, 0.09);
+}
+.highlight-blue_background {
+	background: rgba(0, 124, 215, 0.094);
+}
+.highlight-purple_background {
+	background: rgba(102, 0, 178, 0.078);
+}
+.highlight-pink_background {
+	background: rgba(197, 0, 93, 0.086);
+}
+.highlight-red_background {
+	background: rgba(223, 22, 0, 0.094);
+}
+.block-color-default {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray {
+	color: rgba(125, 122, 117, 1);
+	fill: rgba(125, 122, 117, 1);
+}
+.block-color-brown {
+	color: rgba(159, 118, 90, 1);
+	fill: rgba(159, 118, 90, 1);
+}
+.block-color-orange {
+	color: rgba(210, 123, 45, 1);
+	fill: rgba(210, 123, 45, 1);
+}
+.block-color-yellow {
+	color: rgba(203, 148, 52, 1);
+	fill: rgba(203, 148, 52, 1);
+}
+.block-color-teal {
+	color: rgba(80, 148, 110, 1);
+	fill: rgba(80, 148, 110, 1);
+}
+.block-color-blue {
+	color: rgba(56, 125, 201, 1);
+	fill: rgba(56, 125, 201, 1);
+}
+.block-color-purple {
+	color: rgba(154, 107, 180, 1);
+	fill: rgba(154, 107, 180, 1);
+}
+.block-color-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.block-color-red {
+	color: rgba(207, 81, 72, 1);
+	fill: rgba(207, 81, 72, 1);
+}
+.block-color-default_background {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray_background {
+	background: rgba(240, 239, 237, 1);
+}
+.block-color-brown_background {
+	background: rgba(245, 237, 233, 1);
+}
+.block-color-orange_background {
+	background: rgba(251, 235, 222, 1);
+}
+.block-color-yellow_background {
+	background: rgba(249, 243, 220, 1);
+}
+.block-color-teal_background {
+	background: rgba(232, 241, 236, 1);
+}
+.block-color-blue_background {
+	background: rgba(229, 242, 252, 1);
+}
+.block-color-purple_background {
+	background: rgba(243, 235, 249, 1);
+}
+.block-color-pink_background {
+	background: rgba(250, 233, 241, 1);
+}
+.block-color-red_background {
+	background: rgba(252, 233, 231, 1);
+}
+.select-value-color-default { background-color: rgba(42, 28, 0, 0.07); }
+.select-value-color-gray { background-color: rgba(28, 19, 1, 0.11); }
+.select-value-color-brown { background-color: rgba(127, 51, 0, 0.156); }
+.select-value-color-orange { background-color: rgba(196, 88, 0, 0.203); }
+.select-value-color-yellow { background-color: rgba(209, 156, 0, 0.282); }
+.select-value-color-green { background-color: rgba(0, 96, 38, 0.156); }
+.select-value-color-blue { background-color: rgba(0, 118, 217, 0.203); }
+.select-value-color-purple { background-color: rgba(92, 0, 163, 0.141); }
+.select-value-color-pink { background-color: rgba(183, 0, 78, 0.152); }
+.select-value-color-red { background-color: rgba(206, 24, 0, 0.164); }
+
+.checkbox {
+	display: inline-flex;
+	vertical-align: text-bottom;
+	width: 16;
+	height: 16;
+	background-size: 16px;
+	margin-left: 2px;
+	margin-right: 5px;
+}
+
+.checkbox-on {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20width%3D%2216%22%20height%3D%2216%22%20fill%3D%22%2358A9D7%22%2F%3E%0A%3Cpath%20d%3D%22M6.71429%2012.2852L14%204.9995L12.7143%203.71436L6.71429%209.71378L3.28571%206.2831L2%207.57092L6.71429%2012.2852Z%22%20fill%3D%22white%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+
+.checkbox-off {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20x%3D%220.75%22%20y%3D%220.75%22%20width%3D%2214.5%22%20height%3D%2214.5%22%20fill%3D%22white%22%20stroke%3D%22%2336352F%22%20stroke-width%3D%221.5%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+	
+</style></head><body><article id="2c356320-92ca-8074-8a70-f72fdd65f456" class="page sans"><header><h1 class="page-title" dir="auto">Session Transcript</h1><p class="page-description" dir="auto"></p></header><div class="page-body"><div style="display:contents" dir="auto"><p id="e5ac8c9a-c80b-496b-804e-5bd44f8ed4b6" class=""><strong>Them [0:29]:</strong> So they&#x27;re up to half an hour delayed.</p></div><div style="display:contents" dir="auto"><p id="35e80533-0378-4d23-8194-d6c9efe1c23d" class=""><strong>Them [0:38]:</strong> Purposely, because we don&#x27;t want them writing against production data. There are a few that are seconds old, or a lot in real time.</p></div><div style="display:contents" dir="auto"><p id="f2073ceb-2d66-4f3c-a741-14ddca39e192" class=""><strong>Them [0:50]:</strong> And then that&#x27;s the M3 Prod Actual. M3 Cloud Prod would be now the two that are in M3 Cloud.</p></div><div style="display:contents" dir="auto"><p id="ea5be515-947e-4292-bca7-a36b6aa84634" class=""><strong>Them [0:58]:</strong> And I am going to jump all over. I&#x27;m trying to do by product. That&#x27;s what I said, ERPs.</p></div><div style="display:contents" dir="auto"><p id="813b76ba-19ea-4642-a23e-4f92e2938237" class=""><strong>Steve [0:58]:</strong> Yeah.</p></div><div style="display:contents" dir="auto"><p id="2d2adb69-86e8-4caa-a841-46eb880144f5" class=""><strong>Steve [1:06]:</strong> Okay. And then I&#x27;ll try to go from there. So the big ones—and you might notice ERP is going to be one of the big ones.</p></div><div style="display:contents" dir="auto"><p id="7da8eab6-e1ec-4002-88d6-1b32b032669b" class=""><strong>Them [1:13]:</strong> MES is going to be the next probably largest. That&#x27;s production for operations.</p></div><div style="display:contents" dir="auto"><p id="7b902026-49c6-4f8f-84d2-e39da50a1138" class=""><strong>Them [1:19]:</strong> There&#x27;s going to be those two there too. And I assume you can see my mouse moving around?</p></div><div style="display:contents" dir="auto"><p id="a52d7a8b-87e5-4d8d-bfbf-7291360c6891" class=""><strong>Steve [1:19]:</strong> Yes, I can.</p></div><div style="display:contents" dir="auto"><p id="2998d713-f5a1-4fe3-a656-3c7ee34a992d" class=""><strong>Them [1:20]:</strong> Okay.</p></div><div style="display:contents" dir="auto"><p id="b94558e7-a7f8-4541-96e9-9d74d396403b" class=""><strong>Them [1:31]:</strong> And then from there I&#x27;m just going to go across the top. ANV, that is for what I talked about earlier—acidity and viscosity—where they do some of their data for their tests.</p></div><div style="display:contents" dir="auto"><p id="45fba2bd-0a48-48c1-8173-cb3366b584cc" class=""><strong>Them [1:35]:</strong> And we&#x27;ll show you some of those apps as well when we get further along.</p></div><div style="display:contents" dir="auto"><p id="55a9d9cd-5aee-42e2-a662-b9ea6081c108" class=""><strong>Steve [1:38]:</strong> AS, Advanced Scheduler.</p></div><div style="display:contents" dir="auto"><p id="c773f1aa-e0c6-4bbf-9b8f-0f6e24cd1d63" class=""><strong>Steve [1:42]:</strong> And I&#x27;m writing these down. I will type them up and get them over to you as well.</p></div><div style="display:contents" dir="auto"><p id="4bb08c87-5e05-4325-a051-a669387b7c0e" class=""><strong>Them [1:46]:</strong> So this will help you with some application information.</p></div><div style="display:contents" dir="auto"><p id="cd172e4f-54ea-45f4-af31-ba8641a4386f" class=""><strong>Them [1:59]:</strong> Advanced Scheduler basically allows each of the plants to throw all of their data that they need to make batches for, put it onto a big Gantt chart, and schedule what the resources are that they need to make the batches.</p></div><div style="display:contents" dir="auto"><p id="b8e7300f-f7b2-4ec5-804f-436339f230ad" class=""><strong>Steve [2:05]:</strong> That&#x27;s a quick high-level overview so they can take all our orders and try to say, &quot;Hey, when can I fit this in?&quot;</p></div><div style="display:contents" dir="auto"><p id="50bdb904-28be-4d83-8b86-2dd3d810c89f" class=""><strong>Them [2:21]:</strong> CPR. You&#x27;ll see Live and you&#x27;ll see Prod. They mean the same thing. We tried to standardize on Prod, but I see that we have Live and Prod are the two most commonly used. CPR is the Capital Planning Requests for the company.</p></div><div style="display:contents" dir="auto"><p id="08ef2ed4-b5a8-4fcc-9be4-03698f781771" class=""><strong>Them [2:31]:</strong> Just when it sounds like. It&#x27;s any time we want to do a capital request, we would put it into the CPR system and it goes through approval process.</p></div><div style="display:contents" dir="auto"><p id="a10e39e1-4dfc-4409-92b9-68190641bc8a" class=""><strong>Them [2:47]:</strong> EAM is going to be our Enterprise Asset Management. It&#x27;s used for maintenance personnel. For instance, say that they need to replace piping on one of the kettles—that would go in there.</p></div><div style="display:contents" dir="auto"><p id="9c0389a1-df4f-4365-8fd2-061e66ea29bf" class=""><strong>Steve [2:58]:</strong> Does CPR tie back into M3 at all?</p></div><div style="display:contents" dir="auto"><p id="c58fabdb-f8e5-469d-8c8d-fd66818ca551" class=""><strong>Them [3:02]:</strong> Actually, CPR is built off of an EAM structure. It&#x27;s tied more towards purchase orders, which goes into EAM, which ultimately goes into M3. So yes, but loosely.</p></div><div style="display:contents" dir="auto"><p id="a50a857c-a34f-4d01-a399-4d2b289b10a2" class=""><strong>Steve [3:16]:</strong> Got it. So we&#x27;re dealing with like product lines, order numbers, line numbers—like the whole hierarchy from...</p></div><div style="display:contents" dir="auto"><p id="82b585b1-fbc6-410a-bd2e-751231f78024" class=""><strong>Them [3:39]:</strong> So here would be our capital planning request for the company. Got it. This would be the high level. I need to—oh, it should get pulled out. Whoops.</p></div><div style="display:contents" dir="auto"><p id="b2514363-30fc-43fc-84c3-20ce0ca036d7" class=""><strong>Them [4:02]:</strong> And I&#x27;m sorry to just call you out of the blue here. I think I had some quick downtime. I was going to take a few minutes with you, so I hope that you don&#x27;t mind.</p></div><div style="display:contents" dir="auto"><p id="64c98596-b618-4e98-9134-711c84de5049" class=""><strong>Steve [4:03]:</strong> No, no, no.</p></div><div style="display:contents" dir="auto"><p id="48eb54b6-9e2f-4383-8afe-7d666dba3f2e" class=""><strong>Them [4:03]:</strong> Hey, is she back?</p></div><div style="display:contents" dir="auto"><p id="c7cd2dfe-8e94-4160-8973-37fb2c7047c1" class=""><strong>Them [4:09]:</strong> Yes, I am. You just didn&#x27;t want to hang out with us? I get it. That&#x27;s fine.</p></div><div style="display:contents" dir="auto"><p id="90e9dce1-2de2-46d4-ae7d-080c4f3f00e3" class=""><strong>Them [4:10]:</strong> Okay. It&#x27;s all good.</p></div><div style="display:contents" dir="auto"><p id="0f9cbf4e-a64f-454b-b5e0-a5a7146b97e1" class=""><strong>Steve [4:21]:</strong> Okay. So this would be capital planning requests. So if it&#x27;s a large expense that needs to be planned out, they&#x27;ll put it into here.</p></div><div style="display:contents" dir="auto"><p id="f334dd18-a7c2-4d7f-b101-abe5ba8f4c06" class=""><strong>Them [4:23]:</strong> And I just lost Greg&#x27;s screen.</p></div><div style="display:contents" dir="auto"><p id="61e794f2-647a-4699-a61c-2120bebb0bcd" class=""><strong>Them [4:29]:</strong> ETQ is a product—I don&#x27;t know if I have it handy here—is Excellence Through Quality. It&#x27;s an application. Last time I logged into here, it&#x27;s used for the HSE group, health and safety group.</p></div><div style="display:contents" dir="auto"><p id="6e69e710-991e-4235-aad4-49100a456c4e" class=""><strong>Steve [4:52]:</strong> Health, safety, and environment.</p></div><div style="display:contents" dir="auto"><p id="25cc6171-3965-490a-9e36-ac405fdeee58" class=""><strong>Them [4:56]:</strong> It&#x27;s also used for QC, quality control.</p></div><div style="display:contents" dir="auto"><p id="495dec2d-59b8-447b-9588-a8cbbd5e66a2" class=""><strong>Them [5:01]:</strong> There&#x27;s different modules here. I am not even going to begin to show you through this because I don&#x27;t know my way around. However, Matt Francis probably could show you quite a bit because he is the one that sends things from M3 and other applications into the ETQ. So this would probably not be the source for anything but quality issues or health and safety incidents.</p></div><div style="display:contents" dir="auto"><p id="fa773cf6-bfaf-4845-b0e6-9e146e3fe8d3" class=""><strong>Them [5:34]:</strong> We talked about the ERPs. I&#x27;m going to skip that one. ION. ION is probably not going to be of high importance for you, but just to give you a bit of info. It&#x27;s the Infor Open Network. It&#x27;s the middleware that Infor uses to talk with other applications.</p></div><div style="display:contents" dir="auto"><p id="554c0559-5d12-45e7-9f06-9ed693e3728a" class=""><strong>Them [5:59]:</strong> And then it&#x27;ll toss something into that structure, and it&#x27;ll go and take a BOD and process that BOD and put it into the ERP, or vice versa—take something from the ERP, throw it into ION, and process it and send it to another application.</p></div><div style="display:contents" dir="auto"><p id="a76640b6-88e4-4f3e-8faa-e71829c55d88" class=""><strong>Steve [6:10]:</strong> Got it.</p></div><div style="display:contents" dir="auto"><p id="fe39244d-feb2-45f0-84b2-ffd4fe5bc8db" class=""><strong>Them [6:17]:</strong> The reason that one&#x27;s even there is maybe we might have some reports when we&#x27;re trying to troubleshoot something.</p></div><div style="display:contents" dir="auto"><p id="9b044fb3-405b-4975-989b-bfef48f93947" class=""><strong>Them [6:21]:</strong> We talked about the ERPs, so I&#x27;m going to skip those two, those three. We talked about MES. I&#x27;m going to skip those as well, the Manufacturing Execution System.</p></div><div style="display:contents" dir="auto"><p id="86453485-b535-48f6-a2c2-cd17f779eac8" class=""><strong>Them [6:31]:</strong> I can really quickly show you. It&#x27;s a home-built application.</p></div><div style="display:contents" dir="auto"><p id="2808380e-e979-4f14-880e-cd2dd6bf9002" class=""><strong>Them [6:44]:</strong> When you sit down with Matt Pnaz, he&#x27;s one of the survivors of the application.</p></div><div style="display:contents" dir="auto"><p id="e197042e-81a3-4322-b16f-c6b67d73a588" class=""><strong>Steve [6:55]:</strong> So ION is the middleware that routes the BODs between M3 and other apps, right? For troubleshooting.</p></div><div style="display:contents" dir="auto"><p id="d5b1771f-1edb-44a9-9382-611044cea1f4" class=""><strong>Them [7:02]:</strong> Yep, yep. So the ION, that reporting that it&#x27;s going to look at is probably good. I would guess there&#x27;s some processes—we do inside of M3, for invoice approval processes, for example—that it could tell you where something is on the approval process. So there&#x27;s probably a report that somebody wrote to tell you that piece. I&#x27;ll tell you that there&#x27;s probably not much value in that one, but there could be.</p></div><div style="display:contents" dir="auto"><p id="450d1769-1619-45d0-bb9c-308712d7a2e0" class=""><strong>Steve [7:39]:</strong> How often do you find yourself basically needing to look at ION data when troubleshooting issues between M3 and—</p></div><div style="display:contents" dir="auto"><p id="d268d7c3-5374-49d4-b861-52d28928fd08" class=""><strong>Them [7:41]:</strong> If you talk to Matt Francis, quite regularly.</p></div><div style="display:contents" dir="auto"><p id="a51540e7-6ea4-45c7-b506-14016ec2b7b2" class=""><strong>Steve [7:57]:</strong> So is there any logging or monitoring data from ION that might be useful to bring into Fabric?</p></div><div style="display:contents" dir="auto"><p id="5d193d44-8d36-42ed-941a-482dada7761a" class=""><strong>Them [7:58]:</strong> Yeah. Yes, yes, yes, yes. Okay. Probably.</p></div><div style="display:contents" dir="auto"><p id="5edb9e03-bc3c-4cf1-b995-3583615b29cc" class=""><strong>Them [8:08]:</strong> All right. So we got to the MES. MPD SHAR. MP. So remember earlier I was talking about the company&#x27;s Molding Products?</p></div><div style="display:contents" dir="auto"><p id="e96b6fd0-4aef-4f25-87c1-daff6391084c" class=""><strong>Them [8:16]:</strong> You will hear some other acronyms that I should probably kind of give you a small list of what each of them are. Molding Products Division is MPD. They&#x27;re technically not a division anymore. They are Molding Products.</p></div><div style="display:contents" dir="auto"><p id="c9e3fda1-ac58-4efe-ab06-938d258beff0" class=""><strong>Them [8:29]:</strong> And there will be some people that will take offense if you say MPD. Just giving you a heads-up.</p></div><div style="display:contents" dir="auto"><p id="f8c5ea24-4f54-4e94-a0f0-d9f58bd281f7" class=""><strong>Steve [8:39]:</strong> There&#x27;s a lot of times you&#x27;ll hear three-letter acronyms that will say the company. Interplastic will also be known as TRD, Thermoset Resin Division. It&#x27;s no longer a division either. It&#x27;s Interplastic.</p></div><div style="display:contents" dir="auto"><p id="cd113a3d-1242-4b63-b729-09f83b5c493d" class=""><strong>Them [8:48]:</strong> North American Composites is still known by its acronym NAC. One that doesn&#x27;t take offense to it.</p></div><div style="display:contents" dir="auto"><p id="63907582-4672-401e-a76b-1f9e99af4f38" class=""><strong>Them [8:54]:</strong> So the SHAR is actually a big mixer system, and so this is an MES light for Molding Products, if you will.</p></div><div style="display:contents" dir="auto"><p id="d460e2f8-6436-4cfd-b34b-c8f0415f2458" class=""><strong>Steve [9:07]:</strong> Got it.</p></div><div style="display:contents" dir="auto"><p id="ae8029a1-37c6-4c7d-9e1a-f158eefe611a" class=""><strong>Them [9:10]:</strong> Okay. Optiva is our PLM software. So Product Lifecycle Management software. That will be where our formulas go, where the R&amp;D and the QC technicians will take a look at both the raw materials and keep the specifications for them. What tests need to be done for our finished goods. The revisions for the different formulas that we&#x27;ve manufactured.</p></div><div style="display:contents" dir="auto"><p id="aebc9073-fe32-48fd-a1c0-04f7ddc924d9" class=""><strong>Them [9:45]:</strong> So I jotted down a few acronyms that I really didn&#x27;t know what they meant yet.</p></div><div style="display:contents" dir="auto"><p id="4b559057-df8b-44ae-bd35-20016f5d114d" class=""><strong>Steve [10:01]:</strong> ANV, PCD, SDS, and RPT. I&#x27;m assuming report. RPT is just report, but I&#x27;m just going to write it down real quick. ANV was the first one. What was the next one?</p></div><div style="display:contents" dir="auto"><p id="e7a4027b-e45f-4cc4-aff7-157f4e6d6a5a" class=""><strong>Them [10:01]:</strong> PCD. Okay, yeah. Forget RPT. So ANV, PCD, and SDS.</p></div><div style="display:contents" dir="auto"><p id="7aacb4d0-5dd4-42f3-84be-fddd0cea4949" class=""><strong>Them [10:25]:</strong> ANV. If it&#x27;s just a normal acronym for something that&#x27;s common knowledge, I apologize.</p></div><div style="display:contents" dir="auto"><p id="2643e611-6f02-4b9f-8cf2-f1ecd76dc5c0" class=""><strong>Steve [10:35]:</strong> It&#x27;s okay. No, no, no. It&#x27;s not common knowledge. Some people will even call it ONIX. That&#x27;s a whole other discussion.</p></div><div style="display:contents" dir="auto"><p id="a1b946c1-cefa-49b4-8b1d-6a94e93254fe" class=""><strong>Them [10:39]:</strong> And I don&#x27;t know if we have a test system for this.</p></div><div style="display:contents" dir="auto"><p id="2929af25-4617-4c63-824c-9dfb7f841bba" class=""><strong>Steve [10:46]:</strong> For ANV?</p></div><div style="display:contents" dir="auto"><p id="547acf4a-b7db-4707-84f9-bfbb03a10b39" class=""><strong>Them [10:51]:</strong> ANV. It&#x27;s currently sitting in MES, right Patrick? I mean, in the database.</p></div><div style="display:contents" dir="auto"><p id="4cf07330-740c-43e9-bd25-11fab138ddc9" class=""><strong>Steve [11:01]:</strong> Yeah, it&#x27;s an extension of MES.</p></div><div style="display:contents" dir="auto"><p id="c45be832-9099-4b02-a596-bb3021aa3c00" class=""><strong>Them [11:08]:</strong> Yeah, that&#x27;s fine. Eudias, okay?</p></div><div style="display:contents" dir="auto"><p id="c08101d5-d20b-4a4d-83b9-0492be8b891f" class=""><strong>Them [11:21]:</strong> Eudias is just saying she might have to leave because kid duties and whatnot. So Eudias, can you set up some meetings tomorrow to show some of the databases too?</p></div><div style="display:contents" dir="auto"><p id="a0c9a3bc-9abd-4a6f-a002-6f40b5934db7" class=""><strong>Them [11:33]:</strong> Sure, I can do that. If you can handle that, then you can duck out whenever you want. I was just kind of going through some of the stuff here with Steve.</p></div><div style="display:contents" dir="auto"><p id="234b76e3-1d59-4699-9390-c96336aa137d" class=""><strong>Steve [11:33]:</strong> Okay, sounds good. I will be out now. I&#x27;m setting up a meeting.</p></div><div style="display:contents" dir="auto"><p id="af59ee39-4502-4a03-8be6-f8967b4910e8" class=""><strong>Steve [11:35]:</strong> Thanks a lot, Eudias.</p></div><div style="display:contents" dir="auto"><p id="946c90bc-ce54-4637-be69-9a78c069ab9e" class=""><strong>Them [11:41]:</strong> And I just asked Matt to stop over. Although he might be out in shipping right now, kind of working with users. Long story short is what they&#x27;ll do is they&#x27;ll take a sample every so often of a product. And I do not know my way around here.</p></div><div style="display:contents" dir="auto"><p id="9088b03a-57f7-4e0d-905c-6a108c3c5a18" class=""><strong>Them [12:01]:</strong> Oh, here he comes. He&#x27;s coming.</p></div><div style="display:contents" dir="auto"><p id="dbba2f56-149d-4091-8b35-6758da235c1e" class=""><strong>Them [12:05]:</strong> Come on in.</p></div><div style="display:contents" dir="auto"><p id="29f96335-dd53-4abd-bfcd-a5a33ac5e52b" class=""><strong>Them [12:12]:</strong> What time are you guys wrapping up? The door is—when is that? Brandon, I got five.</p></div><div style="display:contents" dir="auto"><p id="8811a971-40ea-435b-a52b-4544c00af1c3" class=""><strong>Them [12:15]:</strong> All right, so we got about half hour, yeah?</p></div><div style="display:contents" dir="auto"><p id="d0627443-2451-4876-8ef0-fb7c00d7dbee" class=""><strong>Steve [12:26]:</strong> Okay. Are we getting out of that a little bit?</p></div><div style="display:contents" dir="auto"><p id="fc32f329-f1e8-430e-84e8-6f372f454e8b" class=""><strong>Them [12:26]:</strong> All right, Steve, I&#x27;m going to have Pnaz in here for a second. Come on, grab a chair for a second. Okay.</p></div><div style="display:contents" dir="auto"><p id="6b732c1d-b3fb-48e9-9892-77f3e1903f4a" class=""><strong>Steve [12:31]:</strong> And then—all right. Thanks, Brianna. Yeah, we might. Thank you.</p></div><div style="display:contents" dir="auto"><p id="6be0012b-150d-4d2a-a898-965e402128c6" class=""><strong>Them [12:44]:</strong> This was an impromptu. Steve got his laptop here. So we were just kind of going over a couple of things. And so what I was starting to show was kind of bringing him up to speed. Each of these, because they&#x27;re data sources, so it&#x27;s a good place to start. And so he was wondering about some of the acronyms that he was seeing, like ANV. I thought, you know what, you&#x27;re going to be a better one to speak to this a little bit. So if you want to help me out a little bit.</p></div><div style="display:contents" dir="auto"><p id="afde38d7-b104-4919-83dd-9d0075324fb1" class=""><strong>Them [13:08]:</strong> All right, go ahead and explain ANV, and then maybe walk me through. I&#x27;m going to just end here, just—yeah. Really? You want to try?</p></div><div style="display:contents" dir="auto"><p id="459c37f2-b4e4-4bf1-931d-7c606c9a6b37" class=""><strong>Them [13:18]:</strong> Do I need to sit on the floor here? Yeah, I don&#x27;t know if that chair—give you this one. It&#x27;s the downside of coming to someone else&#x27;s office down here, Steve.</p></div><div style="display:contents" dir="auto"><p id="262d40df-95ba-4c5b-a993-0b97bdc57640" class=""><strong>Them [13:31]:</strong> Yeah, so this here is the tool that I built for using the cooks. And I&#x27;ll kind of go through the product configuration side of it.</p></div><div style="display:contents" dir="auto"><p id="6db89af9-a764-4c92-8344-9bfd64e28d3d" class=""><strong>Steve [13:41]:</strong> So essentially what they&#x27;re doing is they&#x27;re configuring these curves and they&#x27;re taking their test results. And the biggest thing they&#x27;re testing is acid number and viscosity.</p></div><div style="display:contents" dir="auto"><p id="9cf80c5b-6d93-449c-aff7-79ec2efcd8fb" class=""><strong>Them [13:58]:</strong> And as they&#x27;re cooking, what they&#x27;re trying to do is get it as close to this line as possible. So I&#x27;ll show you what a live batch kind of looks like. So they can take—we can take a golden batch, like maybe three or four batches that did exactly what they needed to do, and then they&#x27;ll—</p></div><div style="display:contents" dir="auto"><p id="dbfc4b56-b893-4855-83f0-c59bb9ded75c" class=""><strong>Them [14:19]:</strong> Taking the results, it&#x27;s actually trying to figure out how far off the curve they are and then we&#x27;ll recommend an adjustment of either maleic or glycol to essentially get it back onto the line here. So it&#x27;s a real-time tool that they use on the plant floor to essentially guide them in cooking.</p></div><div style="display:contents" dir="auto"><p id="1c29385f-7646-4f75-b6e5-fa594edd315a" class=""><strong>Steve [15:06]:</strong> Measuring acidity and viscosity over time. It&#x27;s just a reaction, and they&#x27;re trying to—so how&#x27;s the batch data stored once the run is complete? Does it feed back into MES or stay within the ANV tool?</p></div><div style="display:contents" dir="auto"><p id="4fcc3a7f-de49-4715-9ac0-0ef7db09cccc" class=""><strong>Them [15:37]:</strong> It&#x27;s in the same database as MES, so it&#x27;s all under one. So this, ANV, MES, and our OATS application are all under one MES database, so they&#x27;re all in the same house. And they&#x27;re all tied together by this batch ID that&#x27;s going to be your main key across all systems.</p></div><div style="display:contents" dir="auto"><p id="6e6d4d4c-4967-4d70-9749-507c16317f1d" class=""><strong>Steve [15:56]:</strong> These numbers and stuff that we&#x27;re looking at—are they automatically fed into here via instruments or stuff like that, or manually entered by the operator?</p></div><div style="display:contents" dir="auto"><p id="efa4d659-75e9-4c1d-bee1-fc5b29fc243e" class=""><strong>Them [16:17]:</strong> That&#x27;s a good question. So it&#x27;s—there&#x27;s two data points. There&#x27;s the acid number, which is a manual test, and then there&#x27;s the viscosity, which actually comes from our viscometer instrument. So they take a little sample, a little eyedropper sample, they drop it on this thing, it heats it up, and then that captures that result, and then that gets written out to the table. And then they manually run the acid number side of it.</p></div><div style="display:contents" dir="auto"><p id="a468cd26-4d56-44bc-abb3-52d8f07b7932" class=""><strong>Steve [16:31]:</strong> Got it. Okay, so there isn&#x27;t a chance that viscosity metrics could be wrong from the point of the test to—</p></div><div style="display:contents" dir="auto"><p id="aa6ec21d-f64e-485b-8157-9d7ecadd406a" class=""><strong>Them [16:57]:</strong> There&#x27;s always a chance. Yeah, the challenge with that is the—I mean like human error, I guess. Yeah, exactly. See all these numbers? See how the acid number is 8, and then our viscosity is 44.375? So these are coming from an instrument that are exact, whereas the acid number is keyed in by the operator, so you can see the difference.</p></div><div style="display:contents" dir="auto"><p id="a20806fb-de6f-4598-8a08-5e4a4c2f36d8" class=""><strong>Them [17:07]:</strong> So while you&#x27;re here, do you want to—I mean, ANV, I mean, I&#x27;ll screen up, I think.</p></div><div style="display:contents" dir="auto"><p id="b31272d1-dd3d-41e7-a6b6-ecd087c510f4" class=""><strong>Them [17:20]:</strong> Yeah, you know what you should do is let me kind of walk you through all these when I actually—no, I know this is just a very high-level overview. Yeah. So even the ANV is more than I was looking to go into today.</p></div><div style="display:contents" dir="auto"><p id="7754d162-6b56-4776-8fb3-f5a7016f2c8b" class=""><strong>Them [17:23]:</strong> Yeah, I don&#x27;t know what—okay.</p></div><div style="display:contents" dir="auto"><p id="845802ed-0419-441a-8e31-56ec8abc4cb0" class=""><strong>Steve [17:46]:</strong> So MES, you were talking about batches. This is where all the batching information, where the cooking would go to, would be coming in from. And there&#x27;s even another system that&#x27;s going to be feeding this from the control side.</p></div><div style="display:contents" dir="auto"><p id="6523e111-e92b-471b-982d-ca52308b0ba8" class=""><strong>Them [17:46]:</strong> Yeah. I haven&#x27;t even talked about that much yet. And so really what I was just starting with was taking each of those data sets from the reports. And that&#x27;s why I was explaining those. It gives me a baseline to start with.</p></div><div style="display:contents" dir="auto"><p id="5e25e3e9-3f7e-44df-8efd-2fbdf817c6f6" class=""><strong>Them [18:04]:</strong> Yeah, yeah. At some point we&#x27;ll dig in a lot more deeper on these, Steve. So, I mean, not to get too deep into it, but does each batch record link back to like a specific product or formulation ID from M3 for traceability of sorts, I guess?</p></div><div style="display:contents" dir="auto"><p id="fc5cc2d2-4559-4426-baf6-2dae21ed46a0" class=""><strong>Them [18:30]:</strong> And also, when formulation goes back to, like I told you, the PLM, the Optiva as well. Sorry if these are dumb questions.</p></div><div style="display:contents" dir="auto"><p id="30813a53-cfa7-4e65-b1d6-68c7b92d925d" class=""><strong>Steve [18:30]:</strong> No, not at all. That&#x27;s actually good. Yeah, so when you create a batch card, there&#x27;s a GUID that gets tied to it and that GUID is tied to a specific plant formula.</p></div><div style="display:contents" dir="auto"><p id="96d30c6c-dced-4386-8b77-d0ea47545c3e" class=""><strong>Them [18:42]:</strong> Yeah, to answer your question, yes. Everything is tied to a specific product. In this case, this product is called S-2. It&#x27;s not a good example, but there will be a unique fluid.</p></div><div style="display:contents" dir="auto"><p id="4d8d683b-7ea2-46a5-89cc-012f55a7374d" class=""><strong>Steve [18:42]:</strong> I get what you&#x27;re saying. When I get into things like this and I&#x27;m starting to build reports, I&#x27;ve made assumptions in the past that it is traceable from the lowest level of granularity up to, you know, the higher hierarchies. And I&#x27;ve run into instances where they&#x27;re like, &quot;Oh no, we just don&#x27;t have that.&quot; It&#x27;s like, &quot;Ah, so I&#x27;ve been guessing.&quot; Yeah. So I just didn&#x27;t want to—</p></div><div style="display:contents" dir="auto"><p id="bd799b94-65fc-4ed0-90a7-5b016f1ca468" class=""><strong>Them [19:23]:</strong> We will delve a lot more into each one of these applications in more detail. MES is kind of the hub between, say, the controls and Optiva and M3. Like I said, when you start talking about Optiva, M3, and MES, they go back and forth quite a bit.</p></div><div style="display:contents" dir="auto"><p id="9d415326-905e-49ca-a7ec-8caff6eb25b9" class=""><strong>Them [19:53]:</strong> Yeah, and this would be a good one to start building dashboards and stuff off of, is the MES system, because that&#x27;s kind of the heart of our operation. To manufacture. Not for Molding Products. Molding Products is in a different system. That&#x27;s how we vary. Molding Products—we vary. We look at everybody.</p></div><div style="display:contents" dir="auto"><p id="7287ffbf-17b3-4bbb-af2d-6b3bf1153b51" class=""><strong>Them [20:02]:</strong> So, and that&#x27;s also another reason why we started talking about MES. What that looks like for them in the future. But that&#x27;s a whole other conversation. Yeah, because that&#x27;s going to make his job a little challenging because we kind of have three different ways of doing things right across the facility. So we&#x27;re going to find the constants that we&#x27;re trying to get to, you know, in the process stuff.</p></div><div style="display:contents" dir="auto"><p id="2a201f62-ecd9-4bec-8f17-a3f83f756fd5" class=""><strong>Steve [20:32]:</strong> So not to jump around too much, but these are the last questions I think that I need. So when MES passes data back to M3, is that primarily for inventory and production reporting? Also, update things like costing and formulation details?</p></div><div style="display:contents" dir="auto"><p id="e6d32120-5580-48cd-b21d-7887500f3146" class=""><strong>Them [20:49]:</strong> No, not costing or anything like that. But if you see here, this—what they&#x27;re punching in here—is actually reducing the raw material. So they charge 444 pounds of 3103. That gets sent to M3 and that reduces down, so now we have a quantity on hand here. So that M3 holds our actual inventory, and this will reduce inventory, and then we&#x27;ll also put the finished goods onto inventory.</p></div><div style="display:contents" dir="auto"><p id="d2c36cdb-cd71-49dd-8990-3e33dd612308" class=""><strong>Them [21:14]:</strong> Through here, so then we send 1,200 pounds. So in short, the answer is yes, that it&#x27;s pretty much going to be keeping track of what&#x27;s going on with the batch. But when it comes down to M3, primarily just reducing and increasing inventory, whether raw material direct consumption or finished goods.</p></div><div style="display:contents" dir="auto"><p id="7cf85ba4-fdfa-44f2-8301-5c58d5968cb6" class=""><strong>Steve [21:39]:</strong> I have a lot of fun doing inventory reporting. I don&#x27;t know why, but it feels good. There&#x27;s confirmation once you start setting up triggers and real-time alerts and stuff. It&#x27;s like if they get below a certain threshold for, you know, a product, it sends you an alert. But like, you know, it&#x27;s working—</p></div><div style="display:contents" dir="auto"><p id="57783b05-6269-4eb9-be92-8a4622914b82" class=""><strong>Them [21:53]:</strong> As long as the number is being subtracted properly. And I don&#x27;t know, it feels good when it&#x27;s finally working, but it&#x27;s the worst when it&#x27;s not.</p></div><div style="display:contents" dir="auto"><p id="1cb0d27b-3f30-4a7d-beea-075d769f495d" class=""><strong>Steve [21:53]:</strong> Do you guys have real-time reports? You can talk to Francis about that more because now you start talking back about that other one I was talking about where ION comes into play.</p></div><div style="display:contents" dir="auto"><p id="f41871d4-8171-4f50-8484-7ff06244dde5" class=""><strong>Them [22:23]:</strong> Yeah, it&#x27;s tough when you got a giant warehouse and there&#x27;s hundreds of thousands of pounds of raw materials and they&#x27;re not trusting the system, so they&#x27;re injecting in and injecting out and all kinds of other pieces. It&#x27;s a nightmare sometimes. But the PLC ones are nice because those send directly from the flow sensors, so we know that those are getting reduced properly. But—</p></div><div style="display:contents" dir="auto"><p id="22039296-2e45-4c60-9f52-2636cee6a38e" class=""><strong>Them [22:23]:</strong> Okay, so the next—the next acronyms, I&#x27;m going to touch base on those two other acronyms and then we&#x27;re going to call it. Okay. You talked about ANV. SDS is Safety Data Sheets. So you might know, if you&#x27;re from my area, I think you&#x27;re closer to it. It used to be Material Safety Data Sheets.</p></div><div style="display:contents" dir="auto"><p id="dd3f4391-2d92-453d-a490-5641804c5433" class=""><strong>Steve [22:47]:</strong> Don&#x27;t drink the diary. Yeah, exactly.</p></div><div style="display:contents" dir="auto"><p id="8fb53914-3e9b-49d8-95e0-27f8c2a1e75c" class=""><strong>Them [22:47]:</strong> So when something happens, chemical companies have to have a safety data sheet that goes along with the products they manufacture to tell them what they need to do if you get it in your eye or you swallow it or you spill it on the road or whatever it is.</p></div><div style="display:contents" dir="auto"><p id="e77afbd7-eb5c-4aab-ac54-745b537c6d2e" class=""><strong>Them [23:09]:</strong> And then PCD is Process Controlled Data, and Matt can probably spend a little brief moment talking about what that is. Yeah, that has to do with the PLC, and it&#x27;s just how you&#x27;re charging the raw materials through, what batches you&#x27;re charging them through, and different things like that, different parameters for the specific products that talk to the PLC.</p></div><div style="display:contents" dir="auto"><p id="7d337bf3-96f0-42bf-8b31-ded9986ee781" class=""><strong>Them [23:09]:</strong> Controllers and things like that. And I assume—I guess we assumed by the statement that, you know, a PLC is—</p></div><div style="display:contents" dir="auto"><p id="b6d0988c-7aa2-4de4-b3ad-b7ec477b119c" class=""><strong>Steve [23:18]:</strong> Maybe not.</p></div><div style="display:contents" dir="auto"><p id="d609d8f7-3c3e-425a-93dd-a4317f2b6516" class=""><strong>Them [23:29]:</strong> Just Process Logic Controllers. Yeah, it&#x27;s the controllers. Yeah, that open up all the valves and the hardware that talks to the software, kind of a thing.</p></div><div style="display:contents" dir="auto"><p id="9c426dd3-97e9-420e-9a26-c983c0f366de" class=""><strong>Them [23:48]:</strong> So that&#x27;s a quick high-level overview. Give me a good chance to write down some of these. Some we haven&#x27;t even talked about yet. Eudias will set up a couple of meetings to go over with you each of the databases, which is going to give you some exploratory information to start talking about who is going to be the system director for which pieces too.</p></div><div style="display:contents" dir="auto"><p id="2328e633-ca13-4b74-9b7e-85ce81428656" class=""><strong>Steve [24:00]:</strong> Yeah, yeah. One last thing, I swear this won&#x27;t go off into a tangent. You guys mentioned like people ballpark certain things compared to the automated measurements and things like that. Like as we&#x27;re doing this discovery, I guess, process and going kind of drinking from the fire hose—</p></div><div style="display:contents" dir="auto"><p id="00947671-9bb4-4f12-937f-e346a5a4c15e" class=""><strong>Them [24:19]:</strong> I usually try to take notes of things like that that aren&#x27;t exact, that maybe don&#x27;t have a perfect answer sometimes, or that can either be figured out with reporting or just needs to be noted or asterisked. So it&#x27;s—so that it&#x27;s—we&#x27;re not trying to shove a—I&#x27;ll get a few of those. I just want to make a note of it. Don&#x27;t need to like fix it completely. I just want to make sure that—</p></div><div style="display:contents" dir="auto"><p id="4e28ec84-ccb4-45b1-91c3-5d0108a653ff" class=""><strong>Them [24:26]:</strong> Your point here is, these are all raw materials on the screen here, and as you can see they were calling for 20,600 and they put in 20,600. They put in exactly 6,500. It&#x27;s amazing how accurately they put in everything exactly like it needs to be. So yeah, there&#x27;s that too. There&#x27;s only so much analysis we can run on something like this when they&#x27;re not putting in the exact amount. The PLC does do down to the 0.00.</p></div><div style="display:contents" dir="auto"><p id="92a62bdc-f8aa-4af2-9396-8f29830b337e" class=""><strong>Them [25:17]:</strong> So you get better analytics off that, but—and one of the nice things is users are actually just typing the number without seeing it. Say it says 5 pounds, they pour 4 pounds 7.75, they&#x27;re typing 5. The raw material callouts are basically what drive back the consumption entries back into M3.</p></div><div style="display:contents" dir="auto"><p id="2f37709d-431b-42e5-a319-13ee54bc7576" class=""><strong>Them [25:44]:</strong> Yep, right. But what&#x27;s nice about having the real data is if we run into a bad batch or something, we&#x27;re actually able to go back and be like, &quot;Oh, well, it was short or over by this much.&quot; But when they punch in the exact amount, we have no idea what truly went into the batch. So it&#x27;s sometimes—</p></div><div style="display:contents" dir="auto"><p id="a2609fd0-4fd4-4153-8e1e-7fbca38b6681" class=""><strong>Steve [25:57]:</strong> That&#x27;s what I was going to ask, but I don&#x27;t want to get too far down it. This was extremely helpful. There&#x27;s lots of rabbit holes to go down.</p></div><div style="display:contents" dir="auto"><p id="d9ae5697-2cbb-406e-bbcf-7320ac4d28b7" class=""><strong>Them [25:57]:</strong> So we&#x27;ll keep on doing a couple more of these sessions and then we&#x27;ll start talking about a game plan of getting together, like I said, a kickoff and talking to the stakeholders and get you in front of the mic as well.</p></div><div style="display:contents" dir="auto"><p id="c3abbc50-e3d8-4dec-942e-154c621ccf73" class=""><strong>Steve [26:05]:</strong> For the oral exam? And quiz me on all of it? Yes, exactly, for the oral exam. Test is on Friday. Yep.</p></div><div style="display:contents" dir="auto"><p id="969b2638-1758-4ff2-9eb5-ddcf1b234263" class=""><strong>Them [26:16]:</strong> All right. And I&#x27;m sorry, I&#x27;m sure that you&#x27;ve been through this before, but it&#x27;s going to be like drinking from a fire hose.</p></div><div style="display:contents" dir="auto"><p id="2274b125-721c-47ea-819d-1efffd5cbbca" class=""><strong>Steve [26:16]:</strong> Oh no, no, no, no. That&#x27;s what I expect. If it wasn&#x27;t, you guys wouldn&#x27;t need me, honestly. I&#x27;m ready for it, but thanks a lot. I appreciate you taking the time.</p></div><div style="display:contents" dir="auto"><p id="b410ab60-c80d-4aa5-8578-2ad2dd873355" class=""><strong>Them [26:20]:</strong> Thanks, Steve. Sounds good. See you guys later. Talk to you soon. Bye.</p></div></div></article><span class="sans" style="font-size:14px;padding-top:2em"></span></body></html>

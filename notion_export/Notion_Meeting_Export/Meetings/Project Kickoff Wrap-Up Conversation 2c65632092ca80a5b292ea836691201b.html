@@ -1,0 +1,747 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>Project Kickoff Wrap-Up Conversation</title><style>
+/* cspell:disable-file */
+/* webkit printing magic: print all background colors */
+html {
+	-webkit-print-color-adjust: exact;
+}
+* {
+	box-sizing: border-box;
+	-webkit-print-color-adjust: exact;
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+}
+@media only screen {
+	body {
+		margin: 2em auto;
+		max-width: 900px;
+		color: rgb(55, 53, 47);
+	}
+}
+
+body {
+	line-height: 1.5;
+	white-space: pre-wrap;
+}
+
+a,
+a.visited {
+	color: inherit;
+	text-decoration: underline;
+}
+
+.pdf-relative-link-path {
+	font-size: 80%;
+	color: #444;
+}
+
+h1,
+h2,
+h3 {
+	letter-spacing: -0.01em;
+	line-height: 1.2;
+	font-weight: 600;
+	margin-bottom: 0;
+}
+
+/* Override strong tags inside headings to maintain consistent weight */
+h1 strong,
+h2 strong,
+h3 strong {
+	font-weight: 600;
+}
+
+.page-title {
+	font-size: 2.5rem;
+	font-weight: 700;
+	margin-top: 0;
+	margin-bottom: 0.75em;
+}
+
+h1 {
+	font-size: 1.875rem;
+	margin-top: 1.875rem;
+}
+
+h2 {
+	font-size: 1.5rem;
+	margin-top: 1.5rem;
+}
+
+h3 {
+	font-size: 1.25rem;
+	margin-top: 1.25rem;
+}
+
+.source {
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	padding: 1.5em;
+	word-break: break-all;
+}
+
+.callout {
+	border-radius: 10px;
+	padding: 1rem;
+}
+
+figure {
+	margin: 1.25em 0;
+	page-break-inside: avoid;
+}
+
+figcaption {
+	opacity: 0.5;
+	font-size: 85%;
+	margin-top: 0.5em;
+}
+
+mark {
+	background-color: transparent;
+}
+
+.indented {
+	padding-left: 1.5em;
+}
+
+hr {
+	background: transparent;
+	display: block;
+	width: 100%;
+	height: 1px;
+	visibility: visible;
+	border: none;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+img {
+	max-width: 100%;
+}
+
+@media only print {
+	img {
+		max-height: 100vh;
+		object-fit: contain;
+	}
+
+	table.collection-content {
+		width: 100%;
+		table-layout: fixed;
+	}
+
+	table.collection-content th,
+	table.collection-content td {
+		overflow-wrap: anywhere;
+	}
+
+	table.collection-content td > .user,
+	table.collection-content td > time {
+		white-space: pre-wrap;
+	}
+}
+
+@page {
+	margin: 1in;
+}
+
+.collection-content-wrapper {
+	overflow-x: auto;
+}
+
+@media only print {
+	.collection-content-wrapper {
+		overflow-x: visible;
+	}
+}
+
+.collection-content {
+	font-size: 0.875rem;
+}
+
+.collection-content td {
+	white-space: pre-wrap;
+	word-break: break-word;
+}
+
+.column-list {
+	display: flex;
+	gap: 46px;
+}
+
+.column {
+	min-width: 0;
+	overflow: hidden;
+}
+
+.column > *:first-child {
+	margin-top: 0;
+}
+
+.table_of_contents-item {
+	display: block;
+	font-size: 0.875rem;
+	line-height: 1.3;
+	padding: 0.125rem;
+}
+
+.table_of_contents-indent-1 {
+	margin-left: 1.5rem;
+}
+
+.table_of_contents-indent-2 {
+	margin-left: 3rem;
+}
+
+.table_of_contents-indent-3 {
+	margin-left: 4.5rem;
+}
+
+.table_of_contents-link {
+	text-decoration: none;
+	opacity: 0.7;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.18);
+}
+
+table,
+th,
+td {
+	border: 1px solid rgba(55, 53, 47, 0.09);
+	border-collapse: collapse;
+}
+
+table {
+	border-left: none;
+	border-right: none;
+}
+
+th,
+td {
+	font-weight: normal;
+	padding: 0.25em 0.5em;
+	line-height: 1.5;
+	min-height: 1.5em;
+	text-align: left;
+}
+
+th {
+	color: rgba(55, 53, 47, 0.6);
+}
+
+ol,
+ul {
+	margin: 0;
+	margin-block-start: 0.6em;
+	margin-block-end: 0.6em;
+}
+
+li > ol:first-child,
+li > ul:first-child {
+	margin-block-start: 0.6em;
+}
+
+ul > li {
+	list-style: disc;
+}
+
+ul.to-do-list {
+	padding-inline-start: 0;
+}
+
+ul.to-do-list > li {
+	list-style: none;
+}
+
+.to-do-children-checked {
+	text-decoration: line-through;
+	opacity: 0.375;
+}
+
+ul.toggle > li {
+	list-style: none;
+}
+
+ul {
+	padding-inline-start: 1.7em;
+}
+
+ul > li {
+	padding-left: 0.1em;
+}
+
+ol {
+	padding-inline-start: 1.6em;
+}
+
+ol.numbered-list.numbered-list-digits-2 {
+	padding-inline-start: 2em;
+}
+
+ol.numbered-list.numbered-list-digits-3plus {
+	padding-inline-start: 2.4em;
+}
+
+ol > li {
+	padding-left: 0.2em;
+}
+
+.mono ol {
+	padding-inline-start: 2em;
+}
+
+.mono ol > li {
+	text-indent: -0.4em;
+}
+
+.toggle {
+	padding-inline-start: 0em;
+	list-style-type: none;
+}
+
+/* Indent toggle children */
+.toggle > li > details {
+	padding-left: 1.7em;
+}
+
+.toggle > li > details > summary {
+	margin-left: -1.1em;
+}
+
+.selected-value {
+	display: inline-block;
+	padding: 0 0.5em;
+	background: rgba(206, 205, 202, 0.5);
+	border-radius: 3px;
+	margin-right: 0.5em;
+	margin-top: 0.3em;
+	margin-bottom: 0.3em;
+	white-space: nowrap;
+}
+
+.collection-title {
+	display: inline-block;
+	margin-right: 1em;
+}
+
+.page-description {
+	margin-bottom: 2em;
+}
+
+.simple-table {
+	margin-top: 1em;
+	font-size: 0.875rem;
+	empty-cells: show;
+}
+.simple-table td {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table th {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table-header-color {
+	background: rgb(247, 246, 243);
+	color: black;
+}
+.simple-table-header {
+	font-weight: 500;
+}
+
+time {
+	opacity: 0.5;
+}
+
+.icon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	max-width: 1.2em;
+	max-height: 1.2em;
+	text-decoration: none;
+	vertical-align: text-bottom;
+	margin-right: 0.5em;
+}
+
+img.icon {
+	border-radius: 3px;
+}
+
+.callout img.notion-static-icon {
+	width: 1em;
+	height: 1em;
+}
+
+.callout p {
+	margin: 0;
+}
+
+.callout h1,
+.callout h2,
+.callout h3 {
+	margin: 0 0 0.6rem;
+}
+
+.user-icon {
+	width: 1.5em;
+	height: 1.5em;
+	border-radius: 100%;
+	margin-right: 0.5rem;
+}
+
+.user-icon-inner {
+	font-size: 0.8em;
+}
+
+.text-icon {
+	border: 1px solid #000;
+	text-align: center;
+}
+
+.page-cover-image {
+	display: block;
+	object-fit: cover;
+	width: 100%;
+	max-height: 30vh;
+}
+
+.page-header-icon {
+	font-size: 3rem;
+	margin-bottom: 1rem;
+}
+
+.page-header-icon-with-cover {
+	margin-top: -0.72em;
+	margin-left: 0.07em;
+}
+
+.page-header-icon img {
+	border-radius: 3px;
+}
+
+.link-to-page {
+	margin: 1em 0;
+	padding: 0;
+	border: none;
+	font-weight: 500;
+}
+
+p > .user {
+	opacity: 0.5;
+}
+
+td > .user,
+td > time {
+	white-space: nowrap;
+}
+
+input[type="checkbox"] {
+	transform: scale(1.5);
+	margin-right: 0.6em;
+	vertical-align: middle;
+}
+
+p {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+.image {
+	border: none;
+	margin: 1.5em 0;
+	padding: 0;
+	border-radius: 0;
+	text-align: center;
+}
+
+.code,
+code {
+	background: rgba(135, 131, 120, 0.15);
+	border-radius: 3px;
+	padding: 0.2em 0.4em;
+	border-radius: 3px;
+	font-size: 85%;
+	tab-size: 2;
+}
+
+code {
+	color: #eb5757;
+}
+
+.code {
+	padding: 1.5em 1em;
+}
+
+.code-wrap {
+	white-space: pre-wrap;
+	word-break: break-all;
+}
+
+.code > code {
+	background: none;
+	padding: 0;
+	font-size: 100%;
+	color: inherit;
+}
+
+blockquote {
+	font-size: 1em;
+	margin: 1em 0;
+	padding-left: 1em;
+	border-left: 3px solid rgb(55, 53, 47);
+}
+
+blockquote.quote-large {
+	font-size: 1.25em;
+}
+
+.bookmark {
+	text-decoration: none;
+	max-height: 8em;
+	padding: 0;
+	display: flex;
+	width: 100%;
+	align-items: stretch;
+}
+
+.bookmark-title {
+	font-size: 0.85em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	height: 1.75em;
+	white-space: nowrap;
+}
+
+.bookmark-text {
+	display: flex;
+	flex-direction: column;
+}
+
+.bookmark-info {
+	flex: 4 1 180px;
+	padding: 12px 14px 14px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.bookmark-image {
+	width: 33%;
+	flex: 1 1 180px;
+	display: block;
+	position: relative;
+	object-fit: cover;
+	border-radius: 1px;
+}
+
+.bookmark-description {
+	color: rgba(55, 53, 47, 0.6);
+	font-size: 0.75em;
+	overflow: hidden;
+	max-height: 4.5em;
+	word-break: break-word;
+}
+
+.bookmark-href {
+	font-size: 0.75em;
+	margin-top: 0.25em;
+}
+
+.sans { font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol"; }
+.code { font-family: "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace; }
+.serif { font-family: Lyon-Text, Georgia, ui-serif, serif; }
+.mono { font-family: iawriter-mono, Nitti, Menlo, Courier, monospace; }
+.pdf .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK JP'; }
+.pdf:lang(zh-CN) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK SC'; }
+.pdf:lang(zh-TW) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK TC'; }
+.pdf:lang(ko-KR) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK KR'; }
+.pdf .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.pdf .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK JP'; }
+.pdf:lang(zh-CN) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK SC'; }
+.pdf:lang(zh-TW) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK TC'; }
+.pdf:lang(ko-KR) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK KR'; }
+.pdf .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.highlight-default {
+	color: rgba(44, 44, 43, 1);
+}
+.highlight-gray {
+	color: rgba(125, 122, 117, 1);
+	fill: rgba(125, 122, 117, 1);
+}
+.highlight-brown {
+	color: rgba(159, 118, 90, 1);
+	fill: rgba(159, 118, 90, 1);
+}
+.highlight-orange {
+	color: rgba(210, 123, 45, 1);
+	fill: rgba(210, 123, 45, 1);
+}
+.highlight-yellow {
+	color: rgba(203, 148, 52, 1);
+	fill: rgba(203, 148, 52, 1);
+}
+.highlight-teal {
+	color: rgba(80, 148, 110, 1);
+	fill: rgba(80, 148, 110, 1);
+}
+.highlight-blue {
+	color: rgba(56, 125, 201, 1);
+	fill: rgba(56, 125, 201, 1);
+}
+.highlight-purple {
+	color: rgba(154, 107, 180, 1);
+	fill: rgba(154, 107, 180, 1);
+}
+.highlight-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.highlight-red {
+	color: rgba(207, 81, 72, 1);
+	fill: rgba(207, 81, 72, 1);
+}
+.highlight-default_background {
+	color: rgba(44, 44, 43, 1);
+}
+.highlight-gray_background {
+	background: rgba(42, 28, 0, 0.07);
+}
+.highlight-brown_background {
+	background: rgba(139, 46, 0, 0.086);
+}
+.highlight-orange_background {
+	background: rgba(224, 101, 1, 0.129);
+}
+.highlight-yellow_background {
+	background: rgba(211, 168, 0, 0.137);
+}
+.highlight-teal_background {
+	background: rgba(0, 100, 45, 0.09);
+}
+.highlight-blue_background {
+	background: rgba(0, 124, 215, 0.094);
+}
+.highlight-purple_background {
+	background: rgba(102, 0, 178, 0.078);
+}
+.highlight-pink_background {
+	background: rgba(197, 0, 93, 0.086);
+}
+.highlight-red_background {
+	background: rgba(223, 22, 0, 0.094);
+}
+.block-color-default {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray {
+	color: rgba(125, 122, 117, 1);
+	fill: rgba(125, 122, 117, 1);
+}
+.block-color-brown {
+	color: rgba(159, 118, 90, 1);
+	fill: rgba(159, 118, 90, 1);
+}
+.block-color-orange {
+	color: rgba(210, 123, 45, 1);
+	fill: rgba(210, 123, 45, 1);
+}
+.block-color-yellow {
+	color: rgba(203, 148, 52, 1);
+	fill: rgba(203, 148, 52, 1);
+}
+.block-color-teal {
+	color: rgba(80, 148, 110, 1);
+	fill: rgba(80, 148, 110, 1);
+}
+.block-color-blue {
+	color: rgba(56, 125, 201, 1);
+	fill: rgba(56, 125, 201, 1);
+}
+.block-color-purple {
+	color: rgba(154, 107, 180, 1);
+	fill: rgba(154, 107, 180, 1);
+}
+.block-color-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.block-color-red {
+	color: rgba(207, 81, 72, 1);
+	fill: rgba(207, 81, 72, 1);
+}
+.block-color-default_background {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray_background {
+	background: rgba(240, 239, 237, 1);
+}
+.block-color-brown_background {
+	background: rgba(245, 237, 233, 1);
+}
+.block-color-orange_background {
+	background: rgba(251, 235, 222, 1);
+}
+.block-color-yellow_background {
+	background: rgba(249, 243, 220, 1);
+}
+.block-color-teal_background {
+	background: rgba(232, 241, 236, 1);
+}
+.block-color-blue_background {
+	background: rgba(229, 242, 252, 1);
+}
+.block-color-purple_background {
+	background: rgba(243, 235, 249, 1);
+}
+.block-color-pink_background {
+	background: rgba(250, 233, 241, 1);
+}
+.block-color-red_background {
+	background: rgba(252, 233, 231, 1);
+}
+.select-value-color-default { background-color: rgba(42, 28, 0, 0.07); }
+.select-value-color-gray { background-color: rgba(28, 19, 1, 0.11); }
+.select-value-color-brown { background-color: rgba(127, 51, 0, 0.156); }
+.select-value-color-orange { background-color: rgba(196, 88, 0, 0.203); }
+.select-value-color-yellow { background-color: rgba(209, 156, 0, 0.282); }
+.select-value-color-green { background-color: rgba(0, 96, 38, 0.156); }
+.select-value-color-blue { background-color: rgba(0, 118, 217, 0.203); }
+.select-value-color-purple { background-color: rgba(92, 0, 163, 0.141); }
+.select-value-color-pink { background-color: rgba(183, 0, 78, 0.152); }
+.select-value-color-red { background-color: rgba(206, 24, 0, 0.164); }
+
+.checkbox {
+	display: inline-flex;
+	vertical-align: text-bottom;
+	width: 16;
+	height: 16;
+	background-size: 16px;
+	margin-left: 2px;
+	margin-right: 5px;
+}
+
+.checkbox-on {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20width%3D%2216%22%20height%3D%2216%22%20fill%3D%22%2358A9D7%22%2F%3E%0A%3Cpath%20d%3D%22M6.71429%2012.2852L14%204.9995L12.7143%203.71436L6.71429%209.71378L3.28571%206.2831L2%207.57092L6.71429%2012.2852Z%22%20fill%3D%22white%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+
+.checkbox-off {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20x%3D%220.75%22%20y%3D%220.75%22%20width%3D%2214.5%22%20height%3D%2214.5%22%20fill%3D%22white%22%20stroke%3D%22%2336352F%22%20stroke-width%3D%221.5%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+	
+</style></head><body><article id="2c656320-92ca-80a5-b292-ea836691201b" class="page sans"><header><h1 class="page-title" dir="auto">Project Kickoff Wrap-Up Conversation</h1><p class="page-description" dir="auto"></p><table class="properties"><tbody><tr class="property-row property-row-status"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/burst_gray.svg" style="width:14px;height:14px;display:block"/></span>Processing</th><td><span class="status-value select-value-color-green"><div class="status-dot status-dot-color-green"></div>Processed</span></td></tr><tr class="property-row property-row-text"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/description_gray.svg" style="width:14px;height:14px;display:block"/></span>Agenda</th><td>Engagement progress check-in, communication preferences, stakeholder dynamics, working relationship with Patrick</td></tr><tr class="property-row property-row-date"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/calendar_gray.svg" style="width:14px;height:14px;display:block"/></span>Date</th><td><time>December 11, 2025</time></td></tr><tr class="property-row property-row-multi_select"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/list_gray.svg" style="width:14px;height:14px;display:block"/></span>Attendees</th><td><span class="selected-value select-value-color-pink">Internal</span></td></tr><tr class="property-row property-row-select"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/arrow-circle-down_gray.svg" style="width:14px;height:14px;display:block"/></span>Meeting Type</th><td><span class="selected-value select-value-color-default">1:1</span></td></tr><tr class="property-row property-row-person"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/friends_gray.svg" style="width:14px;height:14px;display:block"/></span>Organizer</th><td><span class="user"><img src="https://lh3.googleusercontent.com/a/ACg8ocLHfVvdl28jS936w7CBB6TObsUa1P-X8cbdsUSKdeEn_MD7Bw=s96-c" class="icon user-icon"/>Steve </span></td></tr><tr class="property-row property-row-select"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/arrow-circle-down_gray.svg" style="width:14px;height:14px;display:block"/></span>Priority</th><td><span class="selected-value select-value-color-yellow">Medium</span></td></tr><tr class="property-row property-row-checkbox"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/checkmark-square_gray.svg" style="width:14px;height:14px;display:block"/></span>Has Cluely Transcript</th><td><div class="checkbox checkbox-on"></div></td></tr><tr class="property-row property-row-checkbox"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/checkmark-square_gray.svg" style="width:14px;height:14px;display:block"/></span>Has Final Transcript</th><td><div class="checkbox checkbox-on"></div></td></tr><tr class="property-row property-row-select"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/arrow-circle-down_gray.svg" style="width:14px;height:14px;display:block"/></span>Status</th><td><span class="selected-value select-value-color-brown">Completed</span></td></tr><tr class="property-row property-row-checkbox"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/checkmark-square_gray.svg" style="width:14px;height:14px;display:block"/></span>Has Notion Transcript</th><td><div class="checkbox checkbox-on"></div></td></tr><tr class="property-row property-row-checkbox"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/checkmark-square_gray.svg" style="width:14px;height:14px;display:block"/></span>Has Teams Transcript</th><td><div class="checkbox checkbox-off"></div></td></tr><tr class="property-row property-row-number"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/hashtag_gray.svg" style="width:14px;height:14px;display:block"/></span>Mtg #</th><td>10</td></tr><tr class="property-row property-row-checkbox"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/checkmark-square_gray.svg" style="width:14px;height:14px;display:block"/></span>Merged to Feed</th><td><div class="checkbox checkbox-off"></div></td></tr></tbody></table></header><div class="page-body"><div style="display:contents" dir="ltr"><div id="2c656320-92ca-8064-b765-e458df141743" class="transcription"><div style="border-bottom:0.05em solid;border-bottom-color:rgba(42, 28, 0, 0.07)">Summary<br/></div><div style="display:contents" dir="auto"><h3 id="2c656320-92ca-8120-845a-d1163b3fa341" class="">Progress and Current Status</h3></div><div style="display:contents" dir="auto"><ul id="2c656320-92ca-8180-b8c5-f00a895bab73" class="bulleted-list"><li style="list-style-type:disc">The engagement has been running for about 3.5 days with significant progress on background research and stakeholder narratives ‣ ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2c656320-92ca-8115-b474-da79def1a857" class="bulleted-list"><li style="list-style-type:disc">Patrick has gathered substantial information about:<div style="display:contents" dir="auto"><ul id="2c656320-92ca-813f-9033-cc8191e9d3fb" class="bulleted-list"><li style="list-style-type:circle">The company&#x27;s current state</li></ul></div><div style="display:contents" dir="auto"><ul id="2c656320-92ca-81b9-b20f-f017c9bfa5eb" class="bulleted-list"><li style="list-style-type:circle">Major areas of concern</li></ul></div><div style="display:contents" dir="auto"><ul id="2c656320-92ca-81bd-920e-ddf28325dfa3" class="bulleted-list"><li style="list-style-type:circle">How different aspects fit together ‣</li></ul></div></li></ul></div><div style="display:contents" dir="auto"><ul id="2c656320-92ca-81a4-85d5-ef7edfa841c4" class="bulleted-list"><li style="list-style-type:disc">Both parties agree the engagement has started smoothly ‣</li></ul></div><div style="display:contents" dir="auto"><h3 id="2c656320-92ca-813f-94de-fb8957e008e7" class="">Communication and Working Style</h3></div><div style="display:contents" dir="auto"><ul id="2c656320-92ca-81e6-a87c-cbad19c6d18c" class="bulleted-list"><li style="list-style-type:disc">Patrick offers to be available as a resource moving forward ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2c656320-92ca-8181-8d1b-f9b2649e48fc" class="bulleted-list"><li style="list-style-type:disc">Patrick will monitor Teams more closely for side questions ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2c656320-92ca-81cf-9483-f6eed432ae7c" class="bulleted-list"><li style="list-style-type:disc">Alternative communication options were discussed:<div style="display:contents" dir="auto"><ul id="2c656320-92ca-8157-834d-f1cf91101718" class="bulleted-list"><li style="list-style-type:circle">Teams is primary communication method</li></ul></div><div style="display:contents" dir="auto"><ul id="2c656320-92ca-81eb-a2e1-f77fc2cb9633" class="bulleted-list"><li style="list-style-type:circle">Text messaging for urgent matters when Teams is unresponsive ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2c656320-92ca-81ff-89f0-dc45df7ec9b1" class="bulleted-list"><li style="list-style-type:circle">Patrick&#x27;s calendar is kept 99.9% up to date ‣</li></ul></div></li></ul></div><div style="display:contents" dir="auto"><h3 id="2c656320-92ca-81e4-9b4d-c41d3defef7d" class="">Stakeholder Management</h3></div><div style="display:contents" dir="auto"><ul id="2c656320-92ca-81cf-9d5d-ce3378cf2304" class="bulleted-list"><li style="list-style-type:disc">Discussion about approach to working with engineers who might see explaining things as a &quot;draw down on their time&quot; ‣ ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2c656320-92ca-8164-ac58-cfc851bb24d4" class="bulleted-list"><li style="list-style-type:disc">Patrick noticed one stakeholder (likely an engineer) who:<div style="display:contents" dir="auto"><ul id="2c656320-92ca-8169-bab0-cd56d56be742" class="bulleted-list"><li style="list-style-type:circle">Gives direct answers</li></ul></div><div style="display:contents" dir="auto"><ul id="2c656320-92ca-81fd-8e16-d31d2e973be0" class="bulleted-list"><li style="list-style-type:circle">Doesn&#x27;t provide excess context</li></ul></div><div style="display:contents" dir="auto"><ul id="2c656320-92ca-8195-93f2-df81e2a5a714" class="bulleted-list"><li style="list-style-type:circle">Could potentially be &quot;rubbed the wrong way&quot; ‣ ‣</li></ul></div></li></ul></div><div style="display:contents" dir="auto"><ul id="2c656320-92ca-812e-8a81-d78f4aafc410" class="bulleted-list"><li style="list-style-type:disc">Patrick&#x27;s approach focuses on making stakeholders feel their contributions are valued ‣</li></ul></div><div style="display:contents" dir="auto"><h3 id="2c656320-92ca-813e-9e4c-da9b8835172c" class="">Personal Circumstances</h3></div><div style="display:contents" dir="auto"><ul id="2c656320-92ca-81bc-a86c-d8b1bc0d912e" class="bulleted-list"><li style="list-style-type:disc">Patrick mentioned an upcoming surgery ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2c656320-92ca-81f6-ac23-cef9edcda55f" class="bulleted-list"><li style="list-style-type:disc">There was appreciation that the engagement started now rather than being pushed to January ‣ ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2c656320-92ca-8104-9bbb-dd965da06412" class="bulleted-list"><li style="list-style-type:disc">Patrick acknowledged juggling multiple responsibilities during a hectic week ‣</li></ul></div><div style="display:contents" dir="auto"><h3 id="2c656320-92ca-81a3-aa5f-e93cc82474e7" class="">Next Steps</h3></div><div style="display:contents" dir="auto"><ul id="2c656320-92ca-8152-b3e8-f469061b5dcb" class="bulleted-list"><li style="list-style-type:disc">Patrick plans to give space for independent work: &quot;stay out of your hair&quot; for the remainder of the day ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2c656320-92ca-81b5-b9d9-fa215aed673e" class="bulleted-list"><li style="list-style-type:disc">Expectation that more information from Mike will help determine next steps and requirements from Patrick&#x27;s team and stakeholders ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2c656320-92ca-81b0-a90e-c789ac5aa515" class="bulleted-list"><li style="list-style-type:disc">Both parties expressed enthusiasm about working together on the project ‣</li></ul></div><div style="display:contents" dir="auto"><h3 id="2c656320-92ca-8179-978f-eb18f4868bdd" class="">Action Items</h3></div><div style="display:contents" dir="auto"><ul id="2c656320-92ca-811a-a427-da4ab5a46dfb" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Wait for additional information from Mike to determine next steps ‣</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="2c656320-92ca-81bc-b230-cede0a81d4e5" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Continue project work with established communication channels (Teams, text for urgent matters) ‣</span><div class="indented"></div></li></ul></div><div style="border-bottom:0.05em solid;border-bottom-color:rgba(42, 28, 0, 0.07)">Notes<br/></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-8017-8197-d77f8fd6ea65" class="">
+</p></div><div style="border-bottom:0.05em solid;border-bottom-color:rgba(42, 28, 0, 0.07)">Transcript<br/></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-80ba-a510-d98d2f7fa370" class="">I hope I&#x27;m not overwhelming you and like you said you probably with what I&#x27;ve given you so far you&#x27;ve got probably quite a bit to chew on. I don&#x27;t know if that&#x27;s gonna give you enough until Tuesday to chew on. I&#x27;m hoping that more information you get from Mike is going to start talking about what the next pieces are, what you&#x27;re going to need from me, my team, and the stakeholders. But for the rest of the day, I&#x27;m probably going to just stay out of your hair and let you do whatever you do best.</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-80d8-8deb-c93ee61055a7" class="">I mean that honestly this has been given the amount of information and like the amount of time it like what three and a half days so far like this is definitely The most I&#x27;ve gotten done in terms of like, I don&#x27;t know, background research, like stakeholder, like</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-8006-b7c5-c33bd4fff2b2" class="">Narrative I guess you could say in terms of like how things fit together the major areas of concern like trying to really draw that picture of What the needs are? The current state of the company, things like that. And I honestly, I don&#x27;t even think I mentioned this during previous engagements, but like, just because this is...</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-8075-984c-d4741609cab9" class="">I can&#x27;t put my finger on it, but it&#x27;s gone very smoothly, in my opinion. I don&#x27;t want to eat my words later, but things are going great. Things are going great. I want to enjoy the good times while we can, because I know it&#x27;s not going to be as smooth all the time, so. And I have a tendency to try to treat, you know, I&#x27;m the middle kid, I always try to make everyone get along. It doesn&#x27;t always work, so.</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-808b-beb7-e3c063c0b8c9" class="">We&#x27;ll try to keep that going smooth for as long as we can. In the meantime, use me as a resource down the road if you need to. Use my team as a resource where you need. Like we said, everyone&#x27;s got their own skill set. I&#x27;ll also say everyone&#x27;s got their own emotions too, so mind that as well. I appreciate your feedback and I&#x27;ll try to...</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-808b-874d-c30c75e23769" class="">I try to do a better job of watching teams when someone wants to send a side question to me, I&#x27;ll try to do better on that one too. Normally I&#x27;m the one that&#x27;s looking for that. I didn&#x27;t mean to come up as like, you know... self-conscious or whatever. It&#x27;s just really wanting to make sure that if I&#x27;m, I don&#x27;t know, if I&#x27;m rubbing somebody the wrong way or something throughout this, just be like, hey, back off or hit the brakes a little bit here. I don&#x27;t take it personally, I just...</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-80e3-a526-eb3c59ed9311" class="">No, no, no, no. I actually appreciated the timing of that one because that&#x27;s the one person I could see going really well or really rubbed the wrong way. direct answers, wasn&#x27;t streaming a lot of his responses out or like providing more context than was necessary. So that that was my read of him to begin with.</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-80c4-b4d5-d0f793ac94ba" class="">And I was like, wow, this isn&#x27;t a guy you really want to rub the wrong way. So like, okay, so that&#x27;s who it was. Okay. I feel free to share that. That&#x27;s honestly why I was asking some of the questions. I wanted him to not feel like he was wasting his time.</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-8002-89c9-c679ba9c586d" class="">Very well, I appreciate it. I really do appreciate it. Working with very bright engineers historically, they sometimes think that... Any time they have to explain what they do to somebody else outside the company, especially somebody that&#x27;s supposed to be brought in to assist them, they look at that as like a complete...</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-8065-ae27-c3e915470bdd" class="">Draw down on their time and a waste of their talents, which they&#x27;re not wrong some of the times but if that person Which I&#x27;m trying to be is like Really making them feel like what they do is valuable to the point where they want to work with them. They want to share it with them. Absolutely. 100%. So that&#x27;s the objective. You nailed it.</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-8089-b7d2-e248bc82fb61" class="">You nailed it. I&#x27;ll give you that one. Great. Alright, I don&#x27;t know if I&#x27;ll see you between now and the rest of the weekend. You can always, if you think of something you want to pop me a question, feel free. If you want to call me out of the blue, I&#x27;m fine with that too.</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-80fa-a061-f9616fbece20" class="">My calendar is 99.9% up to date. It doesn&#x27;t mean that sometimes that I don&#x27;t get pulled into a sidebar meeting that happens from time to time. If you need to get a hold of me or something, if I don&#x27;t respond right away on Teams, I&#x27;m dealing with the little one, feel free to text me if you need to.</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-808d-a1aa-dd7377127d75" class="">Okay. No, I hope that goes well too. I understand. Timing was not ideal, but I appreciate the understanding. My apologies. It&#x27;s been a... Hectic week on my side because I&#x27;ve been trying to get a number of things done before the surgery and then I had to travel and then I didn&#x27;t I wanted to bring you on board so I want to make sure that we got that as well so it&#x27;s just a lot of juggling.</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-80b8-89db-f56a9876fbda" class="">I hope I&#x27;m not showing my cars too much by realizing that I&#x27;m juggling but it is what it is. I mean, to be transparent, if the engagement start date would have been pushed into January, I don&#x27;t know if I would have... So I am appreciative that you guys decided to hold it.</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-8041-a5b5-da2e17f12ee5" class="">Other ways of making that happen. I appreciate the effort you&#x27;re putting into it. It&#x27;s made it a lot easier. I&#x27;m all in on this. I&#x27;m excited about it. I really am excited to work with you as well. Alright. Well, good luck with your surgery. Hope that goes well.</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-8045-95e6-fade9ceffd89" class="">Let me know if you need anything. I have plenty to do. All right. Sounds good. Take care. Have a good day. Have a good weekend. You too. Thanks, Patrick. You</p></div></div></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-8071-877a-cf8b17808df1" class="">
+</p></div><div style="display:contents" dir="auto"><h1 id="2c656320-92ca-80cb-a59e-f9f6f492efdc" class="">CLUELY SUMMARY</h1></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-80fd-826d-de06bbbdc272" class="">
+</p></div><div style="display:contents" dir="ltr"><div><div style="display:contents" dir="auto"><h1 id="2c656320-92ca-80bb-933f-c2bfeed26107" class="">Key Points from Project Kickoff Wrap-Up Meeting</h1></div><div style="display:contents" dir="auto"><h3 id="2c656320-92ca-8078-b100-c1d73d9bd2a9" class="">Progress and Current Status</h3></div><div style="display:contents" dir="auto"><ul id="2c656320-92ca-806a-9474-d9cb2d1ceec2" class="bulleted-list"><li style="list-style-type:disc">Engagement running for 3.5 days with significant progress on background research and stakeholder narratives</li></ul></div><div style="display:contents" dir="auto"><ul id="2c656320-92ca-8035-8b92-e274ad15341a" class="bulleted-list"><li style="list-style-type:disc">Strong foundational understanding has been established about:<div style="display:contents" dir="auto"><ul id="2c656320-92ca-802a-976f-cd21895c31cb" class="bulleted-list"><li style="list-style-type:circle">Company&#x27;s current state</li></ul></div><div style="display:contents" dir="auto"><ul id="2c656320-92ca-8074-b666-e3a161fb2a47" class="bulleted-list"><li style="list-style-type:circle">Major areas of concern</li></ul></div><div style="display:contents" dir="auto"><ul id="2c656320-92ca-805a-8e60-e3a7b60f50b1" class="bulleted-list"><li style="list-style-type:circle">How different aspects fit together</li></ul></div></li></ul></div><div style="display:contents" dir="auto"><ul id="2c656320-92ca-806c-a32d-f7497cb42fb5" class="bulleted-list"><li style="list-style-type:disc">Both parties agree the engagement has started smoothly</li></ul></div><div style="display:contents" dir="auto"><h3 id="2c656320-92ca-803a-ab41-e5ba2de6e1d0" class="">Communication and Working Style</h3></div><div style="display:contents" dir="auto"><ul id="2c656320-92ca-80e6-b543-fad2f007c248" class="bulleted-list"><li style="list-style-type:disc">Patrick is available as a resource moving forward</li></ul></div><div style="display:contents" dir="auto"><ul id="2c656320-92ca-809e-bf59-f60b5960e7a1" class="bulleted-list"><li style="list-style-type:disc">Teams is the primary communication method</li></ul></div><div style="display:contents" dir="auto"><ul id="2c656320-92ca-8043-9454-d40916136e48" class="bulleted-list"><li style="list-style-type:disc">Text messaging available for urgent matters when Teams is unresponsive</li></ul></div><div style="display:contents" dir="auto"><ul id="2c656320-92ca-807d-8f41-e1b1f167cd64" class="bulleted-list"><li style="list-style-type:disc">Patrick&#x27;s calendar is kept 99.9% up to date</li></ul></div><div style="display:contents" dir="auto"><ul id="2c656320-92ca-80f0-b3af-e0eb34406d8a" class="bulleted-list"><li style="list-style-type:disc">Patrick will monitor Teams more closely for side questions</li></ul></div><div style="display:contents" dir="auto"><h3 id="2c656320-92ca-800f-9a7e-dd6a21f4eb27" class="">Team Member Dynamics</h3></div><div style="display:contents" dir="auto"><ul id="2c656320-92ca-8024-9ee8-e659fa0eaaf4" class="bulleted-list"><li style="list-style-type:disc"><strong>Mike</strong>:<div style="display:contents" dir="auto"><ul id="2c656320-92ca-806b-bf32-ebbf6a99241d" class="bulleted-list"><li style="list-style-type:circle">Described as &quot;back room peak guy&quot; - very smart but not for front-facing roles</li></ul></div><div style="display:contents" dir="auto"><ul id="2c656320-92ca-80c0-be80-f6a4338ab52a" class="bulleted-list"><li style="list-style-type:circle">Good for detailed research tasks</li></ul></div><div style="display:contents" dir="auto"><ul id="2c656320-92ca-8084-9cc2-fcad7bbd69f5" class="bulleted-list"><li style="list-style-type:circle">Provides &quot;more detail than needed&quot; when assigned research</li></ul></div><div style="display:contents" dir="auto"><ul id="2c656320-92ca-804d-9159-de11a60dd929" class="bulleted-list"><li style="list-style-type:circle">Communication style: direct answers, minimal excess context</li></ul></div><div style="display:contents" dir="auto"><ul id="2c656320-92ca-8006-a7f5-cf5ee3ba65b9" class="bulleted-list"><li style="list-style-type:circle">Best used by &quot;throwing work under the door&quot; and letting him research independently</li></ul></div></li></ul></div><div style="display:contents" dir="auto"><h3 id="2c656320-92ca-8099-bec4-cd50aaf44b41" class="">Stakeholder Management</h3></div><div style="display:contents" dir="auto"><ul id="2c656320-92ca-8065-8362-f67accd6e4a7" class="bulleted-list"><li style="list-style-type:disc">Discussion about working effectively with engineers who might see explaining things as a &quot;draw down on their time&quot;</li></ul></div><div style="display:contents" dir="auto"><ul id="2c656320-92ca-803d-9b49-f2b04f585814" class="bulleted-list"><li style="list-style-type:disc">Patrick&#x27;s approach focuses on making stakeholders feel their contributions are valued</li></ul></div><div style="display:contents" dir="auto"><ul id="2c656320-92ca-8053-a989-d2543f74ae18" class="bulleted-list"><li style="list-style-type:disc">Strategy identified: asking clarifying questions shows engagement and values their input</li></ul></div><div style="display:contents" dir="auto"><ul id="2c656320-92ca-80e5-a15e-c1c8447d77ec" class="bulleted-list"><li style="list-style-type:disc">One stakeholder (likely an engineer) identified who needs careful handling</li></ul></div><div style="display:contents" dir="auto"><h3 id="2c656320-92ca-8029-b140-c7311cbbc59c" class="">Personal Circumstances</h3></div><div style="display:contents" dir="auto"><ul id="2c656320-92ca-802f-b9af-ebc207acdc2a" class="bulleted-list"><li style="list-style-type:disc">Patrick mentioned an upcoming surgery</li></ul></div><div style="display:contents" dir="auto"><ul id="2c656320-92ca-80ea-b19d-d3ff1d036d27" class="bulleted-list"><li style="list-style-type:disc">Hectic week with multiple responsibilities (surgery prep, travel, onboarding)</li></ul></div><div style="display:contents" dir="auto"><ul id="2c656320-92ca-807a-a121-e7a3557dba67" class="bulleted-list"><li style="list-style-type:disc">Appreciation that engagement started now rather than being pushed to January</li></ul></div><div style="display:contents" dir="auto"><ul id="2c656320-92ca-8052-a938-f97d92ce6781" class="bulleted-list"><li style="list-style-type:disc">Both expressed commitment to the engagement despite timing challenges</li></ul></div><div style="display:contents" dir="auto"><h3 id="2c656320-92ca-80e4-a63b-d7438f1bb2fa" class="">Next Steps</h3></div><div style="display:contents" dir="auto"><ul id="2c656320-92ca-804e-822c-d6459a2ee1fb" class="bulleted-list"><li style="list-style-type:disc">Waiting for additional information from Leica to determine next steps and requirements</li></ul></div><div style="display:contents" dir="auto"><ul id="2c656320-92ca-8051-981e-c77500ffbdcd" class="bulleted-list"><li style="list-style-type:disc">Patrick plans to &quot;stay out of hair&quot; to allow for independent work</li></ul></div><div style="display:contents" dir="auto"><ul id="2c656320-92ca-8054-a1cc-e60ed9f19197" class="bulleted-list"><li style="list-style-type:disc">Continue using established communication channels</li></ul></div><div style="display:contents" dir="auto"><ul id="2c656320-92ca-80f1-9939-d3898003d193" class="bulleted-list"><li style="list-style-type:disc">Both parties expressed enthusiasm about working together on the project</li></ul></div></div></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-8014-8295-d7a0a2cfbfcb" class=""><br/><br/></p></div><div style="display:contents" dir="auto"><hr id="2c656320-92ca-809a-ad3b-cb129e29528d"/></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-8042-861b-c5ba4fe4fc7e" class="">
+</p></div><div style="display:contents" dir="ltr"><div><div style="display:contents" dir="auto"><p id="2c656320-92ca-80b7-9cf0-dfb52332ac7a" class=""><strong>Subject: Status Update on IP Corp Engagement - Positive Progress and Client Feedback</strong></p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-80fb-b759-e58dceab26ce" class="">Hi Tony,</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-80d0-ad60-faa3c5e31b61" class="">I wanted to provide you with a quick update on the IP Corp engagement that started about 3.5 days ago.</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-80d2-9ba7-c491690c5200" class="">The project has been progressing exceptionally well. Patrick (my direct client contact) and I had a wrap-up conversation today where he specifically mentioned that the engagement has &quot;gone very smoothly&quot; and that he&#x27;s received more background research and stakeholder narratives than expected in this timeframe.</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-802e-8f50-d3b498052d2b" class="">Key highlights from Patrick&#x27;s feedback:</p></div><div style="display:contents" dir="auto"><ul id="2c656320-92ca-80ec-bb86-c060c584bc62" class="bulleted-list"><li style="list-style-type:disc">He described our progress as &quot;the most I&#x27;ve gotten done&quot; compared to previous engagements</li></ul></div><div style="display:contents" dir="auto"><ul id="2c656320-92ca-804a-ba5f-e5d37521d965" class="bulleted-list"><li style="list-style-type:disc">He expressed appreciation for the comprehensive understanding I&#x27;ve developed about their current state and areas of concern</li></ul></div><div style="display:contents" dir="auto"><ul id="2c656320-92ca-800d-b6f0-d509f1efe094" class="bulleted-list"><li style="list-style-type:disc">He noted that &quot;things are going great&quot; and wants to &quot;enjoy the good times&quot;</li></ul></div><div style="display:contents" dir="auto"><ul id="2c656320-92ca-8096-bc07-c5ed1e09c448" class="bulleted-list"><li style="list-style-type:disc">He&#x27;s fully committed to the project, stating &quot;I&#x27;m all in on this. I&#x27;m excited about it.&quot;</li></ul></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-8098-b2ee-de9b8d01b681" class="">Patrick has been very collaborative, offering himself and his team as resources while being transparent about stakeholder dynamics. We&#x27;ve established effective communication channels through Teams with text messaging for urgent matters.</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-801a-b3e7-c59b892da5e1" class="">Despite some personal challenges on Patrick&#x27;s end (upcoming surgery and a hectic schedule), he expressed appreciation that we started the engagement now rather than pushing to January.</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-8035-b023-f59215023333" class="">Looking forward, we&#x27;re waiting for additional information to determine next steps, but the foundation has been firmly established for a successful engagement.</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-80d2-b79a-c6700d372b38" class="">Let me know if you need any additional information about our progress with IP Corp.</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-805c-b2dc-e82c81c507a9" class="">Best regards,</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-8077-a25d-c67f0974b86d" class="">Steve</p></div></div></div><div style="display:contents" dir="auto"><hr id="cb4db14c-443d-4a73-9b59-f5dad1f42c8b"/></div><div style="display:contents" dir="auto"><h2 id="32bfde95-0944-49f3-a484-edd9fc252623" class="">✅ ACTION ITEMS (Consolidated)</h2></div><div style="display:contents" dir="ltr"><figure class="block-color-yellow_background callout" style="white-space:pre-wrap;display:flex" id="994ecb1a-465f-4f70-86cc-6798f40bf0d3"><div style="font-size:1.5em"><span class="icon">⚠️</span></div><div style="width:100%"><div style="display:contents" dir="auto"><p id="f361e872-64ab-4422-afb8-9fd5d1f75c00" class=""><strong>Note:</strong> No Teams transcript available — merged from Cluely + Notion sources.</p></div></div></figure></div><div style="display:contents" dir="auto"><h3 id="a71730e8-8ee2-4ba9-bebb-77260cb30421" class="">Steve</h3></div><div style="display:contents" dir="auto"><ul id="069665bc-4e99-4d30-a352-e3eccd340f5b" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Wait for additional information from Mike to determine next steps</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="0077c3d7-09f5-4eb6-aa32-f3428ca0a425" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Continue project work with established communication channels (Teams primary, text for urgent)</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><h3 id="a968e354-2276-4e34-b3a9-5e5eabaa4761" class="">Patrick</h3></div><div style="display:contents" dir="auto"><ul id="5d083828-2b12-4430-b31c-d7c5360b3364" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Monitor Teams more closely for side questions from Steve</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><hr id="dbb4fbd1-6a93-4d45-afdd-2ab48ec2b03b"/></div><div style="display:contents" dir="auto"><h2 id="8f0c1c87-da92-449e-8c9c-87fbb69eaa58" class="">📊 EVIDENCE MATRIX</h2></div><div style="display:contents" dir="ltr"><table id="10123cdb-5dd6-4107-b607-7bdc8cf22429" class="simple-table"><thead class="simple-table-header"><div style="display:contents" dir="ltr"><tr id="e7a0ed7d-b9eb-4e6e-86d2-9662186c5706"><th id="hQ:X" class="simple-table-header-color simple-table-header"><strong>ID</strong></th><th id="T_d&lt;" class="simple-table-header-color simple-table-header"><strong>Type</strong></th><th id="&gt;lEJ" class="simple-table-header-color simple-table-header"><strong>Speaker</strong></th><th id="mUw&lt;" class="simple-table-header-color simple-table-header"><strong>Exact Quote</strong></th><th id="NW]L" class="simple-table-header-color simple-table-header"><strong>Topic</strong></th></tr></div></thead><tbody><div style="display:contents" dir="ltr"><tr id="37dd0e81-7a14-4c00-b5af-97dae3a79881"><td id="hQ:X" class="">PS-FACT-1</td><td id="T_d&lt;" class="">Fact</td><td id="&gt;lEJ" class="">Steve</td><td id="mUw&lt;" class="">&quot;What, three and a half days so far... this is definitely the most I&#x27;ve gotten done in terms of like... background research, like stakeholder narrative&quot;</td><td id="NW]L" class="">Engagement progress</td></tr></div><div style="display:contents" dir="ltr"><tr id="1839f03a-0511-474a-8739-180811602ef3"><td id="hQ:X" class="">PS-FACT-2</td><td id="T_d&lt;" class="">Fact</td><td id="&gt;lEJ" class="">Steve</td><td id="mUw&lt;" class="">&quot;I can&#x27;t put my finger on it, but it&#x27;s gone very smoothly, in my opinion.&quot;</td><td id="NW]L" class="">Engagement health</td></tr></div><div style="display:contents" dir="ltr"><tr id="e18adb60-2142-42c0-81ea-6024f6b0f796"><td id="hQ:X" class="">PS-FACT-3</td><td id="T_d&lt;" class="">Fact</td><td id="&gt;lEJ" class="">Patrick</td><td id="mUw&lt;" class="">&quot;My calendar is 99.9% up to date.&quot;</td><td id="NW]L" class="">Communication</td></tr></div><div style="display:contents" dir="ltr"><tr id="da6ec75e-4fcd-4a80-8d39-2a4b6d905399"><td id="hQ:X" class="">PS-FACT-4</td><td id="T_d&lt;" class="">Fact</td><td id="&gt;lEJ" class="">Patrick</td><td id="mUw&lt;" class="">&quot;If you need to get a hold of me... if I don&#x27;t respond right away on Teams... feel free to text me if you need to.&quot;</td><td id="NW]L" class="">Communication channels</td></tr></div><div style="display:contents" dir="ltr"><tr id="8102a0af-d2ae-4418-ba87-bc7b57b1b654"><td id="hQ:X" class="">PS-FACT-5</td><td id="T_d&lt;" class="">Fact</td><td id="&gt;lEJ" class="">Patrick</td><td id="mUw&lt;" class="">&quot;That&#x27;s the one person I could see going really well or really rubbed the wrong way... direct answers, wasn&#x27;t streaming a lot of his responses out&quot;</td><td id="NW]L" class="">Stakeholder dynamics (Matt Pennaz)</td></tr></div><div style="display:contents" dir="ltr"><tr id="a1283a1e-1c20-4276-bafd-f8b4d5f22ba1"><td id="hQ:X" class="">PS-FACT-6</td><td id="T_d&lt;" class="">Fact</td><td id="&gt;lEJ" class="">Steve</td><td id="mUw&lt;" class="">&quot;Working with very bright engineers historically, they sometimes think that any time they have to explain what they do... they look at that as like a complete draw down on their time&quot;</td><td id="NW]L" class="">Stakeholder approach</td></tr></div><div style="display:contents" dir="ltr"><tr id="2cc4c4bc-279f-4b99-b530-d52255a7f78c"><td id="hQ:X" class="">PS-FACT-7</td><td id="T_d&lt;" class="">Fact</td><td id="&gt;lEJ" class="">Steve</td><td id="mUw&lt;" class="">&quot;If the engagement start date would have been pushed into January, I don&#x27;t know if I would have...&quot;</td><td id="NW]L" class="">Engagement timing</td></tr></div><div style="display:contents" dir="ltr"><tr id="83315055-3659-4204-a0c2-ecdde76237df"><td id="hQ:X" class="">PS-NEXT-1</td><td id="T_d&lt;" class="">Next Step</td><td id="&gt;lEJ" class="">Patrick</td><td id="mUw&lt;" class="">&quot;More information you get from Mike is going to start talking about what the next pieces are&quot;</td><td id="NW]L" class="">Dependency on Mike</td></tr></div></tbody></table></div></div></article><span class="sans" style="font-size:14px;padding-top:2em"></span></body></html>

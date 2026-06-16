@@ -1,0 +1,748 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>IP Corp — Stuart Langley Intro + Database Access Planning</title><style>
+/* cspell:disable-file */
+/* webkit printing magic: print all background colors */
+html {
+	-webkit-print-color-adjust: exact;
+}
+* {
+	box-sizing: border-box;
+	-webkit-print-color-adjust: exact;
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+}
+@media only screen {
+	body {
+		margin: 2em auto;
+		max-width: 900px;
+		color: rgb(55, 53, 47);
+	}
+}
+
+body {
+	line-height: 1.5;
+	white-space: pre-wrap;
+}
+
+a,
+a.visited {
+	color: inherit;
+	text-decoration: underline;
+}
+
+.pdf-relative-link-path {
+	font-size: 80%;
+	color: #444;
+}
+
+h1,
+h2,
+h3 {
+	letter-spacing: -0.01em;
+	line-height: 1.2;
+	font-weight: 600;
+	margin-bottom: 0;
+}
+
+/* Override strong tags inside headings to maintain consistent weight */
+h1 strong,
+h2 strong,
+h3 strong {
+	font-weight: 600;
+}
+
+.page-title {
+	font-size: 2.5rem;
+	font-weight: 700;
+	margin-top: 0;
+	margin-bottom: 0.75em;
+}
+
+h1 {
+	font-size: 1.875rem;
+	margin-top: 1.875rem;
+}
+
+h2 {
+	font-size: 1.5rem;
+	margin-top: 1.5rem;
+}
+
+h3 {
+	font-size: 1.25rem;
+	margin-top: 1.25rem;
+}
+
+.source {
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	padding: 1.5em;
+	word-break: break-all;
+}
+
+.callout {
+	border-radius: 10px;
+	padding: 1rem;
+}
+
+figure {
+	margin: 1.25em 0;
+	page-break-inside: avoid;
+}
+
+figcaption {
+	opacity: 0.5;
+	font-size: 85%;
+	margin-top: 0.5em;
+}
+
+mark {
+	background-color: transparent;
+}
+
+.indented {
+	padding-left: 1.5em;
+}
+
+hr {
+	background: transparent;
+	display: block;
+	width: 100%;
+	height: 1px;
+	visibility: visible;
+	border: none;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+img {
+	max-width: 100%;
+}
+
+@media only print {
+	img {
+		max-height: 100vh;
+		object-fit: contain;
+	}
+
+	table.collection-content {
+		width: 100%;
+		table-layout: fixed;
+	}
+
+	table.collection-content th,
+	table.collection-content td {
+		overflow-wrap: anywhere;
+	}
+
+	table.collection-content td > .user,
+	table.collection-content td > time {
+		white-space: pre-wrap;
+	}
+}
+
+@page {
+	margin: 1in;
+}
+
+.collection-content-wrapper {
+	overflow-x: auto;
+}
+
+@media only print {
+	.collection-content-wrapper {
+		overflow-x: visible;
+	}
+}
+
+.collection-content {
+	font-size: 0.875rem;
+}
+
+.collection-content td {
+	white-space: pre-wrap;
+	word-break: break-word;
+}
+
+.column-list {
+	display: flex;
+	gap: 46px;
+}
+
+.column {
+	min-width: 0;
+	overflow: hidden;
+}
+
+.column > *:first-child {
+	margin-top: 0;
+}
+
+.table_of_contents-item {
+	display: block;
+	font-size: 0.875rem;
+	line-height: 1.3;
+	padding: 0.125rem;
+}
+
+.table_of_contents-indent-1 {
+	margin-left: 1.5rem;
+}
+
+.table_of_contents-indent-2 {
+	margin-left: 3rem;
+}
+
+.table_of_contents-indent-3 {
+	margin-left: 4.5rem;
+}
+
+.table_of_contents-link {
+	text-decoration: none;
+	opacity: 0.7;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.18);
+}
+
+table,
+th,
+td {
+	border: 1px solid rgba(55, 53, 47, 0.09);
+	border-collapse: collapse;
+}
+
+table {
+	border-left: none;
+	border-right: none;
+}
+
+th,
+td {
+	font-weight: normal;
+	padding: 0.25em 0.5em;
+	line-height: 1.5;
+	min-height: 1.5em;
+	text-align: left;
+}
+
+th {
+	color: rgba(55, 53, 47, 0.6);
+}
+
+ol,
+ul {
+	margin: 0;
+	margin-block-start: 0.6em;
+	margin-block-end: 0.6em;
+}
+
+li > ol:first-child,
+li > ul:first-child {
+	margin-block-start: 0.6em;
+}
+
+ul > li {
+	list-style: disc;
+}
+
+ul.to-do-list {
+	padding-inline-start: 0;
+}
+
+ul.to-do-list > li {
+	list-style: none;
+}
+
+.to-do-children-checked {
+	text-decoration: line-through;
+	opacity: 0.375;
+}
+
+ul.toggle > li {
+	list-style: none;
+}
+
+ul {
+	padding-inline-start: 1.7em;
+}
+
+ul > li {
+	padding-left: 0.1em;
+}
+
+ol {
+	padding-inline-start: 1.6em;
+}
+
+ol.numbered-list.numbered-list-digits-2 {
+	padding-inline-start: 2em;
+}
+
+ol.numbered-list.numbered-list-digits-3plus {
+	padding-inline-start: 2.4em;
+}
+
+ol > li {
+	padding-left: 0.2em;
+}
+
+.mono ol {
+	padding-inline-start: 2em;
+}
+
+.mono ol > li {
+	text-indent: -0.4em;
+}
+
+.toggle {
+	padding-inline-start: 0em;
+	list-style-type: none;
+}
+
+/* Indent toggle children */
+.toggle > li > details {
+	padding-left: 1.7em;
+}
+
+.toggle > li > details > summary {
+	margin-left: -1.1em;
+}
+
+.selected-value {
+	display: inline-block;
+	padding: 0 0.5em;
+	background: rgba(206, 205, 202, 0.5);
+	border-radius: 3px;
+	margin-right: 0.5em;
+	margin-top: 0.3em;
+	margin-bottom: 0.3em;
+	white-space: nowrap;
+}
+
+.collection-title {
+	display: inline-block;
+	margin-right: 1em;
+}
+
+.page-description {
+	margin-bottom: 2em;
+}
+
+.simple-table {
+	margin-top: 1em;
+	font-size: 0.875rem;
+	empty-cells: show;
+}
+.simple-table td {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table th {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table-header-color {
+	background: rgb(247, 246, 243);
+	color: black;
+}
+.simple-table-header {
+	font-weight: 500;
+}
+
+time {
+	opacity: 0.5;
+}
+
+.icon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	max-width: 1.2em;
+	max-height: 1.2em;
+	text-decoration: none;
+	vertical-align: text-bottom;
+	margin-right: 0.5em;
+}
+
+img.icon {
+	border-radius: 3px;
+}
+
+.callout img.notion-static-icon {
+	width: 1em;
+	height: 1em;
+}
+
+.callout p {
+	margin: 0;
+}
+
+.callout h1,
+.callout h2,
+.callout h3 {
+	margin: 0 0 0.6rem;
+}
+
+.user-icon {
+	width: 1.5em;
+	height: 1.5em;
+	border-radius: 100%;
+	margin-right: 0.5rem;
+}
+
+.user-icon-inner {
+	font-size: 0.8em;
+}
+
+.text-icon {
+	border: 1px solid #000;
+	text-align: center;
+}
+
+.page-cover-image {
+	display: block;
+	object-fit: cover;
+	width: 100%;
+	max-height: 30vh;
+}
+
+.page-header-icon {
+	font-size: 3rem;
+	margin-bottom: 1rem;
+}
+
+.page-header-icon-with-cover {
+	margin-top: -0.72em;
+	margin-left: 0.07em;
+}
+
+.page-header-icon img {
+	border-radius: 3px;
+}
+
+.link-to-page {
+	margin: 1em 0;
+	padding: 0;
+	border: none;
+	font-weight: 500;
+}
+
+p > .user {
+	opacity: 0.5;
+}
+
+td > .user,
+td > time {
+	white-space: nowrap;
+}
+
+input[type="checkbox"] {
+	transform: scale(1.5);
+	margin-right: 0.6em;
+	vertical-align: middle;
+}
+
+p {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+.image {
+	border: none;
+	margin: 1.5em 0;
+	padding: 0;
+	border-radius: 0;
+	text-align: center;
+}
+
+.code,
+code {
+	background: rgba(135, 131, 120, 0.15);
+	border-radius: 3px;
+	padding: 0.2em 0.4em;
+	border-radius: 3px;
+	font-size: 85%;
+	tab-size: 2;
+}
+
+code {
+	color: #eb5757;
+}
+
+.code {
+	padding: 1.5em 1em;
+}
+
+.code-wrap {
+	white-space: pre-wrap;
+	word-break: break-all;
+}
+
+.code > code {
+	background: none;
+	padding: 0;
+	font-size: 100%;
+	color: inherit;
+}
+
+blockquote {
+	font-size: 1em;
+	margin: 1em 0;
+	padding-left: 1em;
+	border-left: 3px solid rgb(55, 53, 47);
+}
+
+blockquote.quote-large {
+	font-size: 1.25em;
+}
+
+.bookmark {
+	text-decoration: none;
+	max-height: 8em;
+	padding: 0;
+	display: flex;
+	width: 100%;
+	align-items: stretch;
+}
+
+.bookmark-title {
+	font-size: 0.85em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	height: 1.75em;
+	white-space: nowrap;
+}
+
+.bookmark-text {
+	display: flex;
+	flex-direction: column;
+}
+
+.bookmark-info {
+	flex: 4 1 180px;
+	padding: 12px 14px 14px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.bookmark-image {
+	width: 33%;
+	flex: 1 1 180px;
+	display: block;
+	position: relative;
+	object-fit: cover;
+	border-radius: 1px;
+}
+
+.bookmark-description {
+	color: rgba(55, 53, 47, 0.6);
+	font-size: 0.75em;
+	overflow: hidden;
+	max-height: 4.5em;
+	word-break: break-word;
+}
+
+.bookmark-href {
+	font-size: 0.75em;
+	margin-top: 0.25em;
+}
+
+.sans { font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol"; }
+.code { font-family: "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace; }
+.serif { font-family: Lyon-Text, Georgia, ui-serif, serif; }
+.mono { font-family: iawriter-mono, Nitti, Menlo, Courier, monospace; }
+.pdf .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK JP'; }
+.pdf:lang(zh-CN) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK SC'; }
+.pdf:lang(zh-TW) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK TC'; }
+.pdf:lang(ko-KR) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK KR'; }
+.pdf .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.pdf .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK JP'; }
+.pdf:lang(zh-CN) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK SC'; }
+.pdf:lang(zh-TW) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK TC'; }
+.pdf:lang(ko-KR) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK KR'; }
+.pdf .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.highlight-default {
+	color: rgba(44, 44, 43, 1);
+}
+.highlight-gray {
+	color: rgba(125, 122, 117, 1);
+	fill: rgba(125, 122, 117, 1);
+}
+.highlight-brown {
+	color: rgba(159, 118, 90, 1);
+	fill: rgba(159, 118, 90, 1);
+}
+.highlight-orange {
+	color: rgba(210, 123, 45, 1);
+	fill: rgba(210, 123, 45, 1);
+}
+.highlight-yellow {
+	color: rgba(203, 148, 52, 1);
+	fill: rgba(203, 148, 52, 1);
+}
+.highlight-teal {
+	color: rgba(80, 148, 110, 1);
+	fill: rgba(80, 148, 110, 1);
+}
+.highlight-blue {
+	color: rgba(56, 125, 201, 1);
+	fill: rgba(56, 125, 201, 1);
+}
+.highlight-purple {
+	color: rgba(154, 107, 180, 1);
+	fill: rgba(154, 107, 180, 1);
+}
+.highlight-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.highlight-red {
+	color: rgba(207, 81, 72, 1);
+	fill: rgba(207, 81, 72, 1);
+}
+.highlight-default_background {
+	color: rgba(44, 44, 43, 1);
+}
+.highlight-gray_background {
+	background: rgba(42, 28, 0, 0.07);
+}
+.highlight-brown_background {
+	background: rgba(139, 46, 0, 0.086);
+}
+.highlight-orange_background {
+	background: rgba(224, 101, 1, 0.129);
+}
+.highlight-yellow_background {
+	background: rgba(211, 168, 0, 0.137);
+}
+.highlight-teal_background {
+	background: rgba(0, 100, 45, 0.09);
+}
+.highlight-blue_background {
+	background: rgba(0, 124, 215, 0.094);
+}
+.highlight-purple_background {
+	background: rgba(102, 0, 178, 0.078);
+}
+.highlight-pink_background {
+	background: rgba(197, 0, 93, 0.086);
+}
+.highlight-red_background {
+	background: rgba(223, 22, 0, 0.094);
+}
+.block-color-default {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray {
+	color: rgba(125, 122, 117, 1);
+	fill: rgba(125, 122, 117, 1);
+}
+.block-color-brown {
+	color: rgba(159, 118, 90, 1);
+	fill: rgba(159, 118, 90, 1);
+}
+.block-color-orange {
+	color: rgba(210, 123, 45, 1);
+	fill: rgba(210, 123, 45, 1);
+}
+.block-color-yellow {
+	color: rgba(203, 148, 52, 1);
+	fill: rgba(203, 148, 52, 1);
+}
+.block-color-teal {
+	color: rgba(80, 148, 110, 1);
+	fill: rgba(80, 148, 110, 1);
+}
+.block-color-blue {
+	color: rgba(56, 125, 201, 1);
+	fill: rgba(56, 125, 201, 1);
+}
+.block-color-purple {
+	color: rgba(154, 107, 180, 1);
+	fill: rgba(154, 107, 180, 1);
+}
+.block-color-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.block-color-red {
+	color: rgba(207, 81, 72, 1);
+	fill: rgba(207, 81, 72, 1);
+}
+.block-color-default_background {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray_background {
+	background: rgba(240, 239, 237, 1);
+}
+.block-color-brown_background {
+	background: rgba(245, 237, 233, 1);
+}
+.block-color-orange_background {
+	background: rgba(251, 235, 222, 1);
+}
+.block-color-yellow_background {
+	background: rgba(249, 243, 220, 1);
+}
+.block-color-teal_background {
+	background: rgba(232, 241, 236, 1);
+}
+.block-color-blue_background {
+	background: rgba(229, 242, 252, 1);
+}
+.block-color-purple_background {
+	background: rgba(243, 235, 249, 1);
+}
+.block-color-pink_background {
+	background: rgba(250, 233, 241, 1);
+}
+.block-color-red_background {
+	background: rgba(252, 233, 231, 1);
+}
+.select-value-color-default { background-color: rgba(42, 28, 0, 0.07); }
+.select-value-color-gray { background-color: rgba(28, 19, 1, 0.11); }
+.select-value-color-brown { background-color: rgba(127, 51, 0, 0.156); }
+.select-value-color-orange { background-color: rgba(196, 88, 0, 0.203); }
+.select-value-color-yellow { background-color: rgba(209, 156, 0, 0.282); }
+.select-value-color-green { background-color: rgba(0, 96, 38, 0.156); }
+.select-value-color-blue { background-color: rgba(0, 118, 217, 0.203); }
+.select-value-color-purple { background-color: rgba(92, 0, 163, 0.141); }
+.select-value-color-pink { background-color: rgba(183, 0, 78, 0.152); }
+.select-value-color-red { background-color: rgba(206, 24, 0, 0.164); }
+
+.checkbox {
+	display: inline-flex;
+	vertical-align: text-bottom;
+	width: 16;
+	height: 16;
+	background-size: 16px;
+	margin-left: 2px;
+	margin-right: 5px;
+}
+
+.checkbox-on {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20width%3D%2216%22%20height%3D%2216%22%20fill%3D%22%2358A9D7%22%2F%3E%0A%3Cpath%20d%3D%22M6.71429%2012.2852L14%204.9995L12.7143%203.71436L6.71429%209.71378L3.28571%206.2831L2%207.57092L6.71429%2012.2852Z%22%20fill%3D%22white%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+
+.checkbox-off {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20x%3D%220.75%22%20y%3D%220.75%22%20width%3D%2214.5%22%20height%3D%2214.5%22%20fill%3D%22white%22%20stroke%3D%22%2336352F%22%20stroke-width%3D%221.5%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+	
+</style></head><body><article id="2cb56320-92ca-80f2-ad8e-eab966eeff45" class="page sans"><header><h1 class="page-title" dir="auto">IP Corp — Stuart Langley Intro + Database Access Planning</h1><p class="page-description" dir="auto"></p><table class="properties"><tbody><tr class="property-row property-row-status"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/burst_gray.svg" style="width:14px;height:14px;display:block"/></span>Processing</th><td><span class="status-value select-value-color-green"><div class="status-dot status-dot-color-green"></div>Processed</span></td></tr><tr class="property-row property-row-text"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/description_gray.svg" style="width:14px;height:14px;display:block"/></span>Agenda</th><td>1. Stuart Langley intro (SA credentials setup)<br/>2. Mike meeting recap (Dec 13)<br/>3. Database access planning (SSL VPN vs RDP)<br/>4. Power BI/Fabric licensing and admin roles<br/>5. Purview status and PII policies<br/>6. POC planning (M3 vs MES)</td></tr><tr class="property-row property-row-date"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/calendar_gray.svg" style="width:14px;height:14px;display:block"/></span>Date</th><td><time>December 16, 2025</time></td></tr><tr class="property-row property-row-multi_select"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/list_gray.svg" style="width:14px;height:14px;display:block"/></span>Attendees</th><td><span class="selected-value select-value-color-pink">Internal</span></td></tr><tr class="property-row property-row-select"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/arrow-circle-down_gray.svg" style="width:14px;height:14px;display:block"/></span>Meeting Type</th><td><span class="selected-value select-value-color-yellow">Planning</span></td></tr><tr class="property-row property-row-person"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/friends_gray.svg" style="width:14px;height:14px;display:block"/></span>Organizer</th><td><span class="user"><img src="https://lh3.googleusercontent.com/a/ACg8ocLHfVvdl28jS936w7CBB6TObsUa1P-X8cbdsUSKdeEn_MD7Bw=s96-c" class="icon user-icon"/>Steve </span></td></tr><tr class="property-row property-row-select"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/arrow-circle-down_gray.svg" style="width:14px;height:14px;display:block"/></span>Priority</th><td><span class="selected-value select-value-color-red">High</span></td></tr><tr class="property-row property-row-checkbox"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/checkmark-square_gray.svg" style="width:14px;height:14px;display:block"/></span>Has Cluely Transcript</th><td><div class="checkbox checkbox-on"></div></td></tr><tr class="property-row property-row-checkbox"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/checkmark-square_gray.svg" style="width:14px;height:14px;display:block"/></span>Has Final Transcript</th><td><div class="checkbox checkbox-on"></div></td></tr><tr class="property-row property-row-select"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/arrow-circle-down_gray.svg" style="width:14px;height:14px;display:block"/></span>Status</th><td><span class="selected-value select-value-color-brown">Completed</span></td></tr><tr class="property-row property-row-checkbox"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/checkmark-square_gray.svg" style="width:14px;height:14px;display:block"/></span>Has Notion Transcript</th><td><div class="checkbox checkbox-on"></div></td></tr><tr class="property-row property-row-checkbox"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/checkmark-square_gray.svg" style="width:14px;height:14px;display:block"/></span>Has Teams Transcript</th><td><div class="checkbox checkbox-off"></div></td></tr><tr class="property-row property-row-number"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/hashtag_gray.svg" style="width:14px;height:14px;display:block"/></span>Mtg #</th><td>14</td></tr><tr class="property-row property-row-checkbox"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/checkmark-square_gray.svg" style="width:14px;height:14px;display:block"/></span>Merged to Feed</th><td><div class="checkbox checkbox-off"></div></td></tr></tbody></table></header><div class="page-body"><div style="display:contents" dir="ltr"><div id="2cb56320-92ca-80d9-8e93-f04fc8217535" class="transcription"><div style="border-bottom:0.05em solid;border-bottom-color:rgba(42, 28, 0, 0.07)">Summary<br/></div><div style="display:contents" dir="auto"><h3 id="2cb56320-92ca-8176-91f9-ed57a7237d27" class="">Current Access Status</h3></div><div style="display:contents" dir="auto"><ul id="2cb56320-92ca-812d-a53e-d95ee4ddfb3f" class="bulleted-list"><li style="list-style-type:disc"><span class="user">@Steve </span> currently has minimal system access - only computer and VPN login ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2cb56320-92ca-81a1-b1a3-cf54553ce9ca" class="bulleted-list"><li style="list-style-type:disc">No database access, SA account, or other credentials yet ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2cb56320-92ca-8194-949e-e7a397f9f06e" class="bulleted-list"><li style="list-style-type:disc">ESA account setup in progress for administrative tasks like installing Node.js ‣ ‣</li></ul></div><div style="display:contents" dir="auto"><h3 id="2cb56320-92ca-81bd-b052-fcc5e5d9d1f7" class="">Mike Meeting Recap</h3></div><div style="display:contents" dir="auto"><ul id="2cb56320-92ca-811d-b109-c3c9412b3d21" class="bulleted-list"><li style="list-style-type:disc">Meeting with Mike went well on Friday, covering high-level MDM strategy ‣ ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2cb56320-92ca-8114-95a2-e7564ca237c4" class="bulleted-list"><li style="list-style-type:disc">Discussed onsite ELT presentation combining stakeholder one-on-ones with requirements gathering ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2cb56320-92ca-815d-aca7-d7af0de52033" class="bulleted-list"><li style="list-style-type:disc">Mike emphasized Steve should be viewed as full-time employee, not consultant, to encourage team investment ‣ ‣ ‣ ‣ ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2cb56320-92ca-8199-960f-d3144461a456" class="bulleted-list"><li style="list-style-type:disc">Reviewed MDM&#x27;s role in broader data architecture and prerequisites it unlocks for future migrations ‣ ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2cb56320-92ca-81c0-88c9-d7587f6ae9f0" class="bulleted-list"><li style="list-style-type:disc">Touched on stretch objectives including potential AI assistant for data access and Power BI model creation ‣ ‣ ‣ ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2cb56320-92ca-81ec-808b-d46593628dc8" class="bulleted-list"><li style="list-style-type:disc">Foundation being built with mergers and acquisitions in mind ‣</li></ul></div><div style="display:contents" dir="auto"><h3 id="2cb56320-92ca-81ea-b8c0-f8f60059ec3e" class="">Database Architecture and Access Planning</h3></div><div style="display:contents" dir="auto"><ul id="2cb56320-92ca-8194-bd00-fff031f8204f" class="bulleted-list"><li style="list-style-type:disc">Need to maintain company data silos (NAC, Interplastic, IP Corporation HK, Morgan Products) except for specific cases ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2cb56320-92ca-81ed-83d1-e64a28673cca" class="bulleted-list"><li style="list-style-type:disc">Test environment access will be provided first ‣ ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2cb56320-92ca-8133-a13e-e506914fabbe" class="bulleted-list"><li style="list-style-type:disc">Not all applications have dev/test/prod environments ‣ ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2cb56320-92ca-81e8-90b6-cd9ac92d8b82" class="bulleted-list"><li style="list-style-type:disc">If dev/test/prod exists for most sources, medallion architecture in Fabric workspace structure recommended ‣ ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2cb56320-92ca-8167-95ed-f8dabe59e966" class="bulleted-list"><li style="list-style-type:disc">Steve only needs test/dev access initially - no production access required until later validation phase ‣</li></ul></div><div style="display:contents" dir="auto"><h3 id="2cb56320-92ca-81b8-8b81-e6558d9a71fb" class="">Infrastructure Overview</h3></div><div style="display:contents" dir="auto"><ul id="2cb56320-92ca-8196-85f8-fd4bd33757a6" class="bulleted-list"><li style="list-style-type:disc">All on-premises infrastructure using VMWare - approximately 164 virtual machines with ~20-24 SQL servers ‣ ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2cb56320-92ca-8131-bc74-dd5bbd95ef23" class="bulleted-list"><li style="list-style-type:disc">No AWS or other cloud services currently ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2cb56320-92ca-81dc-a73d-c026785f378f" class="bulleted-list"><li style="list-style-type:disc">Remote access options discussed: RDP to server vs. agent-based SSL VPN ‣ ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2cb56320-92ca-8121-96ca-fa77f2c56223" class="bulleted-list"><li style="list-style-type:disc">Steve prefers laptop-based access for flexibility in testing and exploration ‣</li></ul></div><div style="display:contents" dir="auto"><h3 id="2cb56320-92ca-81f8-bcd5-ee140f340fcd" class="">Power BI and Fabric Setup</h3></div><div style="display:contents" dir="auto"><ul id="2cb56320-92ca-81e2-985d-e257e2bf1623" class="bulleted-list"><li style="list-style-type:disc">Steve needs Power BI Pro license and Fabric trial capacity ‣ ‣ ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2cb56320-92ca-8132-b78f-e93515170178" class="bulleted-list"><li style="list-style-type:disc">Fabric admin role needed for full workspace access ‣ ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2cb56320-92ca-81e0-98da-f8fa681e3a90" class="bulleted-list"><li style="list-style-type:disc">Current gateways exist for Power BI and can be leveraged for Fabric ‣ ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2cb56320-92ca-81d2-b8b8-cb171e54b54b" class="bulleted-list"><li style="list-style-type:disc">New data gateways needed for test and production environments ‣ ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2cb56320-92ca-81f9-b6ed-cb436d21eeeb" class="bulleted-list"><li style="list-style-type:disc">Multiple data sources can connect through single gateway ‣</li></ul></div><div style="display:contents" dir="auto"><h3 id="2cb56320-92ca-8119-bef0-fb493996a683" class="">Data Security and Purview</h3></div><div style="display:contents" dir="auto"><ul id="2cb56320-92ca-8114-be95-daae305c7fae" class="bulleted-list"><li style="list-style-type:disc">Purview currently in use for data governance ‣ ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2cb56320-92ca-81bd-b4a6-d914396d29f6" class="bulleted-list"><li style="list-style-type:disc">Audit started in August identifying PII, credit card information, and social security numbers ‣ ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2cb56320-92ca-8151-96bf-dfd407c7f456" class="bulleted-list"><li style="list-style-type:disc">Policies and data handling procedures still being developed ‣ ‣</li></ul></div><div style="display:contents" dir="auto"><h3 id="2cb56320-92ca-8153-8778-ebb2249db509" class="">Proof of Concept Planning</h3></div><div style="display:contents" dir="auto"><ul id="2cb56320-92ca-81fe-99cc-d1d63f40942f" class="bulleted-list"><li style="list-style-type:disc">Decision needed between M3 and MES as first data source for POC ‣ ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2cb56320-92ca-8178-9d28-c7a3313f3aba" class="bulleted-list"><li style="list-style-type:disc">M3 encompasses all companies (NAC, Interplastic, IP Corporation HK, Morgan Products) ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2cb56320-92ca-81d3-8a0a-c11572fc70e3" class="bulleted-list"><li style="list-style-type:disc">MES covers only Interplastic and NAC ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2cb56320-92ca-81a7-b441-c8ea1defadf7" class="bulleted-list"><li style="list-style-type:disc">Consideration for focusing on specific domain (inventory, sales, or accounting) rather than entire database ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2cb56320-92ca-816f-874c-fd00c2c1dc30" class="bulleted-list"><li style="list-style-type:disc">Steve to develop proposal and get input from additional stakeholders ‣ ‣ ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2cb56320-92ca-8144-afa2-ca7a71defab2" class="bulleted-list"><li style="list-style-type:disc">Target timeline: mid-January for proof of concept ‣</li></ul></div><div style="display:contents" dir="auto"><h3 id="2cb56320-92ca-81e2-bc21-c64ffb27e5f1" class="">API and Data Access Strategy</h3></div><div style="display:contents" dir="auto"><ul id="2cb56320-92ca-81b0-89e8-ffd3b4e55755" class="bulleted-list"><li style="list-style-type:disc">M3 has strong API capabilities that Steve plans to leverage ‣ ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2cb56320-92ca-8100-bd36-db61fd649420" class="bulleted-list"><li style="list-style-type:disc">API access preferred approach for data integration ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2cb56320-92ca-8152-b06c-e1eb1ffa9eee" class="bulleted-list"><li style="list-style-type:disc">SQL authentication preferred over Windows authentication for flexibility ‣</li></ul></div><div style="display:contents" dir="auto"><h3 id="2cb56320-92ca-81de-95ff-fcf804632e70" class="">Action Items</h3></div><div style="display:contents" dir="auto"><ul id="2cb56320-92ca-8111-8724-f33a55d435ea" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Stuart to complete ESA account setup for <span class="user">@Steve </span> ‣</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="2cb56320-92ca-81cc-aeac-eea9693e0af5" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Stuart to provide SQL read access to test databases ‣ ‣</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="2cb56320-92ca-8158-ad7a-c9cc97b837b1" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Stuart to add Steve to appropriate Fabric user groups ‣</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="2cb56320-92ca-81b3-a2bb-f8a7c8e1ec20" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Stuart to submit ticket for M3 access and metadata publisher ‣ ‣</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="2cb56320-92ca-81fd-8f0b-cfd726486fa5" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Power BI Pro license and Fabric trial to be enabled for <span class="user">@Steve </span> ‣ ‣</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="2cb56320-92ca-8150-be64-c063348dc88c" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Patrick to provide access to database aliases/names documentation ‣ ‣</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="2cb56320-92ca-816b-af42-db08a6fe72db" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked"><span class="user">@Steve </span> to develop proposal for POC direction (M3 vs MES) ‣</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="2cb56320-92ca-8122-ac7c-c7d134efd7ab" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Patrick to gather input from other stakeholders on POC approach ‣ ‣</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="2cb56320-92ca-8169-9304-c54a82d35872" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Team to set up data gateways for test and production environments ‣</span><div class="indented"></div></li></ul></div><div style="border-bottom:0.05em solid;border-bottom-color:rgba(42, 28, 0, 0.07)">Notes<br/></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-80f3-9f65-f9a9092c7152" class="">
+</p></div><div style="border-bottom:0.05em solid;border-bottom-color:rgba(42, 28, 0, 0.07)">Transcript<br/></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-8016-b507-c93510f0c409" class="">Hi. I have very little, if any... Anything like credential wise as far as like database access or system access or anything like that. The only thing that I can log into is my computer and the VPN, period.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-800c-9fe0-db7aac74e25d" class="">We&#x27;re going to come up to you later. I think they&#x27;re doing away with that. Yeah, I haven&#x27;t been given an SA.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-80d4-a514-fd6ee33a5a5d" class="">So like if I, If I need to install like Node.js or like something like that and it pops up for an administrator login, that&#x27;s what I would type in.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-8050-86ad-d8042af0e0ba" class="">Yep. E-S-A-S. Oh, it&#x27;s...</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-80f0-9488-dcad8771390b" class="">So it&#x27;s like the hair removal stuff, so narrow up. So you just, instead of an H, think of it as an I. Okay. I have one of my girlfriend&#x27;s siblings in college thought I was an Indian because she was like &quot;Naruk!&quot; Like she hadn&#x27;t, well she hadn&#x27;t seen me or met me yet and yeah, so it was, she&#x27;s like honestly I thought she was, Bringing home a hardcore Indian.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-805e-8370-f864866fe5d1" class="">I was like, &quot;What?&quot; Yeah, Dutch.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-80f0-bf53-df741240ef2f" class="">German mixture Okay.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-8037-bbcb-f0eb0e1f1450" class="">All right, so you, you, you, you, you need him to put in a ticket or are you gonna run up to him? No, I&#x27;m gonna do it. Okay. Yep, that&#x27;s partially my fault. I should have thought to add on that. And Steve&#x27;s going to be doing our MDM project. He&#x27;s going to be one of the main people behind it. And the data architect is primarily going to be remote. He&#x27;ll be here a couple times. for some key points, kickoffs and whatnot.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-805c-b74f-f0e1affd3af1" class="">So we will get them in first at some point.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-802d-bb8a-fd07b5e871b9" class="">And possibly a monthly, like... on site After I spoke with Mike last Friday, That&#x27;s a yellow measure.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-809f-952a-d70b1dca77d3" class="">Yeah, no I&#x27;m not local, I&#x27;m in Charleston, South Carolina.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-80be-8521-fe230d723984" class="">I don&#x27;t deal with cold like you guys.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-80fe-9ef8-f5364a872749" class="">It&#x27;s awesome.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-8080-adc2-dc153881ba61" class="">I love it. I don&#x27;t. You like the cold?</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-80b1-a304-d8a1960e04e0" class="">I like Four Seasons. Might pop year round. That&#x27;s what I signed up for. Yeah, that&#x27;s all right. Some people say I&#x27;m not for it.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-8061-aa42-da1566fb6353" class="">Half day of work and being able to go to the beach is holy. Different experience.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-80eb-a5d8-c964d5c13155" class="">All right, thank you. I&#x27;m going to take a look at the video. Don&#x27;t have to ask me twice. Nice to meet you, Stuart.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-8081-8f93-ea9d87290d48" class="">All right. Thanks a lot.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-804a-bf53-f0f3b42cc2bd" class="">You&#x27;ll probably also need to get on there and give that a call. Then that machine will work with it. Okay, so, sorry, yeah, we will... Out of pocket on Friday, how did the meeting go?</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-8002-bb43-df076651ac33" class="">It went great. Sorry, I was just writing stuff down for students. I mean, we went over just the high-level stuff that, honestly, I don&#x27;t think there was much that we talked, like, touch base about that we haven&#x27;t, like, you and I and him and I haven&#x27;t talked about together at one point or another. We talked about the onsite ELT So making it into like a twofer. presentation/roundtable with ELT/one-on-ones with stakeholders.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-80a3-83ea-ebac65328fd5" class="">getting requirements gathering and stuff like that. Um... Let&#x27;s see. No. I don&#x27;t know if you would.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-80e4-af4a-c78215dbe3bc" class="">That&#x27;s what-Stayed on the topic and went off rails and...</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-80a3-bd92-ce74b6ab39d9" class="">I&#x27;m gonna put together a quick outline, Yeah, I did. And we actually followed it pretty closely. Onee. You can keep going, sorry I don&#x27;t want to hold it up. I&#x27;ll pull something up and I&#x27;ll Send it over to you. I have.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-80a6-8926-f587b1e7bab2" class="">No, I don&#x27;t want to hear it. I&#x27;m curious how it went and if there were any follow-up that I can need from me on anything from that standpoint, if there&#x27;s not an influence Okay, and there&#x27;s nothing I need to take any action on? Um...</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-806e-b5cf-ee0a3154a7f4" class="">No, I mean, he asked how the meetings last week went, and so I kind of, like, touched... here and there on the different meetings with people and he asked me for my feedback on You know, each person, I said Udius was awful, she was one of the worst. Team members I&#x27;ve ever met. No, he&#x27;s a big fan. I don&#x27;t know. You know, the stuff we talked about with, like... Coming in as a consultant kind of thing and he was like, let me stop you right there.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-80db-86b0-dac6d7c85dbf" class="">He&#x27;s like, I haven&#x27;t told anybody that you&#x27;re a consultant. He was like, &quot;Oh, yeah, sorry.&quot; Yeah.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-80d3-9d58-c66d9e055b1e" class="">I should, yeah. Yeah. There&#x27;s a... There&#x27;s a hesitancy.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-807d-aeb5-d4b00073e8cf" class="">People immediately hear that and they think this person&#x27;s only temporary so there&#x27;s no reason to give them a lot of my time. There&#x27;s no reason to invest in them. They&#x27;re going to leave eventually. Exactly. There&#x27;s a lot of...</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-803d-8e16-f0566d1cb677" class="">Yeah. But yeah, you&#x27;re hired on as an employee. Yeah. Try to maintain that. Yeah, I mean that&#x27;s what he&#x27;s-I should probably keep that signal going that way internally too.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-8035-b8aa-f0df4653deb4" class="">That&#x27;s why I kind of brought it up and I didn&#x27;t think Udius would be a leaky Squeaky wheel on this one. But yeah, he was just like, I also want you to feel like you&#x27;re a full-time team member for this two-year period. Yeah, he was like, I don&#x27;t want you to tiptoe around as if you&#x27;re interrupting people. He was like, if you need something done, Well, then we can...</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-80dd-a2b0-eb6a5baef61c" class="">Yeah So we&#x27;ll make that an issue for you.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-80b2-916b-fd22a2c871c9" class="">Makes sense. And then the last thing that I guess is... That was a joke. Yeah. No. I mean, I would, but my wife would be like, *Burp* She uh... I saw what you sent out on Monday about the drug law. No, he showed me a deck that he had put together that was like very high level like where the end where MDM fits in the grand scheme of things. And that was amazing. That really helped me understand the role that it&#x27;s trying to play.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-8022-901b-d01742f71fd4" class="">Yeah, you showed me like the steps within the MDM But I don&#x27;t know if we went over... The bubble map flow that he had where MDM is just like a single circle in this greater But I mean, I think that helped a lot. So we kind of went into, The overarching strategy and like What, you know, um... prerequisites MDM unlocks in order to get The following Talk about the next migration to He mentioned it, but we didn&#x27;t go too far into it because I didn&#x27;t really, I didn&#x27;t have enough specifics to speak intelligently to it.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-8057-9f85-da369aa56688" class="">So he was like, I don&#x27;t want to, he&#x27;s like, I don&#x27;t want to lose you or...</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-8086-8a0f-ea5f12a542d6" class="">You might make us look a little closer at the process Good. and how your boss might have to change process, it&#x27;s not gonna be the There&#x27;s a lot of different factors. That might be a process for them too. That&#x27;s the high level.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-80cd-9385-e5707ec90c7a" class="">That&#x27;s what we do. process in terms of How do you use M3?</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-809e-9d17-e27069e0d727" class="">So, I don&#x27;t know Are you talking like overhaul type of? I wouldn&#x27;t say overhaul. Better way for that? We&#x27;ll see. Okay, so all in all, good meeting. Nothing shocking. Otherwise, from your standpoint? No.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-8090-a1a1-d78a969bf05c" class="">I mean, we...</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-80af-a95e-c380289c3d83" class="">No, we definitely... We didn&#x27;t...</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-80b5-950b-e9ce0c5209c1" class="">We definitely didn&#x27;t get into that. I mean, we touched on... like stretch objectives and stuff that Ideally we could do as a result of this. And I had mentioned something that I had mentioned to Udius, like, um... an internal Mike. AI assistant that people could basically like even like us could use and be like hey, okay this is the This is the data that I need from this database. It runs like SQL against the database and pulls it.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-80f1-95b6-c47d9bcffebc" class="">You tell it to dump it into one lake, it provisions. But one, like if it doesn&#x27;t exist, creates the schemas, dumps it in there, staging and all that, but being able to do all of that and even tell it to create a local Power BI data model And it, in real time, like, pops up in your... Power BI desktop and all of that. That&#x27;s... That&#x27;s plausible, and the most significant part of it that I laid out to him was, It&#x27;s not just Giving people the ability to just like create a bunch of random stuff and like just you know take off all the training wheels it&#x27;s very strictly adhered, it&#x27;s adhering to a very strict guideline and configuration.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-80e9-8f16-d30980e9138e" class="">So like, If you want to, you know, uh... store data in a certain database or whatever, it&#x27;s constantly throwing the data back into Purview to make sure that&#x27;s updated. Things like the metadata, like the descriptions and the context of it from the database to the data model, ensuring that they&#x27;re all named properly, ensuring that if data is calculated a certain way, In other reports, It&#x27;s calculating it the same in that report in terms of creating the measures.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-8013-9a99-fbc77d078381" class="">It&#x27;s identifying any conflicting definitions, etc. So it&#x27;s intended to actually make it a lot easier to do that. And so you&#x27;re not ultimately looking at a report with a different number? Then another report, that kind of stuff. So it can go a million different ways, but we just touched on What it isn&#x27;t. Yeah, but the idea of being That&#x27;s Even if you don&#x27;t do that, The objective is to see. build things foundationally that we&#x27;re going to be building.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-806e-bd60-d776521b7769" class="">to even allow us to do that. Because if you shoot for that and you can achieve, you know, You can lay an AI agent on top of it, then it&#x27;s going to be architected the way it should, if that makes sense. Yep.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-800d-9be7-d8c24eba3613" class="">Yeah. No. Mm-hmm.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-80d6-bcc9-de89b3f77ba2" class="">I mean it&#x27;s meant to help with mergers and acquisitions and stuff like that, like down the road. If you set it up like that, it like digesting I can see That happened.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-809d-98ae-d6097ab451fc" class="">Good morning. Possibly in some more places in the future, especially as we&#x27;re starting to gain my picture, I obviously don&#x27;t have correct attitude to that knowledge and information until I had no way that that capability was there for coming in and going in.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-80ca-9199-d2d88d066fdc" class="">The architecture that I kept, like as I was reviewing a lot of stuff yesterday and today, just going through the architecture notes and documents that I had, The There&#x27;s a need to keep all the different companies like Siloed right except for very few like specific Cases.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-80e8-a682-e7f121cabbdf" class="">Yes, I saw your notes on that. Oh, I didn&#x27;t know if that was helpful.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-8007-8cff-c1fda330d0ea" class="">That&#x27;s just something that I...</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-8050-9d84-e478266529f0" class="">I thought No, that is very helpful. I enjoy reading from these notes. Unfortunately, I don&#x27;t. I can get into the sidebar as much as I should, so I will try to do that more often, especially in this. Are you going to share information that actually helps you understand what you What pieces are figured out and what pieces that I&#x27;m not explaining very well sometimes.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-8026-8a10-eb0c0ece937d" class="">Yeah, I just didn&#x27;t want it to turn into one of these things where I&#x27;m remote and then you don&#x27;t hear anything from me for however long. And the assumption is I&#x27;m not doing anything. That&#x27;s always my assumption. Yeah. You should. You should always default to me being on the beach somewhere.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-800f-8c70-e90ed34cff47" class="">Alright, so let&#x27;s push gears a little bit and start talking about getting access to at least some of our on-prem databases and what that means as far as I hear there&#x27;s some scripts that you want to run to bring all of our servers to their knees and avoid that part but at least understand what those scripts are doing and help me to We need it to be there. And I&#x27;ll start with, you know, The idea of Probably walk/run.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-803e-a8a2-d793d0b12c81" class="">Probably get you access to the test system first.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-8066-aad4-cd5bad04c376" class="">Perfectly. Honestly, if they are replicas of production, I don&#x27;t You know, not yet. That&#x27;s totally fine. The schemas are the same, right?</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-80b3-b378-cc8bb6c73e02" class="">Yeah, and then you probably going to be able to better help Well, that&#x27;s why she&#x27;s valuable. But that&#x27;s a testament to how well he&#x27;s taken that on. No, I don&#x27;t have to pay attention to that detail. So... I will try to remember what I can and not oftentimes go all the way, I pray. Once in a while I&#x27;ll know something and catch her off guard, but most of the time she&#x27;s the go-to person. There are going to be some Application where we don&#x27;t have a dev test and prod.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-80e3-8465-f43e50969b20" class="">Um I&#x27;m trying to think of any other time I had in most cases of... I think we do have a test in the province.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-8046-a8b6-e4fe3b064990" class="">If there are more... If there are more Databases that have dev tests and prods that not That changes The recommendation for architecture that I actually proposed in terms of the fabric architecture itself. So, let&#x27;s say best case scenario, the most black and white situation is there is a dev test in a prod for every single data source that we have. I would definitely propose a a medallion architecture in Fagret so that a workspace is Like yes, it&#x27;s by a domain, but it&#x27;s also there&#x27;s a dev test in prod workspace so that dynamically when you When you basically push something from dev to test, It automatically switches all the sources in that data model from dev to test.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-80c6-83b9-fb51f2dcd8b3" class="">You don&#x27;t have to manually switch it. You know what I mean?</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-80b1-89f6-fb968e94898f" class="">Yep, yep, that makes sense. An IC system set up like that, I wish we were completely dev-tech fraud all the way across. That I can tell you we&#x27;re not.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-80b2-8b41-e6b78a11c62d" class="">But I mean worst case scenario we don&#x27;t have a dev for one or we don&#x27;t the test for another but if there&#x27;s at least one staging database, then I think we&#x27;re totally-we&#x27;re OK. But I&#x27;m just saying that&#x27;s what I would propose because doing nothing but a production workspace has been absolute calamity.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-8037-8619-c03cc95b2cf1" class="">I can&#x27;t imagine. People think it&#x27;s not a big deal and it&#x27;s like, And then again, I don&#x27;t take offense to it whatsoever.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-8038-a1dc-d2e31ca2d03e" class="">I have no need for production until later later. Until we need to actually match the numbers. Just double check that the numbers are matching to make sure everything works. But even in dev or test, If we have queries or something that allow us to check the numbers manually and they&#x27;re coming back correctly, that&#x27;s fine. I have no reason for prod.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-803a-9979-d7e4ecea8a1b" class="">That would be ideal, yeah. Okay, you can work through that. If you want to put it in. Pepper said maybe you don&#x27;t want a I&#x27;m not sure if you can see the SNA account set up for each server, but maybe more something a little bit more general but Is it more of just, is it more about convenience for me or convenience for...</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-80b2-b2bd-df7847c91c7e" class="">Security.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-8099-a040-d2da03477834" class="">I want to take both into account.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-8078-9779-e6ff428160ba" class="">Okay. I mean, I don&#x27;t mind.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-801e-8268-c28bda516186" class="">Nice hot dog. Well, no, you&#x27;re fine. Don&#x27;t feel bad about putting me off, except I will forget. Let me finish my thought. I want to take security into account first. And then Okay, so... Remember how we set up the super-hazardous access? No. Okay. Buzz? Since he was remote, he used RDP to serve out and then he would access the databases using the management studio on that server. I don&#x27;t know if that&#x27;s the standard for everyone that&#x27;s RDP, that&#x27;s remote, or...</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-8038-a174-f438d7d2173f" class="">Can we talk a little bit about that Q2 meeting set up, the server that gives you all the tools here and then you have less on the laptop, but that&#x27;s something you do?</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-8040-919a-c682bdc9c616" class="">So I wouldn&#x27;t be able to, like... hook into it at all. basically to do exploration and profiling of the database.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-807e-b399-c419f06cb9bc" class="">I think it&#x27;s going to be more advantageous for you to do it in a laptop from my understanding. But however, there is a convenience to doing some of it on a server that&#x27;s sitting right next to the data store. Let me kiss you. I&#x27;m gonna shut the gear in a little bit. You have a kind of a well-rounded background in Excel infrastructure years ago too. Okay. I&#x27;m going to shift gears just a little bit. Bear with me just a second.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-80c2-a921-c002e0e9600f" class="">What am I supposed to do with the net? I&#x27;ll show you around our architecture a little bit first. Because that might play a small factor as to how you access it, whether you want to access it directly from your laptop or you want to remotely do a machine that&#x27;s sitting in your infrastructure. This is definitely not how most people... What&#x27;s your access to the stuff? But being that I ran the neutral circuit in the first place in time, I still have a lot of answers to We can put a database on the data.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-80e0-a961-fae7a2c9d6c5" class="">A server-class machine that you can load into. in the same virtual infrastructure, kind of like a And you can remote into. He would give you to all my udders across Your environment there, but the benefit is that you&#x27;d be sitting in the same environment here as the organic service. Trying to pull anything through your workstation there. I don&#x27;t know how many applications that are there. And we do have a memory of that.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-8095-b00b-d2d195f34d60" class="">Yeah. We have a virtual infrastructure. I don&#x27;t know, we have 164 machines. How many of these are SQL? You just can&#x27;t tell the answers. Please, please, please. 24? Not even? Yeah, I would say so. Up here, it should be somewhere. 20? So I don&#x27;t. I don&#x27;t know that much. And then they just seem to have the machine sitting here so they can process stuff offline, if you will. If you&#x27;re, you know, away from your desk and you&#x27;re having to run through and do any stuff.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-801d-9a20-d9ff1aa3e6ad" class="">But no, um... You have a couple So these are all.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-80bf-82cc-dd2766712148" class="">These spirits of...</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-80a6-8fab-f239e205b9d6" class="">This is the way you would be here, this is the VMWare.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-80f5-8f79-da1595cd3962" class="">Okay. Oh, you guys don&#x27;t? leverage like AWS or anything like that We don&#x27;t have any.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-80cd-b4d7-fbc6ae1c34bf" class="">Thank you very much. No, I was just curious.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-80d9-a713-fa5e8705de0b" class="">So... I mean, even if I use a VPN, I wouldn&#x27;t be able to like, connect directly via ODBC or anything like that. More light.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-806e-8fd8-e7c50e7def1d" class="">I know they&#x27;re working at Setting up the SSL style VPN where there will be an agent that would be sitting in your machine at some point so you wouldn&#x27;t have to go and click here. I wouldn&#x27;t want to do it today. I would do, um... That would be water at BPM 1990. Yeah Yeah, good. through an agent that&#x27;s on your machine that they would give you access to. So I would connect with this and that would give you that access to get to the servers within the The data makes the room and a Server sitting in the personal environment So once the matter of Where are you going to install your tools?</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-80dc-a125-e06cac88d7da" class="">Where do you want the tools? On the laptop? Yeah, I mean... Ideally for the test and stuff, like the test and dev, ideally on the laptop if at all possible. Yep.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-8064-abd7-e1d99a30032e" class="">I understand it&#x27;s not ideal.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-8066-99ab-fbc7e5f17aed" class="">It&#x27;s just there&#x27;s... At this point, at this point.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-8087-bd26-ed8f7d65ff93" class="">I have to leave for Georgia. Comfortable feeling. Yeah. What I was gonna say is Thanks for remembering that basketball was going to be a threat. And so here we go with this. Look like this and you went and you lean this over. Yeah. This one happens to have different tools for The M3 holes. SQL Server Management Studio as well. some network tools and stuff like that.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-8098-a16d-f143066fef17" class="">Are there any data gateways currently set up in order to Connect directly from one lake into these data sources.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-80c4-941f-f6226101cd0b" class="">Not at this point in time, so that&#x27;s where we&#x27;re gonna need some assistance from that standpoint too.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-80fb-81ae-c815567129d8" class="">And I wouldn&#x27;t, again, It would just involve Most of the time it would just involve installing the data gateway directly on that remote.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-8099-ad4d-fa93935e10c5" class="">server Thank you.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-80af-889e-c35aae70f1c3" class="">It&#x27;s not that difficult. It&#x27;s more of just See you.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-80f0-9e43-d366e2882c48" class="">You know what, that&#x27;s not completely true. Okay, let&#x27;s go. RBI Headline. That&#x27;s one of the, that has a similar, correct?</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-8008-9651-df0e611b3479" class="">Oh yeah, I mean they use the same They yeah one like all the gateways that fabric leverages are the same gateways as Power BI Easy.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-80b3-91e6-edf092d42880" class="">Don&#x27;t know if he&#x27;s working at that country.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-80c4-ae71-c99b3d3936a1" class="">Oh, that&#x27;s the, oh, that sideways profile picture?</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-802a-8d8f-d2bcc6083a8e" class="">Yeah, this has got to be. Mm-hmm. This is an old machine and As we go through this process, maybe if it&#x27;s gonna need to be a server, they should know that I&#x27;m connecting and reading into those database servers. Or to the Yeah. We gave away. It might not be a bad idea to just set up a new server with whatever you need it and then we&#x27;ll set it up on that machine.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-805f-8ce6-c98c9bfc8cfc" class="">Is there any... Are there any... Are there any current pipelines or anything like that Like let&#x27;s say we set up a Let&#x27;s say we set up a pipeline and data factory to like each morning or periodically Spin off the server copy whatever it needs to from the database into one lake and then like let&#x27;s let&#x27;s it spin down if that&#x27;s even possible like the turning on and...</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-805a-9d11-ced7166b6ca4" class="">Yeah.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-80f2-a73c-ed2a21b092e9" class="">Just anything that we can do that can be applied across as many repeatable things as possible yet.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-80c3-8835-ca7b292bae61" class="">Yes, sir. Thanks. Since we could set up a gateway for your test environment and production environment Yeah, I mean, I think that would...</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-80ef-8dc3-ebefa8c8a30b" class="">That would be ideal. Okay. Because you can put more than one, you can put multiple sources on a single gateway. That I didn&#x27;t know. Sorry.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-80bb-bf1c-f2eafa44da64" class="">I didn&#x27;t know how that&#x27;s going. I think that&#x27;s the same thing. We&#x27;re using one gateway and then we have connections to different SQL servers. So I think the gateway we currently have It also can be used on public, is that right? Yep.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-80f7-8d40-d65f82fed9f5" class="">Those are the same exact gateways in like technically the same entities that are leveraged by fabric. So like If I need to connect to a gateway in Fabric and you guys have existing Power BI gateways created, it&#x27;ll allow me to connect to those.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-807e-a5e7-f10a4feab973" class="">We have the I also can&#x27;t access, we can get to the Power BI stuff after this, but.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-806d-9dd0-f97234f2fc5a" class="">Just throwing out there. I can view what&#x27;s in all the workspaces and stuff like that, and I can view all the workspaces themselves, but I can&#x27;t open any reports. I don&#x27;t have a... I don&#x27;t have a license. I have a free license. Okay.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-80aa-b6d1-c9ffd539792b" class="">Can you force that request through the infrastructure? Sure, I can do that. I didn&#x27;t think about that, but probably. We can do that. And then is that a separate license for the fabric as it is for the eye?</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-8090-9aac-fb32329391ca" class="">Well, the trial needs to be enabled. So like a trial user, It&#x27;s like, um...</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-8010-a08e-f36c1780ac94" class="">So And then just hold this below you here so I know where they&#x27;re feeding and I know where they&#x27;re feeding. I&#x27;m no longer coming. Calling for the danger. My kids are in town and I technically didn&#x27;t need to be here anyways.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-80c9-ab50-c4025b445783" class="">You&#x27;ve invested... You&#x27;ve invested plenty today.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-806a-83fb-c003e47678a2" class="">I want to keep you going, but get me the right context with the right people. I don&#x27;t want to be the... Stumbling block, how about that? Got it.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-8090-ad3c-f3b5c30676f0" class="">So a license, but then also like Little things like the, if I&#x27;m gonna have admin for the all the different workspaces. If I just did a Power BI service admin, Like... type like roll That would give me the... access I need across all of them in order to Actually do it and then a license A license would be a fabric trial license, which is what would spin up the fabric trial capacity for me to I&#x27;ll say it&#x27;s still running.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-8020-8770-c4322d4e5609" class="">Um... So I have... I don&#x27;t have admin across the hall.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-8081-b7fc-fc578a2a14af" class="">You can, I shot a blurb in the chat if you&#x27;re passing on. Stop.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-807d-8020-f6725e4ef659" class="">Okay, yeah, do you have it? Yeah. You okay? And you listen to that. If there&#x27;s something that we can get you in so you can see what we do have, make things a little bit more visible for you, then let me know on that too.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-8099-a190-eaaae51734c2" class="">Yeah, I mean, what I just sent in the chat would give me what I need to do everything I need to. Okay.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-8058-b961-e3608cf188b7" class="">Okay. I know what thing is. I was talking with Steve yesterday about the access because one thing that came into my mind was Um... Well, giving him access to the database, I&#x27;m not quite sure how it&#x27;s going to help him understand what is going on. Would that be easier? Or giving him access to specific inputs that have been used already, I&#x27;m not quite sure. I mean, but...</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-8086-834c-d8daa3a812a2" class="">I mean by themselves probably not very helpful, but together with some kind of understanding of what those are connected to and how the data is being pulled from the database. So like, seeing what metrics are being shown and how those are calculated and stuff like that. I don&#x27;t know if there&#x27;s that much documentation on it, but I could probably reverse engineer it and figure it out, but...</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-8051-ac8d-eabd37a5a14c" class="">For those, I think you probably get very involved a little bit on that, to help you reverse engineer, rather than just having to say, you know, Go reverse engineer when she&#x27;s sitting right here, then why not get her involved?</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-8088-a7b4-e9c8041c1f7e" class="">Oh yeah, for sure. But having both of those, I think is essential for me to see where it came from and what they needed to be.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-80c8-b807-ff679a73ec9e" class="">I&#x27;m glad, thank you for joining. I&#x27;d be able to pull you in. Can you send something to the chat there for what he&#x27;s gonna need for some Power BI access? I don&#x27;t know if you really need more information than that to set him up? Or is there something that really needs you on that front? Nothing, mate.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-8074-b5ce-ea94f5d4f4c8" class="">So within Power BI, there&#x27;s a There&#x27;s an admin settings But you can go too.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-80da-840f-f478b90f8be8" class="">and I&#x27;m gonna do it now.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-8046-bb37-eb6e93d323e6" class="">In Power BI, but... So I guess it&#x27;s an either/or so you can enable the option that says users can try Microsoft fabric and I I can go in and assign myself a trial license or if you don&#x27;t want everybody to be able to start a license, You can assign me as being a temporary global admin for the Power BI space itself. Either or. I think that&#x27;s just a really stupid downside that it&#x27;s like a You either allow everybody to create Free chat.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-80cf-8ab2-c85211239467" class="">free fabric trials or Yeah. Correct. But that&#x27;s it. But you&#x27;ll see the option that I&#x27;m talking about only if you have A Power BI Service Admin. role Oh, users can create fabric items. Okay. The very top one actually. Can you expand that? Okay, cool. Okay, boom. Okay, so you guys already set that up.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-802c-b37d-c9d1f6e306a6" class="">Well, and again, we can set anything up from scratch. Let&#x27;s just start to get in there and play around. That doesn&#x27;t mean we know what we&#x27;re doing.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-80d7-9652-d44f3fc5fa31" class="">Got it. So if we need to back away and go back to the trial or whatever, I mean if I could get a temporary, like I don&#x27;t mind checking in with somebody like occasionally to let you guys know when I can change off of an admin role or whatever but At least for right now, being able to do what I need to, especially if you guys have been going in there and like actually setting stuff up without...</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-8093-ad0f-e674c7f3a05a" class="">We didn&#x27;t get very far. Okay. Stuart, is there, you and I played around with this a little bit, is there a fabric admins, user group and we can click in them. I&#x27;m testing my memory now. Um... I would have forgotten that we did this here. We&#x27;re able to end up creating something I don&#x27;t remember seeing any traffic groups within the fee, but they might be in a juror? I think they&#x27;re in a juror. Can you check?</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-807e-83cb-ed0323ea1560" class="">This is my full-on school routine because I don&#x27;t have I got a lot of stuff I don&#x27;t have access to the Azure stuff. They brought that stuff in after I, you know, brought the old stuff and stuff to my place. Right, yeah, it was such a stuff, you know, development shouldn&#x27;t have access to this, you know, we shouldn&#x27;t have access to development stuff. Although you can pretty much bring it back up. Thank you.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-8056-b9c5-e1187e9b780c" class="">You don&#x27;t want us messing around with your databases. And then as far as We&#x27;re on that topic. Can you start working on setting up What level of access to the database do you want to start with, Steve? Read is perfect. What is? You know, there&#x27;s SA-C4 authentication, not red-manuver authentication. Better that. SQL authentication. Are you going to make me move? That was painful. Okay. Yeah I do. Okay.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-800f-b4f2-d5ec931a5965" class="">Okay, I&#x27;ll add them to that. That will give you more emphasis than you need right away. Yeah. I would say...</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-80fa-90ab-eb881e37f62c" class="">I gave it to him.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-806e-8f02-c9a67e44d4b6" class="">Say again, you listen. And he put it, put him in beta-analyzed with VA group. There was the VA and then there was the VA. Okay. That might be better for now.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-80e5-973b-efd5ee88db63" class="">Would I have access?</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-806e-8687-dc6873bcc712" class="">...groups and they&#x27;re fabric users with a space and fabric users with eye space.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-809d-b113-f2f82d4a2b3e" class="">What I have I guess If it all, so there are so many components to fabric in terms of the licenses. The highest admin role that I can get in terms of being able to access like purview stuff and data factory you know what I mean like there are just so many components of fabric that I just, I don&#x27;t... I don&#x27;t want to bug you guys constantly for every new role that I need, but I also understand there are security things that you have to keep in mind, so I&#x27;m not...</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-80af-97b0-d2e79adfe8d7" class="">Yeah, I see. Permission is possibly around here. Yeah. I even have to ask for permission to stop because I am not a global administrator. I might not even have rights to what you need. I know, I think Michael Peel, who&#x27;s the owner now. Maybe Michael Kinney, but Michael Kinney Stuart, what about this here, this wall? Can you give me the fabric and the indicator? Uh, yeah. Just I don&#x27;t know if I&#x27;m gonna see more of those than what I&#x27;m assuming is that the Indian, this one that should get them.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-80c9-b412-f838c7e19560" class="">What he&#x27;s needing. Hmm. So, we&#x27;re going to put a unit person in that group. Um... I think it&#x27;s S-P-O-V-A, yes. I need it. Thank you. I am sorry. Oh, okay. That is not a good... What? There she is. Yes. All right, he&#x27;s now in there. Right. And. That is a... She&#x27;s in a rose. *Ding* *Ding* There he is. Alright. He should be added in there. It&#x27;s assigned to... So right now it&#x27;s just Patrick&#x27;s standard account, which again I&#x27;d love to get away from that stuff.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-802a-a53b-dc8e8c08faee" class="">Uh, if you want to I want to set my SES account with that as well. Deal with that and then I can probably sit away maybe next week. Mm-hmm. Um, S, A, and Patrick, should you be a component of this group as well? Go right now. I think down the road you will be. See if that&#x27;s...</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-8079-ac7a-f860ca4426ed" class="">Sorry, I was just putting together like a... Holistic. like request in terms of Let me see if that helps. Leave it be for now, that&#x27;s fine.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-806d-8202-f675626ebc65" class="">Okay, I can email that too, it&#x27;s just, meant more for a Alright, so your assay account is now public to the database. Hi. Oh. Yes. Can you send me this here? Did you take that back out of your chat?</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-805a-a868-e4efc1e7963e" class="">Oh, I, I didn&#x27;t think it would be this bad. Hey y&#x27;all. I mean, that&#x27;s just the list of stuff that I ideally would... Would like to have without like global admin or any kind of like over the top access?</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-8039-adc0-cd5d59f123a3" class="">I think this will get us a good start. At least a question and then grant and document as needed.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-80f8-8e80-c40d3c876414" class="">If this is all set up exactly like this, it&#x27;ll literally still be only read access, but I&#x27;ll have everything that I need. Because doing the blanket admin stuff just to... Just until something works just because it works doesn&#x27;t mean it&#x27;s good.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-80c3-959a-f9d4deb7ad18" class="">Yeah. Yeah.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-803c-b40f-d1f87e0e684e" class="">Do you guys currently use Purview?</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-806c-bab6-f16418fe5667" class="">That&#x27;s great.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-802c-93fc-f4d65c628255" class="">I didn&#x27;t know that. That&#x27;s ideal. Yeah.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-80f7-b3e3-d26a5a12b1af" class="">So, Okay. It&#x27;s Mike&#x27;s request to us. I&#x27;m actually working on that right now. We started an audit of it. Back in August, we identified where some data is. We&#x27;re just trying to build a policy around it now and figure out how we want to Can&#x27;t believe it.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-80c5-94f9-e96cb6c170c8" class="">So there&#x27;s going to be So there are going to be existing policies in place for purview once we get there. So that&#x27;s good. Yes. Okay.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-805b-86e9-c182bfd4dd16" class="">Right now we&#x27;re doing VHI, credit card information, stuff like that, social security. The basics. Okay, thank you.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-80f6-84b7-da55e7bc18b0" class="">For like For PII or like sensitive data, are you guys encoding it or like... Hi. Like doing hexing? Are you like doing any type of data masking or anything like that before the sensitive credit card information or whatever goes in or is it going to be store as is and then put it under lock and key kind of thing.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-8097-af79-d8d7bd7daaaa" class="">That&#x27;s what we&#x27;re discussing right now is how that handled the data. Got it. Again, what policies should be in place for that data? Got it. Okay. Got it. Okay.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-8049-b9af-c23c5b206191" class="">I was just curious.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-80bb-baa5-e29ecd61ee85" class="">Yeah, we&#x27;re just getting there, so.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-8059-b8c6-d51dc7b8260f" class="">UDSP, do you need anything else from me in terms of the SQL access? Or like... Do I need access Patrick to whatever Matt Francis and you and I were looking at last week that showed They&#x27;re like aliases or names?</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-8097-8eb8-c6a9967584d9" class="">Yeah. Yeah, you can have access to it. I forgot.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-8080-ac3d-d2e7c5fd4967" class="">Sorry, I know you&#x27;re trying to get out of here.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-80b6-832b-fe34c3b045a3" class="">No, no, no, you&#x27;re fine. I, uh... I&#x27;m gonna assist, I can take it from running around. And I should actually revive and get you access to M3 which will give you access to MediGaza Publisher as well. Peace. It&#x27;s not really pulpy enough, but it will come in handy down the road. from both the Knowing what data to collect? Yep. And also in that same area, Um... It&#x27;s got a lot of the API calls and stuff like that if you ever need to.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-80cf-bf1f-d4e232647bec" class="">Oh, that, I mean that&#x27;s ideally how I was hoping to hook into a lot of it, honestly. That was actually how I was hoping to hook into most of it. To be honest.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-8086-8999-edbb7aaa7078" class="">And then get into a little bit more. So, the employees got a pretty strong API.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-8087-b26e-ff1ebeb2c6ff" class="">That&#x27;s actually why I was...</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-80c4-94b3-eafd9d6df209" class="">pushing more for sequel authentication rather than I will re-buy the ticket and get you access to M3 Uh, that&#x27;s it. Awesome. It will...</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-80c8-a798-fa774f7b1f5d" class="">If we had to start, like if I had to set one up, one data source up tomorrow as a proof of concept from start to finish, what would I, what would you recommend I focus on first? M3? 10-3 already out. Because I... There&#x27;s a lot.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-80a9-89ab-c9515eb02a5a" class="">Okay, maybe I&#x27;ll do MES first and turn two. Will that be like the old database or if there&#x27;s a specific Well yeah, I guess first I would, that&#x27;s one of the first things that I was going to be doing.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-8069-b870-f8e2d89bca6a" class="">Like if I went in there What categories are in there? What&#x27;s like, how would different domains be using that database. but different. I guess starting at the data source, what workspaces and domains would need to be set up for that data source? So like who would be using it? What do their reports look like? Figure out the access or the security schema from that standpoint like what reports go where drawing from that and then kind of work my way out.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-808d-a945-f714bd3ba2e5" class="">So that&#x27;s I guess the approach that I&#x27;m taking is. source to I guess fabric architecture.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-807d-b4ea-e5b0f4da6ccc" class="">We started to map all the roads out convoluted because It depends on what piece of data you&#x27;re after. You can go after a source because, you know, how capable can you be of a source for a product? We put them free and to MES. Um... Yeah. Yeah. So, and I don&#x27;t want to be part of it, but I think if you&#x27;re looking at something that is Company as a whole, if you&#x27;re going after. And three would encompass NAC Interplastic IP Corporation HK and Morgan products.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-808c-9904-dd106f016241" class="">whereas NES would be just in a plastic in each case. Which is okay. Yeah.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-802f-9e59-d0944d21b115" class="">Okay, I mean, whatever, whichever ones you guys think I should be... Starting with, to be honest, I don&#x27;t have a preference. Which one would you like, which ones do you think would have, which one do you think would have the biggest impact if Mike were to? ask for a proof of concept and make law. Great. Nothing, not like so easy that it&#x27;s like, okay, we&#x27;ll do a hard one. Like... Um... where it would actually help bring I guess the vision or give the ELT team a better idea of what it will eventually look like.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-80d5-93cf-f77035c909cc" class="">I guess that&#x27;s what I&#x27;m shooting for by mid-January.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-801e-9e5c-e1a11fcd0806" class="">Yeah. In which case, yeah, anything else would be a no. Okay. However, That has not always seemed as fast because then any seed and molding products kind of gets left out a little bit. So I would leave before it&#x27;s on the street if you want to be. A little bit more on the PC and inclusive services for most people. I mean it sounds like Um... I mean it sounds like I should do M3 first but I think I can&#x27;t So I did mention something like that yesterday and you were just thinking aloud, like something, you remember at one point I heard my bad-ass E.I.s were coming.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-8016-a265-e0332588457f" class="">We&#x27;ll put it together. I am being worried you are starting something of that nature. So, any other questions? Yes, or... Yeah, we&#x27;ve got a couple Thank you. Should we start looking at inventory? Should it be sales? Should it be accounting? Or all those, like, full sections that can give us a section to focus on? Not on everything which might be overwhelming, so if we could be able to get to the specific something like that, it might help.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-8082-920f-c192365fd7ad" class="">That&#x27;s my thought. I don&#x27;t know if that&#x27;s on the line. How you&#x27;ve done it in the past is how maybe you could also like give us ideas and how you&#x27;ve helped me. I started listening to podcasts. I was all used to my cell phone still. Me.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-80ba-bc44-e4f37530f461" class="">If we&#x27;re 100% between MES and M3, Then I think I can take the rest of the day and kind of put something together and then run it by you before We take the next step.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-8072-b021-e0ff17f5e30c" class="">You might have. I might ask them to go outside of here too to get some input from others because if you ask me I can very easily be biased. I&#x27;m trying to avoid that. Yep. Let me ask him a question, and let you run around with a little idea, and then I will get you some feedback from some other sources. Is that fair? Yep. But you mean C4 access? That would be C4 authenticated access to the databases?</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-808c-ada2-d0c9bc0c00c5" class="">Yep. I thank God is in the. Okay.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-80af-89de-fefff90176f4" class="">I&#x27;m so tempted to just Spin up a Prezi account that like That software that like zooms in and out and stuff for this entire diagram that we keep talking about. Cheers. Call it a day. Okay.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-80dc-ad1a-c6186bcb7d8e" class="">Alright, I&#x27;m putting a request to get you access to cloud and I&#x27;m from M3. to the level that you give metadata publisher and access from some of the APIs. So... Okay. Perfect. Maybe we&#x27;ll have some... Alright, let me go ask some questions and get some other people&#x27;s opinions. Give them your direction if I get a yes or no.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-80ed-9186-e0646cf7e424" class="">Right?</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-80d4-8f9a-eb1ad3136206" class="">Sounds like a very valuable meeting, thank you. Everyone for attending? Yep.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-8049-9add-cf688b732465" class="">Thanks a lot guys. That&#x27;s everything I need.</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-80d7-9ed0-e18a32a04c28" class="">Have you been continuing to meet and talk about different servers and databases you use? Yeah, we did Yeah, but it&#x27;s even good. I didn&#x27;t show you the data.</p></div></div></div><div style="display:contents" dir="auto"><hr id="3072a274-65e2-492d-9910-d6304e2f86b5"/></div><div style="display:contents" dir="auto"><h2 id="784c052e-87a4-4fd0-a30b-e212719e3f13" class="">✅ Action Items (Consolidated)</h2></div><div style="display:contents" dir="ltr"><figure class="block-color-blue_background callout" style="white-space:pre-wrap;display:flex" id="2850e667-faeb-4939-be59-5fc164b36f1b"><div style="font-size:1.5em"><span class="icon">📋</span></div><div style="width:100%"><div style="display:contents" dir="auto"><p id="8e6d47c5-66bc-4a6e-a4f0-f18edec65424" class=""><strong>Attendees:</strong> Steve, Patrick Stiller, Eudias Kifem, Stuart Langley (brief)</p></div><div style="display:contents" dir="auto"><p id="6f13ad00-644b-49ee-aac3-6935639cc094" class=""><strong>No Teams transcript</strong> — merged from Cluely + Notion sources</p></div></div></figure></div><div style="display:contents" dir="auto"><h3 id="40d7c60d-f8ed-4fb3-a0bb-48dbcb1aa640" class="">Stuart Langley (IT Admin/Access)</h3></div><div style="display:contents" dir="auto"><ul id="412612e5-b629-4dd0-83cf-7cbe3d347de7" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Complete ESA account setup for Steve</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="e25c77c2-911a-431a-83a0-8e52e85f7040" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Provide SQL read access to test databases (M3, MES)</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="68daa5ab-d540-417c-8de8-2db4f59d06ee" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Add Steve to Fabric user groups in Entra (SPOVA group)</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="5b3a451f-e416-42b1-86ea-9bcb6f2de41d" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Submit ticket for M3 access and Metadata Publisher</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><h3 id="5e33e22f-22bc-4778-92b8-de147f502c19" class="">Patrick Stiller</h3></div><div style="display:contents" dir="auto"><ul id="94e67d58-d6ac-47d2-8ee1-65dfd9c957a2" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Provide access to database aliases/names documentation</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="9d6f5820-fda1-4b8a-a814-78b14b5a7446" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Gather input from other stakeholders on POC approach (M3 vs MES)</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="b26e813f-4a0a-4a9f-8ea3-d1816b217ee6" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Submit request to get Steve access to M3 Cloud + Metadata Publisher + APIs</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><h3 id="bc88bfe8-d6ea-4ab0-b441-ab0e09503e12" class="">Eudias Kifem</h3></div><div style="display:contents" dir="auto"><ul id="4c9a2ede-4d05-4b75-b20c-ad0d85b3349e" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Assist Steve with reverse-engineering reports and understanding data flows</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><h3 id="ef15108f-754d-4a66-9032-f75f532c01b0" class="">Steve</h3></div><div style="display:contents" dir="auto"><ul id="85865242-a29b-4a58-a199-1cd545db0a2e" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Develop POC proposal for M3 direction (target: mid-January)</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="3689853e-0dc5-438d-b119-7af2134aa478" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Put together holistic access request list for IT</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><h3 id="50987405-2b01-412d-a5c2-61dc28d5da5a" class="">IT Team (General)</h3></div><div style="display:contents" dir="auto"><ul id="0a98b8cf-0872-49e0-92fb-115445cf03d5" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Enable SSL VPN for Steve&#x27;s workstation (agent-based)</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="d9bdb6ac-3b4e-4380-862b-6a2d1d2691e6" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Enable Power BI Pro license + Fabric trial for Steve</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="83e1831f-154c-49d9-9743-5f860ac630e7" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Set up data gateways for test/prod environments (or reuse existing Power BI gateway)</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><hr id="e0bc6862-1f8c-43d7-9d05-7a0eb7df8f8c"/></div><div style="display:contents" dir="auto"><h2 id="4487bfea-d034-4b60-8f1d-56d3d9ebb8d3" class="">🧾 Evidence Matrix</h2></div><div style="display:contents" dir="ltr"><figure class="block-color-purple_background callout" style="white-space:pre-wrap;display:flex" id="fb0ab312-4eb2-4532-8e85-7e7fb7588aca"><div style="font-size:1.5em"><span class="icon">🔒</span></div><div style="width:100%"><div style="display:contents" dir="auto"><p id="7fe6b12c-d66d-4d10-8172-83c71bb73d73" class=""><strong>Purpose:</strong> Traceable quotes for key decisions, facts, and commitments from this meeting.</p></div><div style="display:contents" dir="auto"><p id="75831bd1-f4cb-4929-afb8-69fefd2cc169" class=""><strong>Source:</strong> Cluely + Notion transcripts (no Teams available)</p></div></div></figure></div><div style="display:contents" dir="ltr"><table id="97c2cb02-a03b-4e41-b168-d4c92dd30957" class="simple-table"><thead class="simple-table-header"><div style="display:contents" dir="ltr"><tr id="b624f6f1-900f-4736-85b4-9a16be65cb37"><th id="dKbi" class="simple-table-header-color simple-table-header" style="width:87.00000762939453px">Item ID</th><th id="\hXO" class="simple-table-header-color simple-table-header">Type</th><th id="dB&lt;a" class="simple-table-header-color simple-table-header" style="width:84.27777862548828px">Speaker</th><th id="JwN[" class="simple-table-header-color simple-table-header" style="width:113.00000762939453px">Timestamp</th><th id="tpiO" class="simple-table-header-color simple-table-header" style="width:349.00000762939453px">Exact Quote / Evidence</th><th id="i&lt;Hc" class="simple-table-header-color simple-table-header">Context</th><th id="[bpO" class="simple-table-header-color simple-table-header">Confidence</th></tr></div></thead><tbody><div style="display:contents" dir="ltr"><tr id="5d9d6d93-25eb-4b2d-9139-d46e90c91166"><td id="dKbi" class="" style="width:87.00000762939453px">SL-DEC-1</td><td id="\hXO" class="">Decision</td><td id="dB&lt;a" class="" style="width:84.27777862548828px">Patrick</td><td id="JwN[" class="" style="width:113.00000762939453px">—</td><td id="tpiO" class="" style="width:349.00000762939453px">&quot;Probably get you access to the test system first.&quot;</td><td id="i&lt;Hc" class="">Test environment access before prod</td><td id="[bpO" class="">High</td></tr></div><div style="display:contents" dir="ltr"><tr id="4a904d2f-8dfc-40af-ad0b-93554faac254"><td id="dKbi" class="" style="width:87.00000762939453px">SL-DEC-2</td><td id="\hXO" class="">Decision</td><td id="dB&lt;a" class="" style="width:84.27777862548828px">Patrick</td><td id="JwN[" class="" style="width:113.00000762939453px">—</td><td id="tpiO" class="" style="width:349.00000762939453px">&quot;M3 would encompass NAC, Interplastic, IP Corporation HK and Morgan Products... whereas MES would be just Interplastic and HK.&quot;</td><td id="i&lt;Hc" class="">M3 recommended for POC (more inclusive)</td><td id="[bpO" class="">High</td></tr></div><div style="display:contents" dir="ltr"><tr id="98756645-6072-49e3-a0b3-3715399bd44f"><td id="dKbi" class="" style="width:87.00000762939453px">SL-FACT-1</td><td id="\hXO" class="">Fact</td><td id="dB&lt;a" class="" style="width:84.27777862548828px">Eudias</td><td id="JwN[" class="" style="width:113.00000762939453px">—</td><td id="tpiO" class="" style="width:349.00000762939453px">&quot;We have 164 machines. How many of these are SQL? ...24? Not even? Yeah, I would say so. Up here, it should be somewhere. 20?&quot;</td><td id="i&lt;Hc" class="">~20-24 SQL servers in vSphere</td><td id="[bpO" class="">High</td></tr></div><div style="display:contents" dir="ltr"><tr id="8ca87282-f2ef-4472-b192-a1267c2a9b2a"><td id="dKbi" class="" style="width:87.00000762939453px">SL-FACT-2</td><td id="\hXO" class="">Fact</td><td id="dB&lt;a" class="" style="width:84.27777862548828px">Eudias</td><td id="JwN[" class="" style="width:113.00000762939453px">—</td><td id="tpiO" class="" style="width:349.00000762939453px">&quot;Oh, you guys don&#x27;t leverage like AWS or anything like that? We don&#x27;t have any.&quot;</td><td id="i&lt;Hc" class="">100% on-prem, no cloud</td><td id="[bpO" class="">High</td></tr></div><div style="display:contents" dir="ltr"><tr id="9af07192-8ebe-4981-a3fb-97d1572ab72b"><td id="dKbi" class="" style="width:87.00000762939453px">SL-FACT-3</td><td id="\hXO" class="">Fact</td><td id="dB&lt;a" class="" style="width:84.27777862548828px">Eudias</td><td id="JwN[" class="" style="width:113.00000762939453px">—</td><td id="tpiO" class="" style="width:349.00000762939453px">&quot;Do you guys currently use Purview? That&#x27;s great. ...We started an audit of it back in August.&quot;</td><td id="i&lt;Hc" class="">Purview IS in use</td><td id="[bpO" class="">High</td></tr></div><div style="display:contents" dir="ltr"><tr id="d3d4f805-3490-4fe0-90f8-795ad6e1ce2b"><td id="dKbi" class="" style="width:87.00000762939453px">SL-FACT-4</td><td id="\hXO" class="">Fact</td><td id="dB&lt;a" class="" style="width:84.27777862548828px">Eudias</td><td id="JwN[" class="" style="width:113.00000762939453px">—</td><td id="tpiO" class="" style="width:349.00000762939453px">&quot;Right now we&#x27;re doing VHI, credit card information, stuff like that, social security. The basics.&quot;</td><td id="i&lt;Hc" class="">Purview policies: PII, CC, SSN</td><td id="[bpO" class="">High</td></tr></div><div style="display:contents" dir="ltr"><tr id="9de4bc64-1df7-4f32-b2a9-bdb1e87c508d"><td id="dKbi" class="" style="width:87.00000762939453px">SL-FACT-5</td><td id="\hXO" class="">Fact</td><td id="dB&lt;a" class="" style="width:84.27777862548828px">Patrick</td><td id="JwN[" class="" style="width:113.00000762939453px">—</td><td id="tpiO" class="" style="width:349.00000762939453px">&quot;Those are the same exact gateways... that are leveraged by Fabric. So like if I need to connect to a gateway in Fabric and you guys have existing Power BI gateways created, it&#x27;ll allow me to connect to those.&quot;</td><td id="i&lt;Hc" class="">Existing Power BI gateway reusable for Fabric</td><td id="[bpO" class="">High</td></tr></div><div style="display:contents" dir="ltr"><tr id="111b6076-dc8c-4d63-b716-fdd047a2ca1b"><td id="dKbi" class="" style="width:87.00000762939453px">SL-FACT-6</td><td id="\hXO" class="">Fact</td><td id="dB&lt;a" class="" style="width:84.27777862548828px">Steve</td><td id="JwN[" class="" style="width:113.00000762939453px">—</td><td id="tpiO" class="" style="width:349.00000762939453px">&quot;He was like, I haven&#x27;t told anybody that you&#x27;re a consultant... I also want you to feel like you&#x27;re a full-time team member for this two-year period.&quot;</td><td id="i&lt;Hc" class="">Mike: Steve should be treated as FTE, not consultant</td><td id="[bpO" class="">High</td></tr></div><div style="display:contents" dir="ltr"><tr id="1a6f6754-4962-4b4d-a5ef-b7d58ce58492"><td id="dKbi" class="" style="width:87.00000762939453px">SL-FACT-7</td><td id="\hXO" class="">Fact</td><td id="dB&lt;a" class="" style="width:84.27777862548828px">Steve</td><td id="JwN[" class="" style="width:113.00000762939453px">—</td><td id="tpiO" class="" style="width:349.00000762939453px">&quot;I would definitely propose a medallion architecture in Fabric so that a workspace is... by a domain, but it&#x27;s also there&#x27;s a dev test in prod workspace.&quot;</td><td id="i&lt;Hc" class="">Medallion architecture recommendation</td><td id="[bpO" class="">High</td></tr></div><div style="display:contents" dir="ltr"><tr id="0cbef4fa-a77e-45f7-9522-6b12221b2036"><td id="dKbi" class="" style="width:87.00000762939453px">SL-NEXT-1</td><td id="\hXO" class="">Next step</td><td id="dB&lt;a" class="" style="width:84.27777862548828px">Patrick</td><td id="JwN[" class="" style="width:113.00000762939453px">—</td><td id="tpiO" class="" style="width:349.00000762939453px">&quot;I&#x27;m putting a request to get you access to cloud and I&#x27;m from M3 to the level that you give metadata publisher and access from some of the APIs.&quot;</td><td id="i&lt;Hc" class="">M3 access ticket being submitted</td><td id="[bpO" class="">High</td></tr></div><div style="display:contents" dir="ltr"><tr id="08379176-764a-42e4-9fb5-a38e5adfe45e"><td id="dKbi" class="" style="width:87.00000762939453px">SL-NEXT-2</td><td id="\hXO" class="">Next step</td><td id="dB&lt;a" class="" style="width:84.27777862548828px">Patrick</td><td id="JwN[" class="" style="width:113.00000762939453px">—</td><td id="tpiO" class="" style="width:349.00000762939453px">&quot;Let me go ask some questions and get some other people&#x27;s opinions.&quot;</td><td id="i&lt;Hc" class="">Gathering stakeholder input on POC</td><td id="[bpO" class="">High</td></tr></div><div style="display:contents" dir="ltr"><tr id="79cde937-9586-4231-89e9-01b28fc97102"><td id="dKbi" class="" style="width:87.00000762939453px">SL-NEXT-3</td><td id="\hXO" class="">Next step</td><td id="dB&lt;a" class="" style="width:84.27777862548828px">Steve</td><td id="JwN[" class="" style="width:113.00000762939453px">—</td><td id="tpiO" class="" style="width:349.00000762939453px">&quot;I guess that&#x27;s what I&#x27;m shooting for by mid-January.&quot;</td><td id="i&lt;Hc" class="">POC target: mid-January</td><td id="[bpO" class="">High</td></tr></div></tbody></table></div><div style="display:contents" dir="ltr"><figure class="block-color-yellow_background callout" style="white-space:pre-wrap;display:flex" id="f9fb0ed6-c1ee-4b0e-8e71-00b24c4d87f3"><div style="font-size:1.5em"><span class="icon">⚠️</span></div><div style="width:100%"><div style="display:contents" dir="auto"><p id="fe3dafbb-c9f9-43dd-8260-a6e1380f24ea" class=""><strong>Note:</strong> Timestamps marked &quot;—&quot; because no Teams transcript available. Evidence extracted from Cluely + Notion transcripts only.</p></div></div></figure></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-80c0-9d1a-c4933b0a2dd3" class="">
+</p></div><div style="display:contents" dir="auto"><h2 id="2cb56320-92ca-800a-882d-c77446b484d5" class="">✅ ACTION ITEMS (Consolidated)</h2></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-807c-9d24-f91bc47b6254" class="">
+</p></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-8060-a10c-e9acbd440146" class="">
+</p></div><div style="display:contents" dir="auto"><hr id="2cb56320-92ca-8081-9fd7-f9d012e66d5f"/></div><div style="display:contents" dir="auto"><p id="2cb56320-92ca-80f6-86a8-ff5bfbe6c050" class="">
+</p></div><div style="display:contents" dir="auto"><h2 id="2cb56320-92ca-8032-9a48-c20678bb433a" class="">📊 EVIDENCE MATRIX</h2></div></div></article><span class="sans" style="font-size:14px;padding-top:2em"></span></body></html>

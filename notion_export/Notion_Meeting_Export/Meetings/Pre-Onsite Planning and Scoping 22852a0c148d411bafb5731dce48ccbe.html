@@ -1,0 +1,743 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>Pre-Onsite Planning and Scoping</title><style>
+/* cspell:disable-file */
+/* webkit printing magic: print all background colors */
+html {
+	-webkit-print-color-adjust: exact;
+}
+* {
+	box-sizing: border-box;
+	-webkit-print-color-adjust: exact;
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+}
+@media only screen {
+	body {
+		margin: 2em auto;
+		max-width: 900px;
+		color: rgb(55, 53, 47);
+	}
+}
+
+body {
+	line-height: 1.5;
+	white-space: pre-wrap;
+}
+
+a,
+a.visited {
+	color: inherit;
+	text-decoration: underline;
+}
+
+.pdf-relative-link-path {
+	font-size: 80%;
+	color: #444;
+}
+
+h1,
+h2,
+h3 {
+	letter-spacing: -0.01em;
+	line-height: 1.2;
+	font-weight: 600;
+	margin-bottom: 0;
+}
+
+/* Override strong tags inside headings to maintain consistent weight */
+h1 strong,
+h2 strong,
+h3 strong {
+	font-weight: 600;
+}
+
+.page-title {
+	font-size: 2.5rem;
+	font-weight: 700;
+	margin-top: 0;
+	margin-bottom: 0.75em;
+}
+
+h1 {
+	font-size: 1.875rem;
+	margin-top: 1.875rem;
+}
+
+h2 {
+	font-size: 1.5rem;
+	margin-top: 1.5rem;
+}
+
+h3 {
+	font-size: 1.25rem;
+	margin-top: 1.25rem;
+}
+
+.source {
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	padding: 1.5em;
+	word-break: break-all;
+}
+
+.callout {
+	border-radius: 10px;
+	padding: 1rem;
+}
+
+figure {
+	margin: 1.25em 0;
+	page-break-inside: avoid;
+}
+
+figcaption {
+	opacity: 0.5;
+	font-size: 85%;
+	margin-top: 0.5em;
+}
+
+mark {
+	background-color: transparent;
+}
+
+.indented {
+	padding-left: 1.5em;
+}
+
+hr {
+	background: transparent;
+	display: block;
+	width: 100%;
+	height: 1px;
+	visibility: visible;
+	border: none;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+img {
+	max-width: 100%;
+}
+
+@media only print {
+	img {
+		max-height: 100vh;
+		object-fit: contain;
+	}
+
+	table.collection-content {
+		width: 100%;
+		table-layout: fixed;
+	}
+
+	table.collection-content th,
+	table.collection-content td {
+		overflow-wrap: anywhere;
+	}
+
+	table.collection-content td > .user,
+	table.collection-content td > time {
+		white-space: pre-wrap;
+	}
+}
+
+@page {
+	margin: 1in;
+}
+
+.collection-content-wrapper {
+	overflow-x: auto;
+}
+
+@media only print {
+	.collection-content-wrapper {
+		overflow-x: visible;
+	}
+}
+
+.collection-content {
+	font-size: 0.875rem;
+}
+
+.collection-content td {
+	white-space: pre-wrap;
+	word-break: break-word;
+}
+
+.column-list {
+	display: flex;
+	gap: 46px;
+}
+
+.column {
+	min-width: 0;
+	overflow: hidden;
+}
+
+.column > *:first-child {
+	margin-top: 0;
+}
+
+.table_of_contents-item {
+	display: block;
+	font-size: 0.875rem;
+	line-height: 1.3;
+	padding: 0.125rem;
+}
+
+.table_of_contents-indent-1 {
+	margin-left: 1.5rem;
+}
+
+.table_of_contents-indent-2 {
+	margin-left: 3rem;
+}
+
+.table_of_contents-indent-3 {
+	margin-left: 4.5rem;
+}
+
+.table_of_contents-link {
+	text-decoration: none;
+	opacity: 0.7;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.18);
+}
+
+table,
+th,
+td {
+	border: 1px solid rgba(55, 53, 47, 0.09);
+	border-collapse: collapse;
+}
+
+table {
+	border-left: none;
+	border-right: none;
+}
+
+th,
+td {
+	font-weight: normal;
+	padding: 0.25em 0.5em;
+	line-height: 1.5;
+	min-height: 1.5em;
+	text-align: left;
+}
+
+th {
+	color: rgba(55, 53, 47, 0.6);
+}
+
+ol,
+ul {
+	margin: 0;
+	margin-block-start: 0.6em;
+	margin-block-end: 0.6em;
+}
+
+li > ol:first-child,
+li > ul:first-child {
+	margin-block-start: 0.6em;
+}
+
+ul > li {
+	list-style: disc;
+}
+
+ul.to-do-list {
+	padding-inline-start: 0;
+}
+
+ul.to-do-list > li {
+	list-style: none;
+}
+
+.to-do-children-checked {
+	text-decoration: line-through;
+	opacity: 0.375;
+}
+
+ul.toggle > li {
+	list-style: none;
+}
+
+ul {
+	padding-inline-start: 1.7em;
+}
+
+ul > li {
+	padding-left: 0.1em;
+}
+
+ol {
+	padding-inline-start: 1.6em;
+}
+
+ol.numbered-list.numbered-list-digits-2 {
+	padding-inline-start: 2em;
+}
+
+ol.numbered-list.numbered-list-digits-3plus {
+	padding-inline-start: 2.4em;
+}
+
+ol > li {
+	padding-left: 0.2em;
+}
+
+.mono ol {
+	padding-inline-start: 2em;
+}
+
+.mono ol > li {
+	text-indent: -0.4em;
+}
+
+.toggle {
+	padding-inline-start: 0em;
+	list-style-type: none;
+}
+
+/* Indent toggle children */
+.toggle > li > details {
+	padding-left: 1.7em;
+}
+
+.toggle > li > details > summary {
+	margin-left: -1.1em;
+}
+
+.selected-value {
+	display: inline-block;
+	padding: 0 0.5em;
+	background: rgba(206, 205, 202, 0.5);
+	border-radius: 3px;
+	margin-right: 0.5em;
+	margin-top: 0.3em;
+	margin-bottom: 0.3em;
+	white-space: nowrap;
+}
+
+.collection-title {
+	display: inline-block;
+	margin-right: 1em;
+}
+
+.page-description {
+	margin-bottom: 2em;
+}
+
+.simple-table {
+	margin-top: 1em;
+	font-size: 0.875rem;
+	empty-cells: show;
+}
+.simple-table td {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table th {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table-header-color {
+	background: rgb(247, 246, 243);
+	color: black;
+}
+.simple-table-header {
+	font-weight: 500;
+}
+
+time {
+	opacity: 0.5;
+}
+
+.icon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	max-width: 1.2em;
+	max-height: 1.2em;
+	text-decoration: none;
+	vertical-align: text-bottom;
+	margin-right: 0.5em;
+}
+
+img.icon {
+	border-radius: 3px;
+}
+
+.callout img.notion-static-icon {
+	width: 1em;
+	height: 1em;
+}
+
+.callout p {
+	margin: 0;
+}
+
+.callout h1,
+.callout h2,
+.callout h3 {
+	margin: 0 0 0.6rem;
+}
+
+.user-icon {
+	width: 1.5em;
+	height: 1.5em;
+	border-radius: 100%;
+	margin-right: 0.5rem;
+}
+
+.user-icon-inner {
+	font-size: 0.8em;
+}
+
+.text-icon {
+	border: 1px solid #000;
+	text-align: center;
+}
+
+.page-cover-image {
+	display: block;
+	object-fit: cover;
+	width: 100%;
+	max-height: 30vh;
+}
+
+.page-header-icon {
+	font-size: 3rem;
+	margin-bottom: 1rem;
+}
+
+.page-header-icon-with-cover {
+	margin-top: -0.72em;
+	margin-left: 0.07em;
+}
+
+.page-header-icon img {
+	border-radius: 3px;
+}
+
+.link-to-page {
+	margin: 1em 0;
+	padding: 0;
+	border: none;
+	font-weight: 500;
+}
+
+p > .user {
+	opacity: 0.5;
+}
+
+td > .user,
+td > time {
+	white-space: nowrap;
+}
+
+input[type="checkbox"] {
+	transform: scale(1.5);
+	margin-right: 0.6em;
+	vertical-align: middle;
+}
+
+p {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+.image {
+	border: none;
+	margin: 1.5em 0;
+	padding: 0;
+	border-radius: 0;
+	text-align: center;
+}
+
+.code,
+code {
+	background: rgba(135, 131, 120, 0.15);
+	border-radius: 3px;
+	padding: 0.2em 0.4em;
+	border-radius: 3px;
+	font-size: 85%;
+	tab-size: 2;
+}
+
+code {
+	color: #eb5757;
+}
+
+.code {
+	padding: 1.5em 1em;
+}
+
+.code-wrap {
+	white-space: pre-wrap;
+	word-break: break-all;
+}
+
+.code > code {
+	background: none;
+	padding: 0;
+	font-size: 100%;
+	color: inherit;
+}
+
+blockquote {
+	font-size: 1em;
+	margin: 1em 0;
+	padding-left: 1em;
+	border-left: 3px solid rgb(55, 53, 47);
+}
+
+blockquote.quote-large {
+	font-size: 1.25em;
+}
+
+.bookmark {
+	text-decoration: none;
+	max-height: 8em;
+	padding: 0;
+	display: flex;
+	width: 100%;
+	align-items: stretch;
+}
+
+.bookmark-title {
+	font-size: 0.85em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	height: 1.75em;
+	white-space: nowrap;
+}
+
+.bookmark-text {
+	display: flex;
+	flex-direction: column;
+}
+
+.bookmark-info {
+	flex: 4 1 180px;
+	padding: 12px 14px 14px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.bookmark-image {
+	width: 33%;
+	flex: 1 1 180px;
+	display: block;
+	position: relative;
+	object-fit: cover;
+	border-radius: 1px;
+}
+
+.bookmark-description {
+	color: rgba(55, 53, 47, 0.6);
+	font-size: 0.75em;
+	overflow: hidden;
+	max-height: 4.5em;
+	word-break: break-word;
+}
+
+.bookmark-href {
+	font-size: 0.75em;
+	margin-top: 0.25em;
+}
+
+.sans { font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol"; }
+.code { font-family: "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace; }
+.serif { font-family: Lyon-Text, Georgia, ui-serif, serif; }
+.mono { font-family: iawriter-mono, Nitti, Menlo, Courier, monospace; }
+.pdf .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK JP'; }
+.pdf:lang(zh-CN) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK SC'; }
+.pdf:lang(zh-TW) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK TC'; }
+.pdf:lang(ko-KR) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK KR'; }
+.pdf .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.pdf .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK JP'; }
+.pdf:lang(zh-CN) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK SC'; }
+.pdf:lang(zh-TW) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK TC'; }
+.pdf:lang(ko-KR) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK KR'; }
+.pdf .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.highlight-default {
+	color: rgba(44, 44, 43, 1);
+}
+.highlight-gray {
+	color: rgba(125, 122, 117, 1);
+	fill: rgba(125, 122, 117, 1);
+}
+.highlight-brown {
+	color: rgba(159, 118, 90, 1);
+	fill: rgba(159, 118, 90, 1);
+}
+.highlight-orange {
+	color: rgba(210, 123, 45, 1);
+	fill: rgba(210, 123, 45, 1);
+}
+.highlight-yellow {
+	color: rgba(203, 148, 52, 1);
+	fill: rgba(203, 148, 52, 1);
+}
+.highlight-teal {
+	color: rgba(80, 148, 110, 1);
+	fill: rgba(80, 148, 110, 1);
+}
+.highlight-blue {
+	color: rgba(56, 125, 201, 1);
+	fill: rgba(56, 125, 201, 1);
+}
+.highlight-purple {
+	color: rgba(154, 107, 180, 1);
+	fill: rgba(154, 107, 180, 1);
+}
+.highlight-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.highlight-red {
+	color: rgba(207, 81, 72, 1);
+	fill: rgba(207, 81, 72, 1);
+}
+.highlight-default_background {
+	color: rgba(44, 44, 43, 1);
+}
+.highlight-gray_background {
+	background: rgba(42, 28, 0, 0.07);
+}
+.highlight-brown_background {
+	background: rgba(139, 46, 0, 0.086);
+}
+.highlight-orange_background {
+	background: rgba(224, 101, 1, 0.129);
+}
+.highlight-yellow_background {
+	background: rgba(211, 168, 0, 0.137);
+}
+.highlight-teal_background {
+	background: rgba(0, 100, 45, 0.09);
+}
+.highlight-blue_background {
+	background: rgba(0, 124, 215, 0.094);
+}
+.highlight-purple_background {
+	background: rgba(102, 0, 178, 0.078);
+}
+.highlight-pink_background {
+	background: rgba(197, 0, 93, 0.086);
+}
+.highlight-red_background {
+	background: rgba(223, 22, 0, 0.094);
+}
+.block-color-default {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray {
+	color: rgba(125, 122, 117, 1);
+	fill: rgba(125, 122, 117, 1);
+}
+.block-color-brown {
+	color: rgba(159, 118, 90, 1);
+	fill: rgba(159, 118, 90, 1);
+}
+.block-color-orange {
+	color: rgba(210, 123, 45, 1);
+	fill: rgba(210, 123, 45, 1);
+}
+.block-color-yellow {
+	color: rgba(203, 148, 52, 1);
+	fill: rgba(203, 148, 52, 1);
+}
+.block-color-teal {
+	color: rgba(80, 148, 110, 1);
+	fill: rgba(80, 148, 110, 1);
+}
+.block-color-blue {
+	color: rgba(56, 125, 201, 1);
+	fill: rgba(56, 125, 201, 1);
+}
+.block-color-purple {
+	color: rgba(154, 107, 180, 1);
+	fill: rgba(154, 107, 180, 1);
+}
+.block-color-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.block-color-red {
+	color: rgba(207, 81, 72, 1);
+	fill: rgba(207, 81, 72, 1);
+}
+.block-color-default_background {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray_background {
+	background: rgba(240, 239, 237, 1);
+}
+.block-color-brown_background {
+	background: rgba(245, 237, 233, 1);
+}
+.block-color-orange_background {
+	background: rgba(251, 235, 222, 1);
+}
+.block-color-yellow_background {
+	background: rgba(249, 243, 220, 1);
+}
+.block-color-teal_background {
+	background: rgba(232, 241, 236, 1);
+}
+.block-color-blue_background {
+	background: rgba(229, 242, 252, 1);
+}
+.block-color-purple_background {
+	background: rgba(243, 235, 249, 1);
+}
+.block-color-pink_background {
+	background: rgba(250, 233, 241, 1);
+}
+.block-color-red_background {
+	background: rgba(252, 233, 231, 1);
+}
+.select-value-color-default { background-color: rgba(42, 28, 0, 0.07); }
+.select-value-color-gray { background-color: rgba(28, 19, 1, 0.11); }
+.select-value-color-brown { background-color: rgba(127, 51, 0, 0.156); }
+.select-value-color-orange { background-color: rgba(196, 88, 0, 0.203); }
+.select-value-color-yellow { background-color: rgba(209, 156, 0, 0.282); }
+.select-value-color-green { background-color: rgba(0, 96, 38, 0.156); }
+.select-value-color-blue { background-color: rgba(0, 118, 217, 0.203); }
+.select-value-color-purple { background-color: rgba(92, 0, 163, 0.141); }
+.select-value-color-pink { background-color: rgba(183, 0, 78, 0.152); }
+.select-value-color-red { background-color: rgba(206, 24, 0, 0.164); }
+
+.checkbox {
+	display: inline-flex;
+	vertical-align: text-bottom;
+	width: 16;
+	height: 16;
+	background-size: 16px;
+	margin-left: 2px;
+	margin-right: 5px;
+}
+
+.checkbox-on {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20width%3D%2216%22%20height%3D%2216%22%20fill%3D%22%2358A9D7%22%2F%3E%0A%3Cpath%20d%3D%22M6.71429%2012.2852L14%204.9995L12.7143%203.71436L6.71429%209.71378L3.28571%206.2831L2%207.57092L6.71429%2012.2852Z%22%20fill%3D%22white%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+
+.checkbox-off {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20x%3D%220.75%22%20y%3D%220.75%22%20width%3D%2214.5%22%20height%3D%2214.5%22%20fill%3D%22white%22%20stroke%3D%22%2336352F%22%20stroke-width%3D%221.5%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+	
+</style></head><body><article id="22852a0c-148d-411b-afb5-731dce48ccbe" class="page sans"><header><div class="page-header-icon undefined"><span class="icon">📋</span></div><h1 class="page-title" dir="auto">Pre-Onsite Planning and Scoping</h1><p class="page-description" dir="auto"></p><table class="properties"><tbody><tr class="property-row property-row-status"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/burst_gray.svg" style="width:14px;height:14px;display:block"/></span>Processing</th><td><span class="status-value select-value-color-green"><div class="status-dot status-dot-color-green"></div>Processed</span></td></tr><tr class="property-row property-row-text"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/description_gray.svg" style="width:14px;height:14px;display:block"/></span>Agenda</th><td>Pre-sizing workspace planning session with Patrick Stiller. Align on sizing/workspace model before Cybertrol meeting, discuss dedicated workspace vs. capacity, confirm three priority meetings, data normalization/terminology guidelines, introduce Robin (new hire with MDM interest).</td></tr><tr class="property-row property-row-date"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/calendar_gray.svg" style="width:14px;height:14px;display:block"/></span>Date</th><td><time>January 13, 2026 2:00 PM (UTC)</time></td></tr><tr class="property-row property-row-multi_select"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/list_gray.svg" style="width:14px;height:14px;display:block"/></span>Attendees</th><td><span class="selected-value select-value-color-pink">Internal</span></td></tr><tr class="property-row property-row-select"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/arrow-circle-down_gray.svg" style="width:14px;height:14px;display:block"/></span>Meeting Type</th><td><span class="selected-value select-value-color-default">1:1</span></td></tr><tr class="property-row property-row-person"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/friends_gray.svg" style="width:14px;height:14px;display:block"/></span>Organizer</th><td><span class="user"><img src="https://lh3.googleusercontent.com/a/ACg8ocLHfVvdl28jS936w7CBB6TObsUa1P-X8cbdsUSKdeEn_MD7Bw=s96-c" class="icon user-icon"/>Steve </span></td></tr><tr class="property-row property-row-select"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/arrow-circle-down_gray.svg" style="width:14px;height:14px;display:block"/></span>Priority</th><td><span class="selected-value select-value-color-red">High</span></td></tr><tr class="property-row property-row-checkbox"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/checkmark-square_gray.svg" style="width:14px;height:14px;display:block"/></span>Has Cluely Transcript</th><td><div class="checkbox checkbox-on"></div></td></tr><tr class="property-row property-row-checkbox"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/checkmark-square_gray.svg" style="width:14px;height:14px;display:block"/></span>Has Final Transcript</th><td><div class="checkbox checkbox-on"></div></td></tr><tr class="property-row property-row-select"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/arrow-circle-down_gray.svg" style="width:14px;height:14px;display:block"/></span>Status</th><td><span class="selected-value select-value-color-brown">Completed</span></td></tr><tr class="property-row property-row-checkbox"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/checkmark-square_gray.svg" style="width:14px;height:14px;display:block"/></span>Has Notion Transcript</th><td><div class="checkbox checkbox-off"></div></td></tr><tr class="property-row property-row-checkbox"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/checkmark-square_gray.svg" style="width:14px;height:14px;display:block"/></span>Has Teams Transcript</th><td><div class="checkbox checkbox-off"></div></td></tr><tr class="property-row property-row-checkbox"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/checkmark-square_gray.svg" style="width:14px;height:14px;display:block"/></span>Merged to Feed</th><td><div class="checkbox checkbox-off"></div></td></tr></tbody></table></header><div class="page-body"><div style="display:contents" dir="ltr"><div id="944fc63c-4169-4288-a5a2-8d2e7c0a82c4" class="transcription"><div style="border-bottom:0.05em solid;border-bottom-color:rgba(42, 28, 0, 0.07)">Summary<br/></div><div style="display:contents" dir="auto"><p id="5c47c460-88a0-49c1-acae-ccbb8da98539" class=""><strong>Pre‑Sizing Workspace Planning Session</strong> — 1:1 between Steve and Patrick Stiller to align on Fabric workspace model before Cybertrol meeting. Key outcome: Decision to use dedicated workspace (not dedicated capacity) for Cybertrol, with Steve handling meeting scheduling and participant selection. Three priority meetings identified for next week covering sizing, milestones, and licensing. Robin (new hire reporting to Mike with MDM interest) and Virginia identified as potential stakeholders. Patrick prepared a Power BI auditor dashboard for standardization review. Matt Teleko discussed as potential future team addition.</p></div><div style="border-bottom:0.05em solid;border-bottom-color:rgba(42, 28, 0, 0.07)">Notes<br/></div><div style="display:contents" dir="auto"><h3 id="19976069-c420-4446-8885-6ccf9c092764" class="">Key Discussion Points</h3></div><div style="display:contents" dir="auto"><ul id="fb00e4d2-dd9f-4c9f-9ac7-058bc463ad39" class="bulleted-list"><li style="list-style-type:disc">Align on sizing and workspace model before Cybertrol joins</li></ul></div><div style="display:contents" dir="auto"><ul id="3243ad51-08dd-4738-ba06-3d9fe4ab0339" class="bulleted-list"><li style="list-style-type:disc">Decide between dedicated capacity vs. dedicated workspace for the tenant</li></ul></div><div style="display:contents" dir="auto"><ul id="11702dc5-4668-4109-90d2-6bcbdaf1b0a4" class="bulleted-list"><li style="list-style-type:disc">Three high‑importance meetings to set milestones and licensing plan</li></ul></div><div style="display:contents" dir="auto"><ul id="709e2609-aed7-4a8f-8a8b-ec67ec191aff" class="bulleted-list"><li style="list-style-type:disc">Need to cover data normalization, terminology, and boundary guidelines</li></ul></div><div style="display:contents" dir="auto"><ul id="56783c4c-d48b-4032-b480-7d2a6ea07128" class="bulleted-list"><li style="list-style-type:disc">Robin (new hire, reports to Mike) has MBM experience and MDM interest</li></ul></div><div style="display:contents" dir="auto"><ul id="a18135cf-5db4-4a49-99c8-d5a17fe4e9e1" class="bulleted-list"><li style="list-style-type:disc">System prepared a Power BI auditor dashboard for standardization</li></ul></div><div style="display:contents" dir="auto"><h3 id="9003360f-0738-4114-828a-c8ae983a6f8e" class="">Decisions / Agreements</h3></div><div style="display:contents" dir="auto"><ul id="03f0fc03-6d2a-4d98-a2eb-b9829529ff2e" class="bulleted-list"><li style="list-style-type:disc"><code>Decision:</code> Fabric meeting confirmed 10 am‑11 am, no conflict</li></ul></div><div style="display:contents" dir="auto"><ul id="d2a86437-7bda-4963-a316-d66ea0c4695b" class="bulleted-list"><li style="list-style-type:disc"><code>Decision:</code> Pre‑meeting on sizing will be held before the Cybertrol discussion</li></ul></div><div style="display:contents" dir="auto"><ul id="2a9f8b84-0c9d-4abe-97d1-a29e56bff425" class="bulleted-list"><li style="list-style-type:disc"><code>Decision:</code> Use a dedicated workspace to handle billing and admin access needs</li></ul></div><div style="display:contents" dir="auto"><ul id="3f365ca0-b37e-42ab-912c-6b3366679467" class="bulleted-list"><li style="list-style-type:disc"><code>Decision:</code> Steve will handle meeting scheduling and participant selection</li></ul></div><div style="display:contents" dir="auto"><h3 id="8db9ce25-ee5c-495f-a60e-5f60338d7c44" class="">Open Questions / Follow‑ups</h3></div><div style="display:contents" dir="auto"><ul id="107e9ecf-6e79-4656-82ee-f9c49e1fffeb" class="bulleted-list"><li style="list-style-type:disc"><code>Open Question:</code> Which specific capabilities are missing in a workspace vs. dedicated capacity?</li></ul></div><div style="display:contents" dir="auto"><ul id="44f236a4-fb82-4255-bcf5-525b229cea48" class="bulleted-list"><li style="list-style-type:disc"><code>Open Question:</code> Are there any additional stakeholders besides Robin and Virginia to include?</li></ul></div><div style="display:contents" dir="auto"><ul id="3b2c15ba-429f-4a05-95ec-99e0963f29a5" class="bulleted-list"><li style="list-style-type:disc"><code>Open Question:</code> What exact MDM requirements does the customer have?</li></ul></div><div style="display:contents" dir="auto"><ul id="55ebdb00-618f-40a0-b212-4d78e440be4b" class="bulleted-list"><li style="list-style-type:disc"><code>Open Question:</code> Any further agenda items needed for the three initial meetings?</li></ul></div><div style="border-bottom:0.05em solid;border-bottom-color:rgba(42, 28, 0, 0.07)">Transcript<br/></div><div style="display:contents" dir="auto"><p id="3fdaa5a2-8ab5-4373-971b-80fbab974163" class=""><strong>Patrick</strong> [0:10]: your side ready to start to sit down and discuss do you have all that kind of starting to come to a head here</p></div><div style="display:contents" dir="auto"><p id="7e32b9ad-08fd-4d46-9a35-21c86957d98a" class=""><strong>Patrick</strong> [0:20]: yeah i&#x27;m pretty much ready to walk through everything in terms of architect current state of the architecture</p></div><div style="display:contents" dir="auto"><p id="c17ff437-71b3-4aba-9dd9-24635a8880eb" class=""><strong>Patrick</strong> [0:24]: proposed implementation plan proposed size of the fabric capacity</p></div><div style="display:contents" dir="auto"><p id="ad8b7f54-01e2-456c-b15c-01a8ccfc2261" class=""><strong>Patrick</strong> [0:39]: basically i hope to sit down next week and us be able to walk away from there with okay this is the date that we&#x27;re standing up the capacity this is who&#x27;s going to be given licenses</p></div><div style="display:contents" dir="auto"><p id="6b7fafbc-56bb-4ae9-8cff-648aa6b12617" class=""><strong>Patrick</strong> [0:42]: like trial access or whatever at the beginning</p></div><div style="display:contents" dir="auto"><p id="5261f987-ec8f-4bad-ae79-2b45712f6e41" class=""><strong>Patrick</strong> [0:55]: these are the milestones that we need to hit in order to consider it a success and to continue building on and migrating x y and z sources into onelake</p></div><div style="display:contents" dir="auto"><p id="97a136e7-c6d8-4ccb-b1f2-2a5ca1c21e0f" class=""><strong>Patrick</strong> [0:59]: warehouses pipelines et cetera</p></div><div style="display:contents" dir="auto"><p id="4b9f48d8-7f5a-41d5-983a-f51d59ba65aa" class=""><strong>Patrick</strong> [1:01]: okay</p></div><div style="display:contents" dir="auto"><p id="e6bc0c2c-818c-4ae5-abc7-80fd30e6dd4f" class=""><strong>Patrick</strong> [1:06]: yeah actually no i&#x27;m thinking about it</p></div><div style="display:contents" dir="auto"><p id="b2edf494-feda-48d3-b6fa-1670bc04d957" class=""><strong>Patrick</strong> [1:18]: maybe i have you set up the meetings because then you can have all the words to put into the meetings the sound bites all that stuff</p></div><div style="display:contents" dir="auto"><p id="45fb7d41-69ec-4548-95c0-7908ed5c227e" class=""><strong>Patrick</strong> [1:22]: and i&#x27;ll just give you the people that we need to sit down and put together with at least for the first go around</p></div><div style="display:contents" dir="auto"><p id="4b061aec-9ebd-4911-a1fa-533ee06990c3" class=""><strong>Patrick</strong> [1:30]: so i can send you i don&#x27;t know the three meetings</p></div><div style="display:contents" dir="auto"><p id="54912517-daac-4ed7-8a82-2bbead050f6a" class=""><strong>Patrick</strong> [1:36]: i imagine we would want to have and then you can tell me who should be in it</p></div><div style="display:contents" dir="auto"><p id="a76ff0f9-e383-48f8-bda8-42af62bb975f" class=""><strong>Patrick</strong> [1:39]: and i&#x27;ll send out</p></div><div style="display:contents" dir="auto"><p id="72c0fa32-1ac5-40d4-9aef-c2ac6f45a632" class=""><strong>Steve</strong> [1:42]: the meeting</p></div><div style="display:contents" dir="auto"><p id="0f1bd027-76ad-40fa-829d-1a9b4829b8f1" class=""><strong>Patrick</strong> [1:42]: invites or whatever</p></div><div style="display:contents" dir="auto"><p id="e54e075b-5978-4b50-94dc-2a704e8b79ca" class=""><strong>Patrick</strong> [1:44]: yeah could we start with that that works fine</p></div><div style="display:contents" dir="auto"><p id="be95e224-86df-4be3-83bd-0bd22afbfc8c" class=""><strong>Patrick</strong> [1:45]: yeah</p></div><div style="display:contents" dir="auto"><p id="304f7c3c-97dc-449e-9e05-293133c611da" class=""><strong>Patrick</strong> [1:45]: okay</p></div><div style="display:contents" dir="auto"><p id="41c1ef09-bac6-4385-9a5f-0023833f49c5" class=""><strong>Steve</strong> [1:55]: that way i&#x27;m sending it out but it&#x27;s still like you</p></div><div style="display:contents" dir="auto"><p id="da07a2de-7b4f-4ea7-8982-ae7e7b57a140" class=""><strong>Steve</strong> [1:55]: what&#x27;s coming and</p></div><div style="display:contents" dir="auto"><p id="56856faa-a304-41c8-ab28-29800478590d" class=""><strong>Patrick</strong> [2:02]: okay and i can give you a picture of my schedule but i mean i really need to</p></div><div style="display:contents" dir="auto"><p id="5b57089d-8eb2-4649-9831-1e447c588468" class=""><strong>Patrick</strong> [2:06]: these first three meetings are the highest importance i also just forwarded you one for fabric</p></div><div style="display:contents" dir="auto"><p id="2ea04041-d2ac-44f8-ba0a-6f5dac6b3f5f" class=""><strong>Patrick</strong> [2:20]: which is ten am to eleven</p></div><div style="display:contents" dir="auto"><p id="17e7fdb7-5289-4327-87ef-e97e575e1bcf" class=""><strong>Patrick</strong> [2:30]: yes</p></div><div style="display:contents" dir="auto"><p id="3aeace98-593a-4b0a-94bb-52bd60511c5e" class=""><strong>Patrick</strong> [2:32]: so that should be a non issue there</p></div><div style="display:contents" dir="auto"><p id="9985092a-3c65-4fcc-b9f2-134b63b88c32" class=""><strong>Steve</strong> [2:37]: let&#x27;s see</p></div><div style="display:contents" dir="auto"><p id="1b7cba24-334e-44de-9e61-417f1d86e379" class=""><strong>Steve</strong> [2:41]: okay perfect</p></div><div style="display:contents" dir="auto"><p id="56ffd25a-aa26-4820-afd9-bce3987c6206" class=""><strong>Steve</strong> [2:52]: oh they&#x27;re talking about oh this is</p></div><div style="display:contents" dir="auto"><p id="e7441cec-e8fa-43f1-b569-221a1a6ebd2d" class=""><strong>Patrick</strong> [2:52]: cybertrol yeah this is cyber troll so they want to talk about sizing tenant setup</p></div><div style="display:contents" dir="auto"><p id="f8670665-3ebe-45c0-8416-ede2d3ba805f" class=""><strong>Patrick</strong> [2:59]: yeah and that&#x27;s why</p></div><div style="display:contents" dir="auto"><p id="a61eb028-d7ef-4fee-addb-302d7375af4b" class=""><strong>Steve</strong> [2:59]: remember we&#x27;re the customer so we might say no this is what we&#x27;re going to do</p></div><div style="display:contents" dir="auto"><p id="fa600c20-5f50-4ce6-a02a-55c758a08218" class=""><strong>Steve</strong> [3:01]: there&#x27;s good information but</p></div><div style="display:contents" dir="auto"><p id="76e10e6e-d8e2-4a22-b34a-0f34a8d8dfe4" class=""><strong>Patrick</strong> [3:01]: that&#x27;s what we&#x27;re</p></div><div style="display:contents" dir="auto"><p id="dec5b1f4-b436-4f74-afc4-4f60d0b7039b" class=""><strong>Steve</strong> [3:01]: going to do</p></div><div style="display:contents" dir="auto"><p id="6a3961f5-e64e-4535-9b03-81ecb0084335" class=""><strong>Patrick</strong> [3:03]: but we still need to sit down and talk with them about stuff like that</p></div><div style="display:contents" dir="auto"><p id="4dcf24c9-f902-4764-b2e8-a086a4de84d9" class=""><strong>Patrick</strong> [3:06]: okay this is</p></div><div style="display:contents" dir="auto"><p id="53769fa1-7092-4849-95e2-60f0df70141e" class=""><strong>Steve</strong> [3:06]: good</p></div><div style="display:contents" dir="auto"><p id="c58c970c-7a9e-4178-a5db-ba0fd92ba72b" class=""><strong>Steve</strong> [3:10]: so we should definitely have</p></div><div style="display:contents" dir="auto"><p id="c764c86b-9403-4b41-96f9-b5c2bd7edead" class=""><strong>Steve</strong> [3:12]: a meeting before that one</p></div><div style="display:contents" dir="auto"><p id="68bdf212-4ad7-4492-9674-81fd206a8e33" class=""><strong>Steve</strong> [3:14]: definitely where we&#x27;ll talk about the sizing that we think we need</p></div><div style="display:contents" dir="auto"><p id="8b26be39-9af7-4398-88f8-f2a5b18e70b7" class=""><strong>Steve</strong> [3:29]: when we plan to stand up so that in my mind we would go into this meeting and actually say you know what this is actually what we&#x27;re going to stand up instead of giving you a dedicated capacity or tenant we are going to give you a dedicated workspace</p></div><div style="display:contents" dir="auto"><p id="1c491836-3ec1-4d17-93fb-71700816776c" class=""><strong>Steve</strong> [3:40]: this is how the billing is going to be split out so that you guys are able to one have the admin access that you need in order to configure everything this is what we need from you</p></div><div style="display:contents" dir="auto"><p id="9730150c-3636-4d54-aeb7-9403106f651a" class=""><strong>Steve</strong> [3:53]: is there anything missing et cetera in terms of what you guys need in terms of having your own workspace and access that you can&#x27;t</p></div><div style="display:contents" dir="auto"><p id="451d95bf-feb7-4405-8b77-90d3785c7808" class=""><strong>Steve</strong> [3:59]: get in a workspace that you would have gotten with your own fabric</p></div><div style="display:contents" dir="auto"><p id="cfc0cb34-83f9-4bbe-86e5-0bb27fce2f86" class=""><strong>Steve</strong> [4:08]: ity basically what are you missing if there&#x27;s something like legitimate that they&#x27;re not able to do in a workspace</p></div><div style="display:contents" dir="auto"><p id="752d8ee0-183a-4dfc-aabd-5a459a90b1b5" class=""><strong>Steve</strong> [4:18]: compared to capacity i don&#x27;t know what that would possibly be but i find it would be very difficult for them to identify</p></div><div style="display:contents" dir="auto"><p id="e63f56a9-3715-4456-9fec-38b4e85a9ffa" class=""><strong>Steve</strong> [4:30]: something where it would be justifiable to get a dedicated capacity</p></div><div style="display:contents" dir="auto"><p id="7b67a479-ef13-4a61-9c25-dd9c54ed6845" class=""><strong>Patrick</strong> [4:30]: in silo and then make sure we set any guidelines or boundaries that we need to set with that too</p></div><div style="display:contents" dir="auto"><p id="5cd1eab1-9ab8-4f68-bd74-203d8aadb779" class=""><strong>Patrick</strong> [4:37]: we should also might have had it and let me just take a look at that meeting request</p></div><div style="display:contents" dir="auto"><p id="e48ddc0b-ee7e-4820-a2eb-65a0315ee341" class=""><strong>Patrick</strong> [4:41]: might have had it in there maybe i should look at that quick</p></div><div style="display:contents" dir="auto"><p id="3f3447be-042c-4a44-8501-ab9161b836cf" class=""><strong>Steve</strong> [4:49]: data normalization</p></div><div style="display:contents" dir="auto"><p id="1365d459-3977-4360-bc81-dfa447dc7621" class=""><strong>Patrick</strong> [4:51]: okay i got some of that there</p></div><div style="display:contents" dir="auto"><p id="6df9bbaa-d92e-445c-9f9f-195db2c68028" class=""><strong>Patrick</strong> [4:52]: yeah</p></div><div style="display:contents" dir="auto"><p id="0a2d0be3-2c25-4080-9aa1-17cc0f9544e7" class=""><strong>Patrick</strong> [4:55]: yeah i want to make sure that we&#x27;re starting</p></div><div style="display:contents" dir="auto"><p id="493d4668-3e3f-4ca2-8a63-a11d8577a007" class=""><strong>Steve</strong> [4:59]: to talk about also</p></div><div style="display:contents" dir="auto"><p id="9d0245e6-49bb-4731-b9c1-854e0fcc414d" class=""><strong>Patrick</strong> [5:03]: terminologies and stuff like that too</p></div><div style="display:contents" dir="auto"><p id="1e4b3567-3015-4d46-af69-ba534d98035d" class=""><strong>Patrick</strong> [5:11]: if there&#x27;s more that you think we should add to that meeting bring that with too</p></div><div style="display:contents" dir="auto"><p id="1c262d0c-fe91-411c-bd7d-97bfac142ed6" class=""><strong>Patrick</strong> [5:15]: okay</p></div><div style="display:contents" dir="auto"><p id="70398ff1-6c78-4c0d-99f8-64f714b73507" class=""><strong>Patrick</strong> [5:17]: this is good</p></div><div style="display:contents" dir="auto"><p id="7e8ed32f-9d3a-4751-8148-20c10af35a02" class=""><strong>Patrick</strong> [5:43]: and it&#x27;s early enough this week that we have time to put together some solid meetings last thing i want to do is go up there and gather people together and then us get into a meeting and it turn into</p></div><div style="display:contents" dir="auto"><p id="a443c52a-2895-4c16-aa85-2c1a771a099a" class=""><strong>Patrick</strong> [5:43]: i want to come away with the actual i want to go in with actionable i want to come away with actionable</p></div><div style="display:contents" dir="auto"><p id="1c81cca1-9d83-4aff-a622-bd7d3c85caf3" class=""><strong>Patrick</strong> [5:55]: if you can send me those meetings would be about then i will definitely get you the right people and i talked with have you met robin in virginia yet</p></div><div style="display:contents" dir="auto"><p id="b4344465-7996-49be-80c3-6b5d4909b673" class=""><strong>Patrick</strong> [5:56]: i have not</p></div><div style="display:contents" dir="auto"><p id="2cc9e8c5-5aec-427a-ac86-873416ca0fc6" class=""><strong>Patrick</strong> [5:58]: okay</p></div><div style="display:contents" dir="auto"><p id="66ad26b3-9fe5-4c5d-abe2-2ab88d4b397c" class=""><strong>Patrick</strong> [6:05]: she&#x27;s a newer hire too and she reports directly to mike</p></div><div style="display:contents" dir="auto"><p id="f45b0415-81b8-495f-b420-44050af32dca" class=""><strong>Patrick</strong> [6:06]: as well</p></div><div style="display:contents" dir="auto"><p id="688d0b5f-4feb-4a82-aa16-4130a547e6c9" class=""><strong>Steve</strong> [6:10]: and she&#x27;s got some mbm experience</p></div><div style="display:contents" dir="auto"><p id="16bff4f8-5d08-43cd-91fc-8f9dbf3c488e" class=""><strong>Patrick</strong> [6:17]: i met from a management standpoint and might be involved as well so i&#x27;m trying to get the layout of that i&#x27;ve just did a walk by tap talk with her</p></div><div style="display:contents" dir="auto"><p id="20ac0c3c-f477-4267-953e-645598edcb6f" class=""><strong>Steve</strong> [6:26]: and she brought up the mdm so i was kind of surprised but i&#x27;ll i&#x27;ll definitely get some more information on that and then if she&#x27;s to be involved and we&#x27;ll keep her involved too</p></div><div style="display:contents" dir="auto"><p id="b3476da3-b050-433d-b6e9-26e3a8225a51" class=""><strong>Steve</strong> [6:28]: got it</p></div><div style="display:contents" dir="auto"><p id="02bca577-70a5-491d-bd9a-2b74c977568a" class=""><strong>Steve</strong> [6:30]: okay</p></div><div style="display:contents" dir="auto"><p id="9d4b933a-0e21-4aa5-b402-52098b5912d4" class=""><strong>Steve</strong> [6:32]: all right perfect</p></div><div style="display:contents" dir="auto"><p id="10c71eba-81f9-4810-b653-c04160c3c0e0" class=""><strong>Steve</strong> [6:44]: yeah send me those over and then maybe i&#x27;ll do a discussion with you if i need to and then i&#x27;ll get to the people for each of the meetings sounds good</p></div><div style="display:contents" dir="auto"><p id="6039d208-f663-474c-8c88-ad995408e18e" class=""><strong>Steve</strong> [6:46]: all right anything else</p></div><div style="display:contents" dir="auto"><p id="88e08874-b005-4547-ac2d-3662728a4a46" class=""><strong>Steve</strong> [6:49]: no i&#x27;ll do it</p></div><div style="display:contents" dir="auto"><p id="0c3fe549-9565-4cbc-b0e0-4a959fba3645" class=""><strong>Steve</strong> [6:58]: all right thanks sir</p></div><div style="display:contents" dir="auto"><p id="ad16e60b-28f0-42af-a914-72487e0e8d50" class=""><strong>Patrick</strong> [6:58]: thanks hope your wife feels better too brilliant thanks oh oh last thing i put together like i put together like a power bi</p></div><div style="display:contents" dir="auto"><p id="4997e7d2-a2cb-4cda-ba0c-147edbac5310" class=""><strong>Patrick</strong> [7:00]: auditor thing</p></div><div style="display:contents" dir="auto"><p id="9ff2581e-2901-44d0-9b21-42e3acd5a853" class=""><strong>Patrick</strong> [7:10]: just for basically analyzing like the i don&#x27;t know power bi reports to make it kind of just easy in terms of like standardization and whatnot</p></div><div style="display:contents" dir="auto"><p id="0bc07366-d035-478a-a272-7fc11b9322a5" class=""><strong>Patrick</strong> [7:13]: but we can walk through it tomorrow</p></div><div style="display:contents" dir="auto"><p id="62544c5d-fa7e-4638-89c8-92c3a5f26ac3" class=""><strong>Patrick</strong> [7:15]: but i just wanted to</p></div><div style="display:contents" dir="auto"><p id="8f08e6c3-8674-469f-8d98-2cc89a33d5c7" class=""><strong>Patrick</strong> [7:24]: let you know</p></div><div style="display:contents" dir="auto"><p id="a645a6fc-fbca-4c03-a358-434c3b4723e6" class=""><strong>Steve</strong> [7:24]: probably also i mean are you good for camera videos meetings today at all yep</p></div><div style="display:contents" dir="auto"><p id="c150531c-c1d9-450d-88b4-4e21ebcb4105" class=""><strong>Steve</strong> [7:34]: okay i&#x27;m also going to introduce you to matt teleko you saw his resume and i was trying to find a spot for it that might wait until you&#x27;re up here too so it might even be better</p></div><div style="display:contents" dir="auto"><p id="054ccfb5-7f2b-4eda-b620-38d03d167ab3" class=""><strong>Steve</strong> [7:41]: i talked to i i was talking to dominique about him also recently</p></div><div style="display:contents" dir="auto"><p id="e4c33c23-693f-438f-a502-1415b93a0af4" class=""><strong>Steve</strong> [7:44]: yeah sounds like a good</p></div><div style="display:contents" dir="auto"><p id="2941da6b-1cd5-4bc5-a5ff-3c22c251bd26" class=""><strong>Steve</strong> [8:02]: good guy he could be a good i think he&#x27;d be a good fit maybe even to fold into the team later on as as you&#x27;re starting to plan exit down the road so yeah that&#x27;s kind of what i was thinking in terms of like what he&#x27;s able to do i mean even the even that file that you showed me that he put together i was like this is</p></div><div style="display:contents" dir="auto"><p id="deabf225-792f-40e1-bab4-5d6d6b8b3a71" class=""><strong>Steve</strong> [8:10]: a lot more like comprehensive and extensive than i would have guessed from somebody</p></div><div style="display:contents" dir="auto"><p id="1ec21e3e-bb7e-4dc5-8bfb-3dca76cfe26a" class=""><strong>Steve</strong> [8:17]: he would be going</p></div><div style="display:contents" dir="auto"><p id="f715b318-ef74-4769-9110-12f0b255dc1f" class=""><strong>Steve</strong> [8:21]: you know build up ten</p></div><div style="display:contents" dir="auto"><p id="454c7c03-21b1-43fa-91dd-b9338070c865" class=""><strong>Steve</strong> [8:21]: yep agreed</p></div><div style="display:contents" dir="auto"><p id="847baa0a-10f7-491c-8725-8a8e02fbf828" class=""><strong>Steve</strong> [8:30]: last night to meet up with my lt</p></div><div style="display:contents" dir="auto"><p id="db2205ba-c3d2-460b-8472-46e8d470af8d" class=""><strong>Patrick</strong> [8:45]: a</p></div><div style="display:contents" dir="auto"><p id="db16041b-ad00-40c2-9a8b-3c60820190de" class=""><strong>Steve</strong> [8:48]: like whatever</p></div><div style="display:contents" dir="auto"><p id="75fd4524-dd59-40b1-8083-e34a02aeab03" class=""><strong>Steve</strong> [8:56]: i&#x27;m surprised he said yes to be perfectly honest</p></div><div style="display:contents" dir="auto"><p id="bdabe377-bcce-4a11-8614-51ae8a9f3659" class=""><strong>Steve</strong> [9:12]: don&#x27;t get me wrong i&#x27;m glad we had it</p></div><div style="display:contents" dir="auto"><p id="45f451e4-5c0b-41c3-b5ca-023c89879065" class=""><strong>Steve</strong> [9:18]: good with feedback</p></div><div style="display:contents" dir="auto"><p id="211ae312-6131-4490-a3c7-1ae12c8f8ec5" class=""><strong>Steve</strong> [9:20]: i think you got a great investment</p></div><div style="display:contents" dir="auto"><p id="a9e9bd0a-b62c-42a0-8fa9-b34e1f7e2226" class=""><strong>Steve</strong> [9:37]: okay thanks</p></div></div></div><div style="display:contents" dir="auto"><hr id="c3f8498a-a253-4cc5-9137-b8a5f6bc2909"/></div><div style="display:contents" dir="auto"><h2 id="ee6379a2-81aa-4566-a849-08066cb77245" class="">✅ Action Items</h2></div><div style="display:contents" dir="auto"><h3 id="fbf06d61-a022-4e6c-af7d-499be8c5fa2e" class="">Steve (Owner)</h3></div><div style="display:contents" dir="auto"><ul id="c6f8fcdb-b0d8-4586-9724-dd2001b6d133" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked"><code>Next step:</code> Send invites for the three priority meetings (incl. Fabric 10‑11 am)</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="ec6af841-72e2-43bb-84a0-bbea802444c4" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked"><code>Next step:</code> Draft and share meeting outlines/agenda (data normalization, terminology, guidelines, MDM)</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="6eb84b4f-7653-4080-8215-ea8e9ee4cef2" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked"><code>Next step:</code> Confirm participants: Robin, Virginia, plus any additional stakeholders</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="e6835591-d61d-4ddb-a2f8-5cfc5b4c9aa8" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked"><code>Next step:</code> Pull together customer workspace requirements (admin access, billing split, missing capabilities)</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="ac97ded2-8de8-4ebd-b06a-c7d6ec7f99c5" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked"><code>Next step:</code> Follow up with Robin on the MDM details she raised</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="07b347e4-7de4-48c0-9d0f-3dbcbb3ec914" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked"><code>Next step:</code> Introduce Matt Teleko to the team and discuss future fit</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="20fbceca-46c3-4ecd-8583-094d72c099a1" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked"><code>Next step:</code> Verify camera/video setup for today&#x27;s meetings</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="07b4d358-8af1-4b62-8494-11611d596244" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked"><code>Next step:</code> Review the Power BI auditor report with the system tomorrow</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><hr id="01610702-6072-4a55-9446-27a75113c1d6"/></div><div style="display:contents" dir="auto"><h2 id="465126a8-13cb-4465-afba-1f80afeac197" class="">🧾 Evidence Matrix</h2></div><div style="display:contents" dir="ltr"><table id="cbe5647f-589b-4494-86a2-ea4ff2512920" class="simple-table"><thead class="simple-table-header"><div style="display:contents" dir="ltr"><tr id="6795dbfb-8632-4f17-aa6e-d798bd61d0a5"><th id="bMVs" class="simple-table-header-color simple-table-header">Item ID</th><th id="=c?g" class="simple-table-header-color simple-table-header">Type</th><th id="=&lt;?N" class="simple-table-header-color simple-table-header">Speaker</th><th id="&gt;Xq\" class="simple-table-header-color simple-table-header">Timestamp</th><th id="FgNE" class="simple-table-header-color simple-table-header">Evidence snippet</th><th id="E_}L" class="simple-table-header-color simple-table-header">Context</th><th id="mbdn" class="simple-table-header-color simple-table-header">Confidence</th></tr></div></thead><tbody><div style="display:contents" dir="ltr"><tr id="7ef72d0f-54e8-4bd9-9a50-c62fd4aa9230"><td id="bMVs" class="">POS-DEC-1</td><td id="=c?g" class="">Decision</td><td id="=&lt;?N" class="">Steve</td><td id="&gt;Xq\" class="">3:29</td><td id="FgNE" class="">&quot;in my mind we would go into this meeting and actually say you know what this is actually what we&#x27;re going to stand up instead of giving you a dedicated capacity or tenant we are going to give you a dedicated workspace&quot;</td><td id="E_}L" class="">Decision — Workspace over capacity</td><td id="mbdn" class="">High</td></tr></div><div style="display:contents" dir="ltr"><tr id="ca8b5e4c-37a8-4392-983f-152e32fbce07"><td id="bMVs" class="">POS-DEC-2</td><td id="=c?g" class="">Decision</td><td id="=&lt;?N" class="">Patrick</td><td id="&gt;Xq\" class="">1:18</td><td id="FgNE" class="">&quot;maybe i have you set up the meetings because then you can have all the words to put into the meetings the sound bites all that stuff&quot;</td><td id="E_}L" class="">Decision — Steve owns meeting setup</td><td id="mbdn" class="">High</td></tr></div><div style="display:contents" dir="ltr"><tr id="b7d1a608-8f39-4add-aa9b-ec296ada35cf"><td id="bMVs" class="">POS-DEC-3</td><td id="=c?g" class="">Decision</td><td id="=&lt;?N" class="">Patrick</td><td id="&gt;Xq\" class="">2:20</td><td id="FgNE" class="">&quot;i also just forwarded you one for fabric which is ten am to eleven&quot;</td><td id="E_}L" class="">Decision — Fabric meeting time confirmed</td><td id="mbdn" class="">High</td></tr></div><div style="display:contents" dir="ltr"><tr id="77d443b2-d73a-4419-8bdb-9dcac9e28882"><td id="bMVs" class="">POS-FACT-1</td><td id="=c?g" class="">Fact</td><td id="=&lt;?N" class="">Patrick</td><td id="&gt;Xq\" class="">6:05</td><td id="FgNE" class="">&quot;she&#x27;s a newer hire too and she reports directly to mike as well&quot;</td><td id="E_}L" class="">Fact — Robin reports to Mike</td><td id="mbdn" class="">High</td></tr></div><div style="display:contents" dir="ltr"><tr id="d4428b1e-1cfe-49fe-a689-9899678ea841"><td id="bMVs" class="">POS-FACT-2</td><td id="=c?g" class="">Fact</td><td id="=&lt;?N" class="">Steve</td><td id="&gt;Xq\" class="">6:10</td><td id="FgNE" class="">&quot;and she&#x27;s got some mbm experience&quot;</td><td id="E_}L" class="">Fact — Robin has MBM experience</td><td id="mbdn" class="">High</td></tr></div><div style="display:contents" dir="ltr"><tr id="553529cf-377e-409c-84d0-0d3920669c29"><td id="bMVs" class="">POS-FACT-3</td><td id="=c?g" class="">Fact</td><td id="=&lt;?N" class="">Steve</td><td id="&gt;Xq\" class="">6:26</td><td id="FgNE" class="">&quot;and she brought up the mdm so i was kind of surprised but i&#x27;ll definitely get some more information on that&quot;</td><td id="E_}L" class="">Fact — Robin has MDM interest</td><td id="mbdn" class="">High</td></tr></div><div style="display:contents" dir="ltr"><tr id="5d70df54-7cc7-4be1-abbb-eeaa03bea055"><td id="bMVs" class="">POS-FACT-4</td><td id="=c?g" class="">Fact</td><td id="=&lt;?N" class="">Patrick</td><td id="&gt;Xq\" class="">7:10</td><td id="FgNE" class="">&quot;i put together like a power bi auditor thing just for basically analyzing like the i don&#x27;t know power bi reports to make it kind of just easy in terms of like standardization&quot;</td><td id="E_}L" class="">Fact — Power BI auditor dashboard created</td><td id="mbdn" class="">High</td></tr></div><div style="display:contents" dir="ltr"><tr id="d368c22d-27d0-4291-a08f-22db6b9f443d"><td id="bMVs" class="">POS-NS-1</td><td id="=c?g" class="">Next step</td><td id="=&lt;?N" class="">Patrick</td><td id="&gt;Xq\" class="">0:39</td><td id="FgNE" class="">&quot;basically i hope to sit down next week and us be able to walk away from there with okay this is the date that we&#x27;re standing up the capacity this is who&#x27;s going to be given licenses&quot;</td><td id="E_}L" class="">Concrete request — Next week goals</td><td id="mbdn" class="">High</td></tr></div><div style="display:contents" dir="ltr"><tr id="7c424c20-9a90-4ff8-b5cb-e7a309cef92b"><td id="bMVs" class="">POS-NS-2</td><td id="=c?g" class="">Next step</td><td id="=&lt;?N" class="">Patrick</td><td id="&gt;Xq\" class="">7:13</td><td id="FgNE" class="">&quot;but we can walk through it tomorrow&quot;</td><td id="E_}L" class="">Concrete request — Review Power BI auditor</td><td id="mbdn" class="">High</td></tr></div></tbody></table></div></div></article><span class="sans" style="font-size:14px;padding-top:2em"></span></body></html>

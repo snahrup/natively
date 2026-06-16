@@ -1,0 +1,747 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>M3 Salesforce Integration Deep Dive with Data Model, Price Supports and Sync Cadence</title><style>
+/* cspell:disable-file */
+/* webkit printing magic: print all background colors */
+html {
+	-webkit-print-color-adjust: exact;
+}
+* {
+	box-sizing: border-box;
+	-webkit-print-color-adjust: exact;
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+}
+@media only screen {
+	body {
+		margin: 2em auto;
+		max-width: 900px;
+		color: rgb(55, 53, 47);
+	}
+}
+
+body {
+	line-height: 1.5;
+	white-space: pre-wrap;
+}
+
+a,
+a.visited {
+	color: inherit;
+	text-decoration: underline;
+}
+
+.pdf-relative-link-path {
+	font-size: 80%;
+	color: #444;
+}
+
+h1,
+h2,
+h3 {
+	letter-spacing: -0.01em;
+	line-height: 1.2;
+	font-weight: 600;
+	margin-bottom: 0;
+}
+
+/* Override strong tags inside headings to maintain consistent weight */
+h1 strong,
+h2 strong,
+h3 strong {
+	font-weight: 600;
+}
+
+.page-title {
+	font-size: 2.5rem;
+	font-weight: 700;
+	margin-top: 0;
+	margin-bottom: 0.75em;
+}
+
+h1 {
+	font-size: 1.875rem;
+	margin-top: 1.875rem;
+}
+
+h2 {
+	font-size: 1.5rem;
+	margin-top: 1.5rem;
+}
+
+h3 {
+	font-size: 1.25rem;
+	margin-top: 1.25rem;
+}
+
+.source {
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	padding: 1.5em;
+	word-break: break-all;
+}
+
+.callout {
+	border-radius: 10px;
+	padding: 1rem;
+}
+
+figure {
+	margin: 1.25em 0;
+	page-break-inside: avoid;
+}
+
+figcaption {
+	opacity: 0.5;
+	font-size: 85%;
+	margin-top: 0.5em;
+}
+
+mark {
+	background-color: transparent;
+}
+
+.indented {
+	padding-left: 1.5em;
+}
+
+hr {
+	background: transparent;
+	display: block;
+	width: 100%;
+	height: 1px;
+	visibility: visible;
+	border: none;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+img {
+	max-width: 100%;
+}
+
+@media only print {
+	img {
+		max-height: 100vh;
+		object-fit: contain;
+	}
+
+	table.collection-content {
+		width: 100%;
+		table-layout: fixed;
+	}
+
+	table.collection-content th,
+	table.collection-content td {
+		overflow-wrap: anywhere;
+	}
+
+	table.collection-content td > .user,
+	table.collection-content td > time {
+		white-space: pre-wrap;
+	}
+}
+
+@page {
+	margin: 1in;
+}
+
+.collection-content-wrapper {
+	overflow-x: auto;
+}
+
+@media only print {
+	.collection-content-wrapper {
+		overflow-x: visible;
+	}
+}
+
+.collection-content {
+	font-size: 0.875rem;
+}
+
+.collection-content td {
+	white-space: pre-wrap;
+	word-break: break-word;
+}
+
+.column-list {
+	display: flex;
+	gap: 46px;
+}
+
+.column {
+	min-width: 0;
+	overflow: hidden;
+}
+
+.column > *:first-child {
+	margin-top: 0;
+}
+
+.table_of_contents-item {
+	display: block;
+	font-size: 0.875rem;
+	line-height: 1.3;
+	padding: 0.125rem;
+}
+
+.table_of_contents-indent-1 {
+	margin-left: 1.5rem;
+}
+
+.table_of_contents-indent-2 {
+	margin-left: 3rem;
+}
+
+.table_of_contents-indent-3 {
+	margin-left: 4.5rem;
+}
+
+.table_of_contents-link {
+	text-decoration: none;
+	opacity: 0.7;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.18);
+}
+
+table,
+th,
+td {
+	border: 1px solid rgba(55, 53, 47, 0.09);
+	border-collapse: collapse;
+}
+
+table {
+	border-left: none;
+	border-right: none;
+}
+
+th,
+td {
+	font-weight: normal;
+	padding: 0.25em 0.5em;
+	line-height: 1.5;
+	min-height: 1.5em;
+	text-align: left;
+}
+
+th {
+	color: rgba(55, 53, 47, 0.6);
+}
+
+ol,
+ul {
+	margin: 0;
+	margin-block-start: 0.6em;
+	margin-block-end: 0.6em;
+}
+
+li > ol:first-child,
+li > ul:first-child {
+	margin-block-start: 0.6em;
+}
+
+ul > li {
+	list-style: disc;
+}
+
+ul.to-do-list {
+	padding-inline-start: 0;
+}
+
+ul.to-do-list > li {
+	list-style: none;
+}
+
+.to-do-children-checked {
+	text-decoration: line-through;
+	opacity: 0.375;
+}
+
+ul.toggle > li {
+	list-style: none;
+}
+
+ul {
+	padding-inline-start: 1.7em;
+}
+
+ul > li {
+	padding-left: 0.1em;
+}
+
+ol {
+	padding-inline-start: 1.6em;
+}
+
+ol.numbered-list.numbered-list-digits-2 {
+	padding-inline-start: 2em;
+}
+
+ol.numbered-list.numbered-list-digits-3plus {
+	padding-inline-start: 2.4em;
+}
+
+ol > li {
+	padding-left: 0.2em;
+}
+
+.mono ol {
+	padding-inline-start: 2em;
+}
+
+.mono ol > li {
+	text-indent: -0.4em;
+}
+
+.toggle {
+	padding-inline-start: 0em;
+	list-style-type: none;
+}
+
+/* Indent toggle children */
+.toggle > li > details {
+	padding-left: 1.7em;
+}
+
+.toggle > li > details > summary {
+	margin-left: -1.1em;
+}
+
+.selected-value {
+	display: inline-block;
+	padding: 0 0.5em;
+	background: rgba(206, 205, 202, 0.5);
+	border-radius: 3px;
+	margin-right: 0.5em;
+	margin-top: 0.3em;
+	margin-bottom: 0.3em;
+	white-space: nowrap;
+}
+
+.collection-title {
+	display: inline-block;
+	margin-right: 1em;
+}
+
+.page-description {
+	margin-bottom: 2em;
+}
+
+.simple-table {
+	margin-top: 1em;
+	font-size: 0.875rem;
+	empty-cells: show;
+}
+.simple-table td {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table th {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table-header-color {
+	background: rgb(247, 246, 243);
+	color: black;
+}
+.simple-table-header {
+	font-weight: 500;
+}
+
+time {
+	opacity: 0.5;
+}
+
+.icon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	max-width: 1.2em;
+	max-height: 1.2em;
+	text-decoration: none;
+	vertical-align: text-bottom;
+	margin-right: 0.5em;
+}
+
+img.icon {
+	border-radius: 3px;
+}
+
+.callout img.notion-static-icon {
+	width: 1em;
+	height: 1em;
+}
+
+.callout p {
+	margin: 0;
+}
+
+.callout h1,
+.callout h2,
+.callout h3 {
+	margin: 0 0 0.6rem;
+}
+
+.user-icon {
+	width: 1.5em;
+	height: 1.5em;
+	border-radius: 100%;
+	margin-right: 0.5rem;
+}
+
+.user-icon-inner {
+	font-size: 0.8em;
+}
+
+.text-icon {
+	border: 1px solid #000;
+	text-align: center;
+}
+
+.page-cover-image {
+	display: block;
+	object-fit: cover;
+	width: 100%;
+	max-height: 30vh;
+}
+
+.page-header-icon {
+	font-size: 3rem;
+	margin-bottom: 1rem;
+}
+
+.page-header-icon-with-cover {
+	margin-top: -0.72em;
+	margin-left: 0.07em;
+}
+
+.page-header-icon img {
+	border-radius: 3px;
+}
+
+.link-to-page {
+	margin: 1em 0;
+	padding: 0;
+	border: none;
+	font-weight: 500;
+}
+
+p > .user {
+	opacity: 0.5;
+}
+
+td > .user,
+td > time {
+	white-space: nowrap;
+}
+
+input[type="checkbox"] {
+	transform: scale(1.5);
+	margin-right: 0.6em;
+	vertical-align: middle;
+}
+
+p {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+.image {
+	border: none;
+	margin: 1.5em 0;
+	padding: 0;
+	border-radius: 0;
+	text-align: center;
+}
+
+.code,
+code {
+	background: rgba(135, 131, 120, 0.15);
+	border-radius: 3px;
+	padding: 0.2em 0.4em;
+	border-radius: 3px;
+	font-size: 85%;
+	tab-size: 2;
+}
+
+code {
+	color: #eb5757;
+}
+
+.code {
+	padding: 1.5em 1em;
+}
+
+.code-wrap {
+	white-space: pre-wrap;
+	word-break: break-all;
+}
+
+.code > code {
+	background: none;
+	padding: 0;
+	font-size: 100%;
+	color: inherit;
+}
+
+blockquote {
+	font-size: 1em;
+	margin: 1em 0;
+	padding-left: 1em;
+	border-left: 3px solid rgb(55, 53, 47);
+}
+
+blockquote.quote-large {
+	font-size: 1.25em;
+}
+
+.bookmark {
+	text-decoration: none;
+	max-height: 8em;
+	padding: 0;
+	display: flex;
+	width: 100%;
+	align-items: stretch;
+}
+
+.bookmark-title {
+	font-size: 0.85em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	height: 1.75em;
+	white-space: nowrap;
+}
+
+.bookmark-text {
+	display: flex;
+	flex-direction: column;
+}
+
+.bookmark-info {
+	flex: 4 1 180px;
+	padding: 12px 14px 14px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.bookmark-image {
+	width: 33%;
+	flex: 1 1 180px;
+	display: block;
+	position: relative;
+	object-fit: cover;
+	border-radius: 1px;
+}
+
+.bookmark-description {
+	color: rgba(55, 53, 47, 0.6);
+	font-size: 0.75em;
+	overflow: hidden;
+	max-height: 4.5em;
+	word-break: break-word;
+}
+
+.bookmark-href {
+	font-size: 0.75em;
+	margin-top: 0.25em;
+}
+
+.sans { font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol"; }
+.code { font-family: "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace; }
+.serif { font-family: Lyon-Text, Georgia, ui-serif, serif; }
+.mono { font-family: iawriter-mono, Nitti, Menlo, Courier, monospace; }
+.pdf .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK JP'; }
+.pdf:lang(zh-CN) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK SC'; }
+.pdf:lang(zh-TW) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK TC'; }
+.pdf:lang(ko-KR) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK KR'; }
+.pdf .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.pdf .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK JP'; }
+.pdf:lang(zh-CN) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK SC'; }
+.pdf:lang(zh-TW) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK TC'; }
+.pdf:lang(ko-KR) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK KR'; }
+.pdf .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.highlight-default {
+	color: rgba(44, 44, 43, 1);
+}
+.highlight-gray {
+	color: rgba(125, 122, 117, 1);
+	fill: rgba(125, 122, 117, 1);
+}
+.highlight-brown {
+	color: rgba(159, 118, 90, 1);
+	fill: rgba(159, 118, 90, 1);
+}
+.highlight-orange {
+	color: rgba(210, 123, 45, 1);
+	fill: rgba(210, 123, 45, 1);
+}
+.highlight-yellow {
+	color: rgba(203, 148, 52, 1);
+	fill: rgba(203, 148, 52, 1);
+}
+.highlight-teal {
+	color: rgba(80, 148, 110, 1);
+	fill: rgba(80, 148, 110, 1);
+}
+.highlight-blue {
+	color: rgba(56, 125, 201, 1);
+	fill: rgba(56, 125, 201, 1);
+}
+.highlight-purple {
+	color: rgba(154, 107, 180, 1);
+	fill: rgba(154, 107, 180, 1);
+}
+.highlight-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.highlight-red {
+	color: rgba(207, 81, 72, 1);
+	fill: rgba(207, 81, 72, 1);
+}
+.highlight-default_background {
+	color: rgba(44, 44, 43, 1);
+}
+.highlight-gray_background {
+	background: rgba(42, 28, 0, 0.07);
+}
+.highlight-brown_background {
+	background: rgba(139, 46, 0, 0.086);
+}
+.highlight-orange_background {
+	background: rgba(224, 101, 1, 0.129);
+}
+.highlight-yellow_background {
+	background: rgba(211, 168, 0, 0.137);
+}
+.highlight-teal_background {
+	background: rgba(0, 100, 45, 0.09);
+}
+.highlight-blue_background {
+	background: rgba(0, 124, 215, 0.094);
+}
+.highlight-purple_background {
+	background: rgba(102, 0, 178, 0.078);
+}
+.highlight-pink_background {
+	background: rgba(197, 0, 93, 0.086);
+}
+.highlight-red_background {
+	background: rgba(223, 22, 0, 0.094);
+}
+.block-color-default {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray {
+	color: rgba(125, 122, 117, 1);
+	fill: rgba(125, 122, 117, 1);
+}
+.block-color-brown {
+	color: rgba(159, 118, 90, 1);
+	fill: rgba(159, 118, 90, 1);
+}
+.block-color-orange {
+	color: rgba(210, 123, 45, 1);
+	fill: rgba(210, 123, 45, 1);
+}
+.block-color-yellow {
+	color: rgba(203, 148, 52, 1);
+	fill: rgba(203, 148, 52, 1);
+}
+.block-color-teal {
+	color: rgba(80, 148, 110, 1);
+	fill: rgba(80, 148, 110, 1);
+}
+.block-color-blue {
+	color: rgba(56, 125, 201, 1);
+	fill: rgba(56, 125, 201, 1);
+}
+.block-color-purple {
+	color: rgba(154, 107, 180, 1);
+	fill: rgba(154, 107, 180, 1);
+}
+.block-color-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.block-color-red {
+	color: rgba(207, 81, 72, 1);
+	fill: rgba(207, 81, 72, 1);
+}
+.block-color-default_background {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray_background {
+	background: rgba(240, 239, 237, 1);
+}
+.block-color-brown_background {
+	background: rgba(245, 237, 233, 1);
+}
+.block-color-orange_background {
+	background: rgba(251, 235, 222, 1);
+}
+.block-color-yellow_background {
+	background: rgba(249, 243, 220, 1);
+}
+.block-color-teal_background {
+	background: rgba(232, 241, 236, 1);
+}
+.block-color-blue_background {
+	background: rgba(229, 242, 252, 1);
+}
+.block-color-purple_background {
+	background: rgba(243, 235, 249, 1);
+}
+.block-color-pink_background {
+	background: rgba(250, 233, 241, 1);
+}
+.block-color-red_background {
+	background: rgba(252, 233, 231, 1);
+}
+.select-value-color-default { background-color: rgba(42, 28, 0, 0.07); }
+.select-value-color-gray { background-color: rgba(28, 19, 1, 0.11); }
+.select-value-color-brown { background-color: rgba(127, 51, 0, 0.156); }
+.select-value-color-orange { background-color: rgba(196, 88, 0, 0.203); }
+.select-value-color-yellow { background-color: rgba(209, 156, 0, 0.282); }
+.select-value-color-green { background-color: rgba(0, 96, 38, 0.156); }
+.select-value-color-blue { background-color: rgba(0, 118, 217, 0.203); }
+.select-value-color-purple { background-color: rgba(92, 0, 163, 0.141); }
+.select-value-color-pink { background-color: rgba(183, 0, 78, 0.152); }
+.select-value-color-red { background-color: rgba(206, 24, 0, 0.164); }
+
+.checkbox {
+	display: inline-flex;
+	vertical-align: text-bottom;
+	width: 16;
+	height: 16;
+	background-size: 16px;
+	margin-left: 2px;
+	margin-right: 5px;
+}
+
+.checkbox-on {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20width%3D%2216%22%20height%3D%2216%22%20fill%3D%22%2358A9D7%22%2F%3E%0A%3Cpath%20d%3D%22M6.71429%2012.2852L14%204.9995L12.7143%203.71436L6.71429%209.71378L3.28571%206.2831L2%207.57092L6.71429%2012.2852Z%22%20fill%3D%22white%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+
+.checkbox-off {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20x%3D%220.75%22%20y%3D%220.75%22%20width%3D%2214.5%22%20height%3D%2214.5%22%20fill%3D%22white%22%20stroke%3D%22%2336352F%22%20stroke-width%3D%221.5%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+	
+</style></head><body><article id="2c656320-92ca-80cc-bdcb-e535dca21ffb" class="page sans"><header><h1 class="page-title" dir="auto">M3 Salesforce Integration Deep Dive with Data Model, Price Supports and Sync Cadence</h1><p class="page-description" dir="auto"></p><table class="properties"><tbody><tr class="property-row property-row-status"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/burst_gray.svg" style="width:14px;height:14px;display:block"/></span>Processing</th><td><span class="status-value select-value-color-green"><div class="status-dot status-dot-color-green"></div>Processed</span></td></tr><tr class="property-row property-row-text"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/description_gray.svg" style="width:14px;height:14px;display:block"/></span>Agenda</th><td>M3 database structure overview, Metadata Publisher demo, Salesforce integration (dbAMP), M3-Salesforce sync cadence, price supports process, data source mapping</td></tr><tr class="property-row property-row-date"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/calendar_gray.svg" style="width:14px;height:14px;display:block"/></span>Date</th><td><time>December 11, 2025</time></td></tr><tr class="property-row property-row-multi_select"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/list_gray.svg" style="width:14px;height:14px;display:block"/></span>Attendees</th><td><span class="selected-value select-value-color-pink">Internal</span></td></tr><tr class="property-row property-row-select"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/arrow-circle-down_gray.svg" style="width:14px;height:14px;display:block"/></span>Meeting Type</th><td><span class="selected-value select-value-color-orange">Team Meeting</span></td></tr><tr class="property-row property-row-person"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/friends_gray.svg" style="width:14px;height:14px;display:block"/></span>Organizer</th><td><span class="user"><img src="https://lh3.googleusercontent.com/a/ACg8ocLHfVvdl28jS936w7CBB6TObsUa1P-X8cbdsUSKdeEn_MD7Bw=s96-c" class="icon user-icon"/>Steve </span></td></tr><tr class="property-row property-row-select"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/arrow-circle-down_gray.svg" style="width:14px;height:14px;display:block"/></span>Priority</th><td><span class="selected-value select-value-color-red">High</span></td></tr><tr class="property-row property-row-checkbox"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/checkmark-square_gray.svg" style="width:14px;height:14px;display:block"/></span>Has Cluely Transcript</th><td><div class="checkbox checkbox-on"></div></td></tr><tr class="property-row property-row-checkbox"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/checkmark-square_gray.svg" style="width:14px;height:14px;display:block"/></span>Has Final Transcript</th><td><div class="checkbox checkbox-on"></div></td></tr><tr class="property-row property-row-select"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/arrow-circle-down_gray.svg" style="width:14px;height:14px;display:block"/></span>Status</th><td><span class="selected-value select-value-color-brown">Completed</span></td></tr><tr class="property-row property-row-checkbox"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/checkmark-square_gray.svg" style="width:14px;height:14px;display:block"/></span>Has Notion Transcript</th><td><div class="checkbox checkbox-on"></div></td></tr><tr class="property-row property-row-checkbox"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/checkmark-square_gray.svg" style="width:14px;height:14px;display:block"/></span>Has Teams Transcript</th><td><div class="checkbox checkbox-off"></div></td></tr><tr class="property-row property-row-number"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/hashtag_gray.svg" style="width:14px;height:14px;display:block"/></span>Mtg #</th><td>11</td></tr><tr class="property-row property-row-checkbox"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/checkmark-square_gray.svg" style="width:14px;height:14px;display:block"/></span>Merged to Feed</th><td><div class="checkbox checkbox-off"></div></td></tr></tbody></table></header><div class="page-body"><div style="display:contents" dir="ltr"><div id="2c656320-92ca-8073-9553-e782bf478c8f" class="transcription"><div style="border-bottom:0.05em solid;border-bottom-color:rgba(42, 28, 0, 0.07)">Summary<br/></div><div style="display:contents" dir="auto"><h3 id="2c656320-92ca-81a5-a199-fc827dc6f2f1" class="">Introduction and Roles</h3></div><div style="display:contents" dir="auto"><ul id="2c656320-92ca-81ce-80a8-ffc05046eb63" class="bulleted-list"><li style="list-style-type:disc">Matt Francis was introduced as a developer who has worked on data migration and mass updates, now more aligned with data engineering ‣ ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2c656320-92ca-8113-b9bd-f81674b5af22" class="bulleted-list"><li style="list-style-type:disc">Matt is expected to be more involved in the Master Data Management (MDM) process in the future ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2c656320-92ca-81eb-ad5d-f7f32b00615c" class="bulleted-list"><li style="list-style-type:disc">The company currently lacks a Salesforce administrator as the previous person left and they are looking for a replacement ‣ ‣</li></ul></div><div style="display:contents" dir="auto"><h3 id="2c656320-92ca-81bd-9be5-d1ac77c3714d" class="">M3 System Overview</h3></div><div style="display:contents" dir="auto"><ul id="2c656320-92ca-81b7-97c9-fd8d5c9cd836" class="bulleted-list"><li style="list-style-type:disc">M3 is the company&#x27;s ERP system with a normalized database structure ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2c656320-92ca-81ed-ad86-ff9385f54386" class="bulleted-list"><li style="list-style-type:disc">The system organizes data by company, division, and warehouse:<div style="display:contents" dir="auto"><ul id="2c656320-92ca-81ce-b59d-e3c7a6b0026e" class="bulleted-list"><li style="list-style-type:circle">Company 700 is the current company ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2c656320-92ca-81f7-965a-d019d1ddaa05" class="bulleted-list"><li style="list-style-type:circle">Division 300 is for molding products, Division 400 is North American products ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2c656320-92ca-8119-b6ba-c9deb7d5e4a7" class="bulleted-list"><li style="list-style-type:circle">Interplastic is in Division 100 and 200 ‣ ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2c656320-92ca-8172-8b82-c8f0038208a9" class="bulleted-list"><li style="list-style-type:circle">Corporate is Division 001 ‣</li></ul></div></li></ul></div><div style="display:contents" dir="auto"><h3 id="2c656320-92ca-8167-991d-ec385f95ff79" class="">Metadata Publisher Tool</h3></div><div style="display:contents" dir="auto"><ul id="2c656320-92ca-8169-ae9a-db1e28c49d82" class="bulleted-list"><li style="list-style-type:disc">The team demonstrated the Metadata Publisher tool which helps understand M3&#x27;s database structure ‣ ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2c656320-92ca-8152-ae19-c3e5b3f4592d" class="bulleted-list"><li style="list-style-type:disc">The tool is available in both cloud and on-premises versions with slight differences ‣ ‣ ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2c656320-92ca-81fa-b74e-c111ed29c876" class="bulleted-list"><li style="list-style-type:disc">Access to the tool is through Azure ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2c656320-92ca-81fb-9fff-e831f0d48ac2" class="bulleted-list"><li style="list-style-type:disc">Steve needs to get access to these systems, which will be arranged through Lori ‣ ‣</li></ul></div><div style="display:contents" dir="auto"><h3 id="2c656320-92ca-81da-9387-e5b1f3ccc045" class="">Data Structure in M3</h3></div><div style="display:contents" dir="auto"><ul id="2c656320-92ca-8128-b06c-dad0ea7fd0a4" class="bulleted-list"><li style="list-style-type:disc">The system uses 6-character table names that are difficult to understand without tools like Metadata Publisher ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2c656320-92ca-8127-9b72-c6cab69e598c" class="bulleted-list"><li style="list-style-type:disc">Data in M3 is typically joined using compound keys:<div style="display:contents" dir="auto"><ul id="2c656320-92ca-8109-99eb-dddde29c872a" class="bulleted-list"><li style="list-style-type:circle">Supplier data uses company number (KONO) and supplier number (SUNO) ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2c656320-92ca-81bb-86ee-e024272aee0c" class="bulleted-list"><li style="list-style-type:circle">Additional scoping is provided by division (DIVI) and warehouse location (WHLO) ‣</li></ul></div></li></ul></div><div style="display:contents" dir="auto"><ul id="2c656320-92ca-81b3-bde2-db1ccb262ec5" class="bulleted-list"><li style="list-style-type:disc">The team demonstrated how to look up customer data using tables like OCUSMA ‣ ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2c656320-92ca-8184-bf3c-f6b6224e5257" class="bulleted-list"><li style="list-style-type:disc">MVX is the primary data schema ‣</li></ul></div><div style="display:contents" dir="auto"><h3 id="2c656320-92ca-8106-b8e5-f03b554b5e96" class="">Salesforce Integration</h3></div><div style="display:contents" dir="auto"><ul id="2c656320-92ca-81d6-a43a-eae639f2c30e" class="bulleted-list"><li style="list-style-type:disc">There&#x27;s synchronization between M3 and Salesforce, primarily for customer data ‣ ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2c656320-92ca-81fe-9dcf-f88c1b083b98" class="bulleted-list"><li style="list-style-type:disc">The team uses dbAMP (referred to as DBAM) to connect to Salesforce via SQL ‣ ‣ ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2c656320-92ca-81dd-ba72-ff5d2148ffb5" class="bulleted-list"><li style="list-style-type:disc">dbAMP was described as a good solution that puts integration &quot;on your turf rather than theirs&quot; ‣ ‣</li></ul></div><div style="display:contents" dir="auto"><h3 id="2c656320-92ca-8197-b078-f604920f9592" class="">Price Support Process</h3></div><div style="display:contents" dir="auto"><ul id="2c656320-92ca-81b1-8495-f9a76d58dd1e" class="bulleted-list"><li style="list-style-type:disc">The system handles price supports where the company may offer discounts to distributors ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2c656320-92ca-8199-b301-c790a424807e" class="bulleted-list"><li style="list-style-type:disc">Price support tracking is managed separately from M3 ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2c656320-92ca-8175-8534-e599457caffe" class="bulleted-list"><li style="list-style-type:disc">The process involves:<div style="display:contents" dir="auto"><ul id="2c656320-92ca-8147-8747-f17857d45f14" class="bulleted-list"><li style="list-style-type:circle">Distributors submit price reports ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2c656320-92ca-81a1-bb58-f5c76006ae8b" class="bulleted-list"><li style="list-style-type:circle">VSTOs (Visual Studio Tools for Office) were built to handle distributors&#x27; price reports ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2c656320-92ca-81f5-acb5-e64817752bd3" class="bulleted-list"><li style="list-style-type:circle">At month end, distributors send items they were promised price supports on ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2c656320-92ca-815a-bf5f-e5988833180f" class="bulleted-list"><li style="list-style-type:circle">After credit approval, an email is sent with the information ‣ ‣</li></ul></div></li></ul></div><div style="display:contents" dir="auto"><ul id="2c656320-92ca-81e9-9db5-e4ae77b8b444" class="bulleted-list"><li style="list-style-type:disc">Sarah Wahlberg (business analyst and former customer service rep) might provide more information about this process ‣</li></ul></div><div style="display:contents" dir="auto"><h3 id="2c656320-92ca-81f6-ba95-e8dd4f0c4ab3" class="">Other Systems Mentioned</h3></div><div style="display:contents" dir="auto"><ul id="2c656320-92ca-817f-853c-fe1eff948d32" class="bulleted-list"><li style="list-style-type:disc">ETQ system was chosen over a Salesforce-based alternative, which IT may regret ‣ ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2c656320-92ca-8145-b46f-fd66db2289f5" class="bulleted-list"><li style="list-style-type:disc">Matt handles synchronization of data from ERP to ETQ ‣</li></ul></div><div style="display:contents" dir="auto"><h3 id="2c656320-92ca-81d7-8020-d29a257c54d4" class="">Action Items</h3></div><div style="display:contents" dir="auto"><ul id="2c656320-92ca-8133-862a-d91a44c527fc" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Lori to set up system access for Steve to view M3 resources in Azure ‣ ‣</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="2c656320-92ca-81b0-8ac0-ea360fff57f7" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Steve to follow up with Sarah Wahlberg about price support process details ‣ ‣</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="2c656320-92ca-8140-9ac2-fe0bef2572ed" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Team to continue discussions about data owners and stakeholders in future meetings ‣ ‣</span><div class="indented"></div></li></ul></div><div style="border-bottom:0.05em solid;border-bottom-color:rgba(42, 28, 0, 0.07)">Notes<br/></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-8061-abb1-cfeea762a4ac" class="">
+</p></div><div style="border-bottom:0.05em solid;border-bottom-color:rgba(42, 28, 0, 0.07)">Transcript<br/></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-80c6-818e-d8cca30a2624" class="">Hello?</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-80ca-8405-dd6cf0666a10" class="">Sorry about that. No, it&#x27;s alright. Last night&#x27;s call in front of the computer alarm was turned off.</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-8043-a582-c60ad0d3069c" class="">Matt, I know you&#x27;re a big fan of turning your camera on and off, but I have a point if you wouldn&#x27;t mind. A little bit better shirt before that 11.30 call. I didn&#x27;t have it on. Well, it was my fault for, you know, last night calling you, too. So, I mean, I was playing catch-up from, you know, the trip a little bit and stuff like that, so...</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-8051-928c-cbb1b37f6feb" class="">I wanted to give you a little bit more introduction to Matt Francis. Matt started as a developer.</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-800c-874f-cd4302cb4576" class="">data migration, and mass updates to the system, and has been more aligned in-house with the data engineer. And I foresee him in the long term kind of being more involved in some of this MDM process. I don&#x27;t know that it will take the full hour, but I wanted to give a chance to one, have you get a chit-chat or whatever, but also have you show a little bit of some of the data sources maybe, although you might have done some of those with PDFs already.</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-8003-873e-f981c54fe657" class="">Matt can speak a little bit more to, say, 0.4 or 0.3 GPU. And even show, I mentioned yesterday, Matt, you, the metadata publisher, as well as I, on a level of discretion, that we had the other day too, and that&#x27;s wonderful. For the middleware software, I know that while Matt and Julian can have an eye on it, I&#x27;m not going to save it. I&#x27;d love the idea of replacing it, but we&#x27;re not replacing it.</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-808b-a21c-fa5ccbd538eb" class="">What&#x27;s the one you use for trying to track down the error of the method that&#x27;s using the system? MAC. MAC is the one that you&#x27;re not using. Yeah, that would be meh. The logs aren&#x27;t turning down. You can&#x27;t look at logs. You can&#x27;t look at them at all, no?</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-8015-8db8-f96815793a63" class="">Okay, I&#x27;ll talk to Laura and see if I can get her to indicate what she has been reading. Okay. Do you want to help dad before you want to pick? Or do you want to help your brother before you want to pick up? Right now, just kind of going off of what you guys say and hearing how you guys talk about things. And then I&#x27;ll jump in and ask a little more probing questions.</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-809c-86a9-cef7a41e8ae5" class="">Matt, can you show MetaData Publisher and how you would use it a little bit, and talk a little bit about it and where it&#x27;s at in M3? Steve, you and I talked a little bit about how the M3 got older. Everything is six characters. It&#x27;s hard to understand it unless you have something like this in front of you. And we can get you logged into this too.</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-80bb-a2b6-f926b087c00a" class="">Yeah, I was... so I was asking... Sorry, how do you pronounce her name again? Yudius. Yudius, okay. So I was... I was asking her, I was like, well, have you guys... I was just throwing out possible ideas in terms of aliases or creating a simple mapping.</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-803d-9b02-c4c44edd86ad" class="">like table that you would just join to right at the beginning and then you&#x27;d be able to reference those alias tables by name in the query so you&#x27;re not like Constantly copying and pasting. Yeah, I mean it&#x27;s by no means a high priority. I was just curious.</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-80da-9c0f-da28d7764462" class="">Okay.</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-80e9-ac09-e2208368d690" class="">I&#x27;m just trying to look up Google programs.</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-8058-b3f3-e601327c9ae9" class="">I&#x27;m going to switch quickly to a headphone. If you guys have issues with me, like hearing me or whatever, just let me know. Sorry, my daughter still can&#x27;t take her back for 36 hours apparently. Uh, yeah. So that was... Go ahead, I&#x27;m listening.</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-8003-a57a-c15b0228ce10" class="">Oh, this is perfect. This is what I was envisioning.</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-80a6-bb6b-e10f4ca31cea" class="">Okay, great.</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-8001-9e06-d8306688c1ad" class="">Yep.</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-8084-8f49-edce6e70f115" class="">
+</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-80ca-b262-f8a0fdb36cc7" class="">Yep, sorry, she pinched her finger and I don&#x27;t, didn&#x27;t think you guys wanted to hear her cry. That&#x27;s okay. Um, so I also sent a link to the chat here too. This is for the metadata publisher. This is for the on-prem room. Man, is there a whole lot of difference between the two of them other than... I usually use the...</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-8046-97af-e4b341bd57cd" class="">The cloud version, because it&#x27;s a little easier to use. They&#x27;re mostly the same, but there are some differences between cloud and...</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-80a3-8287-d406245c525c" class="">So you&#x27;ve got to be aware that there may be differences.</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-8003-8154-d98a6ce59d73" class="">Anything that comes to mind that people need to be concerned about? I don&#x27;t think there are. Where is it? It&#x27;s about to start up.</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-8068-ab0c-f3c580321801" class="">I know there are some that exist, I just can&#x27;t think of which ones there are.</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-8087-99ce-c5f7e484d10f" class="">Any questions or stuff you might want to ask here, Steve, or specifically along with metadata publisher?</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-80bd-9a36-fb9e28584056" class="">It&#x27;s a really, really difficult password for this one. I don&#x27;t know. I&#x27;m sorry?</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-8051-afa6-fb5445bdfc5b" class="">That&#x27;s another thing. The cloud one could use more input.</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-80d4-a2bd-e4d6a57448c0" class="">It&#x27;s actually not there.</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-8034-b9d5-d6d5afa04126" class="">I&#x27;m going to wait and pause there and let you get caught up, Steve.</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-8035-bed2-d7e9361bc9e0" class="">Alright, there we go. Back on the VPN.</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-809e-b265-faa552715124" class="">Just like I sent you, which you don&#x27;t need to keep in for at all. Oh, okay. And then you pick Azure, and you can get through it here. Azure. Got it.</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-800f-905f-d98f05b4bf0b" class="">Oh, okay. In that case, awesome. Okay. Let me just save that. I need to go that route.</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-80c5-82d4-d7376e234c29" class="">If you want to share your screen, we can walk you through it if you&#x27;d rather.</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-80e5-9da8-dc17a07e9b13" class="">I mean, whatever you think it&#x27;s. Whatever works for you. All right. I&#x27;m I&#x27;m in Azure now. I&#x27;m in there. Let&#x27;s see. We can do that.</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-8032-b670-f59da8101431" class="">This will also give you some of the other pieces like Event Hub, Analytics, Data Lake, which we may have talked about some of that with UDS, I don&#x27;t know.</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-805d-92f6-c275d34fd2f2" class="">We honestly didn&#x27;t really get past talking about the SQL server.</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-8039-9d72-fded58190f69" class="">Okay so I&#x27;m on the it says like favorites and recents but everything&#x27;s empty</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-80be-8808-c8f1a2fed6c2" class="">I want you to share your screen so I can see it. I&#x27;m kind of blind without it.</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-8089-b407-e60713aa1404" class="">In the upper left-hand corner, there is a waffle. And, uh, I might be thinking it wrong.</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-8067-bbb7-c327c8688c22" class="">Do you have, can you go in for M3 down there under applications? Towards the bottom? I think that&#x27;s what I&#x27;m in right now. I think it&#x27;s just like... Yeah, okay. Okay.</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-8049-a973-cd722259798a" class="">We&#x27;ll have to get you those accesses then. Alright, I will work to get that set up with Lori so that you can get in and see stuff. At least in test, and then eventually in production. All right, so these are all the...</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-80ff-9095-f3ced15993d5" class="">I didn&#x27;t know if I, like, went in and if I, like, was supposed to, like, submit requests for authorization or something.</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-80cf-93e3-f6763f758daf" class="">Okay.</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-802f-a1f1-e943427ea8c8" class="">So I mean it&#x27;s good that I at least I&#x27;m able to access them or at least I know where to go now for that.</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-805b-8e98-cd784c211091" class="">Correct, but it&#x27;s pronounced like the hair removal thing like nair nair up</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-80e9-af6c-fea05d04d6d3" class="">If you replace the H with an I, that&#x27;s how it&#x27;s pronounced.</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-80a4-9303-fb9b7f1408f7" class="">Yeah, I don&#x27;t think this gets much sent over to Lori. That&#x27;s my fault. I&#x27;m sending that over right now so she can get those pieces set up.</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-80d0-a104-c33db1f6eca8" class="">So, at some point we&#x27;ll have that as well. So, Matt, do you want to go back to sharing and walk through how you would use it a little bit more? Maybe questions that you would use it for, like looking up which screens, maybe show a screen or two in M3.</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-8077-9b7c-e98a5847f1ab" class="">So this is how it&#x27;s referenced internally. If I were to ask you a question about this, I would just say, M3 Cloud Test, and you would know exactly what I&#x27;m talking about.</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-8002-ab96-e58fd71c6e03" class="">So let&#x27;s go into say, let&#x27;s look up customer data. Sierra 610 or 620?</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-8008-ac3b-eaaaec5c6736" class="">So, here&#x27;s how it would look in M3. And I don&#x27;t know how valuable for you, Steve, to see what it looks like in the application. So let&#x27;s say someone&#x27;s trying to look up some customer information or need to update the address or something like that. At which point, and I&#x27;m following here, I&#x27;m going to admit it.</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-8096-a4cd-cfc0dafd01de" class="">So, Mac, can you open up a customer?</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-804e-a1a2-c5ab846c1949" class="">You can see all the information about them. So what you can also do, and this is where I&#x27;m going to need your little bit of knowledge, Frances, is if you wanted to look up Customer Analysis, hey, which tables are that? What would you do here?</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-8077-be0a-ca6d957bbbcc" class="">It does the 90% of what it does, 95% of what it does. Please see review n°108.0153 on PissedConsumer.com</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-80da-9761-ce54bd5a5857" class="">Okuzma. O-C-U-S-M-A. Now you can take that back to your metadata publisher.</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-8013-a7dd-f12d3a6768b2" class="">And now you can start to gather from there what&#x27;s in that table as well.</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-803d-951a-e3da030148fa" class="">MVX is the primary data. That&#x27;s a schema. There&#x27;s other ones that have an MVARCH sometimes.</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-8065-b8f2-ce24c7ddad25" class="">So, kind of what I&#x27;m looking at is that if you were thinking about data domains, if you wanted to go get information about customers, you&#x27;d go after the Acoustic Note, or if you wanted to get information about...</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-8036-b1fa-ec86f0897a33" class="">This is, I mean, this is obviously a much more, this is more of a normalized database in the sense of, like, traditional. Most of the databases we deal with are normalized. I can think of a handful that may not be, and that&#x27;s STC and IA. And I don&#x27;t want to legal deal with those up front. Thank you very much. Go ahead, Matt. Thank you.</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-80f8-bf8b-d58b3732ab97" class="">Do you want to give an example?</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-8058-b99b-de52a674ae3d" class="">Are those like like those three supplier tables that you&#x27;re just looking at like Are those related by just like supplier ID like something as simple as that</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-80dd-88df-e45e571b00b1" class="">And company number. This system is capable of doing multiple companies. So one thing you&#x27;ll note is company 700 is the company that we&#x27;re in. And then there&#x27;s...</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-80a3-80ec-f77af2a60b13" class="">Our house is it as well.</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-80fd-82f0-fe7939e01c01" class="">For current divisions, that&#x27;s what I&#x27;m thinking of.</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-8055-aa9c-dbf95b145d5e" class="">Got it. So the supplier master key is Kono plus Suno for warehouse specific attributes. Does M3 store like those in the W H L O</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-800f-8353-caad7dbb16c0" class="">Yes, we do have warehouse locations and facilities, but the other piece that&#x27;s going to be important is division. So, molding products will be in Division 300. North American products is Division 400.</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-802f-8837-c53075deb64c" class="">Can you help me on Interplastic, where they are when on-prem today? Interplastic is in 100 and 200.</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-803a-aaf9-f8363c4beafc" class="">So, HK is 200? Yes. Interpol X is 100? Corporate is 001? Yes.</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-80db-9242-dfd548788488" class="">So, in this model, the natural key is Kono plus Suno with Divi and, I don&#x27;t know, WHLO providing division and warehouse scope. We&#x27;ll join on Kono and Suno and apply... What? Real-Level Security by Kono and Divi? Am I understanding this correctly?</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-8068-91cf-c1f8341bab4c" class="">To figure out.</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-801d-a532-f5bb7e13ad86" class="">So just making sure you&#x27;re joining it at the proper level of granularity is that pretty much that?</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-8099-bc06-c340b078964e" class="">I was sorry just blindly so like for finance you like stitch the header line the header line be a document number and line sequence plus the accounting string and posting date that&#x27;s what I&#x27;ve done historically to prevent duplicates but</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-80db-963b-f8ff08b3c407" class="">Because finance gets murky just because it&#x27;s split across like header, line, distribution, and ledger tables, right? With posting rules driving links.</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-8037-98c1-fe123ab54090" class="">It seems like it seems like the join paths are based on vary by scenario as opposed to like a defined Okay so it&#x27;s just determining what that you know what that I mean metadata publishers like join index and foreign keys tabs and key order to join at the right grain and then always constrained by like Kono and Divi, but obviously there are probably different like edge cases and stuff like that, but this is making sense in a really weird convoluted way, but it is.</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-80bd-83fb-f14ff19bf388" class="">If anything I&#x27;m saying is like completely off-base or doesn&#x27;t track, please</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-805c-bd0e-d02f398bb9f4" class="">I mean something so simple would make it so much easier, but yeah</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-8034-87eb-d0dfa532ec1e" class="">Looking forward to that. I&#x27;m just saying looking forward to that.</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-804f-ba7a-c9009a519164" class="">Let&#x27;s switch gears a little bit, and this is one that you probably are going to be a little more familiar with. Let&#x27;s talk about Salesforce for a moment. Matt, can you explain how you keep Salesforce and M3 in sync, what tools you&#x27;re using, and also some of the security on the sales reps and stuff like that. And I know right now, Steve, I&#x27;ll mention too, is we typically have an M3.</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-805f-a6e4-ea800bb94e10" class="">I&#x27;m sorry, I&#x27;m a Salesforce administrator, but they&#x27;ve recently left and we are looking to find a replacement.</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-808f-934c-cc0942d9abb6" class="">So we&#x27;re without that rule right now. So Francis kind of has a pretty good understanding of salesforce, but he&#x27;s not gonna answer all the questions.</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-8022-acf6-ca3b574a506a" class="">And I&#x27;m guessing you&#x27;ve had a number of run-ins with Salesforce already as it is. Not enemy, but the one that I just have... Yeah, I mean it&#x27;s great and I think their... I think their company in general is good. It&#x27;s just their technology is really frustrating. It&#x27;s like, it&#x27;s not the best out there. It&#x27;s just, they&#x27;re so big. And I think of them like this...</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-80dd-9e2a-ec8004926b57" class="">I don&#x27;t know. It&#x27;s like this octopus that like once they get their cups on you and you start integrating some of your data, it&#x27;s just like the more and more they can like take over and basically hold you hostage to even try and break away later. It just gets harder and harder to...</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-80c5-8b14-f8cb625c56b5" class="">Are you familiar with DVM by any chance?</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-804b-83a4-f213b746cb5b" class="">I&#x27;m sorry, DB. Delta, Bravo, Alpha, Mike, Pop.</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-80e6-93fa-dc40beae88ca" class="">That&#x27;s an application.</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-8000-9379-e21f323d219b" class="">It&#x27;s basically just a tool to connect to Salesforce via SQL, right?</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-80cf-89cc-d6994536ab0e" class="">I&#x27;ll let you take it from there and explain a little better. Still not my ideal solution, but yeah, okay. I get what you&#x27;re... I&#x27;ve heard of Airfloat, I&#x27;ve heard of MuleSoft, and DBM was the one we came across before I...</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-80f3-9e9b-f2420bdb2536" class="">so it&#x27;s your so it&#x27;s on your turf rather than theirs</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-8033-a41a-e65a43021ffe" class="">I&#x27;m immediately regretting not selecting this the last time I was dealing with it because I was banging my head against my desk working with the... I can&#x27;t speak for Matt, but I think they did a really good job of writing DBMs. Yeah, it is...</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-80e3-8673-e6945b49a200" class="">I was like manually maintaining like mapping tables like from the source to the target and it&#x27;s like oh yeah okay so this makes a lot of sense</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-80f7-a47b-d2b0d55a54f4" class="">I thought you were gonna say they got acquired by Salesforce and like that tracks</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-80f9-9019-eea35d629863" class="">saying DBM is no longer supported.</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-80cf-8b5c-f47dd1c32894" class="">The whole text space in general has just become an incestuous monolith at this point. On the other side of the coin, and this is another one we&#x27;ll talk about in a bit, Matt also does the synchronization of the data from the ERP to ETQ. And ETQ does not use something like dbAmp. And we at one point looked at an alternative vendor to ETQ that used Salesforce at the back end.</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-80ae-9687-c2adfaadd1b0" class="">And sometimes I think from an IT standpoint, I think we are kind of regretting that they chose to use ETQ.</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-8078-afdd-d7ca9ad81232" class="">Not a whole lot, I mean...</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-8051-9c67-c0dcb5fc99fe" class="">Long story short, Matt takes the orders. And Matt, actually, why don&#x27;t you just walk through what all items you synchronize up to Salesforce? Just at least high level.</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-8094-b64c-ca13857a95a6" class="">Mostly it&#x27;s the customers.</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-8053-8798-dd1431400c93" class="">I just noticed that I was I was kind of hoping somebody else clicked it and I just didn&#x27;t notice it but it&#x27;s okay Alright, go ahead.</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-8013-8d2e-d31bc5ffc57e" class="">I talked a little bit about price supports, the idea being is that, you know, Plastic might shave a little off of their sale to NAC to give NAC the win, essentially, or even I think they do price supports for other vendors, distributors too, don&#x27;t they Matt?</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-80da-9062-fe792dfec0c6" class="">
+</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-80ac-ac4e-c20788c3666d" class="">The idea being that the distributor will come to us, whether it&#x27;s our distributor or other distributors, they&#x27;ll come to us and say, hey, you know what, this company... So the Salesforce handled the approval and tracking of those price reports or is that logic still managed entirely by M3?</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-8067-a814-e6e6429d939a" class="">It&#x27;s pretty much separate. OK. Another reason Salesforce is here.</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-8056-938e-f0ec996d24d7" class="">Got it.</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-8019-8e6b-e079120e1eca" class="">So when a rep submits a price report in Salesforce, what moves it into the separate table? Which system is the system of record and what keys basically? link it to the customer product company division.</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-80db-a698-e22936a65780" class="">Sorry, I&#x27;m disregarding my typing. I&#x27;m just jotting some...</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-8092-8d8d-c28a122c713a" class="">So that table is the operational source of truth for price reports. Is that queried in like real-time at quote or order to apply pricing?</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-8086-b206-c28131b909a3" class="">Or is it just for recording?</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-80b3-a65f-e3e07b230d53" class="">What process updates the status, effective expiration dates, and approvals?</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-8034-b78d-c311b689fddd" class="">So, this is a small one. So, they sold...</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-804c-b9b8-ce63eebd9a5b" class="">So how&#x27;s the verification process like tracked? Is there a workflow or like a status flag on the table like to show which claims have been reviewed or credited?</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-806d-8a5b-e5b07aa4259a" class="">Matt built these VSTOs. The distributor keeps track of which items they have price supports on and what they purchased. And then at the end of the month, and this is where a VA is going to give a little bit more information, while Matt can give some, is they&#x27;ll go through and they&#x27;ll send over, hey, here&#x27;s the items that we were promised price supports on.</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-80a9-b98b-f8475c2d2524" class="">Would they actually purchase this product? We would like to have you honor those price supports and they&#x27;ll send them over. We&#x27;re going to go over and build a VSTO that will handle each of the distributors&#x27; price reports and then send out the ones that we actually did make a sale on.</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-806b-8a70-da9b27872412" class="">I don&#x27;t know if I explained that very well. That&#x27;s the high level. Yeah, so when they finish all this credit approval, they will basically send approval, which I don&#x27;t want to click on. But then it puts up this screen where they can then send an email off.</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-8030-9c68-c8828aece606" class="">with this information.</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-807f-a32d-d65ddf639f2b" class="">I&#x27;m not exactly sure what happens after that.</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-80e8-a13d-d1f8726b991a" class="">So once that&#x27;s sent, does the approval trigger any automated update back to the database, or is it fully manual in terms of the confirmation step? No, it&#x27;s all on.</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-80b0-bf5c-de8883295bdb" class="">Is this where customer service deal with it and put entries into M3?</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-80f7-8478-e95472f86411" class="">So you like say so you don&#x27;t know like if those like if those approval like approved credits are reconciled against like the distributors monthly sales data or if they&#x27;re fed into a any financial reporting further downstream</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-8035-9f51-f69d8d4fb625" class="">Okay. Sarah Wahlberg is on the business analyst. She&#x27;s formerly a customer service rep and might be better suited to be able to answer</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-8095-81e6-f33bf8ee40fb" class="">Sorry, I&#x27;m just adding that as an action item.</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-807a-9566-e59439fa9e4d" class="">If we could align scope real quick. Which Salesforce objects are synced with M3 today? Accounts, products, price, books? Users, Opportunities, and Orders is a big one, I assume? Yeah, so... Orders...</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-800b-83c0-f8df29c714a5" class="">And then so so what&#x27;s the what&#x27;s the cadence in terms of like those syncs like real-time scheduled batch</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-80a7-b949-eae94547627e" class="">Okay, and then, all right, so, sorry.</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-80ff-a03a-d34119207e6e" class="">Yeah, get a little bit better way of jotting down like question notes. So, um...</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-80c0-a4e2-ce06bfed2666" class="">So, how are product price and purchase slash product agreements represented in Salesforce? Which is a system of record for both of those. Does that make sense?</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-806c-9fa4-cddb15271871" class="">Is that what you meant? Yeah, it is.</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-8081-ae56-e27c625ae7c5" class="">I need to stop writing down multiple questions in a row. I&#x27;m getting confused. Okay, so you answered that one. That was answered by... okay.</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-8037-87e1-f9c088470f4d" class="">And I know we&#x27;ve got a few minutes here before the next meeting. This might be a good stopping point before getting into, say, the next application. And, Steve, this is just early on discussions that are going to help with when, like I said, down the road when we start talking about data owners and stakeholders.</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-8008-856a-d94f66dab11e" class="">And this meeting will have probably tons of questions coming up, too.</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-80f6-aa65-d60bb8594156" class="">All right. Yeah, I mean, I need to actually throw on a collared shirt and got to see if my wife I got to throw on a collared shirt and see if my wife needs me to do anything with my daughter before this. I told her I had an 1130, so it&#x27;s not going to be a problem. I just need to make sure that she has everything she needs. So, this was really helpful though.</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-805a-b88e-df4e683c5da6" class="">There&#x27;s definitely going to be a lot more. There&#x27;s a lot of stuff to take in. Yeah, I... There&#x27;s still going to be the fire hose is going to be... I have no disillusioned of thinking that this is going to be even remotely easy. I hope everyone else is as ready as I am, I guess, and willing to go into detail.</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-804c-9f22-cf6afe5711f4" class="">Let&#x27;s break here. I&#x27;m going to use the restroom here for a second anyways, give you a couple minutes to recompose for the next meeting too. Matt, thank you for your time. We might be reaching out to you in the future. Steve, now that you&#x27;ve introduced yourself with Matt a little bit, feel free to reach out to anyone on my team as I mentioned before.</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-80bb-9b93-ce74f9c3365e" class="">Will do. Appreciate it guys. Thanks Matt.</p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-808d-9b35-dd397cacb123" class="">
+</p></div></div></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-801b-8bfd-e25f2e0a0bd5" class=""><br/><br/>Cluely Summary &amp; Transcript:<br/><br/></p></div><div style="display:contents" dir="auto"><h1 id="2c656320-92ca-808a-b4e7-d53dc57f5e7b" class="">M3 Salesforce Integration Deep Dive with Data Model, Price Supports and Sync Cadence</h1></div><div style="display:contents" dir="auto"><h2 id="2c656320-92ca-806b-bda1-ffeffd6f948d" class="">Action Items</h2></div><div style="display:contents" dir="auto"><ul id="2c656320-92ca-8068-b6b4-e19ecdd4b78c" class="bulleted-list"><li style="list-style-type:disc">Ask <strong>Sarah Wahlberg</strong> to walk through the approved‑credit process for price supports – system of record, workflow/status flags, approval triggers, reconciliation into M3/finance, key fields (customer, product, KONO, DIVI) – Owner: Steve</li></ul></div><div style="display:contents" dir="auto"><ul id="2c656320-92ca-803f-9584-d36f3c03b946" class="bulleted-list"><li style="list-style-type:disc">Document Salesforce‑M3 object mapping: natural keys for Account (KONO+SUNO+DIVI), Product (Item ID), Order (Doc No + Line Seq), Price Book/Agreement objects – Owner: Steve</li></ul></div><div style="display:contents" dir="auto"><ul id="2c656320-92ca-80b3-bea0-d236481a241b" class="bulleted-list"><li style="list-style-type:disc">Confirm integration tool details: DBAmp staging tables &amp; stored procedures used for upserts, schedule (SQL Agent/Airflow) – Owner: Steve</li></ul></div><div style="display:contents" dir="auto"><ul id="2c656320-92ca-803b-9ade-d85ec38b66eb" class="bulleted-list"><li style="list-style-type:disc">Verify sync cadence &amp; triggers (NAC 5 am, Inter‑Plastic 6 am, MP 7 am, 4‑hour repeats) and any delta‑load logic – Owner: Steve</li></ul></div><div style="display:contents" dir="auto"><ul id="2c656320-92ca-8041-b29a-eaca78cc980e" class="bulleted-list"><li style="list-style-type:disc">Clarify security model: custom fields for KONO/DIVI on Salesforce records, row‑level security mirroring ERP scopes – Owner: Steve</li></ul></div><div style="display:contents" dir="auto"><ul id="2c656320-92ca-80b0-9dfb-f7f74efb6c38" class="bulleted-list"><li style="list-style-type:disc">Capture error‑handling flow: error table, email alerts, retry policy, monitoring responsibilities – Owner: Steve</li></ul></div><div style="display:contents" dir="auto"><ul id="2c656320-92ca-8028-8003-f42acefd63c8" class="bulleted-list"><li style="list-style-type:disc">Align Salesforce sandbox with M3 test environment – Owner: Steve, target Dec 12 2025</li></ul></div><div style="display:contents" dir="auto"><h2 id="2c656320-92ca-80e9-971b-e7cb723ff31f" class="">Middleware &amp; Infor ION</h2></div><div style="display:contents" dir="auto"><ul id="2c656320-92ca-808b-a1fd-ca69ed19414a" class="bulleted-list"><li style="list-style-type:disc">ION currently used to move BODs between M3 and other apps</li></ul></div><div style="display:contents" dir="auto"><ul id="2c656320-92ca-8076-8c1f-fae7a4391a4b" class="bulleted-list"><li style="list-style-type:disc">No plan to replace ION now – documenting as‑is</li></ul></div><div style="display:contents" dir="auto"><ul id="2c656320-92ca-807d-9623-eafe7082fed6" class="bulleted-list"><li style="list-style-type:disc">Steve to jump in for alignment on ION’s role in architecture</li></ul></div><div style="display:contents" dir="auto"><h2 id="2c656320-92ca-8039-8b63-c0c4a7625bd4" class="">M3 Data Model &amp; Normalization</h2></div><div style="display:contents" dir="auto"><ul id="2c656320-92ca-8041-8d2d-f11d98cb16bf" class="bulleted-list"><li style="list-style-type:disc">Primary schema <strong>MVX</strong>; archive schema <strong>MVXARCH</strong></li></ul></div><div style="display:contents" dir="auto"><ul id="2c656320-92ca-808b-a038-c6fa7a2862cc" class="bulleted-list"><li style="list-style-type:disc">Core masters: <strong>OCUSMA</strong> (customer), <strong>MITMAS</strong> (item) – split into related tables</li></ul></div><div style="display:contents" dir="auto"><ul id="2c656320-92ca-80a0-b286-ed371b52fee9" class="bulleted-list"><li style="list-style-type:disc">Supplier tables linked by <strong>CONO + SUNO</strong> (company + supplier ID)</li></ul></div><div style="display:contents" dir="auto"><ul id="2c656320-92ca-8088-b208-dc698c8fcec9" class="bulleted-list"><li style="list-style-type:disc">Warehouse/Division scope via <strong>WHLO</strong> and <strong>DIVI</strong></li></ul></div><div style="display:contents" dir="auto"><ul id="2c656320-92ca-809c-8414-e843a6d87f47" class="bulleted-list"><li style="list-style-type:disc">Natural key often <strong>KONO + SUNO + DIVI</strong> for row‑level security</li></ul></div><div style="display:contents" dir="auto"><h2 id="2c656320-92ca-8082-ad79-c74a6fc8f96d" class="">Finance Complexity</h2></div><div style="display:contents" dir="auto"><ul id="2c656320-92ca-8036-ac5d-ef0893773600" class="bulleted-list"><li style="list-style-type:disc">Data spread across header, line, distribution, ledger tables; no explicit FK constraints</li></ul></div><div style="display:contents" dir="auto"><ul id="2c656320-92ca-803d-9adb-cc28bf3bcef5" class="bulleted-list"><li style="list-style-type:disc">Joins rely on shared fields (voucher no, journal no, KONO, DIVI, SUNO) and application logic</li></ul></div><div style="display:contents" dir="auto"><ul id="2c656320-92ca-80df-887e-dba1c3883a0f" class="bulleted-list"><li style="list-style-type:disc">Need to join at correct grain, filter by latest version &amp; posting status</li></ul></div><div style="display:contents" dir="auto"><ul id="2c656320-92ca-8070-bf2c-f32ae6710ef7" class="bulleted-list"><li style="list-style-type:disc">Use Metadata Publisher’s Join Index &amp; key order to guide joins</li></ul></div><div style="display:contents" dir="auto"><h2 id="2c656320-92ca-80ca-a57a-db2faf5b2ad5" class="">Salesforce Integration Overview</h2></div><div style="display:contents" dir="auto"><ul id="2c656320-92ca-80d8-a878-e9d289ffa85d" class="bulleted-list"><li style="list-style-type:disc">Objects synced from M3 → Salesforce: <strong>Accounts, Products, Price Books/Agreements, Orders, Order Lines, NAC Inventory</strong></li></ul></div><div style="display:contents" dir="auto"><ul id="2c656320-92ca-8029-b20d-c52c080b6301" class="bulleted-list"><li style="list-style-type:disc">Sync direction mainly M3‑to‑SF; occasional updates back for orders</li></ul></div><div style="display:contents" dir="auto"><ul id="2c656320-92ca-80a9-a565-d16a99442760" class="bulleted-list"><li style="list-style-type:disc">Integration built with <strong>DBAmp</strong>: SQL staging tables → DBAmp stored procedures → upserts into Salesforce</li></ul></div><div style="display:contents" dir="auto"><ul id="2c656320-92ca-80b8-b887-d98fe83866e6" class="bulleted-list"><li style="list-style-type:disc">Custom fields store <strong>KONO/DIVI</strong> on Account/Product/Order for security mapping</li></ul></div><div style="display:contents" dir="auto"><ul id="2c656320-92ca-8056-88e6-ff01c43269e8" class="bulleted-list"><li style="list-style-type:disc">Security: sales‑rep access driven by territories/role hierarchy aligned to KONO + DIVI boundaries</li></ul></div><div style="display:contents" dir="auto"><h2 id="2c656320-92ca-8016-96f6-f03fa76fb8ea" class="">Price Supports Process</h2></div><div style="display:contents" dir="auto"><ul id="2c656320-92ca-80e8-8266-e11130d22d2c" class="bulleted-list"><li style="list-style-type:disc">Entered in Salesforce by sales reps, then moved to a separate operational table (source of truth)</li></ul></div><div style="display:contents" dir="auto"><ul id="2c656320-92ca-800a-80bb-f45380200623" class="bulleted-list"><li style="list-style-type:disc">Table holds unique key (customer + product + KONO + DIVI) and fields for effective/expiration dates, approval status</li></ul></div><div style="display:contents" dir="auto"><ul id="2c656320-92ca-8043-a192-d0f382a03bb9" class="bulleted-list"><li style="list-style-type:disc">Pricing applied manually later; not queried in real‑time at quote/order</li></ul></div><div style="display:contents" dir="auto"><ul id="2c656320-92ca-80a2-9928-fb691fa20ed9" class="bulleted-list"><li style="list-style-type:disc">Approval workflow currently manual; need clarification on downstream updates &amp; financial reconciliation (Sarah Wahlberg)</li></ul></div><div style="display:contents" dir="auto"><h2 id="2c656320-92ca-80ee-8c9b-e655155d3c6f" class="">Cadence &amp; Scheduling</h2></div><div style="display:contents" dir="auto"><ul id="2c656320-92ca-80bc-8395-f7c5fcecc72b" class="bulleted-list"><li style="list-style-type:disc">Nightly batch runs: <strong>NAC</strong> at 5 am, <strong>Inter‑Plastic</strong> at 6 am, <strong>MP</strong> at 7 am</li></ul></div><div style="display:contents" dir="auto"><ul id="2c656320-92ca-8041-929a-ff5bcd600e0e" class="bulleted-list"><li style="list-style-type:disc">Repeats every 4 hours until evening (last run ~7 pm)</li></ul></div><div style="display:contents" dir="auto"><ul id="2c656320-92ca-8048-96ca-f55aee769177" class="bulleted-list"><li style="list-style-type:disc">Scheduling lives in SQL Agent / Airflow (to be confirmed)</li></ul></div><div style="display:contents" dir="auto"><h2 id="2c656320-92ca-80cf-b7cf-d8bf5fe8bae7" class="">Error Handling &amp; Monitoring</h2></div><div style="display:contents" dir="auto"><ul id="2c656320-92ca-80a0-8f8e-f32f8af66b21" class="bulleted-list"><li style="list-style-type:disc">Failures logged to an error table, email alerts sent to integration owners</li></ul></div><div style="display:contents" dir="auto"><ul id="2c656320-92ca-80d5-aecf-ccb04de6d869" class="bulleted-list"><li style="list-style-type:disc">Retry policy: immediate retry, then escalation after second failure</li></ul></div><div style="display:contents" dir="auto"><ul id="2c656320-92ca-80be-bd66-e31563b03e75" class="bulleted-list"><li style="list-style-type:disc">Current monitoring handled by the integration team; no dedicated Salesforce admin at present</li></ul></div><div style="display:contents" dir="auto"><h2 id="2c656320-92ca-803d-a533-c479dfd7c968" class="">Environment Management</h2></div><div style="display:contents" dir="auto"><ul id="2c656320-92ca-809e-91b9-ff8b0e83f7f7" class="bulleted-list"><li style="list-style-type:disc">Salesforce sandbox mapped to M3 test instance (M3 Cloud Test)</li></ul></div><div style="display:contents" dir="auto"><ul id="2c656320-92ca-80a2-9baa-dfb9cd9998a9" class="bulleted-list"><li style="list-style-type:disc">Credential rotation and sandbox refresh impacts integration mappings – need documented process</li></ul></div><div style="display:contents" dir="auto"><h2 id="2c656320-92ca-80e3-b3e9-dca81e2ed2ae" class="">Summary &amp; Next Steps</h2></div><div style="display:contents" dir="auto"><ul id="2c656320-92ca-8088-a85f-dcfc11beed31" class="bulleted-list"><li style="list-style-type:disc">Steve to follow up on all action items, especially the credit‑process clarification with Sarah</li></ul></div><div style="display:contents" dir="auto"><ul id="2c656320-92ca-8006-912d-e95e19c6467a" class="bulleted-list"><li style="list-style-type:disc">Align object mappings, security fields, and cadence with the broader data‑fabric plan (Bronze layer, RLS by company/division)</li></ul></div><div style="display:contents" dir="auto"><ul id="2c656320-92ca-80e3-8a48-eb13c0079a63" class="bulleted-list"><li style="list-style-type:disc">Prepare a concise recap for the next meeting, including any outstanding questions for Matt and Patrick.</li></ul></div><div style="display:contents" dir="auto"><hr id="dbacba4a-a40b-48fb-917d-04c31d2b03e9"/></div><div style="display:contents" dir="auto"><h2 id="55b2c791-d1c5-485d-b244-943f9b2b6522" class="">✅ ACTION ITEMS (Consolidated)</h2></div><div style="display:contents" dir="ltr"><figure class="block-color-yellow_background callout" style="white-space:pre-wrap;display:flex" id="220ab426-6270-4a81-8aea-95a54355b03a"><div style="font-size:1.5em"><span class="icon">⚠️</span></div><div style="width:100%"><div style="display:contents" dir="auto"><p id="1c100745-0777-44fb-add1-458473bb9e26" class=""><strong>Note:</strong> No Teams transcript available — merged from Cluely + Notion sources.</p></div></div></figure></div><div style="display:contents" dir="auto"><h3 id="e3d22e89-a3b9-4a0a-97d9-58621616e5fb" class="">Steve</h3></div><div style="display:contents" dir="auto"><ul id="1db4fe67-6a51-44e2-9b37-78c9eabb016a" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Follow up with Sarah Wahlberg about price support process (credit workflow, reconciliation, downstream financial reporting)</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="5ef88992-988e-4f5a-a735-5f05651e439e" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Document Salesforce-M3 object mapping (natural keys for Account, Product, Order, Price Book)</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="3337acae-96ed-4a4d-8580-2fef6f1614f1" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Confirm integration tool details (dbAMP staging tables, stored procedures, scheduling)</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="93239660-6565-48b8-89b9-90a91bd7fec5" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Verify sync cadence &amp; triggers (NAC 5am, Interplastic 6am, MP 7am, 4-hour repeats)</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="f6d281e3-1743-4fc1-911e-939420ff5937" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Clarify security model (custom fields for KONO/DIVI on Salesforce records)</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="778a4945-c6f6-4cd2-af51-d2017b5cbdc7" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Capture error-handling flow (error table, email alerts, retry policy)</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="2cfad95b-d7dc-4421-bc5b-e87868cee680" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Align Salesforce sandbox with M3 test environment</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><h3 id="5f8f1978-9582-4d61-9029-f786b495bfc5" class="">Lori</h3></div><div style="display:contents" dir="auto"><ul id="b02d6c7c-f749-4e03-9d16-902a5c6227f0" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Set up system access for Steve to view M3 resources in Azure</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><h3 id="73118f39-f881-4197-9ada-0b9e65a3fb37" class="">Patrick</h3></div><div style="display:contents" dir="auto"><ul id="2c92ba96-e7fe-4f6d-8540-8bec735012a5" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Continue discussions about data owners and stakeholders in future meetings</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><hr id="c1647ca5-7be3-4caa-b227-1bdff0ad9c7b"/></div><div style="display:contents" dir="auto"><h2 id="614455ef-3ee2-4687-ba29-8fd1544cc699" class="">📊 EVIDENCE MATRIX</h2></div><div style="display:contents" dir="ltr"><table id="26981704-964b-443d-bd3d-a1ad5e8063cb" class="simple-table"><thead class="simple-table-header"><div style="display:contents" dir="ltr"><tr id="a2e70905-9224-41c4-8669-797ef3976a70"><th id="y;F|" class="simple-table-header-color simple-table-header"><strong>ID</strong></th><th id="Xlme" class="simple-table-header-color simple-table-header"><strong>Type</strong></th><th id="NnSX" class="simple-table-header-color simple-table-header"><strong>Speaker</strong></th><th id="hitz" class="simple-table-header-color simple-table-header"><strong>Exact Quote / Fact</strong></th><th id="eJQM" class="simple-table-header-color simple-table-header"><strong>Topic</strong></th></tr></div></thead><tbody><div style="display:contents" dir="ltr"><tr id="4df2fc40-da59-40a7-ad00-00199b8b8afc"><td id="y;F|" class="">MF-FACT-1</td><td id="Xlme" class="">Fact</td><td id="NnSX" class="">Patrick</td><td id="hitz" class="">&quot;Matt started as a developer... data migration, and mass updates to the system, and has been more aligned in-house with the data engineer.&quot;</td><td id="eJQM" class="">Matt Francis role</td></tr></div><div style="display:contents" dir="ltr"><tr id="970a38ac-8aa5-4e28-a6a9-625841b7d9af"><td id="y;F|" class="">MF-FACT-2</td><td id="Xlme" class="">Fact</td><td id="NnSX" class="">Patrick</td><td id="hitz" class="">&quot;We typically have a Salesforce administrator, but they&#x27;ve recently left and we are looking to find a replacement.&quot;</td><td id="eJQM" class="">SF admin vacancy</td></tr></div><div style="display:contents" dir="ltr"><tr id="cb31f898-9e5d-4d5d-a288-2e6d1d139687"><td id="y;F|" class="">MF-FACT-3</td><td id="Xlme" class="">Fact</td><td id="NnSX" class="">Matt</td><td id="hitz" class="">&quot;Company 700 is the company that we&#x27;re in... molding products will be in Division 300. North American products is Division 400.&quot;</td><td id="eJQM" class="">M3 company/division structure</td></tr></div><div style="display:contents" dir="ltr"><tr id="556c584a-71e3-47e0-8371-6d389ec7d888"><td id="y;F|" class="">MF-FACT-4</td><td id="Xlme" class="">Fact</td><td id="NnSX" class="">Matt</td><td id="hitz" class="">&quot;Interplastic is in 100 and 200... Corporate is 001.&quot;</td><td id="eJQM" class="">Division codes</td></tr></div><div style="display:contents" dir="ltr"><tr id="01b8317f-eff3-4fa9-b745-f224c00fa489"><td id="y;F|" class="">MF-FACT-5</td><td id="Xlme" class="">Fact</td><td id="NnSX" class="">Matt</td><td id="hitz" class="">&quot;MVX is the primary data. That&#x27;s a schema. There&#x27;s other ones they have an MV ARCH sometimes for archive.&quot;</td><td id="eJQM" class="">M3 schema structure</td></tr></div><div style="display:contents" dir="ltr"><tr id="c998a043-5cde-49a8-9cf5-f09044a089df"><td id="y;F|" class="">MF-FACT-6</td><td id="Xlme" class="">Fact</td><td id="NnSX" class="">Matt</td><td id="hitz" class="">dbAMP &quot;lets you pretty much do everything in SQL... so it&#x27;s on your turf rather than theirs&quot;</td><td id="eJQM" class="">Integration approach</td></tr></div><div style="display:contents" dir="ltr"><tr id="b10863ff-e488-4d4f-b768-bb7eda7a3423"><td id="y;F|" class="">MF-FACT-7</td><td id="Xlme" class="">Fact</td><td id="NnSX" class="">Matt</td><td id="hitz" class="">&quot;NAC happens that starts at five in the morning... Interplastic then goes at six... MP goes at seven and then that repeats in four hours&quot;</td><td id="eJQM" class="">Sync cadence</td></tr></div><div style="display:contents" dir="ltr"><tr id="9ce52df6-96b9-4d40-a978-36411e0bdffa"><td id="y;F|" class="">MF-FACT-8</td><td id="Xlme" class="">Fact</td><td id="NnSX" class="">Matt</td><td id="hitz" class="">&quot;Price supports are completely done outside of M3&quot;</td><td id="eJQM" class="">Price support system</td></tr></div><div style="display:contents" dir="ltr"><tr id="812f67a3-2da1-4d0e-88c6-322afada826c"><td id="y;F|" class="">MF-RISK-1</td><td id="Xlme" class="">Risk</td><td id="NnSX" class="">Patrick</td><td id="hitz" class="">&quot;dbAMP... I think they got acquired by cdata and I don&#x27;t know if there&#x27;s any future development&quot;</td><td id="eJQM" class="">Integration tool risk</td></tr></div><div style="display:contents" dir="ltr"><tr id="c1d70d1a-7f50-471d-94e9-1c9ec707c6e2"><td id="y;F|" class="">MF-NEXT-1</td><td id="Xlme" class="">Next Step</td><td id="NnSX" class="">Patrick</td><td id="hitz" class="">&quot;Sarah Wahlberg is on the business analyst... might be better suited to be able to answer&quot; (price support questions)</td><td id="eJQM" class="">Follow-up contact</td></tr></div></tbody></table></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-8033-9605-f63ce365073c" class=""><br/><br/><br/>TRANSCRIPT:<br/><br/><br/></p></div><div style="display:contents" dir="auto"><p id="2c656320-92ca-80b9-b21e-f8684bbeaee0" class="">Steve [0:15]: that&#x27;s one of the middleware softwares i know that while matt uses connecting ion it&#x27;s not theater love the idea of replacing it<br/>Steve [0:17]: but we&#x27;re not really<br/>Steve [0:19]: oh you don&#x27;t do that<br/>Steve [0:29]: mac is the only thing<br/>Steve [0:37]: you can&#x27;t fucking<br/>Steve [0:39]: log you can&#x27;t look at them at all<br/>Steve [0:43]: now no because they&#x27;re going to try to work it on<br/>Steve [0:44]: that tremendous<br/>Steve [0:47]: okay<br/>Steve [1:02]: steve you want to help guys before you like that or you want us to try to just win it and you&#x27;re supposed to put you want to pick up<br/>Steve [1:06]: i think that&#x27;s been the best approach<br/>Steve [1:20]: at least right now just kind of going like just going off of what you guys say and hearing how you guys talk about things and then i&#x27;ll jump in and ask a little more probing questions<br/>Steve [1:23]: if that&#x27;s okay<br/>Steve [1:27]: with you a little bit<br/>Steve [1:36]: and talk a little bit about it and that&#x27;s where they get entry obviously i&#x27;m true<br/>Steve [1:42]: you&#x27;ll see me like talk a little bit how dumb free got older<br/>Steve [1:46]: seventy six characters<br/>Steve [1:48]: for those<br/>Steve [1:48]: dick tables<br/>Steve [1:53]: cards on the standard for much of that<br/>Steve [1:57]: and we can get you log into those<br/>Steve [1:57]: too<br/>Steve [2:03]: yeah so i was asking<br/>Steve [2:05]: sorry how do you pronounce your name again<br/>Steve [2:20]: judius okay so i was asking her i was like well have you guys i don&#x27;t know i was just throwing out possible ideas in terms of aliases or creating like<br/>Steve [2:22]: a simple mapping<br/>Steve [2:26]: table that you would just join to right at the beginning<br/>Steve [2:30]: and then you&#x27;d be able to reference<br/>Steve [2:34]: those alias tables by name in the query so you&#x27;re not<br/>Steve [2:37]: like constantly copying and pasting<br/>Steve [2:40]: those<br/>Steve [2:47]: that way yeah it&#x27;s by no means high priority i was just curious<br/>Steve [2:50]: okay<br/>Steve [2:52]: matt go<br/>Steve [2:52]: ahead<br/>Steve [2:57]: a few<br/>Steve [2:58]: different lenses<br/>Steve [3:02]: just trying to look<br/>Steve [3:07]: this is<br/>Steve [3:20]: big<br/>Steve [3:20]: master<br/>Steve [3:33]: and this<br/>Steve [3:34]: tells you all<br/>Steve [3:35]: the col<br/>Steve [3:36]: umns<br/>Steve [3:38]: any<br/>Steve [3:39]: way<br/>Steve [3:42]: over<br/>Steve [3:42]: done<br/>Steve [3:46]: two hundred<br/>Steve [3:47]: and thirty three col<br/>Steve [3:48]: umns in this table<br/>Steve [4:00]: i&#x27;m going to switch quickly to a headphone if you guys have issues with me<br/>Steve [4:02]: like hearing me or whatever just let me know<br/>Steve [4:04]: sorry<br/>Steve [4:08]: my daughter still can&#x27;t take her back for thirty six hours apparently<br/>Steve [4:10]: so<br/>Steve [4:12]: basically she&#x27;s there for the weekend<br/>Steve [4:13]: yeah<br/>Steve [4:15]: so that was<br/>Steve [4:16]: on unexpected<br/>Steve [4:18]: but<br/>Steve [4:18]: sorry<br/>Steve [4:20]: go ahead i&#x27;m listening<br/>Steve [4:28]: this<br/>Steve [4:29]: will tell you all the<br/>Steve [4:29]: columns<br/>Steve [4:33]: oh this is perfect this is what i always envision<br/>Steve [4:35]: program<br/>Steve [4:35]: s<br/>Steve [4:36]: that we can use<br/>Steve [4:39]: for that<br/>Steve [4:40]: used<br/>Steve [4:41]: everywhere<br/>Steve [4:41]: so<br/>Steve [4:44]: there<br/>Steve [4:56]: okay great<br/>Steve [5:28]: no<br/>Steve [5:29]: get out<br/>Steve [5:29]: of here<br/>Steve [5:57]: got<br/>Steve [5:57]: it<br/>Steve [6:15]: yep sorry<br/>Steve [6:19]: she pinched her finger and i didn&#x27;t think you guys wanted to hear her cry<br/>Steve [6:25]: so<br/>Steve [6:26]: i also sent a link to<br/>Steve [6:26]: the chat<br/>Steve [6:27]: here<br/>Steve [6:27]: too<br/>Steve [6:28]: for<br/>Steve [6:29]: metadata publisher okay<br/>Steve [6:30]: this is<br/>Steve [6:32]: for the on premium<br/>Steve [6:35]: manager a whole lot of difference between the two of them other than<br/>Steve [6:38]: i<br/>Steve [6:39]: usually use<br/>Steve [6:40]: the cloud<br/>Steve [6:40]: version<br/>Steve [6:41]: because<br/>Steve [6:41]: it&#x27;s a little easier<br/>Steve [6:42]: to use<br/>Steve [6:44]: they&#x27;re<br/>Steve [6:47]: mostly the same but there are some differences between<br/>Steve [6:48]: cloud<br/>Steve [6:53]: so you<br/>Steve [6:54]: got to be aware<br/>Steve [6:55]: that<br/>Steve [6:56]: there may be differences<br/>Steve [7:05]: where<br/>Steve [7:09]: not<br/>Steve [7:10]: the major ones<br/>Steve [7:12]: it&#x27;s minor little things<br/>Steve [7:13]: between<br/>Steve [7:16]: mac<br/>Steve [7:17]: and enter<br/>Steve [7:18]: prise<br/>Steve [7:21]: on<br/>Steve [7:22]: prem<br/>Steve [7:23]: ises<br/>Steve [7:24]: a different screen<br/>Steve [7:26]: the cloud<br/>Steve [7:27]: we&#x27;re<br/>Steve [7:28]: using<br/>Steve [7:30]: ok<br/>Steve [7:30]: ay<br/>Steve [7:31]: so<br/>Steve [7:34]: i<br/>Steve [7:35]: know<br/>Steve [7:36]: there&#x27;s some that exist<br/>Steve [7:37]: i just can&#x27;t<br/>Steve [7:38]: think which ones<br/>Steve [7:38]: they are<br/>Steve [7:43]: any questions<br/>Steve [7:44]: or stuff<br/>Steve [7:45]: you might want to ask<br/>Steve [7:45]: here<br/>Steve [7:49]: specifically along with metadata publisher<br/>Steve [7:54]: it&#x27;s really<br/>Steve [7:55]: difficult<br/>Steve [7:56]: password within<br/>Steve [7:56]: this one<br/>Steve [8:00]: just like it&#x27;s a general password<br/>Steve [8:13]: i&#x27;m sorry did you say it&#x27;s a really difficult password for this one is that what you said<br/>Steve [8:24]: that&#x27;s another<br/>Steve [8:24]: one<br/>Steve [8:25]: got it<br/>Steve [8:25]: yeah<br/>Steve [8:26]: so real quick<br/>Steve [8:35]: i&#x27;m going to<br/>Steve [8:44]: share my screen for a second from that if you don&#x27;t mind<br/>Steve [8:55]: my<br/>Steve [8:59]: shark screen<br/>Steve [9:03]: i sent also the work homepage<br/>Steve [9:10]: and this is antiquated it&#x27;s all in replacement sharepoint it&#x27;s just<br/>Steve [9:13]: there yet<br/>Steve [9:18]: you&#x27;ll see different things you can get at safety data sheets<br/>Steve [9:23]: lots of different companies spss all stuff that we can talk about further later on<br/>Steve [9:31]: so there&#x27;s different things that we use for plants<br/>Steve [9:34]: where i&#x27;m going to shift to is these three down here<br/>Steve [9:37]: where you have ipc web apps ip web apps<br/>Steve [9:46]: ip corporation interplacement which is interflaptic corporation so technically they&#x27;re both ipc<br/>Steve [9:49]: but that was a forenaming<br/>Steve [9:58]: choice of my opinion but it&#x27;s a whole other discussion anyhow where i was going with this is here&#x27;s another way where you can get into m three<br/>Steve [10:01]: on prem<br/>Steve [10:06]: and m three cloud m three cloud is used by the whole corporate as we&#x27;ve talked about<br/>Steve [10:09]: m three on premise in a basket hk<br/>Steve [10:11]: so that being said you can find your way down here<br/>Steve [10:14]: for if you&#x27;re going to go in for now go into test<br/>Steve [10:15]: three cloud test<br/>Steve [10:18]: and you can test this right now if you want yeah that&#x27;s what i was trying to<br/>Steve [10:22]: okay<br/>Steve [10:25]: to get to that one<br/>Steve [10:31]: or once you get there you could burp i can send you the link to this one and then you don&#x27;t have to have access<br/>Steve [10:31]: that<br/>Steve [10:34]: so m three cloud test i&#x27;m just going to copy this link<br/>Steve [19:46]: form so you got to be a little wary of that<br/>Steve [19:50]: that sometimes it&#x27;ll<br/>Steve [19:54]: just you got to be a little careful<br/>Steve [19:59]: not to just blindly follow so what&#x27;s what&#x27;s in here<br/>Steve [20:07]: and make sure so if you were to use this as a case then you would say you were looking up oc usm<br/>Steve [20:13]: akuzma oc usma now you could take that back to your metadata publisher<br/>Steve [20:22]: and type out bakuzma in that corner up there for the table<br/>Steve [20:29]: and now you can start to gather from there what&#x27;s in that table<br/>Steve [20:30]: as well<br/>Steve [20:37]: the mvx is the one you want to go to<br/>Steve [20:40]: i&#x27;m not sure what these other ones are<br/>Steve [20:48]: mvx is the primary data that&#x27;s a schema<br/>Steve [20:55]: there&#x27;s other ones they have an mv arch sometimes<br/>Steve [20:57]: for archive<br/>Steve [21:23]: so we&#x27;re kind of what i&#x27;m getting at is that if you were thinking about data domains if you want to go get information about customers you&#x27;d go after the accus mateo if you want to get information about<br/>Steve [21:31]: products you offer mipmas or something like that<br/>Steve [21:33]: data master<br/>Steve [21:42]: yes depends on what information on the product you want<br/>Steve [21:43]: ed<br/>Steve [21:52]: this is obviously a much more<br/>Steve [22:03]: this is more of a normalized database in a sense i would say most of the databases we deal with are normalized okay<br/>Steve [22:07]: i can think of a handful<br/>Steve [22:20]: matt<br/>Steve [22:22]: the m three database is very odd<br/>Steve [22:28]: it was not set up<br/>Steve [22:30]: particularly great<br/>Steve [22:36]: so like everything in the customer database is all in one table<br/>Steve [22:44]: so all the information here and all these different screens<br/>Steve [22:49]: you will find pretty much in this record<br/>Steve [22:55]: whereas if you go to suppliers<br/>Steve [22:57]: it&#x27;s broken up into three different tables<br/>Steve [22:59]: you want to give an example<br/>Steve [23:21]: are those like like those three supplier tables that you&#x27;re just looking at<br/>Steve [23:22]: like<br/>Steve [23:26]: are those related by just like supplier id like something as simple as that<br/>Steve [23:29]: yes<br/>Steve [23:36]: and company number this system is capable of doing multiple multiple companies<br/>Steve [23:42]: so one thing you&#x27;ll note is like<br/>Steve [23:45]: company seven hundred is the company that we&#x27;re in<br/>Steve [23:48]: and then there&#x27;s<br/>Steve [23:51]: warehouses as well<br/>Steve [23:57]: divisions that&#x27;s what i&#x27;m thinking of<br/>Steve [24:13]: got it so the supplier master key is<br/>Steve [24:17]: kono plus suno for warehouse specific attributes<br/>Steve [24:27]: does m three store like those in the whlo keys or the scoped at the company level<br/>Steve [24:40]: and i and i should have i corrected myself technically yes we do have a warehouse locations and facilities but with the other piece that&#x27;s going to be important is division<br/>Steve [24:45]: so molding products will be in division three hundred<br/>Steve [24:47]: north american puzzles division four hundred<br/>Steve [25:00]: matt can you help me on inner plastic where they are when on prem today or are they inner plastic is in one hundred and two hundred<br/>Steve [25:03]: so so hk is two hundred<br/>Steve [25:04]: yes<br/>Steve [25:06]: in a plastic is one hundred<br/>Steve [25:08]: corporates zero zero one<br/>Steve [25:09]: yes<br/>Steve [25:10]: okay<br/>Steve [25:16]: so so in this model the natural key is kono plus suno with<br/>Steve [25:24]: divi and i don&#x27;t know ho hwh like providing division and warehouse scope<br/>Steve [25:28]: will join on kono and suno and apply<br/>Steve [25:33]: row level security by kono and divi<br/>Steve [25:34]: am i understanding this correctly<br/>Steve [25:44]: for these yes<br/>Steve [25:51]: unfortunately some of the tables especially when you get starts getting into finance<br/>Steve [25:53]: they get<br/>Steve [25:57]: a lot more murky<br/>Steve [26:01]: to obviously figure out<br/>Steve [26:07]: i know i&#x27;ve had a lot of trouble with<br/>Steve [26:11]: figuring out some of the invoices<br/>Steve [26:16]: and things get a lot more spread out<br/>Steve [26:18]: and put in the different tables<br/>Steve [26:23]: when you get invoices and they spread out charges<br/>Steve [26:28]: and trying to write reports for all this since there&#x27;s no<br/>Steve [26:32]: foreign keys<br/>Steve [26:33]: and<br/>Steve [26:35]: table keys<br/>Steve [26:41]: just making sure you&#x27;re joining it at the proper level of granularity<br/>Steve [26:42]: is that pretty much<br/>Steve [26:47]: yeah but sometimes<br/>Steve [26:47]: there is none<br/>Steve [26:51]: that that we can figure out anyway<br/>Steve [26:54]: three seems to know it<br/>Steve [26:56]: but just looking at the tables<br/>Steve [27:00]: it&#x27;s hard to figure it out i mean<br/>Steve [27:07]: there&#x27;s there&#x27;s got to be some way it&#x27;s doing it<br/>Steve [27:11]: but i&#x27;m from writing reports<br/>Steve [27:14]: you&#x27;re just scratching your head<br/>Steve [27:18]: and you really don&#x27;t know<br/>Steve [27:23]: so there&#x27;s going to be some<br/>Steve [27:29]: tricks to it i guess<br/>Steve [27:33]: carrie would probably be better<br/>Steve [27:34]: to talk about that<br/>Steve [27:38]: it has been a while since<br/>Steve [27:41]: i been in those<br/>Steve [27:45]: just blindly though like for finance like stitch the header line<br/>Steve [27:50]: the header line via document number and line sequence plus the accounting string<br/>Steve [27:52]: in posting date that&#x27;s what i&#x27;ve done<br/>Steve [27:55]: historically to prevent duplicates but<br/>Steve [27:58]: well<br/>Steve [28:03]: just the other day well just the other day we had a problem with<br/>Steve [28:08]: one where we just removed the table<br/>Steve [28:09]: altogether<br/>Steve [28:20]: because finance gets murky<br/>Steve [28:25]: just because it&#x27;s split across like header line distribution and ledger tables right<br/>Steve [28:27]: with posting rules<br/>Steve [28:30]: we&#x27;ve got a line<br/>Steve [28:32]: and then you&#x27;ve got<br/>Steve [28:36]: a line details<br/>Steve [28:40]: but the details don&#x27;t actually match up<br/>Steve [28:44]: there could be multiple details for a line<br/>Steve [28:49]: and carrie would have to explain that one to be it<br/>Steve [28:55]: seems like the joint paths are based on vary by scenario as opposed to like<br/>Steve [29:00]: a defined okay so it&#x27;s just determining what<br/>Steve [29:10]: that you know what that i mean metadata publishers like join index and foreign keys tabs and key order to join at the right grain<br/>Steve [29:19]: and then always constrained by like kono and divi but obviously there are probably different edge cases and stuff like that but i this is making sense<br/>Steve [29:23]: in a really weird convoluted way but it is<br/>Steve [29:29]: if anything i&#x27;m saying is like completely off base or doesn&#x27;t track<br/>Steve [29:31]: please like no<br/>Steve [29:35]: it&#x27;s just you really wish they would have put in some primary keys<br/>Steve [29:37]: i mean something so simple<br/>Steve [29:40]: would make it so much easier but yeah<br/>Steve [29:49]: looking forward<br/>Steve [29:51]: that&#x27;s just a go ahead look i was just saying looking forward to that<br/>Steve [30:04]: so that&#x27;s just the high level on m three when you start to get in there you&#x27;ll probably like matt said you&#x27;ll get more involved with with kerry when it comes to the m three stuff<br/>Steve [30:11]: let&#x27;s switch gears a little bit and this is one that you probably are going to be a little more familiar with<br/>Steve [30:14]: let&#x27;s talk about salesforce for a moment<br/>Steve [30:20]: so matt can you explain how you<br/>Steve [30:24]: keep salesforce and m three in sync what tools you&#x27;re using<br/>Steve [30:37]: and also some of the security on the sales reps and stuff like that and i know right now steve i&#x27;ll mention too is we typically have an m three<br/>Steve [30:40]: i&#x27;m sorry a salesforce administrator<br/>Steve [30:49]: but they recently left and we were looking to find a replacement so we&#x27;re without that role right now so<br/>Steve [30:51]: francis kind of is<br/>Steve [30:57]: has a pretty good understanding of salesforce but he&#x27;s not going to be the person that can answer all the questions when it comes to the administration of it<br/>Steve [31:02]: and i&#x27;m guessing you&#x27;ve had a number of run ins with salesforce already as it is<br/>Steve [31:06]: i consider them my<br/>Steve [31:08]: goliath<br/>Steve [31:12]: of a not enemy but the one that i just have<br/>Steve [31:27]: love hate relationship yeah i mean it&#x27;s great and i think the company in general is good it&#x27;s just their technology is really frustrating it&#x27;s like it&#x27;s not the best out there they&#x27;re so big<br/>Steve [31:34]: and i think of them like this i don&#x27;t know like this octopus that like once they get<br/>Steve [31:35]: their cups on you<br/>Steve [31:37]: and you start integrating some of your data<br/>Steve [31:43]: it&#x27;s just like the more and more they can like take over and basically hold you hostage to even try and break away later<br/>Steve [31:46]: it it just gets harder and harder<br/>Steve [31:48]: to get out<br/>Steve [31:51]: are you familiar with db amp at all<br/>Steve [31:59]: sorry db delta bravo alpha<br/>Steve [32:00]: mike<br/>Steve [32:04]: paba db amp<br/>Steve [32:06]: your metal type it<br/>Steve [32:11]: as an application<br/>Steve [32:15]: okay it sounds<br/>Steve [32:31]: so what db it&#x27;s basically just a tool to connect the salesforce via sql right yeah so basically what they did is they took all the apis and put them into converted them into a commands almost<br/>Steve [32:36]: so it&#x27;s a little easier for you know somebody&#x27;s a little more for dba<br/>Steve [32:39]: type to be able to<br/>Steve [32:45]: do different things okay i&#x27;ll let you take it from there and explain a little better yeah i okay so it&#x27;s okay<br/>Steve [32:53]: i i looked at it when looking into like an integration tool before we ended up just going with like airflow which was<br/>Steve [32:57]: still not my ideal solution but yeah okay<br/>Steve [33:05]: i i get what we&#x27;re here i&#x27;ve run airflow and i&#x27;ve heard of mulesoft and db amp was one we came across before i heard a mulesoft ironically<br/>Steve [33:09]: go ahead<br/>Steve [33:14]: matt dbamp lets you pretty much do everything in sql<br/>Steve [33:21]: so we pull it on your turf rather than theirs yeah<br/>Steve [33:24]: you pull everything into sql put it in a staging table<br/>Steve [33:30]: and then sudden that staging table into one of the db amps<br/>Steve [33:34]: store procedures<br/>Steve [33:37]: and that interest takes care of it uploads it<br/>Steve [33:42]: does a kind of upset so updates or inserts<br/>Steve [33:46]: everything into that staging table<br/>Steve [33:49]: it takes care of for you<br/>Steve [33:52]: then i&#x27;m immediately regretting not selecting this<br/>Steve [33:55]: the last time i was dealing with it because i was banging my head against my desk<br/>Steve [33:58]: working with<br/>Steve [34:03]: the i can&#x27;t speak for matt but i think they did a really good job of writing bbm<br/>Steve [34:06]: yeah it it is really nice<br/>Steve [34:12]: i mean from my perspective it&#x27;s just everything&#x27;s in sql<br/>Steve [34:22]: i was like manually maintaining like mapping tables like from the source to the target and it&#x27;s like oh my god okay so this makes a lot<br/>Steve [34:32]: the only concern i have with dbm right now is that i think they got acquired by cdata and i don&#x27;t know if there&#x27;s any future development<br/>Steve [34:38]: i thought you were going to say they got acquired by salesforce no that track not yet<br/>Steve [34:52]: i would not be surprised if salesforce stopped allowing it to have the rain that it does because they&#x27;ve got their mulesoft and their apex so yeah because they acquired meals off so they&#x27;re just gobbling up everything<br/>Steve [34:59]: right so i would not be surprised that at some point we get a notification saying dbm is no longer supported<br/>Steve [35:08]: the whole text based in general is just become an incestuous<br/>Steve [35:11]: monolith at this point<br/>Steve [35:13]: okay<br/>Steve [35:25]: well on the other side of the coin and this is another one we&#x27;ll talk about in a bit matt also does the synchronization of the data from the erp to etq<br/>Steve [35:35]: and etq does not use something like dbamp and we at one point looked at an alternative vendor to etq that used salesforce at the back end<br/>Steve [35:43]: and sometimes i think from the it standpoint i think we kind of regretting that they chose to use etq instead of<br/>Steve [35:45]: yellow one<br/>Steve [35:47]: all right<br/>Steve [35:50]: not a whole lot i mean<br/>Steve [35:59]: long story short matt takes the orders matt actually why don&#x27;t you just walk through what all items do you synchronize out to salesforce<br/>Steve [36:01]: just at least high level<br/>Steve [36:06]: well differs a little bit<br/>Steve [36:07]: per company<br/>Steve [36:11]: but mostly it&#x27;s the customers<br/>Steve [36:16]: then the products<br/>Steve [36:19]: that do<br/>Steve [36:22]: the security of all the different companies<br/>Steve [36:28]: we had to come up with a custom way of putting<br/>Steve [36:30]: the prices for all the products in<br/>Steve [36:41]: so that&#x27;s a custom and i just realized steve i did not put any recording oh you did okay i just noticed that i was kind of hoping somebody else clicked it and i just didn&#x27;t notice it<br/>Steve [36:44]: no that&#x27;s my fault sorry<br/>Steve [36:47]: all right go ahead<br/>Steve [36:50]: and then for inner plastic<br/>Steve [36:55]: we have price supports<br/>Steve [37:12]: i talked a little bit about price supports the idea being is that interplastic might shave a little off of their sale to nac to give nec the win essentially<br/>Steve [37:19]: or even i think they do price supports for other vendor distributors too don&#x27;t they matt<br/>Steve [37:27]: yeah i&#x27;m not sure who all the well they do price supports<br/>Steve [37:30]: for four different or six different<br/>Steve [37:32]: distributors companies<br/>Steve [37:41]: the idea being that the distributor will come to us whether it&#x27;s our distributor or other distributors<br/>Steve [37:50]: they&#x27;ll come to us and say hey you know what this company likes this product but they have another competing product from another company<br/>Steve [37:53]: that&#x27;s actually about ten cents cheaper<br/>Steve [37:56]: what can you do to offset that and maybe we can win this business<br/>Steve [37:58]: that&#x27;s what that is<br/>Steve [38:05]: so the salesforce handled the approval and tracking of those price supports or is that logic still managed entirely by m three<br/>Steve [38:11]: actually it&#x27;s not an m three it&#x27;s pretty much separate<br/>Steve [38:20]: the only reason salesforce is here is because the sales for in our plastic only the sales people<br/>Steve [38:24]: will put in the price supports<br/>Steve [38:31]: and then those get put over into kind of a separate table<br/>Steve [38:37]: because m three doesn&#x27;t really have a decent way of handling it<br/>Steve [38:41]: so price supports are completely done outside of m three<br/>Steve [38:48]: got it essentially an nac also has price supports but<br/>Steve [38:59]: they&#x27;re not done inside salesforce at all so interrupt submits a price support and salesforce what moves it into the separate table<br/>Steve [39:04]: which system is the system of record and what keys basically<br/>Steve [39:07]: wank into the customer product company division<br/>Steve [39:10]: basically we just gotta have<br/>Steve [39:18]: database sitting over here<br/>Steve [39:20]: and it pretty well just<br/>Steve [39:22]: sits in this table<br/>Steve [39:30]: i&#x27;m<br/>Steve [39:31]: disregarding my typing<br/>Steve [39:33]: i&#x27;m just diving some<br/>Steve [39:37]: price supports are fairly simple<br/>Steve [39:40]: as far as data goes<br/>Steve [39:51]: so that table is the operational source of truth for price supports<br/>Steve [39:57]: is that queried in real time at quote or order to apply pricing<br/>Steve [40:02]: no<br/>Steve [40:05]: so what happens is<br/>Steve [40:10]: the distributors<br/>Steve [40:17]: open anything up let me just open up holder<br/>Steve [40:22]: run what process updates like the status effective expiration dates and approvals<br/>Steve [40:29]: yeah well what i&#x27;ll do is they&#x27;ll put in the salespeople will put in a price support<br/>Steve [40:31]: in salesforce<br/>Steve [40:35]: then that gets integrated over into the table<br/>Steve [40:38]: and it&#x27;s set for a certain date<br/>Steve [40:42]: and then the distributors like superior<br/>Steve [40:44]: will then send over a spreadsheet<br/>Steve [40:46]: for<br/>Steve [40:46]: october<br/>Steve [40:47]: of<br/>Steve [40:49]: twenty twenty four<br/>Steve [40:53]: saying these are our<br/>Steve [40:58]: these are what we sold and these are the credits you&#x27;re supposed to give us<br/>Steve [41:03]: and then one of the customer support people goes through it<br/>Steve [41:06]: and verifies everything<br/>Steve [41:11]: open up one of these<br/>Steve [41:26]: is a small one okay<br/>Steve [41:28]: so<br/>Steve [41:32]: they sold<br/>Steve [41:33]: these materials<br/>Steve [41:36]: at this price<br/>Steve [41:44]: and they get so how&#x27;s the verification process like track is there a workflow or like a status flag on the table<br/>Steve [41:47]: to show which claims have been reviewed or credited<br/>Steve [41:54]: see<br/>Steve [41:59]: they basically<br/>Steve [42:02]: run<br/>Steve [42:04]: this<br/>Steve [42:11]: deal<br/>Steve [42:18]: matt built these vstos the distributor keeps track of which items they have price supports<br/>Steve [42:21]: out on and what they purchased<br/>Steve [42:28]: and then at the end of the month and this is where a ba is going to give a little bit more information on that can give some<br/>Steve [42:36]: is they&#x27;ll go through and they&#x27;ll send over hey here&#x27;s the items that we were promised price at ports island where they actually purchased this product<br/>Steve [42:53]: we would like to have you honor those price supports and they&#x27;ll send them over and matt built a vsto that will handle each of these distributors price supports and then send up the ones that we actually did make a sale on and<br/>Steve [42:57]: they should i don&#x27;t know if i explained that very well that&#x27;s the high level<br/>Steve [43:00]: yeah so when<br/>Steve [43:02]: they finish all this credit approval<br/>Steve [43:07]: they will basically send approval which i don&#x27;t want to click that button<br/>Steve [43:13]: but then it puts up this screen where they can then send an email off<br/>Steve [43:16]: with<br/>Steve [43:18]: this information<br/>Steve [43:21]: in it for someone to then approve<br/>Steve [43:25]: i&#x27;m not exactly sure what happens after that<br/>Steve [43:38]: so once that&#x27;s sent does the approval trigger any automated update back to the database or is it fully manual in terms of the confirmation no it&#x27;s all<br/>Steve [43:38]: on<br/>Steve [43:46]: is this where customer service deal with it and put entries into m three<br/>Steve [43:52]: yeah i have no idea what happens after they send out approval<br/>Steve [43:54]: so<br/>Steve [43:57]: you don&#x27;t know if<br/>Steve [44:07]: those approval approved credits are reconciled against the distributor&#x27;s monthly sales data or if they&#x27;re fed into any financial reporting further downstream<br/>Steve [44:11]: yeah like i said<br/>Steve [44:13]: i&#x27;m not part of that<br/>Steve [44:25]: okay sarah wahlberg is on the business analyst she&#x27;s formerly a customer service rep and might be better suited to be able to answer that question<br/>Steve [44:31]: she&#x27;s available at a drop but we see<br/>Steve [44:41]: so go ahead and keep going here i&#x27;m going to see what i can do to find someone here to answer for the most questions<br/>Steve [44:49]: sorry i&#x27;m adding that as like an action it<br/>Steve [44:49]: em<br/>Steve [44:53]: yeah that would be a good one to have some follow up on<br/>Steve [45:00]: and also they can make changes<br/>Steve [45:05]: in here and those will get then pushed into salesforce<br/>Steve [45:14]: i believe it gets a little<br/>Steve [45:17]: i&#x27;d have to kind of look<br/>Steve [45:24]: at a little fuzzy on all the things that are<br/>Steve [45:27]: all right<br/>Steve [45:30]: trying to remember everything that<br/>Steve [45:33]: they had changed<br/>Steve [45:34]: so<br/>Steve [45:53]: if we could align like scope real quick so with salesforce objects are you know synced with the m three today like accounts products price books<br/>Steve [45:57]: so users opportunities<br/>Steve [45:59]: and orders is a big one i can i assume<br/>Steve [46:01]: yeah so<br/>Steve [46:05]: orders and then the order lines are<br/>Steve [46:10]: so what&#x27;s brought in from m three to salesforce<br/>Steve [46:12]: are accounts<br/>Steve [46:14]: which is customers<br/>Steve [46:19]: products<br/>Steve [46:24]: product price<br/>Steve [46:27]: the purchase agreement product agreements<br/>Steve [46:31]: orders<br/>Steve [46:37]: the order lines and then for nac<br/>Steve [46:39]: would be inventory as well<br/>Steve [46:55]: and<br/>Steve [46:56]: then<br/>Steve [46:57]: so<br/>Steve [47:04]: so what&#x27;s the what&#x27;s the cadence in terms of like the sinks like real time scheduled batch<br/>Steve [47:09]: so<br/>Steve [47:11]: this happens<br/>Steve [47:16]: so nac happens that starts at five in the morning<br/>Steve [47:21]: and then inter plastic then goes at six<br/>Steve [47:28]: mp goes at seven and then that repeats<br/>Steve [47:35]: in four hours so nac that would go again at nine<br/>Steve [47:39]: until five o&#x27;clock in the evening<br/>Steve [47:46]: until you know mp is at seven in the evening and the latcher stops for the night<br/>Steve [47:47]: and then starts to go the next day<br/>Steve [47:57]: and then<br/>Steve [47:58]: all right<br/>Steve [47:59]: so<br/>Steve [48:00]: sorry<br/>Steve [48:04]: yeah<br/>Steve [48:04]: get a little bit better<br/>Steve [48:06]: way of jotting down<br/>Steve [48:09]: like question notes so<br/>Steve [48:22]: so how are product price and you know purchase product agreements represented in salesforce<br/>Steve [48:24]: like price book price<br/>Steve [48:29]: or price book price book entry versus custom objects<br/>Steve [48:35]: and i guess which system which is the system of record for both of those<br/>Steve [48:37]: does that make sense<br/>Steve [48:39]: yeah<br/>Steve [48:43]: so<br/>Steve [48:50]: they come from here<br/>Steve [48:56]: i can remember<br/>Steve [48:58]: how to get there<br/>Steve [49:15]: so it comes from this ois sixty<br/>Steve [49:21]: two here but originally sixty<br/>Steve [49:36]: is that what you meant yeah it is<br/>Steve [49:46]: need to stop right now multiple questions in a row<br/>Steve [49:48]: being confused<br/>Steve [49:51]: okay so you answered that one<br/>Steve [49:54]: that was answered by<br/>Steve [50:13]: so and i know we got a few minutes here before the next meeting this might be a good stopping point before getting into say the next application and steve this is just early on discussions that are going to help with like i said down the road when we start talking about data owners and stakeholders<br/>Steve [50:16]: and you&#x27;re going to have probably tons of questions coming up too<br/>Steve [50:20]: all right<br/>Steve [50:32]: and got to see i&#x27;m sorry i got to throw in a collared shirt and see if my wife needs me to do anything with my daughter before this<br/>Steve [50:38]: i told her i had an eleven thirty so it&#x27;s not going to be a problem i just need to make sure that<br/>Steve [50:40]: she has everything she needs<br/>Steve [50:40]: okay<br/>Steve [50:46]: so this was this was really helpful though<br/>Steve [50:49]: there&#x27;s definitely going to be a lot more<br/>Steve [50:51]: there<br/>Steve [51:01]: &#x27;s a lot of stuff to take in yeah it&#x27;s still going to be the fire hose is going to keep on coming so yep i haven&#x27;t i have no disillusion though you know thinking that this is going to be even remotely easy<br/>Steve [51:14]: i just i hope everyone else is as ready as i am i guess and willing to go in yeah and that&#x27;s what i mean i&#x27;m not going to make it there for the meeting tomorrow but definitely bring that discussion up with mike<br/>Steve [51:23]: because that&#x27;s the i will hopefully have some of that discussion ahead of time and he too has been pushing that this this is going to be a big<br/>Steve [51:24]: to do for the company<br/>Steve [51:28]: all companies<br/>Steve [51:29]: all right<br/>Steve [51:47]: let&#x27;s break here guys i&#x27;m going to use the restroom here for a second anyways give you a couple minutes to recompose for the next meeting too matt thank you for your time i might be reaching out to you in the future steve you know that you&#x27;ve introduced yourself with matt a little bit feel free to reach out to anyone on my team as i mentioned before</p></div></div></article><span class="sans" style="font-size:14px;padding-top:2em"></span></body></html>

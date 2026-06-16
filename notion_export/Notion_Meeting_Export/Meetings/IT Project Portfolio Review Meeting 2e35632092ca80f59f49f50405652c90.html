@@ -1,0 +1,752 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>IT Project Portfolio Review Meeting</title><style>
+/* cspell:disable-file */
+/* webkit printing magic: print all background colors */
+html {
+	-webkit-print-color-adjust: exact;
+}
+* {
+	box-sizing: border-box;
+	-webkit-print-color-adjust: exact;
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+}
+@media only screen {
+	body {
+		margin: 2em auto;
+		max-width: 900px;
+		color: rgb(55, 53, 47);
+	}
+}
+
+body {
+	line-height: 1.5;
+	white-space: pre-wrap;
+}
+
+a,
+a.visited {
+	color: inherit;
+	text-decoration: underline;
+}
+
+.pdf-relative-link-path {
+	font-size: 80%;
+	color: #444;
+}
+
+h1,
+h2,
+h3 {
+	letter-spacing: -0.01em;
+	line-height: 1.2;
+	font-weight: 600;
+	margin-bottom: 0;
+}
+
+/* Override strong tags inside headings to maintain consistent weight */
+h1 strong,
+h2 strong,
+h3 strong {
+	font-weight: 600;
+}
+
+.page-title {
+	font-size: 2.5rem;
+	font-weight: 700;
+	margin-top: 0;
+	margin-bottom: 0.75em;
+}
+
+h1 {
+	font-size: 1.875rem;
+	margin-top: 1.875rem;
+}
+
+h2 {
+	font-size: 1.5rem;
+	margin-top: 1.5rem;
+}
+
+h3 {
+	font-size: 1.25rem;
+	margin-top: 1.25rem;
+}
+
+.source {
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	padding: 1.5em;
+	word-break: break-all;
+}
+
+.callout {
+	border-radius: 10px;
+	padding: 1rem;
+}
+
+figure {
+	margin: 1.25em 0;
+	page-break-inside: avoid;
+}
+
+figcaption {
+	opacity: 0.5;
+	font-size: 85%;
+	margin-top: 0.5em;
+}
+
+mark {
+	background-color: transparent;
+}
+
+.indented {
+	padding-left: 1.5em;
+}
+
+hr {
+	background: transparent;
+	display: block;
+	width: 100%;
+	height: 1px;
+	visibility: visible;
+	border: none;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+img {
+	max-width: 100%;
+}
+
+@media only print {
+	img {
+		max-height: 100vh;
+		object-fit: contain;
+	}
+
+	table.collection-content {
+		width: 100%;
+		table-layout: fixed;
+	}
+
+	table.collection-content th,
+	table.collection-content td {
+		overflow-wrap: anywhere;
+	}
+
+	table.collection-content td > .user,
+	table.collection-content td > time {
+		white-space: pre-wrap;
+	}
+}
+
+@page {
+	margin: 1in;
+}
+
+.collection-content-wrapper {
+	overflow-x: auto;
+}
+
+@media only print {
+	.collection-content-wrapper {
+		overflow-x: visible;
+	}
+}
+
+.collection-content {
+	font-size: 0.875rem;
+}
+
+.collection-content td {
+	white-space: pre-wrap;
+	word-break: break-word;
+}
+
+.column-list {
+	display: flex;
+	gap: 46px;
+}
+
+.column {
+	min-width: 0;
+	overflow: hidden;
+}
+
+.column > *:first-child {
+	margin-top: 0;
+}
+
+.table_of_contents-item {
+	display: block;
+	font-size: 0.875rem;
+	line-height: 1.3;
+	padding: 0.125rem;
+}
+
+.table_of_contents-indent-1 {
+	margin-left: 1.5rem;
+}
+
+.table_of_contents-indent-2 {
+	margin-left: 3rem;
+}
+
+.table_of_contents-indent-3 {
+	margin-left: 4.5rem;
+}
+
+.table_of_contents-link {
+	text-decoration: none;
+	opacity: 0.7;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.18);
+}
+
+table,
+th,
+td {
+	border: 1px solid rgba(55, 53, 47, 0.09);
+	border-collapse: collapse;
+}
+
+table {
+	border-left: none;
+	border-right: none;
+}
+
+th,
+td {
+	font-weight: normal;
+	padding: 0.25em 0.5em;
+	line-height: 1.5;
+	min-height: 1.5em;
+	text-align: left;
+}
+
+th {
+	color: rgba(55, 53, 47, 0.6);
+}
+
+ol,
+ul {
+	margin: 0;
+	margin-block-start: 0.6em;
+	margin-block-end: 0.6em;
+}
+
+li > ol:first-child,
+li > ul:first-child {
+	margin-block-start: 0.6em;
+}
+
+ul > li {
+	list-style: disc;
+}
+
+ul.to-do-list {
+	padding-inline-start: 0;
+}
+
+ul.to-do-list > li {
+	list-style: none;
+}
+
+.to-do-children-checked {
+	text-decoration: line-through;
+	opacity: 0.375;
+}
+
+ul.toggle > li {
+	list-style: none;
+}
+
+ul {
+	padding-inline-start: 1.7em;
+}
+
+ul > li {
+	padding-left: 0.1em;
+}
+
+ol {
+	padding-inline-start: 1.6em;
+}
+
+ol.numbered-list.numbered-list-digits-2 {
+	padding-inline-start: 2em;
+}
+
+ol.numbered-list.numbered-list-digits-3plus {
+	padding-inline-start: 2.4em;
+}
+
+ol > li {
+	padding-left: 0.2em;
+}
+
+.mono ol {
+	padding-inline-start: 2em;
+}
+
+.mono ol > li {
+	text-indent: -0.4em;
+}
+
+.toggle {
+	padding-inline-start: 0em;
+	list-style-type: none;
+}
+
+/* Indent toggle children */
+.toggle > li > details {
+	padding-left: 1.7em;
+}
+
+.toggle > li > details > summary {
+	margin-left: -1.1em;
+}
+
+.selected-value {
+	display: inline-block;
+	padding: 0 0.5em;
+	background: rgba(206, 205, 202, 0.5);
+	border-radius: 3px;
+	margin-right: 0.5em;
+	margin-top: 0.3em;
+	margin-bottom: 0.3em;
+	white-space: nowrap;
+}
+
+.collection-title {
+	display: inline-block;
+	margin-right: 1em;
+}
+
+.page-description {
+	margin-bottom: 2em;
+}
+
+.simple-table {
+	margin-top: 1em;
+	font-size: 0.875rem;
+	empty-cells: show;
+}
+.simple-table td {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table th {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table-header-color {
+	background: rgb(247, 246, 243);
+	color: black;
+}
+.simple-table-header {
+	font-weight: 500;
+}
+
+time {
+	opacity: 0.5;
+}
+
+.icon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	max-width: 1.2em;
+	max-height: 1.2em;
+	text-decoration: none;
+	vertical-align: text-bottom;
+	margin-right: 0.5em;
+}
+
+img.icon {
+	border-radius: 3px;
+}
+
+.callout img.notion-static-icon {
+	width: 1em;
+	height: 1em;
+}
+
+.callout p {
+	margin: 0;
+}
+
+.callout h1,
+.callout h2,
+.callout h3 {
+	margin: 0 0 0.6rem;
+}
+
+.user-icon {
+	width: 1.5em;
+	height: 1.5em;
+	border-radius: 100%;
+	margin-right: 0.5rem;
+}
+
+.user-icon-inner {
+	font-size: 0.8em;
+}
+
+.text-icon {
+	border: 1px solid #000;
+	text-align: center;
+}
+
+.page-cover-image {
+	display: block;
+	object-fit: cover;
+	width: 100%;
+	max-height: 30vh;
+}
+
+.page-header-icon {
+	font-size: 3rem;
+	margin-bottom: 1rem;
+}
+
+.page-header-icon-with-cover {
+	margin-top: -0.72em;
+	margin-left: 0.07em;
+}
+
+.page-header-icon img {
+	border-radius: 3px;
+}
+
+.link-to-page {
+	margin: 1em 0;
+	padding: 0;
+	border: none;
+	font-weight: 500;
+}
+
+p > .user {
+	opacity: 0.5;
+}
+
+td > .user,
+td > time {
+	white-space: nowrap;
+}
+
+input[type="checkbox"] {
+	transform: scale(1.5);
+	margin-right: 0.6em;
+	vertical-align: middle;
+}
+
+p {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+.image {
+	border: none;
+	margin: 1.5em 0;
+	padding: 0;
+	border-radius: 0;
+	text-align: center;
+}
+
+.code,
+code {
+	background: rgba(135, 131, 120, 0.15);
+	border-radius: 3px;
+	padding: 0.2em 0.4em;
+	border-radius: 3px;
+	font-size: 85%;
+	tab-size: 2;
+}
+
+code {
+	color: #eb5757;
+}
+
+.code {
+	padding: 1.5em 1em;
+}
+
+.code-wrap {
+	white-space: pre-wrap;
+	word-break: break-all;
+}
+
+.code > code {
+	background: none;
+	padding: 0;
+	font-size: 100%;
+	color: inherit;
+}
+
+blockquote {
+	font-size: 1em;
+	margin: 1em 0;
+	padding-left: 1em;
+	border-left: 3px solid rgb(55, 53, 47);
+}
+
+blockquote.quote-large {
+	font-size: 1.25em;
+}
+
+.bookmark {
+	text-decoration: none;
+	max-height: 8em;
+	padding: 0;
+	display: flex;
+	width: 100%;
+	align-items: stretch;
+}
+
+.bookmark-title {
+	font-size: 0.85em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	height: 1.75em;
+	white-space: nowrap;
+}
+
+.bookmark-text {
+	display: flex;
+	flex-direction: column;
+}
+
+.bookmark-info {
+	flex: 4 1 180px;
+	padding: 12px 14px 14px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.bookmark-image {
+	width: 33%;
+	flex: 1 1 180px;
+	display: block;
+	position: relative;
+	object-fit: cover;
+	border-radius: 1px;
+}
+
+.bookmark-description {
+	color: rgba(55, 53, 47, 0.6);
+	font-size: 0.75em;
+	overflow: hidden;
+	max-height: 4.5em;
+	word-break: break-word;
+}
+
+.bookmark-href {
+	font-size: 0.75em;
+	margin-top: 0.25em;
+}
+
+.sans { font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol"; }
+.code { font-family: "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace; }
+.serif { font-family: Lyon-Text, Georgia, ui-serif, serif; }
+.mono { font-family: iawriter-mono, Nitti, Menlo, Courier, monospace; }
+.pdf .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK JP'; }
+.pdf:lang(zh-CN) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK SC'; }
+.pdf:lang(zh-TW) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK TC'; }
+.pdf:lang(ko-KR) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK KR'; }
+.pdf .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.pdf .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK JP'; }
+.pdf:lang(zh-CN) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK SC'; }
+.pdf:lang(zh-TW) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK TC'; }
+.pdf:lang(ko-KR) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK KR'; }
+.pdf .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.highlight-default {
+	color: rgba(44, 44, 43, 1);
+}
+.highlight-gray {
+	color: rgba(125, 122, 117, 1);
+	fill: rgba(125, 122, 117, 1);
+}
+.highlight-brown {
+	color: rgba(159, 118, 90, 1);
+	fill: rgba(159, 118, 90, 1);
+}
+.highlight-orange {
+	color: rgba(210, 123, 45, 1);
+	fill: rgba(210, 123, 45, 1);
+}
+.highlight-yellow {
+	color: rgba(203, 148, 52, 1);
+	fill: rgba(203, 148, 52, 1);
+}
+.highlight-teal {
+	color: rgba(80, 148, 110, 1);
+	fill: rgba(80, 148, 110, 1);
+}
+.highlight-blue {
+	color: rgba(56, 125, 201, 1);
+	fill: rgba(56, 125, 201, 1);
+}
+.highlight-purple {
+	color: rgba(154, 107, 180, 1);
+	fill: rgba(154, 107, 180, 1);
+}
+.highlight-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.highlight-red {
+	color: rgba(207, 81, 72, 1);
+	fill: rgba(207, 81, 72, 1);
+}
+.highlight-default_background {
+	color: rgba(44, 44, 43, 1);
+}
+.highlight-gray_background {
+	background: rgba(42, 28, 0, 0.07);
+}
+.highlight-brown_background {
+	background: rgba(139, 46, 0, 0.086);
+}
+.highlight-orange_background {
+	background: rgba(224, 101, 1, 0.129);
+}
+.highlight-yellow_background {
+	background: rgba(211, 168, 0, 0.137);
+}
+.highlight-teal_background {
+	background: rgba(0, 100, 45, 0.09);
+}
+.highlight-blue_background {
+	background: rgba(0, 124, 215, 0.094);
+}
+.highlight-purple_background {
+	background: rgba(102, 0, 178, 0.078);
+}
+.highlight-pink_background {
+	background: rgba(197, 0, 93, 0.086);
+}
+.highlight-red_background {
+	background: rgba(223, 22, 0, 0.094);
+}
+.block-color-default {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray {
+	color: rgba(125, 122, 117, 1);
+	fill: rgba(125, 122, 117, 1);
+}
+.block-color-brown {
+	color: rgba(159, 118, 90, 1);
+	fill: rgba(159, 118, 90, 1);
+}
+.block-color-orange {
+	color: rgba(210, 123, 45, 1);
+	fill: rgba(210, 123, 45, 1);
+}
+.block-color-yellow {
+	color: rgba(203, 148, 52, 1);
+	fill: rgba(203, 148, 52, 1);
+}
+.block-color-teal {
+	color: rgba(80, 148, 110, 1);
+	fill: rgba(80, 148, 110, 1);
+}
+.block-color-blue {
+	color: rgba(56, 125, 201, 1);
+	fill: rgba(56, 125, 201, 1);
+}
+.block-color-purple {
+	color: rgba(154, 107, 180, 1);
+	fill: rgba(154, 107, 180, 1);
+}
+.block-color-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.block-color-red {
+	color: rgba(207, 81, 72, 1);
+	fill: rgba(207, 81, 72, 1);
+}
+.block-color-default_background {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray_background {
+	background: rgba(240, 239, 237, 1);
+}
+.block-color-brown_background {
+	background: rgba(245, 237, 233, 1);
+}
+.block-color-orange_background {
+	background: rgba(251, 235, 222, 1);
+}
+.block-color-yellow_background {
+	background: rgba(249, 243, 220, 1);
+}
+.block-color-teal_background {
+	background: rgba(232, 241, 236, 1);
+}
+.block-color-blue_background {
+	background: rgba(229, 242, 252, 1);
+}
+.block-color-purple_background {
+	background: rgba(243, 235, 249, 1);
+}
+.block-color-pink_background {
+	background: rgba(250, 233, 241, 1);
+}
+.block-color-red_background {
+	background: rgba(252, 233, 231, 1);
+}
+.select-value-color-default { background-color: rgba(42, 28, 0, 0.07); }
+.select-value-color-gray { background-color: rgba(28, 19, 1, 0.11); }
+.select-value-color-brown { background-color: rgba(127, 51, 0, 0.156); }
+.select-value-color-orange { background-color: rgba(196, 88, 0, 0.203); }
+.select-value-color-yellow { background-color: rgba(209, 156, 0, 0.282); }
+.select-value-color-green { background-color: rgba(0, 96, 38, 0.156); }
+.select-value-color-blue { background-color: rgba(0, 118, 217, 0.203); }
+.select-value-color-purple { background-color: rgba(92, 0, 163, 0.141); }
+.select-value-color-pink { background-color: rgba(183, 0, 78, 0.152); }
+.select-value-color-red { background-color: rgba(206, 24, 0, 0.164); }
+
+.checkbox {
+	display: inline-flex;
+	vertical-align: text-bottom;
+	width: 16;
+	height: 16;
+	background-size: 16px;
+	margin-left: 2px;
+	margin-right: 5px;
+}
+
+.checkbox-on {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20width%3D%2216%22%20height%3D%2216%22%20fill%3D%22%2358A9D7%22%2F%3E%0A%3Cpath%20d%3D%22M6.71429%2012.2852L14%204.9995L12.7143%203.71436L6.71429%209.71378L3.28571%206.2831L2%207.57092L6.71429%2012.2852Z%22%20fill%3D%22white%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+
+.checkbox-off {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20x%3D%220.75%22%20y%3D%220.75%22%20width%3D%2214.5%22%20height%3D%2214.5%22%20fill%3D%22white%22%20stroke%3D%22%2336352F%22%20stroke-width%3D%221.5%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+	
+</style></head><body><article id="2e356320-92ca-80f5-9f49-f50405652c90" class="page sans"><header><h1 class="page-title" dir="auto">IT Project Portfolio Review Meeting</h1><p class="page-description" dir="auto"></p><table class="properties"><tbody><tr class="property-row property-row-status"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/burst_gray.svg" style="width:14px;height:14px;display:block"/></span>Processing</th><td><span class="status-value select-value-color-green"><div class="status-dot status-dot-color-green"></div>Processed</span></td></tr><tr class="property-row property-row-text"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/description_gray.svg" style="width:14px;height:14px;display:block"/></span>Agenda</th><td>IT project portfolio status review covering M3 Phase 2/3, Credit Card Integration, Factory Track, JPMC Phase 2, BOL Invoicing, AI for R&amp;D (Citrine), CCAS UCAS, CISAID Upgrade, MDM Data Governance, Hot List Dashboard, Price Support Application, AD Cleanup, M3 Cloud Integration timeline</td></tr><tr class="property-row property-row-date"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/calendar_gray.svg" style="width:14px;height:14px;display:block"/></span>Date</th><td><time>January 9, 2026</time></td></tr><tr class="property-row property-row-multi_select"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/list_gray.svg" style="width:14px;height:14px;display:block"/></span>Attendees</th><td><span class="selected-value select-value-color-pink">Internal</span></td></tr><tr class="property-row property-row-select"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/arrow-circle-down_gray.svg" style="width:14px;height:14px;display:block"/></span>Meeting Type</th><td><span class="selected-value select-value-color-orange">Team Meeting</span></td></tr><tr class="property-row property-row-person"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/friends_gray.svg" style="width:14px;height:14px;display:block"/></span>Organizer</th><td><span class="user"><img src="https://lh3.googleusercontent.com/a/ACg8ocLHfVvdl28jS936w7CBB6TObsUa1P-X8cbdsUSKdeEn_MD7Bw=s96-c" class="icon user-icon"/>Steve </span></td></tr><tr class="property-row property-row-select"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/arrow-circle-down_gray.svg" style="width:14px;height:14px;display:block"/></span>Priority</th><td><span class="selected-value select-value-color-yellow">Medium</span></td></tr><tr class="property-row property-row-checkbox"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/checkmark-square_gray.svg" style="width:14px;height:14px;display:block"/></span>Has Cluely Transcript</th><td><div class="checkbox checkbox-off"></div></td></tr><tr class="property-row property-row-checkbox"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/checkmark-square_gray.svg" style="width:14px;height:14px;display:block"/></span>Has Final Transcript</th><td><div class="checkbox checkbox-off"></div></td></tr><tr class="property-row property-row-select"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/arrow-circle-down_gray.svg" style="width:14px;height:14px;display:block"/></span>Status</th><td><span class="selected-value select-value-color-brown">Completed</span></td></tr><tr class="property-row property-row-checkbox"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/checkmark-square_gray.svg" style="width:14px;height:14px;display:block"/></span>Has Notion Transcript</th><td><div class="checkbox checkbox-on"></div></td></tr><tr class="property-row property-row-checkbox"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/checkmark-square_gray.svg" style="width:14px;height:14px;display:block"/></span>Has Teams Transcript</th><td><div class="checkbox checkbox-off"></div></td></tr><tr class="property-row property-row-checkbox"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/checkmark-square_gray.svg" style="width:14px;height:14px;display:block"/></span>Merged to Feed</th><td><div class="checkbox checkbox-off"></div></td></tr></tbody></table></header><div class="page-body"><div style="display:contents" dir="ltr"><div id="2e356320-92ca-80cd-bc37-faa4c7839411" class="transcription"><div style="border-bottom:0.05em solid;border-bottom-color:rgba(42, 28, 0, 0.07)">Summary<br/></div><div style="display:contents" dir="auto"><h3 id="2e356320-92ca-8171-8473-d01ca5e8fe7f" class="">Overview</h3></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-81e2-803f-e268a2b58832" class="">Project portfolio status review covering multiple IT initiatives across core workstreams, infrastructure, and development teams. Red/yellow/green status indicators are used to highlight where attention is needed, with red/yellow typically indicating external blockers (approvals, vendor delays) rather than team performance issues. ‣ ‣</p></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-812e-9130-f60b5dc3453c" class="">&lt;empty-block</p></div><div style="display:contents" dir="auto"><h3 id="2e356320-92ca-81d7-a756-d24216761114" class="">Core Workstream Projects</h3></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-811d-ad35-c40f7cb86eea" class=""><strong>M3 Phase 2 Enhancements</strong></p></div><div style="display:contents" dir="auto"><ul id="2e356320-92ca-81d3-8c9b-e6d18cc70911" class="bulleted-list"><li style="list-style-type:disc">Status: Red - significant delays due to scope creep ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e356320-92ca-8101-8227-edabb02997a9" class="bulleted-list"><li style="list-style-type:disc">Originally scheduled for end of January, now pushed to at least April ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e356320-92ca-81dc-a2d6-f434662b0ed7" class="bulleted-list"><li style="list-style-type:disc">High dependency on external resources (Wipro, Dopio) and team members pushing to UAT ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e356320-92ca-814d-9965-cf313e3f566c" class="bulleted-list"><li style="list-style-type:disc">Longer timeline impacts ability to work on other initiatives ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e356320-92ca-81ff-a09e-f2904504ff25" class="bulleted-list"><li style="list-style-type:disc">Team requested to prioritize phase two questions to help move project forward ‣</li></ul></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-8138-a1f5-def2a9a19010" class=""><strong>Credit Card Integration (Taco Truck)</strong></p></div><div style="display:contents" dir="auto"><ul id="2e356320-92ca-8177-9f74-c08679f6e599" class="bulleted-list"><li style="list-style-type:disc">Status: Red - project not yet started ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e356320-92ca-8108-8c72-e8f9ca68608e" class="bulleted-list"><li style="list-style-type:disc">SOW with Wipro has been challenging to finalize, delayed by about a month ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e356320-92ca-8125-af5c-da7bf80e9c37" class="bulleted-list"><li style="list-style-type:disc">Will have 100% dependencies on infrastructure team ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e356320-92ca-817f-baf9-c60aa5b3642c" class="bulleted-list"><li style="list-style-type:disc">Requires POS hardware rollout at locations ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e356320-92ca-81b0-9d51-cac1d6331aa7" class="bulleted-list"><li style="list-style-type:disc">Hardware vendor identification remains a challenge - Wipro and SendPause not being helpful ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e356320-92ca-8142-ab83-df6af07ddb32" class="bulleted-list"><li style="list-style-type:disc">SendPause will be vendor of record with Wipro ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e356320-92ca-8140-9ff0-c287af948645" class="bulleted-list"><li style="list-style-type:disc">Timelines still TBD ‣</li></ul></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-8101-b0a3-d2ae76540974" class="">
+</p></div><div style="display:contents" dir="auto"><h3 id="2e356320-92ca-81dd-9742-c8baec6d3701" class="">M3 Phase 3 Projects</h3></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-81ba-9996-dddeb86a1380" class=""><strong>Factory Track</strong></p></div><div style="display:contents" dir="auto"><ul id="2e356320-92ca-81a2-8328-e117291200fc" class="bulleted-list"><li style="list-style-type:disc">Status: Yellow - some delays but progress made ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e356320-92ca-8175-a229-e6c3210fe113" class="bulleted-list"><li style="list-style-type:disc">PO received and order placed with Peak Technologies ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e356320-92ca-81e0-90f6-d43704ddc22f" class="bulleted-list"><li style="list-style-type:disc">Six-week lead time with vendor impacts timelines ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e356320-92ca-81d8-8536-f48c48b89680" class="bulleted-list"><li style="list-style-type:disc">ETA expected first part of next week ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e356320-92ca-8161-8dc8-f0d451bde453" class="bulleted-list"><li style="list-style-type:disc">High-level requirements complete, detailed requirements in progress ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e356320-92ca-81aa-9b7f-f7c90283e9ca" class="bulleted-list"><li style="list-style-type:disc">Connor will program scanners, with one week in infrastructure for setup ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e356320-92ca-8166-84f1-d43682c61388" class="bulleted-list"><li style="list-style-type:disc">Batteries and accessories shipping directly to sites, scanners to service centers for programming ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e356320-92ca-8165-8440-ea95bf46bf81" class="bulleted-list"><li style="list-style-type:disc">Timeline coordinated to complete before Connor&#x27;s training in March ‣</li></ul></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-81c2-bef4-f2209cf04cc0" class=""><strong>Production Scheduling</strong></p></div><div style="display:contents" dir="auto"><ul id="2e356320-92ca-8106-9e2b-c65e0fbbd0e8" class="bulleted-list"><li style="list-style-type:disc">Status: Green - just kicked off this week ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e356320-92ca-81a7-b6f0-c52957045cbb" class="bulleted-list"><li style="list-style-type:disc">Business wishlist walkthrough scheduled immediately after this meeting ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e356320-92ca-81dd-b5c5-f6e3036a9878" class="bulleted-list"><li style="list-style-type:disc">No current issues ‣</li></ul></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-811e-b18d-e0a96f3b5961" class="">
+</p></div><div style="display:contents" dir="auto"><h3 id="2e356320-92ca-8151-9e0f-f29946fc7948" class="">Banking and Operations Projects</h3></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-816c-9396-fe16510fba42" class=""><strong>JPMC Phase 2</strong></p></div><div style="display:contents" dir="auto"><ul id="2e356320-92ca-81c4-8601-e27af3c62975" class="bulleted-list"><li style="list-style-type:disc">Status: Green - strong start ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e356320-92ca-8109-90dc-e1123d694119" class="bulleted-list"><li style="list-style-type:disc">Project kickoff completed, detailed project plan in development ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e356320-92ca-81d0-9d09-c314f33bbcf4" class="bulleted-list"><li style="list-style-type:disc">Dependency on bank go-live dates - tentatively end of April ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e356320-92ca-8126-8dba-f64e71a893e1" class="bulleted-list"><li style="list-style-type:disc">Elena and DOPIO team delivered impressive, detailed plan ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e356320-92ca-8159-b95d-d43bf42e76cd" class="bulleted-list"><li style="list-style-type:disc">Fresh data copied to company 995 for testing ‣</li></ul></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-81fa-8156-d40c9c0d22a6" class=""><strong>BOL Invoicing Updates</strong></p></div><div style="display:contents" dir="auto"><ul id="2e356320-92ca-8189-9acd-ef5dee23aae2" class="bulleted-list"><li style="list-style-type:disc">Status: Green - on track ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e356320-92ca-817e-ac93-eee160a01c57" class="bulleted-list"><li style="list-style-type:disc">Code being handed to QA this week ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e356320-92ca-81c9-9443-c124f8ee5155" class="bulleted-list"><li style="list-style-type:disc">Late-breaking requirements for broken box logic and documents accommodated by Dopio ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e356320-92ca-81c4-b8ea-e3064dce5f0b" class="bulleted-list"><li style="list-style-type:disc">Dependency: Patrick&#x27;s team needs to update transportation information table (MWS001) next week ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e356320-92ca-813f-992f-c108324e084c" class="bulleted-list"><li style="list-style-type:disc">Specific field update needed for specific items ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e356320-92ca-81db-bbb2-e0375e4b7fd1" class="bulleted-list"><li style="list-style-type:disc">Kathleen and Jim will maintain field going forward with new items ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e356320-92ca-8192-b5c4-f022e4a978df" class="bulleted-list"><li style="list-style-type:disc">No additional operational readiness or training required - business team already working on solution ‣</li></ul></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-8190-ad88-e3a97f326871" class="">
+</p></div><div style="display:contents" dir="auto"><h3 id="2e356320-92ca-81b6-a6ab-dbfe3b2a21a7" class="">Supporting Applications</h3></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-81b8-b1eb-c4bf61d4b15e" class=""><strong>AI for R&amp;D</strong></p></div><div style="display:contents" dir="auto"><ul id="2e356320-92ca-816c-8910-ebc601ff456c" class="bulleted-list"><li style="list-style-type:disc">Status: Should be green - SAML integration completed last week ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e356320-92ca-814f-a41c-de2f406c337d" class="bulleted-list"><li style="list-style-type:disc">Web application through vendor Citrine (not building internally) ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e356320-92ca-81ed-a606-fffaf460ab0b" class="bulleted-list"><li style="list-style-type:disc">Major challenge: data standardization across organization ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e356320-92ca-8147-970d-f8e970b0b43b" class="bulleted-list"><li style="list-style-type:disc">Data format inconsistencies make it difficult to identify clean projects (Word vs Excel, different individual approaches) ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e356320-92ca-81f0-b5be-fb808539fbeb" class="bulleted-list"><li style="list-style-type:disc">Meeting on the 13th to discuss projects and data standardization ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e356320-92ca-8103-8cd1-ec146a56a647" class="bulleted-list"><li style="list-style-type:disc">Citrine onsite visit planned for the 29th with Bradley and Jim ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e356320-92ca-8145-91c5-f4c2ee428176" class="bulleted-list"><li style="list-style-type:disc">All users now have access to Citrine platform ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e356320-92ca-8196-b05c-ddbfa0deb0bd" class="bulleted-list"><li style="list-style-type:disc">Important note: Citrine is cloud-based, only requires browser (no new hardware needed) ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e356320-92ca-81c6-ae1b-ce3c89277699" class="bulleted-list"><li style="list-style-type:disc">Future plans to pull data from Optiva and Fort Wright databases ‣</li></ul></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-8186-9d71-c51a0632320d" class="">
+</p></div><div style="display:contents" dir="auto"><h3 id="2e356320-92ca-8154-9d11-cfbc6c809544" class="">Infrastructure Projects</h3></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-8153-95d3-e07ac3e1914f" class=""><strong>CCAS UCAS (Taco integration)</strong></p></div><div style="display:contents" dir="auto"><ul id="2e356320-92ca-81ca-b496-f5733e71e2ed" class="bulleted-list"><li style="list-style-type:disc">Status: Red - MSA DPA needs to be cleaned up ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e356320-92ca-81d0-b3d3-fc617028a64a" class="bulleted-list"><li style="list-style-type:disc">Demo with ELT held yesterday, generally positive feedback ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e356320-92ca-8191-a9a9-eec7690a6580" class="bulleted-list"><li style="list-style-type:disc">CFO Phil raised questions about vendor selection and pricing ‣ ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e356320-92ca-8156-a08a-df49026e2276" class="bulleted-list"><li style="list-style-type:disc">Need to better communicate previous vendor selection work to ELT ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e356320-92ca-8173-8116-c5b73b5e6b13" class="bulleted-list"><li style="list-style-type:disc">Switching from capital to expense model - financial context needed for RFE ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e356320-92ca-8102-9e55-f65bfa87c4e1" class="bulleted-list"><li style="list-style-type:disc">Zoom working on updated pricing based on demo feedback ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e356320-92ca-81cd-9d8e-ca0ac5c714e7" class="bulleted-list"><li style="list-style-type:disc">RFE will need multiple IT stakeholder reviews before submission ‣</li></ul></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-8133-8471-d797df9fc8a7" class=""><strong>CISAID Upgrade/Replacement</strong></p></div><div style="display:contents" dir="auto"><ul id="2e356320-92ca-813c-9935-fb760ad36df3" class="bulleted-list"><li style="list-style-type:disc">Status: Project starting ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e356320-92ca-81ff-b40e-d0760d89e940" class="bulleted-list"><li style="list-style-type:disc">Matt leading the project ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e356320-92ca-8125-b96c-c0662e37d9cd" class="bulleted-list"><li style="list-style-type:disc">Small internal IT kickoff scheduled for Wednesday ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e356320-92ca-812a-9cbe-c9361ff15f15" class="bulleted-list"><li style="list-style-type:disc">Next major step: discovery process with stakeholders to identify requirements ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e356320-92ca-81e3-927c-d856e9ab50b1" class="bulleted-list"><li style="list-style-type:disc">Long-awaited project that will benefit all IT team members ‣</li></ul></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-8172-80ba-dc1c855774a9" class="">
+</p></div><div style="display:contents" dir="auto"><h3 id="2e356320-92ca-8135-ae70-ce4fa76f7f51" class="">Dev and Data Team Projects</h3></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-813a-bce6-f96f192871dd" class=""><strong>MDM Data Governance</strong></p></div><div style="display:contents" dir="auto"><ul id="2e356320-92ca-8153-bba2-dd40727cfb5c" class="bulleted-list"><li style="list-style-type:disc">Status: Early stages ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e356320-92ca-81ce-bfdb-c54db6f0ea34" class="bulleted-list"><li style="list-style-type:disc"><span class="user">@Steve </span> leading the project ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e356320-92ca-81af-b925-f5ae914c625a" class="bulleted-list"><li style="list-style-type:disc">Currently gathering information and researching data sources ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e356320-92ca-8104-8089-f5a243325c8e" class="bulleted-list"><li style="list-style-type:disc">Steve traveling in a couple weeks to meet with stakeholder group ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e356320-92ca-8155-ad5c-cd0471f9c725" class="bulleted-list"><li style="list-style-type:disc">Formal kickoff with stakeholders planned for later ‣</li></ul></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-8192-a884-dfa6eaefe9c1" class=""><strong>Hot List Logistics Dashboard</strong></p></div><div style="display:contents" dir="auto"><ul id="2e356320-92ca-81fe-a3fc-ece03a6805a6" class="bulleted-list"><li style="list-style-type:disc">Status: Red - next steps being determined ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e356320-92ca-81c1-a479-f18bc111b1fb" class="bulleted-list"><li style="list-style-type:disc">Meeting held this week with Joe Huff and Mitch ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e356320-92ca-8152-9aa9-c456fd0c9070" class="bulleted-list"><li style="list-style-type:disc">Two paths identified: MVP (nearly complete) and larger project ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e356320-92ca-81f4-81cf-ca72c7b6ad98" class="bulleted-list"><li style="list-style-type:disc">Looking to bring in outside resource for larger scope ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e356320-92ca-81f6-903e-cd6d2e9d47b2" class="bulleted-list"><li style="list-style-type:disc">Purpose: reduce time spent manually analyzing data, create single pane of glass vs. multiple spreadsheets ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e356320-92ca-81e1-a25a-d195f256a7e8" class="bulleted-list"><li style="list-style-type:disc">Currently requires 20-30 minute daily meetings with 20 people ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e356320-92ca-8141-9256-c135bc231784" class="bulleted-list"><li style="list-style-type:disc">Project needs to be added to formal project intake list ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e356320-92ca-8174-91f7-eb7257858d63" class="bulleted-list"><li style="list-style-type:disc">Meeting to be scheduled after Patrick returns from Fort Wright travel ‣</li></ul></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-81ae-b6c3-dca32fbd8a87" class=""><strong>Price Support Application</strong></p></div><div style="display:contents" dir="auto"><ul id="2e356320-92ca-81e4-ad7c-dca8d97008e2" class="bulleted-list"><li style="list-style-type:disc">Status: In progress ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e356320-92ca-8137-a3eb-f3aa4c26347c" class="bulleted-list"><li style="list-style-type:disc">Addresses issue where updating price reports requires updating up to 26 different records ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e356320-92ca-8103-a8de-ee9324e2cc58" class="bulleted-list"><li style="list-style-type:disc">Tool allows data entry in one place with automatic backend updates ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e356320-92ca-8122-8e13-ec7eafd9cea4" class="bulleted-list"><li style="list-style-type:disc">Key issue: multiple reports need to be updated before go-live ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e356320-92ca-8100-b82c-e35ded0b8b78" class="bulleted-list"><li style="list-style-type:disc">Reports currently reference data from different location than where it will be stored post-implementation ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e356320-92ca-818a-b505-d45fcd96bdf9" class="bulleted-list"><li style="list-style-type:disc">May be completed before outside contractor is brought in ‣</li></ul></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-81a1-bd13-e9f31c4b5d35" class="">
+</p></div><div style="display:contents" dir="auto"><h3 id="2e356320-92ca-8180-b2ad-e66c3a3aaa5f" class="">Upcoming and Cross-Cutting Items</h3></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-81c6-957f-ea29f5df48de" class=""><strong>SLM Project (Mass Strip to Fort Wright)</strong></p></div><div style="display:contents" dir="auto"><ul id="2e356320-92ca-81c8-84b8-f4635a3b365f" class="bulleted-list"><li style="list-style-type:disc">Matt traveling to Fort Wright next week ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e356320-92ca-8175-a1d1-fb3a21f783bb" class="bulleted-list"><li style="list-style-type:disc">Kickoff for integrating blending systems with PLC factory talk automation ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e356320-92ca-8129-9a98-c57f5bb52bfd" class="bulleted-list"><li style="list-style-type:disc">Last 5 years focused on resin plants, now expanding to blending operations ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e356320-92ca-81be-9131-c458e9a78535" class="bulleted-list"><li style="list-style-type:disc">Will result in additional project items being added ‣</li></ul></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-811a-b0ce-e6313c6289c0" class=""><strong>Active Directory Cleanup and Standardization</strong></p></div><div style="display:contents" dir="auto"><ul id="2e356320-92ca-8143-810b-f64135b6f17f" class="bulleted-list"><li style="list-style-type:disc">Status: Not yet tracked as formal project, but should be ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e356320-92ca-816d-9e8b-dd8baf344f42" class="bulleted-list"><li style="list-style-type:disc">Teams channel to be created for communication and testing notifications ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e356320-92ca-8136-b41d-fce1d100764e" class="bulleted-list"><li style="list-style-type:disc">Testing with specific IT groups planned ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e356320-92ca-8170-80e8-ea6708994e39" class="bulleted-list"><li style="list-style-type:disc">Mike currently leading, will transition to Connor Jacoby ‣ ‣</li></ul></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-8157-9c6e-d1c3531517b2" class=""><strong>M3 Cloud Integration for HK and IP</strong></p></div><div style="display:contents" dir="auto"><ul id="2e356320-92ca-8159-84f3-c40da2dde055" class="bulleted-list"><li style="list-style-type:disc">Not starting in Q1 2026 as originally shown on old roadmap ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e356320-92ca-81ff-b63e-d481cdd708ee" class="bulleted-list"><li style="list-style-type:disc">Organization-wide discovery process planned for Q2 ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e356320-92ca-8151-897e-c6b107d6e421" class="bulleted-list"><li style="list-style-type:disc">RFP likely late Q1, vendor selection Q2 ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e356320-92ca-8149-9e80-e55b335d73c1" class="bulleted-list"><li style="list-style-type:disc">Timeline slowed to avoid forcing business units into cloud ERP without proper change management ‣</li></ul></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-81cd-a3f2-c69b1d465c4e" class=""><strong>Email Format Standardization</strong></p></div><div style="display:contents" dir="auto"><ul id="2e356320-92ca-813f-a3bc-f440881323ab" class="bulleted-list"><li style="list-style-type:disc">Recent confusion about login ID vs. email address format ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e356320-92ca-8191-9c94-e621fc96dda9" class="bulleted-list"><li style="list-style-type:disc">Current standard: first initial + five letters of last name + incremental numbers ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e356320-92ca-816e-b85e-e12d937561a3" class="bulleted-list"><li style="list-style-type:disc">Discussion needed about adopting first.last format or other standard ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e356320-92ca-8114-bfba-c38d38a496d9" class="bulleted-list"><li style="list-style-type:disc">Desktop team needs to stop changing email defaults until decision is made ‣ ‣</li></ul></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-81ee-9953-e21699b846df" class="">
+</p></div><div style="display:contents" dir="auto"><h3 id="2e356320-92ca-8157-abf9-c0144a5c5c91" class="">Process Changes</h3></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-8193-9825-de7dff48f2d5" class=""><strong>Project Status Update Process</strong></p></div><div style="display:contents" dir="auto"><ul id="2e356320-92ca-8136-b51f-d452beaedb14" class="bulleted-list"><li style="list-style-type:disc">Project leads will begin updating their own slides rather than Dominique updating all ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e356320-92ca-81a0-a63c-f5c926d601e0" class="bulleted-list"><li style="list-style-type:disc">Updates must be submitted by specific deadline for review before meeting ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e356320-92ca-8157-9933-f5012ab5721a" class="bulleted-list"><li style="list-style-type:disc">Dominique will continue to handle initial setup ‣</li></ul></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-8147-b8fa-fcc27e004671" class="">
+</p></div><div style="display:contents" dir="auto"><h3 id="2e356320-92ca-813b-b08b-db5d16419e5f" class="">Action Items</h3></div><div style="display:contents" dir="auto"><ul id="2e356320-92ca-8139-966c-d6eeac8f1437" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Mike to clean up MSA DPA for CCAS UCAS project ‣</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="2e356320-92ca-81ff-835a-cb5499be98c3" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Mike to provide full ELT feedback summary on Monday for CCAS UCAS ‣</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="2e356320-92ca-817f-8aae-c8b246c4e2de" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Dominique to provide draft RFE for CCAS UCAS by end of day ‣</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="2e356320-92ca-8134-aaec-eed6eb0296cd" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Elena to create Jira ticket for Patrick&#x27;s team regarding BOL invoicing table updates ‣</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="2e356320-92ca-81ff-a556-e06ddc6466be" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Patrick&#x27;s team (likely Francis) to update transportation information field in MWS001 for BOL invoicing ‣ ‣</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="2e356320-92ca-81e2-b989-e95d3111cfe1" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Matt to create Jira ticket for report updates needed for price support application ‣</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="2e356320-92ca-8187-88ff-dd92ae18f65e" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Team to attend AI for R&amp;D meeting on the 13th for projects and data standardization discussion ‣</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="2e356320-92ca-81ee-a495-ed412696c93f" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Bradley and Jim to coordinate Citrine onsite visit on the 29th and determine appropriate audience ‣</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="2e356320-92ca-81ac-8a12-e7893a89394e" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Mike and Dominique to discuss email format standardization decision ‣</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="2e356320-92ca-8132-ab41-ea50fb731520" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Dominique to notify desktop team to stop changing email defaults until format is decided ‣</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="2e356320-92ca-81f9-9e7b-e776f3aa46e6" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Dominique to set up meeting with Connor Jacoby about Active Directory cleanup project ‣</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="2e356320-92ca-8108-97d9-f9d48c6fa8c6" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Dominique to set up meeting with Patrick about hot list logistics dashboard (after Fort Wright trip) ‣ ‣</span><div class="indented"></div></li></ul></div><div style="border-bottom:0.05em solid;border-bottom-color:rgba(42, 28, 0, 0.07)">Notes<br/></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-8045-ba5e-ff32e08aa6af" class="">
+</p></div><div style="border-bottom:0.05em solid;border-bottom-color:rgba(42, 28, 0, 0.07)">Transcript<br/></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-8025-8df3-f7422e848ed3" class="">than Showing where we need pain points, where we have pain points. You&#x27;ll see me skipping over items that are fully green, maybe touching on them really quickly, but we&#x27;re going to keep rolling. Where we&#x27;re going to focus our attention is where we see something yellow or red, and I want to make it very clear to people. When something is red or something is yellow, it means that this is where we need to focus our attention, and it is almost exclusively due to factors beyond our control.</p></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-807c-98b7-f7247f6b1ac3" class="">We&#x27;re waiting for somebody at a higher level to sign something off. We&#x27;re waiting for an outside resource to get back to us. And it&#x27;s really, really important that we highlight that so that we can help each other out so that I can see, okay, there&#x27;s something red. Where can I jump in? Where can I take my hammer down and go bug somebody to sign off? You know, if something is sitting with Mike for sign off and it&#x27;s now gone beyond our deadline, we have to highlight that as red.</p></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-8064-b0ab-fa50394f9ac3" class="">In fact, Had many, many a time where a project has gone red because my CEO was sitting on something and now the project was late and that CEO did not realize that they were sitting on something and the date was now sliding. So I just want to be very clear that a red or a yellow indicator is not about the person who&#x27;s leading the project. It is the person leading the project raising a hand and saying, hey, we need some attention here or what are the next steps?</p></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-80b2-8e6b-f7f439644fd1" class="">We need a little bit of attention. And again. I&#x27;ve been doing project management for 20, it doesn&#x27;t matter, some years. And I have personally never, not once, had a project that didn&#x27;t go at least dip into the red at least once. So it is not a reflection on anybody here. It always happens. And when I see something that never goes to red, that actually raises a flag for me because that makes me think, hey, maybe we aren&#x27;t looking closely enough because there&#x27;s never something that doesn&#x27;t go into red or yellow.</p></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-80c5-8f73-cc10cbc747c3" class="">Everybody feel good about that? Yep.</p></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-80b4-81c7-fe2c03ad93af" class="">Awesome. Okay. Here we go.</p></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-80bd-9776-fd87792c7b54" class="">So our first slide is always our portfolio summary, what we have on the go. This is not an exhaustive list. I think I&#x27;d like to get to the point where it&#x27;s exhaustive, but this is just some of our bigger ones that we have on our plate. It&#x27;s going to start getting bigger. We&#x27;re going to see things drop off as they complete. But this is kind of where we&#x27;re at our team at a glance. So what I would normally do with this is we&#x27;d see a couple of reds and we might skip over those right away in the future and come back to them later just to make sure that we do.</p></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-8055-a7a4-e9da9767f258" class="">we&#x27;re able to get through everything because typically we have more conversations around reds or yellows. On that note, our first app is our core work stream. You can see where our core work stream hits us. And our first phase, first project is M2. M3 Phase 2 with Brenda. Brenda, I don&#x27;t know if you want me to speak to it. I&#x27;m happy to. I don&#x27;t want to put you on the spot. I can go ahead and do that.</p></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-8071-ba58-f0736ad8f19a" class="">Um... But if you want to jump in and... Shut me up. Because I&#x27;m in the middle of eating. No worries, no worries. Okay, so our key issue here, this one is red because we&#x27;ve had a lot of scope creep on this one. It&#x27;s caused major delays. So we were supposed to be finished this. by the end of January. We are nowhere near getting this done by end of January. This is probably gonna go until at least April.</p></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-8011-ba74-e5d5f0be3a50" class="">We are very dependent on other, on outside resources. We&#x27;re dependent on Wipro. Now we&#x27;ve got Dopio in the mix. We are dependent on team members pushing. themselves to UAT. We are very dependent on our external resources. Now, why is this important to everybody? This is important because the longer we spend on this, the harder it&#x27;s gonna be to work on other things. And the unfortunate reality is those other things are not gonna stop coming.</p></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-803f-9e5c-c8fc8a77d10f" class="">If internally you see somebody asking a question about phase two, we, myself and I know everybody would really appreciate it if we just moved it on this &#x27;cause we do have to get this out. There are other initiatives coming down the pipe that are as big if not bigger than the phase two enhancements. Questions, comments, concerns about M3 phase two? Okay, we&#x27;ll move on. Credit card integration. Everybody hears Mike talking about Taco Truck.</p></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-8045-be18-f8bb3c47c06f" class="">So this is Taco Truck. This one is, although you&#x27;ll see red, it isn&#x27;t in fact started yet. It&#x27;s red because we&#x27;ve got this sow that&#x27;s going back and forth with Wipro that&#x27;s been... It&#x27;s challenging to get through. So it&#x27;s red because of that. We would have liked to have it signed a month ago. So this is a great show of something that&#x27;s not going to stop. Just to note here, this one is going to have dependencies 100% on the infra team.</p></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-8099-996e-fc6330c3c14f" class="">I will start adding that in as we start the project, but just keep in mind that this is POS. This is going to require hardware rolled out at the locations that do need a POS. Questions, comments. I do not have timelines yet in for a team. You can see their TBD when we do have timelines for that, you will know so we can layer that in. Questions, comments, concerns?</p></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-8083-bd32-dc819f215adc" class="">I assume hardware is part of the... the SOW,At least identification?</p></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-800e-ade3-ec9f4e481a31" class="">Yes. So Jeannie has identified the number that we need. We&#x27;ve identified how many we need. The SOW does include the number what it does not include is the actual hardware. The RFE does. or will, but the actual hardware is not included. So we&#x27;re having a challenge finding hardware vendors on this one. So Michael, I think you and I need to talk more about that. Sure. So more to come. I did try and reach out.</p></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-80ca-96fa-f9492389b4f5" class="">Wipro is not being super helpful about POS vendors. So we shall see. And neither is SendPause for that matter. SendPause, FYI, is going to be the vendor of record with Wipro. doing this one. Okay, M3, phase three. Our first item is factory track. So we just received our PO. I believe, I think that&#x27;s late breaking news. We just got it signed or the PO issued yesterday in the last 24 hours. The reason why this one is yellow is because there is a six-week lead time with our vendor.</p></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-801f-a383-cb272237a1da" class="">And because we&#x27;ve just gotten it, we have not had a chance to get it. place that order that does impact timelines. I don&#x27;t know if they&#x27;re backordered and all of these good things. I have an update. Sure. The PO was received this morning and The order was placed with Peak Technologies. They will be getting me an ETA first part of next week. Awesome. That is great. Thank you. And as you can see, I was obviously distracted when I was working on this.</p></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-8053-81b1-c1d8df270395" class="">Our requirements are still in progress. I had actually updated this. Give me one second, team. Actually, I&#x27;m just going to stop sharing for a second because something did not update here. And I just want to make sure. It is updated. One second. is Very strange. I don&#x27;t know why that one did not update. Okay, well, I apologize, I&#x27;ll reshare. I&#x27;ll make sure that one is well updated next week. This one was on my radar.</p></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-8012-b9de-da5e9cdd06e8" class="">So I&#x27;m not sure why I didn&#x27;t. At any rate.</p></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-8013-b360-e6c07234b128" class="">I took a stab at the requirements and provided them to Brenda. I think Brenda was adding one other item on there, right, Brenda, for the data flow to factory talk from M3? To the Char?</p></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-80df-b038-cd3f7e2b6c3d" class="">Yeah, so I think my requirements, the update that I should have made, it would have been here if I had finished, is that the high level requirements are complete, but the next step is to frame those requirements and get really, really detailed on those. Sure. Questions, comments, concerns?</p></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-8081-90b5-d2340f04dc86" class="">Just a brief comment. I will be the one programming them. So when they are shipped, Infra will have some hands on them for maybe a week. Yep.</p></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-8027-bf30-d55e7a46ac6e" class="">So that&#x27;s a good point. Are they being shipped to the IP offices?</p></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-80e2-ab1d-da3ae99e9466" class="">Yes. So Lori and I talked yesterday, the batteries and extra cradles and anything that&#x27;s like hardware for the devices or accessories are gonna be shipped directly to the site. And then the scanners themselves will be shipped to service centers so I can program them and then we&#x27;ll ship them out after that. Awesome.</p></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-8005-8080-eb38eb2bdb6e" class="">That&#x27;s great. I&#x27;m so glad you guys talked.</p></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-80b9-b20f-e84bc81d1999" class="">Connor and I have been in contact, so I know how much lead time Connor needs and how much time it takes to get the equipment. So I want to get everything done before he takes his vacation in March. Not a vacation, training, but yes.</p></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-80a4-aa81-c017fded7c1d" class="">Oh, training, sorry. Oh yeah, no vacation is approved this year.</p></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-8077-b0b6-c3813ec40cb0" class="">No vacation for you.</p></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-800c-84a6-e8eb219c982e" class="">I&#x27;m joking, I&#x27;m joking. No soup for you, no soup for you. No, I&#x27;m joking. All right, next up. M3 Phase 3 production scheduling. So there are no current issues. This was just kicked off team this week. We do have a business wishlist walkthrough right after this meeting, which means some of us, including myself, do have a hard stop at two o&#x27;clock to go to do that walkthrough. But that said, team in the event that this particular meeting goes over, I&#x27;ll ask that Laurie, if you could join that and just start the meeting without me and I&#x27;ll join shortly after.</p></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-8063-b433-d31d2961a55d" class="">I would really appreciate it. Okay. Overall, we&#x27;re in good shape on this one. It hasn&#x27;t really started. So again, every project pretty much starts off green unless it doesn&#x27;t. Okay, next up, JPMC Phase 2. Also, right now, green, we just had a project kickoff. The team is working on their detailed project plan. We do have a dependency on some go-live dates with the banks. So we do have a go-live date of end of April.</p></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-80c7-b3fe-ece465c38deb" class="">That&#x27;s really kind of tentative. We think it&#x27;s going to be end of April, but we haven&#x27;t heard back from the banks yet. I&#x27;ve seen it this week, what they had, and I&#x27;m really, really impressed with it. what Elena and the DOPIO team have put together. That&#x27;s a really detailed plan. Questions, comments, concerns about JPMC phase two?</p></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-8003-94ef-cdf8506aef2c" class="">I just copied production into test for that into company 995 at the request for Elena. I don&#x27;t know if that&#x27;s anywhere on here, but that&#x27;s all done. Thank you. So they have fresh data to play with. Awesome.</p></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-8032-a5da-d2f683ab8fab" class="">Awesome. Thank you, Lori. Okay. Yeah. BOL invoicing updates. This one is currently on track. They are going into, they&#x27;re handing us code for QA this week. So everything is going really, really well with this one. I&#x27;m going to touch wood because usually when something is bright green this week, it goes to red the following week. So really good. There was even some kind of late breaking requirements that came in in terms of broken box logic and documents.</p></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-808e-8172-d6991e492a86" class="">for VOL units and Dopio did an awesome job of accommodating that. So yeah, just heads up, but I want everyone to note the dependency down here. Oops. All right. This is going to need work from Patrick&#x27;s team and it&#x27;s going to need that work done next week. So I don&#x27;t know, Elena, if you could speak to that a little bit more to give Patrick&#x27;s team a little bit more context. Yeah, as far as what I need from him, you&#x27;re saying, from his team?</p></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-80b9-9ba7-f036d712870f" class="">Yeah, just to let them know what they need, just so that we can hear, identify what the issue is. Awesome. Yeah.</p></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-804f-a562-e91bb34e9259" class="">I&#x27;ll put a jury ticket in. Did you want me to speak to it now? Yeah, that would be great. So basically there&#x27;s a table that holds transportation information in MWS001. And we&#x27;ve got items and a specific field that we need for specific items. We need a certain field updated. So I&#x27;ll get you that list and we can load that into test. And if everything is good, we can put that into production. It can happen ahead of time because that field&#x27;s not being used today by anything.</p></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-8064-95f6-e0a5cd349e90" class="">So, Yeah, if we can get this done sooner than later, that&#x27;d be great. Yeah, perfect. Thank you. Awesome.</p></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-809d-9df9-ce3ffa7fda20" class="">Does anybody have any like issues they think there is no way that&#x27;s getting done next week? There&#x27;s too much going on? And that&#x27;s a question for the dev team.</p></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-80d4-b458-d717b808e01d" class="">If it&#x27;s a simple field update and I have the correct filter, I think Francis, I&#x27;m guessing would be able to push that in. But I think you&#x27;re gonna have the details. Yeah, so just really quick to note, If I won&#x27;t, I don&#x27;t have the full list of all the items. I think I&#x27;m missing a small handful of items to be updated, but those can be done manually. I&#x27;m more concerned like if you&#x27;re loading them in just to test to make sure we have the process down in test.</p></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-8026-a22e-d89215855ce8" class="">I don&#x27;t even know why I said that because I already answered my own question. I think there&#x27;s a small amount we can just manually update after the fact.</p></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-8072-b637-f0f755efd82f" class="">So never mind. Awesome. Thank you. All right, questions, comments, concerns about BOL invoicing. I&#x27;m assuming that we have operational readiness. The business is ready to go. I know they&#x27;re very anxious for it, but there&#x27;s no any other training or anything we need further to let them know.</p></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-802f-a4e6-ed4bd738749f" class="">For the bill of lading, it will be a slight small change in process, but Kathleen and Jim would be the person to be updating this and they&#x27;ve been, they&#x27;re the ones working with me on this solution. So it&#x27;s that field that we&#x27;re loading in. They just gonna have to maintain that going forward with new items. Great.</p></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-8064-97b5-f546a571c178" class="">As long as they are aware and are good to go on that. Okay, supporting apps. Now, just so you guys are all aware, we don&#x27;t have a whole heck of a lot yet. This one will get a lot bigger real quick. So the first one up is AI for R&amp;D. I&#x27;m leading this one. Just so you all are aware what this is, this is a web application. So we&#x27;re not really building anything, which is awesome. It&#x27;s a web application through a vendor called Citrine.</p></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-809e-b9e9-deb21127c87c" class="">into their system and they do their AI magic and they spill out AI awesome stuff. So this should actually be green now. I apologize because the SAML integration was completed last week. So that is great. Right now, the major issue with this one is data standardization. So, of course, everybody knows garbage in, garbage out. And it&#x27;s not that we have garbage data. It&#x27;s that everybody is holding their data in a different format.</p></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-802e-8aaf-eaa540d1ad9c" class="">So it&#x27;s very difficult for us to identify a project. So when we&#x27;re identifying projects, it&#x27;s an internal project. For example, Molding Products wants to... find efficiencies in a very specific process that they&#x27;re doing, they would upload their data and AI would help us find those efficiencies, which is great if you have really clean data. It&#x27;s not great if your data, some of it is in a Word format, some of it&#x27;s in Excel.</p></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-80f4-b838-df0a68bddecd" class="">You know, Joe over there does it different than Mary over there. So that is our peak challenge right now is to get data standardization and find the projects that maybe the data is already a little bit clean All right. So questions, comments, concerns about AI for R&amp;D?</p></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-80f4-a001-f7436ab46c81" class="">So where are we at in that process again? So is this now Jim Ciceri and Brandon have their group of... chemists and they&#x27;re looking at projects?</p></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-80c6-956d-dd9b23df5b21" class="">Yeah. So we got a meeting on the 13th to go through projects and data standardization. I&#x27;d ask for that to be two different meetings because I think that they are two big topics, but Citrine wants to try them two in one. Fine. They also are planning an onsite on the 29th just to give everybody a walkthrough. So that&#x27;s with Bradley, Jim and the Citrine team to figure out what&#x27;s the best audience and make sure that we get everybody in So we&#x27;ve got everybody now into the Citrine platform.</p></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-809a-bad7-cb8b99ea1ef1" class="">And we want everyone to start playing around. Awesome.</p></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-800b-baf1-de387ad5941d" class="">So just a side note, I know that the service desk got a couple of tickets or at least one requesting new hardware to run Citrine. It&#x27;s a cloud app. Just make sure that&#x27;s consistent knowledge across that project. They don&#x27;t need new, they need a browser. That&#x27;s what they need. Bye.</p></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-80cd-ab9d-cfec2cf3bfd1" class="">They didn&#x27;t, okay. You and I, okay. I thought they wanted it, anyway, you and I will talk about that after. Okay. Okay.</p></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-8009-a156-e8bef22fa24b" class="">I got one quick question on that one too. Is there any data that we need to be pulling out and pushing into this new system? Eventually, yes, we&#x27;ll be actually pulling We&#x27;ll be pulling Optiva data. There&#x27;s possibly some stuff at Fort Wright in their old in some old database and stuff like that. Right now, they&#x27;re basically... They&#x27;re formulating in spreadsheets. Give us the spreadsheets. That&#x27;s what they&#x27;re after.</p></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-80a0-b5e4-cedd58519300" class="">Amen. All right. Infra team.</p></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-8053-843c-c4c735efe79b" class="">Again, not a lot. We have two projects, but we know there&#x27;s a lot more going on. One of the big ones is the CCAS UCAS. The key issue, it&#x27;s not really a huge issue. Mike, you know you still have to send that to clean up that MSA DPA. If you want me to help with that, let me know.</p></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-8049-b14c-ef6f0a46275d" class="">It just hasn&#x27;t gotten the number one on my list yet.</p></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-80e0-b431-d60d74c0f086" class="">Yeah, no, fair enough. We did have a demo yesterday with the ELT. I know Mike, both Eric from Zoom and Michael Kenney, and I&#x27;m sure Michael T are kind of curious about feedback on that. So maybe we can circle back with that one. I thought it was really positive.</p></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-80ec-a72e-eccb421f528f" class="">Yeah, I mean, well, you got to hear Phil in action yesterday, the CFO, which he always cracks me up. I plan on getting kind of a full summary on Monday when I go to the ELT, but... Um, you know, Eric you know, gave good reviews and said, yes, this is absolutely going to help customer service on the CCAS side. I don&#x27;t think there&#x27;s much argument. I think there&#x27;s more questions around. They showed a lot of functionality and how much are we going to try and do and price, you know, then pricing became a thing and everything else.</p></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-8048-b2d7-d5128b65e6e5" class="">So I&#x27;ll help us navigate that. Let me just get more feedback on it next week. But I think overall it was, it was positive. They understand that like, we have to go do this. I think A lot of the The work that we did on vendor selection and all that stuff, I probably should have given them ahead of time because I think Phil&#x27;s like, well, there&#x27;s 20 companies that do this. Why them, right? And so the team&#x27;s already been through that process with customer service.</p></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-80cd-9b76-c23798c80d28" class="">So I think... Yeah, there&#x27;s a little bit more to do on my side with the ELT, just kind of that&#x27;s paving the way. I think we&#x27;re in a, we&#x27;re, The The RFE for this is gonna be a little bit interesting. So I&#x27;m not sure who&#x27;s doing the RFE, but there&#x27;s gonna be some context and dollars and money and things like that that we wanna put into place because we&#x27;re switching from a capital model to an expense model, you know, what&#x27;s the payoff, what, you know, we have a run rate of duplicated circuits right now, you know, we have that driving it from a financial standpoint.</p></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-801a-b688-d67f443cf465" class="">So there&#x27;s all kinds of things that probably need to be put in there to make that thing sail through. Yeah, I had started working on the RFE. I can provide it to you by end of day today if you want to review it next week. Okay. Yeah, whenever you get it.</p></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-80ca-b2ec-f2c7a36fbe45" class="">Yeah, we might be a little bit early still for a lot of that information because we don&#x27;t have a Zoom right now is working on some updated pricing for us based on some of the stuff they heard yesterday. So that I think that RFE to my point, that RFE is going to have a lot of eyeballs within IT on it before it gets sent out. Right. Okay. Any other questions, comments? Everybody knows what CCAS UCAS is.</p></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-804e-9dcc-d19229817fc2" class="">I should have started with that. My bad. I&#x27;m assuming everybody does. If you don&#x27;t, let me know. All right. Next up is, this is going to be a big one. This is going to be our CISAID either upgrade or replacement. Matt has generously been told to do this one. He stepped up to help us run this one. So we did have a very small, we are going to have a very small internal IT kickoff this Wednesday to start talking about it, start talking about it.</p></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-806f-95aa-d1907bc1a013" class="">The next steps, the big next step is really going to be the discovery process, sitting down with all of the state, identifying the stakeholders and then sitting down with those stakeholder groups to find out requirements. I know a lot of everybody here has, is going to have to work with a ticketing system like that. So everybody be aware that this is coming. And that is the context behind that. Questions, comments?</p></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-8009-b1b7-ffd2a81d7c26" class="">This one&#x27;s been a long time coming.</p></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-8008-bf4a-c57714162c1a" class="">This is gonna be a good one. I think we&#x27;re all gonna like this one. Okay. The Dev and Data team. First up is MDM Data Governance. This is led by Steve Naruk. I really don&#x27;t have any context on this. So maybe Patrick or Steve, if you&#x27;re here, you give us a little bit of information on our status.</p></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-809f-81b2-f273e772082d" class="">We&#x27;re in the early stages, just getting going. I&#x27;m starting to do some information gathering, looking at the different data sources and trying to research what we should do on that. And then Steve will actually be traveling here in a couple of weeks here and we&#x27;ll sit down with a group a little closer too. And then we&#x27;ll further on down the road, get onto a kickoff. getting into that process. with the stakeholders.</p></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-80e2-9902-de6a5b2c86c9" class="">Dave, do you have anything anymore you want to add?</p></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-8036-99de-d0b9c63c4afe" class="">I don&#x27;t know if Steve is on the call. Nope, you got everything. -Thank you. Perfect. Okay, next one, a hot list logistics dashboard. I know there are some issues going on with this one, just mostly in terms of like, hey, what are the next steps? Like, do we need to do? So I don&#x27;t know, Matt. Patrick, do you want to speak to this one?</p></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-80ce-842b-f69ffe2bee30" class="">Yeah, so this was one we just kind of met on this week with Joe Huff and Mitch and them, and we kind of came up with two paths. One was kind of an MVP, which is kind of on the urge of being completed. And then they kind of wanted to have this larger project done with it. So that&#x27;s where we&#x27;re at right now. We&#x27;re looking at possibly getting in an outside resource to help us kind of bring that up to speed to what it needs to be.</p></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-80b3-991c-f061ef6f5bee" class="">So that was just this week that we had the meeting. So that&#x27;s why it&#x27;s marked red. We&#x27;re not sure if... How far out we are on him?</p></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-80f6-a93d-e66d2b96f0f4" class="">That is fair. Is this one, I don&#x27;t think that this one is on my radar in terms of it needs to be on the project intake list, but I feel like it should be.</p></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-80a7-96cd-f4be36fca3d8" class="">It probably should be at this point now, now that we&#x27;re gonna go with the larger scope that we talked about. So that&#x27;ll probably be something that&#x27;ll land on your plate at some point here.</p></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-80d0-8576-c928bfb43ed3" class="">It&#x27;s going to land on my plate next week. I&#x27;m going to set up a meeting with you next week just so I can think about it.</p></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-80d5-b9d8-f12fc57adb4e" class="">I can try. I&#x27;ll be traveling to Fort Wright next week, but I can try to jump on a call later.</p></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-80f6-abdb-d20dd7b0a07b" class="">No, no, no. We&#x27;ll do it the week after.</p></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-80e6-9b67-c6c52b7eb76b" class="">Yep, that works. Thank you.</p></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-8026-b5eb-e98bd60b8668" class="">All right. Oh, sorry. I should have asked any questions, concerns about this one. Obviously it&#x27;s red, but we know why it&#x27;s red. And I expect this one to, once we figure out our next steps to... Now be green, yellow. E.</p></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-807f-a60f-e9b72a5bf67d" class="">I don&#x27;t know what this is. Hot list, what does that mean? It&#x27;s the logistics. So it&#x27;s basically a real-time logistics site instead of the logistics spreadsheet that they use. Oh, okay. All right. Thank you.</p></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-80ac-b1fe-eb5c6d71b1fc" class="">Yep. What&#x27;s our, just for my own, like what&#x27;s our, what are we thinking for like a future? So what&#x27;s our North star on this one that we&#x27;re not going to have, but just curious.</p></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-80d1-88ba-e957198c2a83" class="">Well, it&#x27;s really meant to reduce the amount of time that they&#x27;re spending manually analyzing data, downloading spreadsheets, doing their own things. This is one pane of glass for everyone to see versus multiple spreadsheets and then they meet every single day for 20, 30 minutes and there&#x27;s like 20 people that jump on a call. So it&#x27;s meant to be a time reducer at the end of the day. So then ultimately one pane of glass, everyone&#x27;s looking at the same thing as the North Star.</p></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-802e-803c-c2d349182f14" class="">Awesome.</p></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-80b6-b5f7-d4cca21d34ab" class="">That actually sounds really fun. I think I&#x27;ll keep that project for me. I like that kind of thing. yep that should be a good one that&#x27;ll be fun i like that one uh okay next one is price support application another one i don&#x27;t know what this is so matt over to you Yeah, so this was kind of an issue inside M3 right now when they have to update a price report and this happens a couple times a month.</p></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-80c8-8e92-ec3a0c4c3ef2" class="">They have to update a price report for a customer so they&#x27;ll have to go in and in some cases there&#x27;s 26 different records they need to go in to update. So this tool is designed to allow them to enter the data in one place and then in the back end it just updates all 26 or so records. So it&#x27;s again another time-saving application. Awesome.</p></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-80a4-9373-dacc85e18342" class="">Okay. So I see some key issues. Is there anything we can help with the key issues there?</p></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-803d-bedf-f30d7511aef2" class="">Other key issues. I don&#x27;t think so. Patrick and I were kind of looking at this this morning and we didn&#x27;t get a really a lot of time to sit through this. So I don&#x27;t have a good answer for you right now. That is one that Matt is nearly wrapping up and may have wrapped up before we have an outside vendor. So I don&#x27;t know if this one will fall on the plate. That&#x27;s why I have it listed as potential outside contractor, depending on where we go.</p></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-80a6-822c-dfc41b12b09c" class="">Got it.</p></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-80e6-9f4e-cad7a7c0e2ad" class="">I would say one potential issue on this is all of the reports that are going to have to be updated.</p></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-8087-9ea1-c9e6b72ba93b" class="">That&#x27;s a good one to put on there then.</p></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-80d6-85fb-cc306c4cd03b" class="">Have those been identified? I know some of them, but I haven&#x27;t gone through the process of identifying all of them yet. Sorry, I&#x27;m writing this down. I think we&#x27;re gonna need a JIRA ticket for that. And obviously it will have to be done. My guess, Kerry, correct me if I&#x27;m wrong, but would those reports have to be updated before this go live date? Uh, Yes. Just add that in here at that time.</p></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-8002-b428-fada8cc966a5" class="">I don&#x27;t, I guess I don&#x27;t understand why reports would be. involved here. Because it&#x27;s updating it so it would be there.</p></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-80be-ad57-e6ffa12c8a33" class="">because where we currently referencing get this information is not where the information will be stored after this project is complete. Oh, gotcha. Okay. Okay, so we&#x27;ve got, that&#x27;s a good rest. I&#x27;m really, really glad you highlighted that. Carrie. Okay. Does anybody else have any questions? Anything ongoing that you think, oh boy, that really should be on the list for all of us to talk about? This is open forum time.</p></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-80a5-96bd-cbd388d5cad5" class="">So this is anybody has questions or concerns now is the time.</p></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-80d8-bff2-c078fa7f2f11" class="">One that will probably be coming up is gonna be what comes out of Mass Strip to Fort Wright for the SLM project. Yeah, I was just going to mention that. Once I get back, there&#x27;ll probably be a few more items to add.</p></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-80e2-a0b2-dae4d1b65d96" class="">So maybe Matt, &#x27;cause we have everybody here, why don&#x27;t you let everybody know why you&#x27;re going out to the location and what we&#x27;re expecting? Sure.</p></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-8084-b3b8-e7b09c6a9705" class="">Yeah, so for probably the last five years, we&#x27;ve been rolling the resin plants into the PLC factory talk land, which is plant automation essentially. And now for the last year or so, they&#x27;ve been scoping out the blending side of it, which is a whole nother animal. So this is kind of the first kickoff of integrating our systems to the PLCs and then also determining how it&#x27;s going to move forward for each of the plants.</p></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-80d5-b6ce-c99218f92692" class="">So it&#x27;s kind of a, I wouldn&#x27;t call it discovery, but it&#x27;s kind of a discovery kickoff. you So that&#x27;s, I think most people are kind of familiar with the fact with the PLC stuff we&#x27;ve been working on the last few years. All right.</p></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-80b8-a8d3-e3389c4595a0" class="">Anybody else have anything that they think, oh, this could impact other teams or that you just want to chat about while we have everybody?</p></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-8059-bfc4-d797c692d6b8" class="">I have a question and it might just be because I&#x27;m a newbie question, so I&#x27;ll still say it.</p></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-80b4-b0c8-f5d6bd2fdaa9" class="">I noticed that the M3 cloud integration for HK and IP isn&#x27;t on here. Isn&#x27;t that starting off the first question?</p></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-80e6-8daf-e184ae05254f" class="">Order of 2026.</p></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-80fb-9567-cdba3257be09" class="">You&#x27;re talking about the discovery. I&#x27;ll let Mike speak to that. No.</p></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-80b1-a926-caaf43b418a0" class="">So there was originally, so a long time ago before I came in and even early, there was a roadmap showing it kicking off at the beginning of the year. What I am showing is that we&#x27;re going to go do a discovery process across the entire organization. to help us understand what that project really needs to look like and help us develop an MVP for it. That process, so Robin is gonna take that over? And it is scheduled to be like a Q2, we&#x27;ll probably go RFP towards the end of this quarter, Um, Q2, we&#x27;ll probably do vendor selection and then we&#x27;ll start that process.</p></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-80b0-821e-e10a7fcc97ba" class="">So we&#x27;ve slowed down the migration, Kelly. because I don&#x27;t want to just pick up a business and try and ram it into our ERP in the cloud because there&#x27;s a lot of stuff that they have to change. Okay. Including the way we&#x27;re doing stuff in the cloud. Yeah.</p></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-8061-ad70-c58e56c1e9e3" class="">Okay, appreciate that. Thanks. Yeah. Does the recent email format change gonna impact any of the projects going?</p></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-80a8-828d-e1e3da24c106" class="">Yesterday, I just learned about the fact that we were using first initial five letters of the last name and then incremental numbers if we have a J Smith, two or three J Smiths working here. It&#x27;d be 010203. So we can decide what we want that to be. We can decide to adopt login ID as your email or we can do something else. Michael, we probably should have that on the list of, I was thinking about that too with distribution lists.</p></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-8033-916b-c3fc0dca427e" class="">How do we want to prefix them for the global address list? But basically, yeah, it should, I would still stay with like a first dot last or, or I&#x27;m sorry, a first last, or just do full name like Mike dot Spencer. That&#x27;s very traditional. A lot of people do that, but we can talk about that. I don&#x27;t want to make that decision on this call, but we probably need to clarify that as we get into users.</p></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-8066-9213-fd28d8b8c075" class="">Okay, well, maybe I phrased my question wrong. There was a recent change for that, right?</p></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-8039-a260-ffb96ad83f21" class="">Because they set somebody up with--They&#x27;re working for login ID, Lori, not for... Email ID. Oh, so, okay. Cause I saw someone set up yesterday with their first initial five letters of their last name at IP corporate at, at NAC composites.com. Yeah. And it&#x27;s probably because that&#x27;s what we&#x27;re doing is we&#x27;re, we&#x27;re auto assuming that that&#x27;s what should happen. So we should probably, is that, I don&#x27;t know if the desktop team is on here.</p></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-801a-aad5-ed017c51c183" class="">Do we have paying on here? No, I don&#x27;t think he&#x27;s here, just stop by my office. Okay. We should probably let them know not to change the email, not to let the default email change come through and do M Spencer instead of M Spence. Okay. Until we have a chance to chat about that change. Oh, okay. Because I think they thought it was supposed to start because they did that with a new person yesterday.</p></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-80ec-882b-d1f78384a6c4" class="">It does with login IDs, Lori. A login ID is not the same as your email. That&#x27;s my point.</p></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-803f-9076-fc580491b3c9" class="">Okay.</p></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-80c6-ba63-c434b63b5d3f" class="">Well, they had that in the email. What they&#x27;re doing is they&#x27;re duping over. They&#x27;re changing both when we decided to change one. That&#x27;s the point. Okay.</p></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-80be-b6c3-d727397e1049" class="">So I don&#x27;t know how, how this affects into the, I mean, I know how the M3 users in the cloud got set up and it takes the first part of your email there is a limit to the username field in M3 of 10 characters.</p></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-80c7-a717-c30250f54dbc" class="">Right, which is why we&#x27;re first dot, first, yeah, that&#x27;s why we&#x27;re First letter. Um... First five of the last name and then two digits. That&#x27;s why we&#x27;re actually adopting that is for legacy purposes. Too often people are getting email confused with login. They&#x27;re not the same. Right. Just wait until we introduce UPN. Thank you.</p></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-8045-a4cc-e0b371b4165b" class="">Guys, I love this conversation. Is there anything else going on that you&#x27;re working on that we should hear about, talk about?</p></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-80e3-a97c-fefecb785823" class="">So that one hasn&#x27;t shown up on the infrastructure side yet, which we do need to start tracking it there, which is Active Directory cleanup and standardization is happening. And so they&#x27;re gonna be popping open a, Teams channel so that everybody is notified for much more of a communication standpoint for all of it that allows them to communicate stuff and tell them when they&#x27;re testing and stuff like that.</p></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-809e-989c-ed9f0931c9ad" class="">So they&#x27;ll be doing some testing. of you know, specific groups within IT to make sure things work. But we&#x27;re going to go model things out here in the next week. Hmm. Any else on the go?</p></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-8085-9cfb-c521c0b440f6" class="">Should be a tracked project. Yep. How big is that? You and I will talk offline. Who should I be talking to about this one? Is that, who on the team is owning this one? I am. You are? Oh, okay. I&#x27;ll set up a meeting with you then. For now. Who&#x27;s going to be with the eventual because obviously this is not going to sit with the CIO. I plan to build it.</p></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-80e1-bbf3-e3bb6830c95d" class="">Connor Jacoby.</p></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-8088-9f0f-c93b86630c67" class="">Okay, Connor, you&#x27;re the one I could say that. You&#x27;re the one who&#x27;s going to get it. The meeting. Okay.</p></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-8099-a31d-ea74b2b8b357" class="">All right. It&#x27;ll probably affect multiple people in the room, but... Yeah.</p></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-80ec-80c8-f30178b57a06" class="">Yeah, no, I just need one person that I can talk to about what our status is so we can start tracking to it. And just so you&#x27;re all aware, this week I did most of this myself, but you will note that other people&#x27;s names are on the slide. So go forward. Maybe not next week, but I&#x27;m going to... slowly, not so slowly start asking other people to do their slide. There will be a limit on when it gets updated so that we can review, take a look at it, make sure it&#x27;s good and go from there because there&#x27;s only so much.</p></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-80ff-a9ce-c589e059be73" class="">And I don&#x27;t have all the information to update your projects. I really want it to come from the project lead on these. Does that make sense? They&#x27;re pretty easy. It&#x27;s really just updating them. The initial setup is a bit of a pain, but I usually handle the initial setup on everybody&#x27;s behalf. And the reason why I need it at a certain time is just so that we can make sure that we&#x27;re all aligned before we come into this meeting.</p></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-8041-b297-c0f75a7afbcb" class="">Sound good?</p></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-8089-abf7-d0373cd76282" class="">Yeah, sounds good.</p></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-8072-9661-f40c0400d1ec" class="">Awesome. I would love to do all of this myself, but there is just one of me that we&#x27;re luckily. Okay, anything else we need to talk about? Mike, Robin, anything that you think? Oh, it&#x27;d be good to cascade this down to everybody on the team.</p></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-805c-949a-c72e8c6cdaf1" class="">Nothing else from me. Go. Yeah, things are looking really good. I love the visibility and I love this discussion too. Awesome.</p></div><div style="display:contents" dir="auto"><p id="2e356320-92ca-8024-b761-d47e3c5fb66e" class="">Okay, well, I hope it&#x27;s not too cold in Minnesota today. I guess it is. No, it is Minnesota. Great. That&#x27;s all I have. Go team. Thanks, Dominique. Thanks, guys. Thank you. Thanks, Dominique. Thanks, guys. Thank you. Thanks, guys.</p></div></div></div></div></article><span class="sans" style="font-size:14px;padding-top:2em"></span></body></html>

@@ -1,0 +1,288 @@
+<!doctype html>
+<!-- Hallmark · macrostructure: Workbench (app shell) · genre: editorial→utilitarian · theme: Autocue (custom)
+     tone: native-desktop-tool · opaque paper/ink · accent vermilion · NO glass/blur/gradient
+     pre-emit critique: P5 H4 E5 S5 R4 V5
+     Real build: maps onto the app's --bg-*/--text-*/--accent-* tokens; display face → bundled Celeb MF. -->
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Natively — app shell (Autocue)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --desk:#CFC8BA;                /* desktop backdrop behind the window */
+    --paper:#F6F2EA; --rail:#EDE7D9; --panel:#FCFAF4; --sunk:#EFE9DC;
+    --ink:#1B1714; --ink-2:#6E665A; --ink-3:#9C9486;
+    --rule:rgba(27,23,20,.12); --rule-2:rgba(27,23,20,.22);
+    --signal:#C8410E; --ok:#1B6E4B; --warn:#B5780C;
+    --ui:'Inter',-apple-system,system-ui,sans-serif;
+    --display:'Fraunces',Georgia,serif;
+    --mono:'JetBrains Mono',ui-monospace,monospace;
+    --e:cubic-bezier(.22,1,.36,1);
+    --shadow:0 24px 60px -18px rgba(40,30,20,.45),0 2px 8px rgba(40,30,20,.18);
+  }
+  [data-theme="dark"]{
+    --desk:#0A0907; --paper:#16130F; --rail:#100D0A; --panel:#1C1814; --sunk:#100D0A;
+    --ink:#ECE6DA; --ink-2:#A39A8B; --ink-3:#6E665B;
+    --rule:rgba(236,230,218,.12); --rule-2:rgba(236,230,218,.22);
+    --signal:#E85B23; --ok:#5FC497; --warn:#E0A93C;
+    --shadow:0 30px 70px -16px rgba(0,0,0,.7),0 2px 10px rgba(0,0,0,.5);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{background:var(--desk);font-family:var(--ui);color:var(--ink);
+    display:flex;align-items:center;justify-content:center;padding:26px;
+    -webkit-font-smoothing:antialiased;transition:background .4s var(--e)}
+  ::selection{background:var(--signal);color:var(--paper)}
+  button{font:inherit;cursor:pointer;border:0;background:none;color:inherit}
+
+  /* ── App window ── */
+  .app{width:min(1180px,96vw);height:min(760px,92vh);background:var(--paper);
+    border-radius:11px;box-shadow:var(--shadow);overflow:hidden;
+    display:grid;grid-template-rows:38px 1fr;border:1px solid var(--rule-2);
+    transition:background .4s var(--e)}
+
+  /* ── Title bar ── */
+  .tb{display:flex;align-items:center;background:var(--rail);border-bottom:1px solid var(--rule);
+    padding:0 6px 0 16px;gap:14px;user-select:none}
+  .tb .wm{font-family:var(--display);font-weight:600;font-size:14.5px;letter-spacing:-.01em}
+  .tb .wm i{color:var(--signal);font-style:normal}
+  .tb .sess{font-family:var(--mono);font-size:11px;color:var(--ink-3);letter-spacing:.04em}
+  .tb .sp{flex:1}
+  .seg{display:inline-flex;border:1px solid var(--rule-2);border-radius:6px;overflow:hidden;margin-right:8px}
+  .seg button{font-family:var(--mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase;
+    color:var(--ink-3);padding:4px 9px}
+  .seg button.on{background:var(--ink);color:var(--paper)}
+  .wc{display:flex}
+  .wc button{width:42px;height:38px;display:grid;place-items:center;color:var(--ink-2)}
+  .wc button:hover{background:var(--sunk)}
+  .wc button.x:hover{background:var(--signal);color:#fff}
+  .wc svg{width:11px;height:11px}
+
+  /* ── Body: rail + content ── */
+  .body{display:grid;grid-template-columns:212px 1fr;min-height:0}
+  .rail{background:var(--rail);border-right:1px solid var(--rule);display:flex;flex-direction:column;
+    padding:14px 10px}
+  .navlbl{font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--ink-3);padding:6px 10px 8px}
+  .nav button{display:flex;align-items:center;gap:11px;width:100%;text-align:left;
+    padding:9px 11px;border-radius:7px;color:var(--ink-2);font-size:13px;font-weight:500;
+    transition:background .15s var(--e),color .15s var(--e)}
+  .nav button svg{width:18px;height:18px;flex:none;stroke-width:1.7}
+  .nav button:hover{background:var(--sunk);color:var(--ink)}
+  .nav button.on{background:var(--sunk);color:var(--ink)}
+  .nav button.on .ico{color:var(--signal)}
+  .nav button .ico{color:var(--ink-3);display:grid;place-items:center}
+  .railfoot{margin-top:auto;border-top:1px solid var(--rule);padding-top:12px}
+  .acct{display:flex;align-items:center;gap:10px;padding:7px 10px}
+  .ava{width:28px;height:28px;border-radius:7px;background:var(--ink);color:var(--paper);
+    font-family:var(--display);font-weight:600;font-size:13px;display:grid;place-items:center}
+  .acct .n{font-size:12.5px;font-weight:500;line-height:1.25}
+  .acct .s{font-family:var(--mono);font-size:9.5px;color:var(--ok);letter-spacing:.04em}
+  .undet{display:flex;align-items:center;justify-content:space-between;padding:8px 11px;margin-top:4px;
+    font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
+  .sw{width:30px;height:17px;border-radius:9px;background:var(--rule-2);position:relative;flex:none;transition:background .2s var(--e)}
+  .sw::after{content:"";position:absolute;top:2px;left:2px;width:13px;height:13px;border-radius:50%;background:var(--paper);transition:transform .2s var(--e)}
+  .undet.on .sw{background:var(--signal)} .undet.on .sw::after{transform:translateX(13px)}
+
+  /* ── Content ── */
+  .content{display:flex;flex-direction:column;min-width:0;min-height:0}
+  .toolbar{display:flex;align-items:center;gap:12px;padding:11px 18px;border-bottom:1px solid var(--rule)}
+  .search{flex:1;max-width:430px;display:flex;align-items:center;gap:9px;background:var(--sunk);
+    border:1px solid var(--rule);border-radius:8px;padding:8px 12px;color:var(--ink-3)}
+  .search svg{width:15px;height:15px;flex:none;stroke-width:1.8}
+  .search input{flex:1;background:none;border:0;outline:0;font:inherit;font-size:13px;color:var(--ink)}
+  .search input::placeholder{color:var(--ink-3)}
+  .search kbd{font-family:var(--mono);font-size:10px;color:var(--ink-3);border:1px solid var(--rule-2);border-radius:4px;padding:1px 5px}
+  .tbtn{display:flex;align-items:center;gap:7px;padding:8px 11px;border-radius:8px;color:var(--ink-2);font-size:12.5px;font-weight:500;border:1px solid var(--rule)}
+  .tbtn svg{width:15px;height:15px;stroke-width:1.8}
+  .tbtn:hover{background:var(--sunk);color:var(--ink)}
+  .start{display:flex;align-items:center;gap:9px;background:var(--ink);color:var(--paper);
+    padding:9px 16px;border-radius:8px;font-size:13px;font-weight:600;transition:transform .2s var(--e),background .3s var(--e)}
+  .start:hover{transform:translateY(-1px)}
+  .start.live{background:var(--signal)}
+  .rdot{width:8px;height:8px;border-radius:50%;background:currentColor}
+  .start.live .rdot{animation:blink 1.3s steps(2) infinite}
+  @keyframes blink{50%{opacity:.2}}
+
+  /* readiness ribbon */
+  .ribbon{display:flex;align-items:center;gap:0;padding:0 18px;border-bottom:1px solid var(--rule);background:var(--sunk)}
+  .mk{display:flex;align-items:center;gap:8px;padding:9px 18px 9px 0;margin-right:18px;
+    font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-2)}
+  .sq{width:7px;height:7px;flex:none}
+  .mk.ok .sq{background:var(--ok)} .mk.ok{color:var(--ink)}
+  .mk.warm .sq{border:1.5px solid var(--warn);animation:pulse 1.8s var(--e) infinite}
+  .mk.fail .sq{background:var(--signal)} .mk.fail{color:var(--signal)}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.25}}
+  .ribbon .age{margin-left:auto;font-family:var(--mono);font-size:9.5px;color:var(--ink-3);letter-spacing:.06em}
+
+  /* main split */
+  .main{flex:1;display:grid;grid-template-columns:1fr 340px;min-height:0}
+  .meetings{display:flex;flex-direction:column;min-height:0;border-right:1px solid var(--rule)}
+  .phead{display:flex;align-items:baseline;justify-content:space-between;padding:16px 18px 10px}
+  .phead h2{font-family:var(--display);font-weight:600;font-size:16px;letter-spacing:-.01em}
+  .phead .ct{font-family:var(--mono);font-size:10.5px;color:var(--ink-3);letter-spacing:.06em}
+  .list{overflow:auto;flex:1;padding:0 8px 14px}
+  .grp{font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);padding:14px 10px 4px}
+  .row{display:flex;align-items:center;gap:12px;padding:10px 10px;border-radius:8px;cursor:pointer;position:relative;transition:background .14s var(--e)}
+  .row:hover{background:var(--sunk)}
+  .row.sel{background:var(--sunk)}
+  .row.sel::before{content:"";position:absolute;left:0;top:7px;bottom:7px;width:2.5px;background:var(--signal);border-radius:2px}
+  .row .ti{font-family:var(--display);font-weight:500;font-size:14.5px;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:-.005em}
+  .row.proc .ti{font-family:var(--ui);font-style:italic;font-weight:400;color:var(--ink-3)}
+  .src{font-family:var(--mono);font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);border:1px solid var(--rule-2);border-radius:4px;padding:2px 6px;flex:none}
+  .row .du{font-family:var(--mono);font-size:11.5px;color:var(--ink);flex:none;width:46px;text-align:right}
+  .row .tm{font-family:var(--mono);font-size:11px;color:var(--ink-3);flex:none;width:52px;text-align:right}
+
+  /* right column */
+  .aside{display:flex;flex-direction:column;min-height:0;overflow:auto}
+  .card{padding:16px 18px;border-bottom:1px solid var(--rule)}
+  .card .lbl{font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);margin-bottom:11px;display:flex;align-items:center;gap:8px}
+  .card .lbl .live{color:var(--signal)}
+  .upnext .nm{font-family:var(--display);font-weight:600;font-size:18px;line-height:1.1;letter-spacing:-.015em}
+  .upnext .wh{font-family:var(--mono);font-size:11px;color:var(--ink-2);margin-top:9px}
+  .upnext .wh b{color:var(--signal);font-weight:500}
+  .upnext .acts{display:flex;gap:8px;margin-top:14px}
+  .pbtn{flex:1;text-align:center;padding:8px;border-radius:7px;font-size:12px;font-weight:600;border:1px solid var(--rule-2);color:var(--ink)}
+  .pbtn.pri{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+  .pbtn:hover{border-color:var(--signal);color:var(--signal)}
+  .pbtn.pri:hover{background:var(--signal);border-color:var(--signal);color:#fff}
+  .prep li{list-style:none;font-size:12px;line-height:1.45;color:var(--ink-2);padding:6px 0;border-top:1px solid var(--rule)}
+  .prep li:first-child{border:0;padding-top:0}
+  .prep li b{color:var(--ink);font-weight:600}
+  .stats{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--rule)}
+  .stat{background:var(--paper);padding:13px 14px}
+  .stat .v{font-family:var(--display);font-weight:600;font-size:22px;letter-spacing:-.02em}
+  .stat .k{font-family:var(--mono);font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);margin-top:3px}
+  .srcrow{display:flex;align-items:center;justify-content:space-between;padding:7px 0;font-size:12px;color:var(--ink-2);border-top:1px solid var(--rule)}
+  .srcrow:first-of-type{border:0}
+  .srcrow .on{font-family:var(--mono);font-size:9.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--ok)}
+  .srcrow .off{font-family:var(--mono);font-size:9.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+
+  <!-- title bar -->
+  <div class="tb">
+    <span class="wm">Natively<i>.</i></span>
+    <span class="sess" id="sess">claude · effort high</span>
+    <span class="sp"></span>
+    <span class="seg">
+      <button id="tl" class="on" onclick="theme('light')">Light</button>
+      <button id="td" onclick="theme('dark')">Dark</button>
+    </span>
+    <span class="wc">
+      <button aria-label="minimize"><svg viewBox="0 0 12 12"><line x1="2" y1="6" x2="10" y2="6" stroke="currentColor"/></svg></button>
+      <button aria-label="maximize"><svg viewBox="0 0 12 12"><rect x="2.2" y="2.2" width="7.6" height="7.6" fill="none" stroke="currentColor"/></svg></button>
+      <button class="x" aria-label="close"><svg viewBox="0 0 12 12"><line x1="3" y1="3" x2="9" y2="9" stroke="currentColor"/><line x1="9" y1="3" x2="3" y2="9" stroke="currentColor"/></svg></button>
+    </span>
+  </div>
+
+  <div class="body">
+    <!-- left rail -->
+    <nav class="rail">
+      <div class="navlbl">Workspace</div>
+      <div class="nav" id="nav">
+        <button class="on"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg></span>Dashboard</button>
+        <button><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="11" r="3.5"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></span>Live overlay</button>
+        <button><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="8" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="20" y2="12"/><line x1="8" y1="18" x2="20" y2="18"/><circle cx="4" cy="6" r="1"/><circle cx="4" cy="12" r="1"/><circle cx="4" cy="18" r="1"/></svg></span>Meetings</button>
+        <button><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 5h16v11H8l-4 4z"/></svg></span>Chat &amp; recall</button>
+        <button><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 3 3 8l9 5 9-5z"/><path d="M3 13l9 5 9-5"/></svg></span>Context hub</button>
+        <button><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2"/></svg></span>Settings</button>
+      </div>
+      <div class="railfoot">
+        <div class="acct"><div class="ava">S</div><div><div class="n">Steve Nahrup</div><div class="s">● local · synced</div></div></div>
+        <div class="undet" id="undet" onclick="this.classList.toggle('on')">Undetectable<span class="sw"></span></div>
+      </div>
+    </nav>
+
+    <!-- content -->
+    <div class="content">
+      <div class="toolbar">
+        <div class="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="7"/><line x1="16" y1="16" x2="21" y2="21"/></svg><input placeholder="Search meetings, or ask across everything…"><kbd>⌘K</kbd></div>
+        <button class="tbtn" id="refresh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 11a8 8 0 1 0-2.3 5.6M20 4v5h-5"/></svg>Refresh</button>
+        <button class="start" id="start" onclick="live()"><span class="rdot"></span><span id="slabel">Start session</span></button>
+      </div>
+
+      <div class="ribbon">
+        <span class="mk ok"><span class="sq"></span>Mic</span>
+        <span class="mk ok"><span class="sq"></span>Meeting audio</span>
+        <span class="mk warm"><span class="sq"></span>Transcript</span>
+        <span class="mk ok"><span class="sq"></span>Prep</span>
+        <span class="mk ok"><span class="sq"></span>Coach</span>
+        <span class="age" id="age">checked 3s ago</span>
+      </div>
+
+      <div class="main">
+        <!-- meetings ledger -->
+        <section class="meetings">
+          <div class="phead"><h2>Recent meetings</h2><span class="ct">312 indexed</span></div>
+          <div class="list" id="list">
+            <div class="grp">Today</div>
+            <div class="row sel"><span class="ti">Northwind sync</span><span class="src">Calendar</span><span class="du">14:22</span><span class="tm">2:30p</span></div>
+            <div class="row proc"><span class="ti">Design review — overlay</span><span class="src">Proc…</span><span class="du">31:08</span><span class="tm">11:05a</span></div>
+            <div class="grp">Yesterday</div>
+            <div class="row"><span class="ti">Pricing committee</span><span class="src">Teams</span><span class="du">47:51</span><span class="tm">4:00p</span></div>
+            <div class="row"><span class="ti">1:1 with Marcus</span><span class="src">Calendar</span><span class="du">26:14</span><span class="tm">1:15p</span></div>
+            <div class="row"><span class="ti">Negotiation prep — Acme</span><span class="src">Import</span><span class="du">09:40</span><span class="tm">9:30a</span></div>
+            <div class="grp">Mon, Jun 9</div>
+            <div class="row"><span class="ti">Quarterly planning</span><span class="src">Calendar</span><span class="du">58:30</span><span class="tm">10:00a</span></div>
+            <div class="row"><span class="ti">Vendor intro — Datadog</span><span class="src">Teams</span><span class="du">22:07</span><span class="tm">3:30p</span></div>
+          </div>
+        </section>
+
+        <!-- right column -->
+        <aside class="aside">
+          <div class="card upnext">
+            <div class="lbl">Up next · in 18 min</div>
+            <div class="nm">Northwind — enterprise expansion</div>
+            <div class="wh">2:30–3:00pm · <b>video link</b> attached</div>
+            <div class="acts"><button class="pbtn pri" onclick="this.textContent='Prepared ✓'">Prepare</button><button class="pbtn" onclick="live()">Start now</button></div>
+          </div>
+          <div class="card prep">
+            <div class="lbl">Carry in</div>
+            <ul style="list-style:none">
+              <li><b>Pricing:</b> 40 seats · SSO + audit-log still open</li>
+              <li><b>Last call:</b> procurement timeline was the blocker</li>
+              <li><b>Watch:</b> Priya pushes annual vs. monthly</li>
+            </ul>
+          </div>
+          <div class="card">
+            <div class="lbl">Context engine</div>
+            <div class="stats">
+              <div class="stat"><div class="v">312</div><div class="k">meetings</div></div>
+              <div class="stat"><div class="v">6</div><div class="k">prep packets</div></div>
+            </div>
+            <div style="margin-top:13px">
+              <div class="srcrow">Outlook desktop<span class="on">● connected</span></div>
+              <div class="srcrow">Teams desktop<span class="on">● connected</span></div>
+              <div class="srcrow">Live watch<span class="on">● streaming</span></div>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function theme(t){document.documentElement.setAttribute('data-theme',t==='dark'?'dark':'light');
+    tl.classList.toggle('on',t==='light');td.classList.toggle('on',t==='dark');}
+  let on=false,s=14*60+22,iv=null;const pad=n=>String(n).padStart(2,'0');
+  function live(){on=!on;const b=document.getElementById('start'),l=document.getElementById('slabel'),se=document.getElementById('sess');
+    if(on){b.classList.add('live');se.textContent='● on air · claude';clearInterval(iv);
+      iv=setInterval(()=>{s++;l.textContent='On air · '+pad(s/60|0)+':'+pad(s%60)},1000);l.textContent='On air · '+pad(s/60|0)+':'+pad(s%60);}
+    else{b.classList.remove('live');se.textContent='claude · effort high';clearInterval(iv);l.textContent='Start session';}}
+  document.getElementById('nav').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;
+    [...nav.children].forEach(x=>x.classList.remove('on'));b.classList.add('on');});
+  document.getElementById('list').addEventListener('click',e=>{const r=e.target.closest('.row');if(!r)return;
+    [...list.querySelectorAll('.row')].forEach(x=>x.classList.remove('sel'));r.classList.add('sel');});
+  let a=3;setInterval(()=>{a=a>=9?3:a+1;document.getElementById('age').textContent='checked '+a+'s ago'},1000);
+  document.getElementById('refresh').addEventListener('click',function(){this.style.opacity=.5;setTimeout(()=>this.style.opacity=1,500)});
+</script>
+</body>
+</html>

@@ -1,0 +1,743 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>Discuss MDM Data Priorities — Robin Virginia &amp; Patrick Stiller — 2026-02-13</title><style>
+/* cspell:disable-file */
+/* webkit printing magic: print all background colors */
+html {
+	-webkit-print-color-adjust: exact;
+}
+* {
+	box-sizing: border-box;
+	-webkit-print-color-adjust: exact;
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+}
+@media only screen {
+	body {
+		margin: 2em auto;
+		max-width: 900px;
+		color: rgb(55, 53, 47);
+	}
+}
+
+body {
+	line-height: 1.5;
+	white-space: pre-wrap;
+}
+
+a,
+a.visited {
+	color: inherit;
+	text-decoration: underline;
+}
+
+.pdf-relative-link-path {
+	font-size: 80%;
+	color: #444;
+}
+
+h1,
+h2,
+h3 {
+	letter-spacing: -0.01em;
+	line-height: 1.2;
+	font-weight: 600;
+	margin-bottom: 0;
+}
+
+/* Override strong tags inside headings to maintain consistent weight */
+h1 strong,
+h2 strong,
+h3 strong {
+	font-weight: 600;
+}
+
+.page-title {
+	font-size: 2.5rem;
+	font-weight: 700;
+	margin-top: 0;
+	margin-bottom: 0.75em;
+}
+
+h1 {
+	font-size: 1.875rem;
+	margin-top: 1.875rem;
+}
+
+h2 {
+	font-size: 1.5rem;
+	margin-top: 1.5rem;
+}
+
+h3 {
+	font-size: 1.25rem;
+	margin-top: 1.25rem;
+}
+
+.source {
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	padding: 1.5em;
+	word-break: break-all;
+}
+
+.callout {
+	border-radius: 10px;
+	padding: 1rem;
+}
+
+figure {
+	margin: 1.25em 0;
+	page-break-inside: avoid;
+}
+
+figcaption {
+	opacity: 0.5;
+	font-size: 85%;
+	margin-top: 0.5em;
+}
+
+mark {
+	background-color: transparent;
+}
+
+.indented {
+	padding-left: 1.5em;
+}
+
+hr {
+	background: transparent;
+	display: block;
+	width: 100%;
+	height: 1px;
+	visibility: visible;
+	border: none;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+img {
+	max-width: 100%;
+}
+
+@media only print {
+	img {
+		max-height: 100vh;
+		object-fit: contain;
+	}
+
+	table.collection-content {
+		width: 100%;
+		table-layout: fixed;
+	}
+
+	table.collection-content th,
+	table.collection-content td {
+		overflow-wrap: anywhere;
+	}
+
+	table.collection-content td > .user,
+	table.collection-content td > time {
+		white-space: pre-wrap;
+	}
+}
+
+@page {
+	margin: 1in;
+}
+
+.collection-content-wrapper {
+	overflow-x: auto;
+}
+
+@media only print {
+	.collection-content-wrapper {
+		overflow-x: visible;
+	}
+}
+
+.collection-content {
+	font-size: 0.875rem;
+}
+
+.collection-content td {
+	white-space: pre-wrap;
+	word-break: break-word;
+}
+
+.column-list {
+	display: flex;
+	gap: 46px;
+}
+
+.column {
+	min-width: 0;
+	overflow: hidden;
+}
+
+.column > *:first-child {
+	margin-top: 0;
+}
+
+.table_of_contents-item {
+	display: block;
+	font-size: 0.875rem;
+	line-height: 1.3;
+	padding: 0.125rem;
+}
+
+.table_of_contents-indent-1 {
+	margin-left: 1.5rem;
+}
+
+.table_of_contents-indent-2 {
+	margin-left: 3rem;
+}
+
+.table_of_contents-indent-3 {
+	margin-left: 4.5rem;
+}
+
+.table_of_contents-link {
+	text-decoration: none;
+	opacity: 0.7;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.18);
+}
+
+table,
+th,
+td {
+	border: 1px solid rgba(55, 53, 47, 0.09);
+	border-collapse: collapse;
+}
+
+table {
+	border-left: none;
+	border-right: none;
+}
+
+th,
+td {
+	font-weight: normal;
+	padding: 0.25em 0.5em;
+	line-height: 1.5;
+	min-height: 1.5em;
+	text-align: left;
+}
+
+th {
+	color: rgba(55, 53, 47, 0.6);
+}
+
+ol,
+ul {
+	margin: 0;
+	margin-block-start: 0.6em;
+	margin-block-end: 0.6em;
+}
+
+li > ol:first-child,
+li > ul:first-child {
+	margin-block-start: 0.6em;
+}
+
+ul > li {
+	list-style: disc;
+}
+
+ul.to-do-list {
+	padding-inline-start: 0;
+}
+
+ul.to-do-list > li {
+	list-style: none;
+}
+
+.to-do-children-checked {
+	text-decoration: line-through;
+	opacity: 0.375;
+}
+
+ul.toggle > li {
+	list-style: none;
+}
+
+ul {
+	padding-inline-start: 1.7em;
+}
+
+ul > li {
+	padding-left: 0.1em;
+}
+
+ol {
+	padding-inline-start: 1.6em;
+}
+
+ol.numbered-list.numbered-list-digits-2 {
+	padding-inline-start: 2em;
+}
+
+ol.numbered-list.numbered-list-digits-3plus {
+	padding-inline-start: 2.4em;
+}
+
+ol > li {
+	padding-left: 0.2em;
+}
+
+.mono ol {
+	padding-inline-start: 2em;
+}
+
+.mono ol > li {
+	text-indent: -0.4em;
+}
+
+.toggle {
+	padding-inline-start: 0em;
+	list-style-type: none;
+}
+
+/* Indent toggle children */
+.toggle > li > details {
+	padding-left: 1.7em;
+}
+
+.toggle > li > details > summary {
+	margin-left: -1.1em;
+}
+
+.selected-value {
+	display: inline-block;
+	padding: 0 0.5em;
+	background: rgba(206, 205, 202, 0.5);
+	border-radius: 3px;
+	margin-right: 0.5em;
+	margin-top: 0.3em;
+	margin-bottom: 0.3em;
+	white-space: nowrap;
+}
+
+.collection-title {
+	display: inline-block;
+	margin-right: 1em;
+}
+
+.page-description {
+	margin-bottom: 2em;
+}
+
+.simple-table {
+	margin-top: 1em;
+	font-size: 0.875rem;
+	empty-cells: show;
+}
+.simple-table td {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table th {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table-header-color {
+	background: rgb(247, 246, 243);
+	color: black;
+}
+.simple-table-header {
+	font-weight: 500;
+}
+
+time {
+	opacity: 0.5;
+}
+
+.icon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	max-width: 1.2em;
+	max-height: 1.2em;
+	text-decoration: none;
+	vertical-align: text-bottom;
+	margin-right: 0.5em;
+}
+
+img.icon {
+	border-radius: 3px;
+}
+
+.callout img.notion-static-icon {
+	width: 1em;
+	height: 1em;
+}
+
+.callout p {
+	margin: 0;
+}
+
+.callout h1,
+.callout h2,
+.callout h3 {
+	margin: 0 0 0.6rem;
+}
+
+.user-icon {
+	width: 1.5em;
+	height: 1.5em;
+	border-radius: 100%;
+	margin-right: 0.5rem;
+}
+
+.user-icon-inner {
+	font-size: 0.8em;
+}
+
+.text-icon {
+	border: 1px solid #000;
+	text-align: center;
+}
+
+.page-cover-image {
+	display: block;
+	object-fit: cover;
+	width: 100%;
+	max-height: 30vh;
+}
+
+.page-header-icon {
+	font-size: 3rem;
+	margin-bottom: 1rem;
+}
+
+.page-header-icon-with-cover {
+	margin-top: -0.72em;
+	margin-left: 0.07em;
+}
+
+.page-header-icon img {
+	border-radius: 3px;
+}
+
+.link-to-page {
+	margin: 1em 0;
+	padding: 0;
+	border: none;
+	font-weight: 500;
+}
+
+p > .user {
+	opacity: 0.5;
+}
+
+td > .user,
+td > time {
+	white-space: nowrap;
+}
+
+input[type="checkbox"] {
+	transform: scale(1.5);
+	margin-right: 0.6em;
+	vertical-align: middle;
+}
+
+p {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+.image {
+	border: none;
+	margin: 1.5em 0;
+	padding: 0;
+	border-radius: 0;
+	text-align: center;
+}
+
+.code,
+code {
+	background: rgba(135, 131, 120, 0.15);
+	border-radius: 3px;
+	padding: 0.2em 0.4em;
+	border-radius: 3px;
+	font-size: 85%;
+	tab-size: 2;
+}
+
+code {
+	color: #eb5757;
+}
+
+.code {
+	padding: 1.5em 1em;
+}
+
+.code-wrap {
+	white-space: pre-wrap;
+	word-break: break-all;
+}
+
+.code > code {
+	background: none;
+	padding: 0;
+	font-size: 100%;
+	color: inherit;
+}
+
+blockquote {
+	font-size: 1em;
+	margin: 1em 0;
+	padding-left: 1em;
+	border-left: 3px solid rgb(55, 53, 47);
+}
+
+blockquote.quote-large {
+	font-size: 1.25em;
+}
+
+.bookmark {
+	text-decoration: none;
+	max-height: 8em;
+	padding: 0;
+	display: flex;
+	width: 100%;
+	align-items: stretch;
+}
+
+.bookmark-title {
+	font-size: 0.85em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	height: 1.75em;
+	white-space: nowrap;
+}
+
+.bookmark-text {
+	display: flex;
+	flex-direction: column;
+}
+
+.bookmark-info {
+	flex: 4 1 180px;
+	padding: 12px 14px 14px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.bookmark-image {
+	width: 33%;
+	flex: 1 1 180px;
+	display: block;
+	position: relative;
+	object-fit: cover;
+	border-radius: 1px;
+}
+
+.bookmark-description {
+	color: rgba(55, 53, 47, 0.6);
+	font-size: 0.75em;
+	overflow: hidden;
+	max-height: 4.5em;
+	word-break: break-word;
+}
+
+.bookmark-href {
+	font-size: 0.75em;
+	margin-top: 0.25em;
+}
+
+.sans { font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol"; }
+.code { font-family: "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace; }
+.serif { font-family: Lyon-Text, Georgia, ui-serif, serif; }
+.mono { font-family: iawriter-mono, Nitti, Menlo, Courier, monospace; }
+.pdf .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK JP'; }
+.pdf:lang(zh-CN) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK SC'; }
+.pdf:lang(zh-TW) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK TC'; }
+.pdf:lang(ko-KR) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK KR'; }
+.pdf .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.pdf .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK JP'; }
+.pdf:lang(zh-CN) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK SC'; }
+.pdf:lang(zh-TW) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK TC'; }
+.pdf:lang(ko-KR) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK KR'; }
+.pdf .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.highlight-default {
+	color: rgba(44, 44, 43, 1);
+}
+.highlight-gray {
+	color: rgba(125, 122, 117, 1);
+	fill: rgba(125, 122, 117, 1);
+}
+.highlight-brown {
+	color: rgba(159, 118, 90, 1);
+	fill: rgba(159, 118, 90, 1);
+}
+.highlight-orange {
+	color: rgba(210, 123, 45, 1);
+	fill: rgba(210, 123, 45, 1);
+}
+.highlight-yellow {
+	color: rgba(203, 148, 52, 1);
+	fill: rgba(203, 148, 52, 1);
+}
+.highlight-teal {
+	color: rgba(80, 148, 110, 1);
+	fill: rgba(80, 148, 110, 1);
+}
+.highlight-blue {
+	color: rgba(56, 125, 201, 1);
+	fill: rgba(56, 125, 201, 1);
+}
+.highlight-purple {
+	color: rgba(154, 107, 180, 1);
+	fill: rgba(154, 107, 180, 1);
+}
+.highlight-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.highlight-red {
+	color: rgba(207, 81, 72, 1);
+	fill: rgba(207, 81, 72, 1);
+}
+.highlight-default_background {
+	color: rgba(44, 44, 43, 1);
+}
+.highlight-gray_background {
+	background: rgba(42, 28, 0, 0.07);
+}
+.highlight-brown_background {
+	background: rgba(139, 46, 0, 0.086);
+}
+.highlight-orange_background {
+	background: rgba(224, 101, 1, 0.129);
+}
+.highlight-yellow_background {
+	background: rgba(211, 168, 0, 0.137);
+}
+.highlight-teal_background {
+	background: rgba(0, 100, 45, 0.09);
+}
+.highlight-blue_background {
+	background: rgba(0, 124, 215, 0.094);
+}
+.highlight-purple_background {
+	background: rgba(102, 0, 178, 0.078);
+}
+.highlight-pink_background {
+	background: rgba(197, 0, 93, 0.086);
+}
+.highlight-red_background {
+	background: rgba(223, 22, 0, 0.094);
+}
+.block-color-default {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray {
+	color: rgba(125, 122, 117, 1);
+	fill: rgba(125, 122, 117, 1);
+}
+.block-color-brown {
+	color: rgba(159, 118, 90, 1);
+	fill: rgba(159, 118, 90, 1);
+}
+.block-color-orange {
+	color: rgba(210, 123, 45, 1);
+	fill: rgba(210, 123, 45, 1);
+}
+.block-color-yellow {
+	color: rgba(203, 148, 52, 1);
+	fill: rgba(203, 148, 52, 1);
+}
+.block-color-teal {
+	color: rgba(80, 148, 110, 1);
+	fill: rgba(80, 148, 110, 1);
+}
+.block-color-blue {
+	color: rgba(56, 125, 201, 1);
+	fill: rgba(56, 125, 201, 1);
+}
+.block-color-purple {
+	color: rgba(154, 107, 180, 1);
+	fill: rgba(154, 107, 180, 1);
+}
+.block-color-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.block-color-red {
+	color: rgba(207, 81, 72, 1);
+	fill: rgba(207, 81, 72, 1);
+}
+.block-color-default_background {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray_background {
+	background: rgba(240, 239, 237, 1);
+}
+.block-color-brown_background {
+	background: rgba(245, 237, 233, 1);
+}
+.block-color-orange_background {
+	background: rgba(251, 235, 222, 1);
+}
+.block-color-yellow_background {
+	background: rgba(249, 243, 220, 1);
+}
+.block-color-teal_background {
+	background: rgba(232, 241, 236, 1);
+}
+.block-color-blue_background {
+	background: rgba(229, 242, 252, 1);
+}
+.block-color-purple_background {
+	background: rgba(243, 235, 249, 1);
+}
+.block-color-pink_background {
+	background: rgba(250, 233, 241, 1);
+}
+.block-color-red_background {
+	background: rgba(252, 233, 231, 1);
+}
+.select-value-color-default { background-color: rgba(42, 28, 0, 0.07); }
+.select-value-color-gray { background-color: rgba(28, 19, 1, 0.11); }
+.select-value-color-brown { background-color: rgba(127, 51, 0, 0.156); }
+.select-value-color-orange { background-color: rgba(196, 88, 0, 0.203); }
+.select-value-color-yellow { background-color: rgba(209, 156, 0, 0.282); }
+.select-value-color-green { background-color: rgba(0, 96, 38, 0.156); }
+.select-value-color-blue { background-color: rgba(0, 118, 217, 0.203); }
+.select-value-color-purple { background-color: rgba(92, 0, 163, 0.141); }
+.select-value-color-pink { background-color: rgba(183, 0, 78, 0.152); }
+.select-value-color-red { background-color: rgba(206, 24, 0, 0.164); }
+
+.checkbox {
+	display: inline-flex;
+	vertical-align: text-bottom;
+	width: 16;
+	height: 16;
+	background-size: 16px;
+	margin-left: 2px;
+	margin-right: 5px;
+}
+
+.checkbox-on {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20width%3D%2216%22%20height%3D%2216%22%20fill%3D%22%2358A9D7%22%2F%3E%0A%3Cpath%20d%3D%22M6.71429%2012.2852L14%204.9995L12.7143%203.71436L6.71429%209.71378L3.28571%206.2831L2%207.57092L6.71429%2012.2852Z%22%20fill%3D%22white%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+
+.checkbox-off {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20x%3D%220.75%22%20y%3D%220.75%22%20width%3D%2214.5%22%20height%3D%2214.5%22%20fill%3D%22white%22%20stroke%3D%22%2336352F%22%20stroke-width%3D%221.5%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+	
+</style></head><body><article id="cade6400-1aa0-4dc3-9f8e-0cd59fc538d8" class="page sans"><header><div class="page-header-icon undefined"><span class="icon">📅</span></div><h1 class="page-title" dir="auto">Discuss MDM Data Priorities — Robin Virginia &amp; Patrick Stiller — 2026-02-13</h1><p class="page-description" dir="auto"></p><table class="properties"><tbody><tr class="property-row property-row-status"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/burst_gray.svg" style="width:14px;height:14px;display:block"/></span>Processing</th><td><span class="status-value select-value-color-green"><div class="status-dot status-dot-color-green"></div>Processed</span></td></tr><tr class="property-row property-row-text"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/description_gray.svg" style="width:14px;height:14px;display:block"/></span>Agenda</th><td>MDM data domain prioritization, quote-to-cash Salesforce perspective, hierarchy mapping approach, Phase 1/2 planning, data ownership challenges</td></tr><tr class="property-row property-row-date"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/calendar_gray.svg" style="width:14px;height:14px;display:block"/></span>Date</th><td><time>February 13, 2026</time></td></tr><tr class="property-row property-row-multi_select"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/list_gray.svg" style="width:14px;height:14px;display:block"/></span>Attendees</th><td><span class="selected-value select-value-color-pink">Internal</span></td></tr><tr class="property-row property-row-select"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/arrow-circle-down_gray.svg" style="width:14px;height:14px;display:block"/></span>Meeting Type</th><td><span class="selected-value select-value-color-orange">Team Meeting</span></td></tr><tr class="property-row property-row-person"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/friends_gray.svg" style="width:14px;height:14px;display:block"/></span>Organizer</th><td><span class="user"><img src="https://lh3.googleusercontent.com/a/ACg8ocLHfVvdl28jS936w7CBB6TObsUa1P-X8cbdsUSKdeEn_MD7Bw=s96-c" class="icon user-icon"/>Steve </span></td></tr><tr class="property-row property-row-select"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/arrow-circle-down_gray.svg" style="width:14px;height:14px;display:block"/></span>Priority</th><td><span class="selected-value select-value-color-red">High</span></td></tr><tr class="property-row property-row-checkbox"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/checkmark-square_gray.svg" style="width:14px;height:14px;display:block"/></span>Has Cluely Transcript</th><td><div class="checkbox checkbox-off"></div></td></tr><tr class="property-row property-row-checkbox"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/checkmark-square_gray.svg" style="width:14px;height:14px;display:block"/></span>Has Final Transcript</th><td><div class="checkbox checkbox-off"></div></td></tr><tr class="property-row property-row-select"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/arrow-circle-down_gray.svg" style="width:14px;height:14px;display:block"/></span>Status</th><td><span class="selected-value select-value-color-brown">Completed</span></td></tr><tr class="property-row property-row-checkbox"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/checkmark-square_gray.svg" style="width:14px;height:14px;display:block"/></span>Has Notion Transcript</th><td><div class="checkbox checkbox-off"></div></td></tr><tr class="property-row property-row-checkbox"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/checkmark-square_gray.svg" style="width:14px;height:14px;display:block"/></span>Has Teams Transcript</th><td><div class="checkbox checkbox-off"></div></td></tr><tr class="property-row property-row-number"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/hashtag_gray.svg" style="width:14px;height:14px;display:block"/></span>Mtg #</th><td>15</td></tr><tr class="property-row property-row-checkbox"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/checkmark-square_gray.svg" style="width:14px;height:14px;display:block"/></span>Merged to Feed</th><td><div class="checkbox checkbox-on"></div></td></tr></tbody></table></header><div class="page-body"><div style="display:contents" dir="ltr"><figure class="block-color-purple_background callout" style="white-space:pre-wrap;display:flex" id="0d87c861-7ed3-484f-872f-a575c3d3778a"><div style="font-size:1.5em"><span class="icon">🗺️</span></div><div style="width:100%"><div style="display:contents" dir="auto"><p id="5eb12744-64c0-4f79-a59e-ae1c9fcda2f2" class=""><strong>Mtg #15 — Discuss MDM Data Priorities</strong></p></div><div style="display:contents" dir="auto"><p id="88f128a6-b7fc-4ea4-b6d9-a25b76166b97" class=""><em>Robin Virginia &amp; Patrick Stiller — Friday, February 13, 2026</em></p></div><div style="display:contents" dir="auto"><p id="b5dfc028-a2e3-4d26-8854-79c7441f7ec2" class=""><strong>Goals:</strong> Align on MDM data domain prioritization; understand Robin&#x27;s quote-to-cash Salesforce perspective; map hierarchy approach</p></div><div style="display:contents" dir="auto"><p id="61820f62-0dd3-45c6-99cb-cfee84deedcc" class=""><strong>Must-knows:</strong> Robin has deep MDM experience (Medtronic, Boston Scientific, Optum); Salesforce migration creates urgency for clean data; M3 + Product line are top priority domains</p></div><div style="display:contents" dir="auto"><p id="05972bd2-16e8-45c0-8976-cad503eabe52" class=""><strong>Red lines:</strong> Don&#x27;t present to ELT without internal dry-run first; Mike Spencer must not be surprised</p></div></div></figure></div><div style="display:contents" dir="auto"><hr id="b792ce70-89eb-48c9-8c7b-4b691a5f8bb8"/></div><div style="display:contents" dir="auto"><h2 id="7f52d703-53fe-44f5-94c3-f188b70d0585" class="">🔝 TOP FACTS</h2></div><div style="display:contents" dir="ltr"><figure class="block-color-blue_background callout" style="white-space:pre-wrap;display:flex" id="b3079334-c669-4c34-a0e6-2041f54d92e0"><div style="font-size:1.5em"><span class="icon">📊</span></div><div style="width:100%"><div style="display:contents" dir="auto"><ol type="1" id="0420236b-bab8-4fa5-b9ac-9e45255b8f3f" class="numbered-list" start="1"><li><code>Fact:</code> Robin Virginia has MDM experience with large organizations — <strong>Medtronic, Boston Scientific, Optum</strong> <code>[F15-01]</code></li></ol></div><div style="display:contents" dir="auto"><ol type="1" id="ffaabbab-fb9b-4edf-9733-36cafca1473e" class="numbered-list" start="2"><li><code>Fact:</code> Robin is pursuing <strong>quote-to-cash from a Salesforce perspective</strong> — migrating all data into a new Salesforce solution requires clean data <code>[F15-02]</code></li></ol></div><div style="display:contents" dir="auto"><ol type="1" id="711c232c-5e6e-4602-877c-914ef2d555e1" class="numbered-list" start="3"><li><code>Fact:</code> <strong>Data ownership</strong> is a known, persistent challenge — &quot;who owns the input, who owns the origination&quot; <code>[F15-03]</code></li></ol></div><div style="display:contents" dir="auto"><ol type="1" id="a2a40ab1-9614-49f1-9356-a193b10de015" class="numbered-list" start="4"><li><code>Fact:</code> Robin sees <strong>M3 (both instances)</strong> as the top priority data domain <code>[F15-04]</code></li></ol></div><div style="display:contents" dir="auto"><ol type="1" id="05ed885b-7340-4e80-8a25-c262aa8e563d" class="numbered-list" start="5"><li><code>Fact:</code> <strong>Product line</strong> (M3, MES, Optiva) is the second priority domain <code>[F15-05]</code></li></ol></div><div style="display:contents" dir="auto"><ol type="1" id="1caffabf-26a6-4123-a7c8-6f356373201a" class="numbered-list" start="6"><li><code>Fact:</code> <strong>Financials will fall into place</strong> from M3/product data — not a separate first-pass domain <code>[F15-06]</code></li></ol></div><div style="display:contents" dir="auto"><ol type="1" id="8d1a8901-031c-42fe-b85b-3113b8d00195" class="numbered-list" start="7"><li><code>Fact:</code> <strong>ETQ is deferred</strong> — not a core domain for initial mastering; further discussion needed <code>[F15-07]</code></li></ol></div><div style="display:contents" dir="auto"><ol type="1" id="f6a50c63-f07b-4642-bda0-0fee3eb7a2a3" class="numbered-list" start="8"><li><code>Fact:</code> Robin wants to be included in <strong>brainstorming sessions</strong> but not micromanage <code>[F15-08]</code></li></ol></div><div style="display:contents" dir="auto"><ol type="1" id="101a77d9-52e4-4ddf-8a77-2b16e0f467b3" class="numbered-list" start="9"><li><code>Fact:</code> Team agrees on <strong>internal presentation/dry-run before presenting to ELT</strong> <code>[F15-09]</code></li></ol></div><div style="display:contents" dir="auto"><ol type="1" id="0f75ebbc-4594-47bf-91a4-0dad5a8d787a" class="numbered-list numbered-list-digits-2" start="10"><li><code>Fact:</code> Robin acknowledges she may <strong>overcomplicate things</strong> given her large-org background <code>[F15-10]</code></li></ol></div></div></figure></div><div style="display:contents" dir="auto"><hr id="d2a579e3-4734-48c3-8353-84a0b5e5a0f7"/></div><div style="display:contents" dir="auto"><h2 id="5a22899f-c366-4b26-ab57-4cce4cbb2077" class="">✅ DECISIONS</h2></div><div style="display:contents" dir="ltr"><figure class="block-color-teal_background callout" style="white-space:pre-wrap;display:flex" id="509255bd-c536-4ee0-b4f1-40d0a94723de"><div style="font-size:1.5em"><span class="icon">✅</span></div><div style="width:100%"><div style="display:contents" dir="auto"><ul id="f5517968-fa56-4bbd-ba39-fba9d1e25e28" class="bulleted-list"><li style="list-style-type:disc"><code>Decision:</code> <strong>Data domain prioritization:</strong> M3 (both instances) and product line (M3/MES/Optiva) are top priority; ETQ is deferred for further discussion <code>[D15-01]</code></li></ul></div><div style="display:contents" dir="auto"><ul id="f24e5ea3-eedf-4c75-9002-82ae91117321" class="bulleted-list"><li style="list-style-type:disc"><code>Decision:</code> <strong>Financials are not a separate first-pass domain</strong> — they will fall into place from M3 and product data <code>[D15-02]</code></li></ul></div><div style="display:contents" dir="auto"><ul id="ff5899fa-e407-4cea-9a02-7846eb5a4894" class="bulleted-list"><li style="list-style-type:disc"><code>Decision:</code> <strong>Phase 1</strong> = Use Fabric Lakehouse tooling to drive out hierarchy, mastering, and scope; <strong>Phase 2</strong> = Bring findings back to business <code>[D15-03]</code></li></ul></div><div style="display:contents" dir="auto"><ul id="2c361984-0753-41e5-b9e3-ce6ce989ba00" class="bulleted-list"><li style="list-style-type:disc"><code>Decision:</code> <strong>Internal presentation/dry-run before ELT presentation</strong> — Mike Spencer should not be surprised by anything presented <code>[D15-04]</code></li></ul></div></div></figure></div><div style="display:contents" dir="auto"><hr id="1fddb6a5-10c6-44ee-83de-3b558612bb73"/></div><div style="display:contents" dir="auto"><h2 id="0fd230c2-d14a-497f-ab83-fc2706fc04f7" class="">🚨 RISKS</h2></div><div style="display:contents" dir="ltr"><figure class="block-color-red_background callout" style="white-space:pre-wrap;display:flex" id="266053ba-e057-43f1-b607-12081fa07aeb"><div style="font-size:1.5em"><span class="icon">🚨</span></div><div style="width:100%"><div style="display:contents" dir="auto"><ul id="46cdd7dc-f21f-4d74-88e2-9e105bb7f2c1" class="bulleted-list"><li style="list-style-type:disc"><code>Risk:</code> <strong>Quote-to-cash Salesforce migration</strong> creates additional urgency and a parallel dependency for clean/mastered data <code>[R15-01]</code></li></ul></div><div style="display:contents" dir="auto"><ul id="35d3afbc-8185-42de-9760-b0c58e043f3f" class="bulleted-list"><li style="list-style-type:disc"><code>Risk:</code> Team may be <strong>&quot;further in than we want to be&quot;</strong> — need to back up and map data domains more carefully before diving deeper <code>[R15-02]</code></li></ul></div><div style="display:contents" dir="auto"><ul id="ac6f0856-e6d7-41ae-aa4f-e2f8a1ab7528" class="bulleted-list"><li style="list-style-type:disc"><code>Risk:</code> <strong>Data ownership</strong> remains a persistent organizational challenge — getting people to own their data inputs <code>[R15-03]</code></li></ul></div></div></figure></div><div style="display:contents" dir="auto"><hr id="843becf6-5997-4ce0-ab60-dd53e018d250"/></div><div style="display:contents" dir="auto"><h2 id="a35064b3-3f5b-494b-aae5-e90c91033d35" class="">📋 NEXT STEPS</h2></div><div style="display:contents" dir="ltr"><figure class="block-color-blue_background callout" style="white-space:pre-wrap;display:flex" id="6df9164e-13ce-46f3-a0d2-5f419f329eaf"><div style="font-size:1.5em"><span class="icon">📋</span></div><div style="width:100%"><div style="display:contents" dir="auto"><ul id="99319d23-ad95-478c-90b3-b67d52d25cc4" class="bulleted-list"><li style="list-style-type:disc"><code>Next step:</code> <strong>Map out data domain hierarchy</strong> before diving deeper into mastering — identify which domains go all the way across and give biggest bang for buck <code>[NS15-01]</code></li></ul></div><div style="display:contents" dir="auto"><ul id="5b4b1399-411f-4565-b904-c1ce6817fa2c" class="bulleted-list"><li style="list-style-type:disc"><code>Next step:</code> <strong>Include Robin in brainstorming sessions</strong> where she can add value <code>[NS15-02]</code></li></ul></div><div style="display:contents" dir="auto"><ul id="e660b53b-df02-47e2-b53d-35301ad58a41" class="bulleted-list"><li style="list-style-type:disc"><code>Next step:</code> <strong>Plan internal presentation</strong> before any ELT presentation <code>[NS15-03]</code></li></ul></div><div style="display:contents" dir="auto"><ul id="12e3d192-a08b-43c0-8267-3cb8cae431bd" class="bulleted-list"><li style="list-style-type:disc"><code>Next step:</code> <strong>Robin available for review/feedback</strong> — reach out anytime via text or in-person <code>[NS15-04]</code></li></ul></div></div></figure></div><div style="display:contents" dir="auto"><hr id="e9761019-977f-4d14-81d7-90c990be839c"/></div><div style="display:contents" dir="auto"><h2 id="51b8d996-d88a-46f5-a9fc-89fb299b7279" class="">❓ OPEN QUESTIONS</h2></div><div style="display:contents" dir="ltr"><figure class="block-color-yellow_background callout" style="white-space:pre-wrap;display:flex" id="e01f0ff4-3387-420b-a624-39660a27f27e"><div style="font-size:1.5em"><span class="icon">❓</span></div><div style="width:100%"><div style="display:contents" dir="auto"><ul id="4fe67081-15b7-4049-aac0-8f81995b0cfc" class="bulleted-list"><li style="list-style-type:disc"><code>Open Question:</code> What is the full scope of the Salesforce quote-to-cash migration and its timeline? <code>[OQ15-01]</code></li></ul></div><div style="display:contents" dir="auto"><ul id="c12d9574-bbeb-4476-9686-321c1cf52eec" class="bulleted-list"><li style="list-style-type:disc"><code>Open Question:</code> How does ETQ fit into the broader domain hierarchy once core domains are mapped? <code>[OQ15-02]</code></li></ul></div><div style="display:contents" dir="auto"><ul id="517ded34-b081-4105-bae8-33ef50d13aaf" class="bulleted-list"><li style="list-style-type:disc"><code>Open Question:</code> Who are the specific data owners for each priority domain (M3, Product, MES, Optiva)? <code>[OQ15-03]</code></li></ul></div></div></figure></div><div style="display:contents" dir="auto"><hr id="fce7f576-19ac-4b5d-aa22-173265042927"/></div><div style="display:contents" dir="auto"><h2 id="41119e30-c34c-4a58-8434-4bc30e3c1822" class="">👥 ATTENDEES &amp; ROLES</h2></div><div style="display:contents" dir="ltr"><table id="331346bb-c8a1-4377-a3cd-160ebae62bbf" class="simple-table"><thead class="simple-table-header"><div style="display:contents" dir="ltr"><tr id="05f4a0e5-1220-4646-9c04-b1c2bdbcad65"><th id="Jx&lt;Q" class="simple-table-header-color simple-table-header"><strong>Name</strong></th><th id="{&gt;&lt;=" class="simple-table-header-color simple-table-header"><strong>Role</strong></th><th id="GV:r" class="simple-table-header-color simple-table-header"><strong>Relevance</strong></th></tr></div></thead><tbody><div style="display:contents" dir="ltr"><tr id="d7a37dd2-6e60-4890-88de-e3a097761ce9"><td id="Jx&lt;Q" class="block-color-blue_background"><strong>Steve Nahrup</strong></td><td id="{&gt;&lt;=" class="block-color-blue_background">Data Architecture / MDM Consultant</td><td id="GV:r" class="block-color-blue_background">Leading Fabric/MDM implementation; execution owner</td></tr></div><div style="display:contents" dir="ltr"><tr id="39d8c8ca-1cbf-4a2f-86a3-0ae72694109f"><td id="Jx&lt;Q" class=""><strong>Robin Virginia</strong></td><td id="{&gt;&lt;=" class="">Business stakeholder with MDM experience</td><td id="GV:r" class="">Driving quote-to-cash Salesforce perspective; MDM domain expertise from Medtronic/Boston Scientific/Optum</td></tr></div><div style="display:contents" dir="ltr"><tr id="d40c16a4-1b60-45ba-a899-04f003097de8"><td id="Jx&lt;Q" class=""><strong>Patrick Stiller</strong></td><td id="{&gt;&lt;=" class="">CIO / IT Leadership</td><td id="GV:r" class="">Oversight and alignment; bridge between Steve and Robin</td></tr></div></tbody></table></div><div style="display:contents" dir="auto"><hr id="9eb2cfb0-c7d0-41fa-a938-f23a0858dc6f"/></div><div style="display:contents" dir="auto"><h2 id="71e886e1-f423-4f7d-9070-619717325c98" class="">🧾 EVIDENCE TABLE</h2></div><div style="display:contents" dir="ltr"><table id="b043e370-af1f-40ec-8b25-ee4aea34159a" class="simple-table"><thead class="simple-table-header"><div style="display:contents" dir="ltr"><tr id="cb8abfbe-f75c-47e8-800a-76d412a03ef2"><th id="K}U@" class="simple-table-header-color simple-table-header"><strong>Item ID</strong></th><th id="w&lt;se" class="simple-table-header-color simple-table-header"><strong>Type</strong></th><th id="BVS=" class="simple-table-header-color simple-table-header"><strong>Speaker</strong></th><th id="Bfzi" class="simple-table-header-color simple-table-header"><strong>Timestamp</strong></th><th id="&gt;c]y" class="simple-table-header-color simple-table-header"><strong>Evidence Snippet</strong></th><th id="nC@:" class="simple-table-header-color simple-table-header"><strong>Context</strong></th><th id="]\Pk" class="simple-table-header-color simple-table-header"><strong>Confidence</strong></th></tr></div></thead><tbody><div style="display:contents" dir="ltr"><tr id="b94765db-a9b7-4edf-ab88-a686f2f44bb2"><td id="K}U@" class=""><code>D15-01</code></td><td id="w&lt;se" class="">Decision</td><td id="BVS=" class="">Robin Virginia</td><td id="Bfzi" class="">25:17</td><td id="&gt;c]y" class=""><em>&quot;Definitely M3, both of them and then also product line between M3, MES and Optiva… and financials is gonna fall into place coming from those already. So I think those are the first through or that we go after and ETQ, that&#x27;s a further discussion&quot;</em></td><td id="nC@:" class="">Concrete request — domain prioritization</td><td id="]\Pk" class=""><strong>High</strong></td></tr></div><div style="display:contents" dir="ltr"><tr id="9c6f2465-0bcd-49ce-9f78-a193c822efb4"><td id="K}U@" class=""><code>D15-02</code></td><td id="w&lt;se" class="">Decision</td><td id="BVS=" class="">Robin Virginia</td><td id="Bfzi" class="">25:17</td><td id="&gt;c]y" class=""><em>&quot;Financials is gonna fall into place coming from those already&quot;</em></td><td id="nC@:" class="">Clarification — financials not separate priority</td><td id="]\Pk" class=""><strong>High</strong></td></tr></div><div style="display:contents" dir="ltr"><tr id="69bade04-3000-44a2-ba5e-95fed6543333"><td id="K}U@" class=""><code>D15-03</code></td><td id="w&lt;se" class="">Decision</td><td id="BVS=" class="">Robin Virginia</td><td id="Bfzi" class="">26:21</td><td id="&gt;c]y" class=""><em>&quot;If that tool is what we&#x27;re going to use to drive out the hierarchy and the mastering and decide what our scope is going to be, then that&#x27;s the first phase of the project and that&#x27;s how we lay it out to the business… the next phase will be we&#x27;ll bring this back to you&quot;</em></td><td id="nC@:" class="">Decision — Phase 1/2 approach</td><td id="]\Pk" class=""><strong>High</strong></td></tr></div><div style="display:contents" dir="ltr"><tr id="80eef6c3-eb3f-4742-bac8-60062ada4a76"><td id="K}U@" class=""><code>D15-04</code></td><td id="w&lt;se" class="">Decision</td><td id="BVS=" class="">Robin Virginia / Steve</td><td id="Bfzi" class="">27:40</td><td id="&gt;c]y" class=""><em>&quot;Before we present to the ELT, I think we have an internal presentation…&quot;</em> Steve: <em>&quot;Oh yeah, 100%&quot;</em> / <em>&quot;Mike should know what exactly is gonna be presented… he shouldn&#x27;t be wondering what we&#x27;re about to say&quot;</em></td><td id="nC@:" class="">Decision — internal dry-run before ELT</td><td id="]\Pk" class=""><strong>High</strong></td></tr></div><div style="display:contents" dir="ltr"><tr id="01a2b49a-607b-43f3-9321-32ba3a9075c3"><td id="K}U@" class=""><code>F15-01</code></td><td id="w&lt;se" class="">Fact</td><td id="BVS=" class="">Robin Virginia</td><td id="Bfzi" class="">0:22</td><td id="&gt;c]y" class=""><em>&quot;I come from experience with this with really large organizations… the Medtronics, Boston Scientific, Optums of the world&quot;</em></td><td id="nC@:" class="">Credential / background</td><td id="]\Pk" class=""><strong>High</strong></td></tr></div><div style="display:contents" dir="ltr"><tr id="65cec3f0-f944-4ca0-afc9-ce414bb69db2"><td id="K}U@" class=""><code>F15-02</code></td><td id="w&lt;se" class="">Fact</td><td id="BVS=" class="">Robin Virginia</td><td id="Bfzi" class="">0:54</td><td id="&gt;c]y" class=""><em>&quot;I am starting to go down the path of thinking about quote to cash from a Salesforce perspective and that means that you&#x27;d be migrating all of our data into a new solution for Salesforce and that involves needing clean data&quot;</em></td><td id="nC@:" class="">New context — Salesforce migration driver</td><td id="]\Pk" class=""><strong>High</strong></td></tr></div><div style="display:contents" dir="ltr"><tr id="c57543a9-b6f2-4774-a3e2-32fca4690a39"><td id="K}U@" class=""><code>F15-03</code></td><td id="w&lt;se" class="">Fact</td><td id="BVS=" class="">Robin Virginia</td><td id="Bfzi" class="">23:57</td><td id="&gt;c]y" class=""><em>&quot;Who&#x27;s gonna have to own this because they own the input, they own the origination of it. That has always been a problem… just getting people to take the ownership of their data&quot;</em></td><td id="nC@:" class="">Known organizational challenge</td><td id="]\Pk" class=""><strong>High</strong></td></tr></div><div style="display:contents" dir="ltr"><tr id="72a33575-31ce-4aa1-a394-0d683d4828d1"><td id="K}U@" class=""><code>R15-01</code></td><td id="w&lt;se" class="">Risk</td><td id="BVS=" class="">Robin Virginia</td><td id="Bfzi" class="">0:54</td><td id="&gt;c]y" class=""><em>&quot;Migrating all of our data into a new solution for Salesforce and that involves needing clean data&quot;</em></td><td id="nC@:" class="">Parallel dependency creating urgency</td><td id="]\Pk" class=""><strong>High</strong></td></tr></div><div style="display:contents" dir="ltr"><tr id="e2f81a03-ab80-44c6-82c8-428b1408567d"><td id="K}U@" class=""><code>R15-02</code></td><td id="w&lt;se" class="">Risk</td><td id="BVS=" class="">Robin Virginia</td><td id="Bfzi" class="">24:19</td><td id="&gt;c]y" class=""><em>&quot;I felt like we&#x27;re a little bit further in than we want to be. We want to back up and map it a little bit more&quot;</em></td><td id="nC@:" class="">Pacing concern — need to slow down and map</td><td id="]\Pk" class=""><strong>High</strong></td></tr></div><div style="display:contents" dir="ltr"><tr id="12b45ea5-112a-48e6-a73d-a44562fb86b0"><td id="K}U@" class=""><code>NS15-01</code></td><td id="w&lt;se" class="">Next step</td><td id="BVS=" class="">Robin Virginia</td><td id="Bfzi" class="">25:32</td><td id="&gt;c]y" class=""><em>&quot;Map it out and then have that conversation… when I look at this hierarchy, what are the data pieces that I really think we have to master first?&quot;</em></td><td id="nC@:" class="">Concrete request — domain mapping</td><td id="]\Pk" class=""><strong>High</strong></td></tr></div><div style="display:contents" dir="ltr"><tr id="68885ef4-b4f4-4837-8daf-c4d8ec280d07"><td id="K}U@" class=""><code>NS15-02</code></td><td id="w&lt;se" class="">Next step</td><td id="BVS=" class="">Robin Virginia</td><td id="Bfzi" class="">26:21</td><td id="&gt;c]y" class=""><em>&quot;I&#x27;d like you guys to let me know where I can add value… I don&#x27;t want to be micromanager&quot;</em></td><td id="nC@:" class="">Engagement preference</td><td id="]\Pk" class=""><strong>High</strong></td></tr></div><div style="display:contents" dir="ltr"><tr id="fcf066f0-a758-429f-a426-b60d537ca49d"><td id="K}U@" class=""><code>NS15-03</code></td><td id="w&lt;se" class="">Next step</td><td id="BVS=" class="">Robin Virginia</td><td id="Bfzi" class="">27:23</td><td id="&gt;c]y" class=""><em>&quot;Before we present to the ELT, I think we have an internal presentation&quot;</em></td><td id="nC@:" class="">Concrete request — planning step</td><td id="]\Pk" class=""><strong>High</strong></td></tr></div><div style="display:contents" dir="ltr"><tr id="76173dcb-b0c2-47e2-b67c-ecf881cf1add"><td id="K}U@" class=""><code>NS15-04</code></td><td id="w&lt;se" class="">Next step</td><td id="BVS=" class="">Robin Virginia</td><td id="Bfzi" class="">28:28</td><td id="&gt;c]y" class=""><em>&quot;If you want me to review anything, look at anything, happy to do it&quot;</em></td><td id="nC@:" class="">Open offer for feedback</td><td id="]\Pk" class=""><strong>High</strong></td></tr></div></tbody></table></div><div style="display:contents" dir="auto"><hr id="a5a776f2-3d52-43d0-9932-f80cc0e93714"/></div><div style="display:contents" dir="auto"><h2 id="45d9597f-2167-4a9b-ae04-4ebc6d45c74b" class="">📝 RAW TRANSCRIPT</h2></div><div style="display:contents" dir="auto"><ul id="fc76ea11-4a6a-4e98-a46f-5275d59d0b0d" class="toggle"><li><details open=""><summary>Full Transcript — Discuss MDM Data Priorities (Feb 13, 2026)</summary><div style="display:contents" dir="auto"><p id="a099ae2c-c305-4c87-93e1-62fb341071f1" class=""><strong>Steve Nahrup</strong> <em>(0:03)</em></p></div><div style="display:contents" dir="auto"><p id="aadd4f19-3762-4fde-8d0c-47eae9fc5712" class="">OK.</p></div><div style="display:contents" dir="auto"><p id="d5e166c3-0742-4364-b62f-4c599ae9d32a" class=""><strong>Robin Virginia</strong> <em>(0:03)</em></p></div><div style="display:contents" dir="auto"><p id="f157698c-aa09-4f12-85ee-25ade6ebc315" class="">All the way from the beginning when they kick it off and some of the things that I saw all the way to how they approach the data domain part and how that can sometimes be straightforward and sometimes be a real turn. And know that Steve, you and I haven&#x27;t talked a lot in the past. We really barely got introduced and so I come from...</p></div><div style="display:contents" dir="auto"><p id="58810805-7e4a-4b92-80f8-da3b1193c213" class=""><strong>Steve Nahrup</strong> <em>(0:17)</em></p></div><div style="display:contents" dir="auto"><p id="b0fb21d4-5441-43f3-ae2c-f7598f0995c0" class="">Yeah.</p></div><div style="display:contents" dir="auto"><p id="04c18944-2230-4b62-9a5b-7b2626c99d0e" class=""><strong>Robin Virginia</strong> <em>(0:22)</em></p></div><div style="display:contents" dir="auto"><p id="26b5610e-e3c5-4f7c-b416-f4dac909ff04" class="">Experience with this with really large organizations. Not that this one&#x27;s that small, but I&#x27;m talking the Medtronics, Boston Scientific, Optums of the world.</p></div><div style="display:contents" dir="auto"><p id="2d25fd6d-114c-4615-9829-2c6b5b55e940" class=""><strong>Steve Nahrup</strong> <em>(0:33)</em></p></div><div style="display:contents" dir="auto"><p id="4caf843c-aa52-4208-9e00-3d7635af58ad" class="">Yeah.</p></div><div style="display:contents" dir="auto"><p id="d242477e-259b-4052-883f-b1617a297e0d" class=""><strong>Robin Virginia</strong> <em>(0:34)</em></p></div><div style="display:contents" dir="auto"><p id="c65b374b-12cb-4f48-b054-95310f53c67e" class="">So I might overcomplicate things too and I&#x27;ll just throw that out there as a possibility. Well, I think things are fairly complex here, despite how small we are and that&#x27;s hopefully some of the things that could change down the road too. But that&#x27;s a further discussion. Well, and I should add a little color with this too in the sense that I have a very selfish reason for asking these questions.</p></div><div style="display:contents" dir="auto"><p id="2106ab97-eee7-4665-81ac-71bbf48922f5" class=""><strong>Steve Nahrup</strong> <em>(0:38)</em></p></div><div style="display:contents" dir="auto"><p id="5c485adf-c879-4733-a14b-f0b04982db70" class="">Oh, I mean.</p></div><div style="display:contents" dir="auto"><p id="52e654cd-4527-40b4-a389-ec3ff2d4757c" class=""><strong>Robin Virginia</strong> <em>(0:54)</em></p></div><div style="display:contents" dir="auto"><p id="ca815a47-b2f5-4449-be07-c56d17657489" class="">I am starting to go down the path of thinking about quote to cash from a Salesforce perspective and that means that you&#x27;d be migrating all of our data into a new solution for Salesforce and that involves needing clean data. Right. So there&#x27;s a piece of that that I selfishly have in the back of my head that I want to be very transparent and overt about. And so when you hear me talk about the data domains and the structure of that, how we might go about cleansing it, I&#x27;m thinking of it from that perspective, which might be very different.</p></div><div style="display:contents" dir="auto"><p id="fbaabfc1-e0eb-49d0-bab0-06f3e2148fb6" class=""><strong>Steve Nahrup</strong> <em>(1:12)</em></p></div><div style="display:contents" dir="auto"><p id="4b88f505-73b5-49bd-afb0-004b70fb47d9" class="">Yep.</p></div><div style="display:contents" dir="auto"><p id="997f6c15-9663-438e-aea6-5e88cc5765e3" class=""><strong>Robin Virginia</strong> <em>(23:57)</em></p></div><div style="display:contents" dir="auto"><p id="21659efe-9a63-4162-a8cb-1d26a94d284f" class="">Or the old one. It&#x27;s like this — who&#x27;s gonna have to own this because they own the input, they own the origination of it. That has always been a problem. Yes, just getting people to take the ownership of their data. If we say you&#x27;re system master, you gotta own that. That&#x27;ll — you&#x27;ll start to understand the who.</p></div><div style="display:contents" dir="auto"><p id="ee57f23f-2c7e-4c31-88f1-398cc3a82d2c" class=""><strong>Steve Nahrup</strong> <em>(24:12)</em></p></div><div style="display:contents" dir="auto"><p id="bed7e691-9550-475a-9a31-14414cf257fd" class="">No.</p></div><div style="display:contents" dir="auto"><p id="8251e3fc-8646-48db-b759-19a69025fd24" class=""><strong>Robin Virginia</strong> <em>(24:16)</em></p></div><div style="display:contents" dir="auto"><p id="7b36a95a-c8e5-4ba1-8ab3-47c8ae42e254" class="">As well.</p></div><div style="display:contents" dir="auto"><p id="366be8d5-44a9-407b-985d-541bf4e25c30" class=""><strong>Robin Virginia</strong> <em>(24:19)</em></p></div><div style="display:contents" dir="auto"><p id="e84ee180-492b-4b23-8a3e-8cbf4076960b" class="">And so this is, and I don&#x27;t really have a ton of time and we&#x27;re out of time now and we can meet again anytime you guys want. I don&#x27;t have all the answers for sure. You guys know way more than I do. But I just felt like I needed to get that out of my head because I felt like we&#x27;re a little bit further in than we want to be. We want to back up and map it a little bit more.</p></div><div style="display:contents" dir="auto"><p id="8212702b-0d66-4b53-b30e-baec4197224c" class=""><strong>Robin Virginia</strong> <em>(24:39)</em></p></div><div style="display:contents" dir="auto"><p id="7867c38d-e9a3-4ea8-83d4-46c002e745c9" class="">And on that very statement, I&#x27;m thinking about some of the data that we&#x27;re mapping and starting to look at — like ETQ data, that does not — I mean if it&#x27;s customers, customer complaints. Yeah, but it&#x27;s not gonna be one of the cores.</p></div><div style="display:contents" dir="auto"><p id="a629969d-d712-45f1-b753-7593fa76912e" class=""><strong>Robin Virginia</strong> <em>(24:58)</em></p></div><div style="display:contents" dir="auto"><p id="7108de6d-4fa9-4686-9fc6-202ca90cc660" class="">So I see Optiva, that&#x27;s your product. Customers, that&#x27;s ERP. Financials is ERP. ERP is plural. When you start to hierarchy it like that, it starts to stand out as to which ones are most important. So I see...</p></div><div style="display:contents" dir="auto"><p id="455f79dc-5144-4507-9292-33afd19fa15b" class=""><strong>Steve Nahrup</strong> <em>(24:58)</em></p></div><div style="display:contents" dir="auto"><p id="a5826c1a-da0d-413e-8544-51aa5fbe4aae" class="">Yep.</p></div><div style="display:contents" dir="auto"><p id="e7727b32-ff40-41e6-b3f7-bd7effd0a5e2" class=""><strong>Robin Virginia</strong> <em>(25:17)</em></p></div><div style="display:contents" dir="auto"><p id="f59a7135-5942-4a68-aefa-62d463ebab11" class="">Definitely M3, both of them and then also product line between M3, MES and Optiva. And financials is gonna fall into place coming from those already. So I think those are the first through that we go after and ETQ, that&#x27;s a further discussion now I think about it. When I say map it out and then have that conversation — when I look at this hierarchy, what are the data pieces that I really think we have to master first? Because they&#x27;re gonna give us the biggest bang for a buck, &#x27;cause they go all the way across, and if they&#x27;re not right, everything&#x27;s a jumble.</p></div><div style="display:contents" dir="auto"><p id="cbfadd1a-0fa3-4b49-b29b-fd9877c2ad57" class=""><strong>Steve Nahrup</strong> <em>(25:57)</em></p></div><div style="display:contents" dir="auto"><p id="427e28c0-d999-4784-a93f-e231ed97cd1d" class="">So yeah, when I get it into — like once I get it into the lakehouse, that&#x27;s where the fun begins in terms of being able to actually write a bunch of Python notebooks to basically do all of what you&#x27;re talking about and visualize it and identify the hierarchies and all of that. So do you wanna be included on any of those steps?</p></div><div style="display:contents" dir="auto"><p id="d5aa638d-78ab-426a-be55-be1e8193446f" class=""><strong>Robin Virginia</strong> <em>(26:21)</em></p></div><div style="display:contents" dir="auto"><p id="8a4db030-0cef-489a-81c6-e65685f25e94" class="">Well, I&#x27;d like you guys to let me know where I can add value. I don&#x27;t want to be micromanager. You guys know what you&#x27;re doing. And I think your point is valid, Steve, and that if that tool is what we&#x27;re going to use to drive out the hierarchy and the mastering and decide what our scope is going to be, then that&#x27;s the first phase of the project and that&#x27;s how we lay it out to the business to say this tool is helping us decipher all of that. And the next phase will be we&#x27;ll bring this back to you and we&#x27;ll have the conversations around what we&#x27;ve selected.</p></div><div style="display:contents" dir="auto"><p id="44e825c4-df13-4783-9b54-474b188deb3c" class=""><strong>Steve Nahrup</strong> <em>(26:53)</em></p></div><div style="display:contents" dir="auto"><p id="b5c6552b-9dc6-4d5a-aa3d-a4ec3fd70c63" class="">Yep. Well, I appreciate you proactively setting up this meeting. Honestly. Like sometimes people just kind of — they just kind of wait until the very end and then they have a million things to say. So I appreciate the input. It helps. I feel a lot better about this type of stuff when people give me their input and thoughts.</p></div><div style="display:contents" dir="auto"><p id="aa935937-c203-4d20-a6b8-22af16ff448b" class=""><strong>Robin Virginia</strong> <em>(27:23)</em></p></div><div style="display:contents" dir="auto"><p id="22bf852c-c083-4d88-bb1b-6a2b72fab5bd" class="">And I think, Steve, there&#x27;s gonna be like points where you&#x27;re like, maybe we should brainstorm this a little bit. I&#x27;d love to be part of those where — you know what you&#x27;re doing, you&#x27;ve got it under control. You don&#x27;t need me. And I just want to be helpful. And I think too before we present to the ELT, I think we have an internal presentation.</p></div><div style="display:contents" dir="auto"><p id="7859b5f1-489d-4106-a480-464c15a25466" class=""><strong>Steve Nahrup</strong> <em>(27:35)</em></p></div><div style="display:contents" dir="auto"><p id="069df622-1946-48b5-a8a5-8f5f7e575f66" class="">Huh.</p></div><div style="display:contents" dir="auto"><p id="bde05c3f-ef46-42be-bab3-9950f233d46e" class=""><strong>Steve Nahrup</strong> <em>(27:39)</em></p></div><div style="display:contents" dir="auto"><p id="b139b562-b074-48ae-b7a1-3cbf7e1bfea1" class="">Oh yeah, 100%. Mike should know what exactly is gonna be presented. He shouldn&#x27;t be sitting in that meeting wondering what we&#x27;re about to say.</p></div><div style="display:contents" dir="auto"><p id="4f395313-d67c-4c49-a7b3-e0a376ab507a" class=""><strong>Robin Virginia</strong> <em>(27:40)</em></p></div><div style="display:contents" dir="auto"><p id="804939cf-0c2a-4953-8cea-922357f196d5" class="">Planning to present to the ELT. So that&#x27;s a great idea. So we&#x27;re not feeling like we&#x27;re walking in the room when we know all of us and this is what we&#x27;re presenting.</p></div><div style="display:contents" dir="auto"><p id="190f2860-7e54-430e-a416-58f2370998bb" class=""><strong>Steve Nahrup</strong> <em>(27:56)</em></p></div><div style="display:contents" dir="auto"><p id="294efcab-e099-4929-bf28-0cd0a9c25cbf" class="">Mike should know what exactly is gonna be presented. He shouldn&#x27;t be sitting in that meeting wondering what we&#x27;re about to say.</p></div><div style="display:contents" dir="auto"><p id="ca57717d-324a-4330-a1e2-cf8c959fc365" class=""><strong>Robin Virginia</strong> <em>(27:57)</em></p></div><div style="display:contents" dir="auto"><p id="b6fb831e-fede-4ec1-b2f4-4b91fdb9ec88" class="">Can&#x27;t be broadsided, not be surprised, yeah.</p></div><div style="display:contents" dir="auto"><p id="25c01b5e-ae65-48c7-880b-118e06f9ff6c" class=""><strong>Robin Virginia</strong> <em>(28:08)</em></p></div><div style="display:contents" dir="auto"><p id="3a102779-c388-42d4-b703-271c5b3fe14c" class="">Yeah, all right. I got to run to another meeting. Thank you guys. I appreciate that — letting me bend your ear. It really is intended with all the right intent — take it, do whatever you will with it and ask me whatever questions you still have. I just want to share it and get it out of my head to try to help. So if you want me to review anything, look at anything, happy to do it.</p></div><div style="display:contents" dir="auto"><p id="894e7158-2fdf-43ed-af32-bf16229a99b3" class=""><strong>Steve Nahrup</strong> <em>(28:30)</em></p></div><div style="display:contents" dir="auto"><p id="04b89b95-2d1b-4058-a82f-1cb502f171cd" class="">I&#x27;m not just saying it, Robin. I really do appreciate it.</p></div><div style="display:contents" dir="auto"><p id="73a9e57c-0ddb-4681-b266-e749c7148f1d" class=""><strong>Robin Virginia</strong> <em>(28:34)</em></p></div><div style="display:contents" dir="auto"><p id="3693bb8a-b417-4737-ae1a-3d4fc2f52d69" class="">Thank you. I appreciate that too, Steve, that you&#x27;re open to that because that&#x27;s how it&#x27;s intended. Really. It&#x27;s just a good, just an open conversation and I&#x27;m pretty transparent as Patrick knows. So if you need something, you just pop into my office or just ping me via text and say, hey, you got a minute and I&#x27;m happy to join.</p></div><div style="display:contents" dir="auto"><p id="97499e4e-f7dd-4d7d-8340-c2dcef7f7427" class=""><strong>Steve Nahrup</strong> <em>(28:40)</em></p></div><div style="display:contents" dir="auto"><p id="06edb548-3eba-4906-af01-d0987ec4cda0" class="">Right.</p></div><div style="display:contents" dir="auto"><p id="cfc3b063-5a19-44ca-b10b-70cc982af2ef" class=""><strong>Steve Nahrup</strong> <em>(28:49)</em></p></div><div style="display:contents" dir="auto"><p id="372a7625-f85a-4934-9d02-0faaf365fcbc" class="">Uh.</p></div><div style="display:contents" dir="auto"><p id="3be54084-5907-4bfc-b8d7-3ddc81d50701" class=""><strong>Steve Nahrup</strong> <em>(28:52)</em></p></div><div style="display:contents" dir="auto"><p id="712a879f-612f-45c8-a218-51d28ed8f8d6" class="">Yes.</p></div><div style="display:contents" dir="auto"><p id="d252f8cf-081a-45d9-af4d-f9898ddc4e0f" class=""><strong>Steve Nahrup</strong> <em>(28:53)</em></p></div><div style="display:contents" dir="auto"><p id="64f54950-ea82-4b6b-9b5e-6a99be46f1a0" class="">All right. Some people get like very possessive over their areas of work and I don&#x27;t — people do fiefdoms and stuff and I just, I&#x27;m not about that. So yeah, if you have any thoughts, yeah.</p></div><div style="display:contents" dir="auto"><p id="2dee4792-0a07-47f3-ae73-a428db92faae" class=""><strong>Steve Nahrup</strong> <em>(29:09)</em></p></div><div style="display:contents" dir="auto"><p id="59cc9aac-2206-4c6b-a4ad-eceb3ceb751b" class="">Yep.</p></div><div style="display:contents" dir="auto"><p id="d723b5f2-b062-4103-801b-dae15d0f7afa" class=""><strong>Steve Nahrup</strong> <em>(29:11)</em></p></div><div style="display:contents" dir="auto"><p id="dc60c8dc-2213-465f-81f4-55c7eb3c72df" class="">No. All right. Sounds good. Thanks, guys.</p></div></details></li></ul></div></div></article><span class="sans" style="font-size:14px;padding-top:2em"></span></body></html>

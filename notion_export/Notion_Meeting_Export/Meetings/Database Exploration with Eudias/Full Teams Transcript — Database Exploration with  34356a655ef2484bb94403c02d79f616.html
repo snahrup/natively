@@ -1,0 +1,743 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>Full Teams Transcript — Database Exploration with Eudias</title><style>
+/* cspell:disable-file */
+/* webkit printing magic: print all background colors */
+html {
+	-webkit-print-color-adjust: exact;
+}
+* {
+	box-sizing: border-box;
+	-webkit-print-color-adjust: exact;
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+}
+@media only screen {
+	body {
+		margin: 2em auto;
+		max-width: 900px;
+		color: rgb(55, 53, 47);
+	}
+}
+
+body {
+	line-height: 1.5;
+	white-space: pre-wrap;
+}
+
+a,
+a.visited {
+	color: inherit;
+	text-decoration: underline;
+}
+
+.pdf-relative-link-path {
+	font-size: 80%;
+	color: #444;
+}
+
+h1,
+h2,
+h3 {
+	letter-spacing: -0.01em;
+	line-height: 1.2;
+	font-weight: 600;
+	margin-bottom: 0;
+}
+
+/* Override strong tags inside headings to maintain consistent weight */
+h1 strong,
+h2 strong,
+h3 strong {
+	font-weight: 600;
+}
+
+.page-title {
+	font-size: 2.5rem;
+	font-weight: 700;
+	margin-top: 0;
+	margin-bottom: 0.75em;
+}
+
+h1 {
+	font-size: 1.875rem;
+	margin-top: 1.875rem;
+}
+
+h2 {
+	font-size: 1.5rem;
+	margin-top: 1.5rem;
+}
+
+h3 {
+	font-size: 1.25rem;
+	margin-top: 1.25rem;
+}
+
+.source {
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	padding: 1.5em;
+	word-break: break-all;
+}
+
+.callout {
+	border-radius: 10px;
+	padding: 1rem;
+}
+
+figure {
+	margin: 1.25em 0;
+	page-break-inside: avoid;
+}
+
+figcaption {
+	opacity: 0.5;
+	font-size: 85%;
+	margin-top: 0.5em;
+}
+
+mark {
+	background-color: transparent;
+}
+
+.indented {
+	padding-left: 1.5em;
+}
+
+hr {
+	background: transparent;
+	display: block;
+	width: 100%;
+	height: 1px;
+	visibility: visible;
+	border: none;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+img {
+	max-width: 100%;
+}
+
+@media only print {
+	img {
+		max-height: 100vh;
+		object-fit: contain;
+	}
+
+	table.collection-content {
+		width: 100%;
+		table-layout: fixed;
+	}
+
+	table.collection-content th,
+	table.collection-content td {
+		overflow-wrap: anywhere;
+	}
+
+	table.collection-content td > .user,
+	table.collection-content td > time {
+		white-space: pre-wrap;
+	}
+}
+
+@page {
+	margin: 1in;
+}
+
+.collection-content-wrapper {
+	overflow-x: auto;
+}
+
+@media only print {
+	.collection-content-wrapper {
+		overflow-x: visible;
+	}
+}
+
+.collection-content {
+	font-size: 0.875rem;
+}
+
+.collection-content td {
+	white-space: pre-wrap;
+	word-break: break-word;
+}
+
+.column-list {
+	display: flex;
+	gap: 46px;
+}
+
+.column {
+	min-width: 0;
+	overflow: hidden;
+}
+
+.column > *:first-child {
+	margin-top: 0;
+}
+
+.table_of_contents-item {
+	display: block;
+	font-size: 0.875rem;
+	line-height: 1.3;
+	padding: 0.125rem;
+}
+
+.table_of_contents-indent-1 {
+	margin-left: 1.5rem;
+}
+
+.table_of_contents-indent-2 {
+	margin-left: 3rem;
+}
+
+.table_of_contents-indent-3 {
+	margin-left: 4.5rem;
+}
+
+.table_of_contents-link {
+	text-decoration: none;
+	opacity: 0.7;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.18);
+}
+
+table,
+th,
+td {
+	border: 1px solid rgba(55, 53, 47, 0.09);
+	border-collapse: collapse;
+}
+
+table {
+	border-left: none;
+	border-right: none;
+}
+
+th,
+td {
+	font-weight: normal;
+	padding: 0.25em 0.5em;
+	line-height: 1.5;
+	min-height: 1.5em;
+	text-align: left;
+}
+
+th {
+	color: rgba(55, 53, 47, 0.6);
+}
+
+ol,
+ul {
+	margin: 0;
+	margin-block-start: 0.6em;
+	margin-block-end: 0.6em;
+}
+
+li > ol:first-child,
+li > ul:first-child {
+	margin-block-start: 0.6em;
+}
+
+ul > li {
+	list-style: disc;
+}
+
+ul.to-do-list {
+	padding-inline-start: 0;
+}
+
+ul.to-do-list > li {
+	list-style: none;
+}
+
+.to-do-children-checked {
+	text-decoration: line-through;
+	opacity: 0.375;
+}
+
+ul.toggle > li {
+	list-style: none;
+}
+
+ul {
+	padding-inline-start: 1.7em;
+}
+
+ul > li {
+	padding-left: 0.1em;
+}
+
+ol {
+	padding-inline-start: 1.6em;
+}
+
+ol.numbered-list.numbered-list-digits-2 {
+	padding-inline-start: 2em;
+}
+
+ol.numbered-list.numbered-list-digits-3plus {
+	padding-inline-start: 2.4em;
+}
+
+ol > li {
+	padding-left: 0.2em;
+}
+
+.mono ol {
+	padding-inline-start: 2em;
+}
+
+.mono ol > li {
+	text-indent: -0.4em;
+}
+
+.toggle {
+	padding-inline-start: 0em;
+	list-style-type: none;
+}
+
+/* Indent toggle children */
+.toggle > li > details {
+	padding-left: 1.7em;
+}
+
+.toggle > li > details > summary {
+	margin-left: -1.1em;
+}
+
+.selected-value {
+	display: inline-block;
+	padding: 0 0.5em;
+	background: rgba(206, 205, 202, 0.5);
+	border-radius: 3px;
+	margin-right: 0.5em;
+	margin-top: 0.3em;
+	margin-bottom: 0.3em;
+	white-space: nowrap;
+}
+
+.collection-title {
+	display: inline-block;
+	margin-right: 1em;
+}
+
+.page-description {
+	margin-bottom: 2em;
+}
+
+.simple-table {
+	margin-top: 1em;
+	font-size: 0.875rem;
+	empty-cells: show;
+}
+.simple-table td {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table th {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table-header-color {
+	background: rgb(247, 246, 243);
+	color: black;
+}
+.simple-table-header {
+	font-weight: 500;
+}
+
+time {
+	opacity: 0.5;
+}
+
+.icon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	max-width: 1.2em;
+	max-height: 1.2em;
+	text-decoration: none;
+	vertical-align: text-bottom;
+	margin-right: 0.5em;
+}
+
+img.icon {
+	border-radius: 3px;
+}
+
+.callout img.notion-static-icon {
+	width: 1em;
+	height: 1em;
+}
+
+.callout p {
+	margin: 0;
+}
+
+.callout h1,
+.callout h2,
+.callout h3 {
+	margin: 0 0 0.6rem;
+}
+
+.user-icon {
+	width: 1.5em;
+	height: 1.5em;
+	border-radius: 100%;
+	margin-right: 0.5rem;
+}
+
+.user-icon-inner {
+	font-size: 0.8em;
+}
+
+.text-icon {
+	border: 1px solid #000;
+	text-align: center;
+}
+
+.page-cover-image {
+	display: block;
+	object-fit: cover;
+	width: 100%;
+	max-height: 30vh;
+}
+
+.page-header-icon {
+	font-size: 3rem;
+	margin-bottom: 1rem;
+}
+
+.page-header-icon-with-cover {
+	margin-top: -0.72em;
+	margin-left: 0.07em;
+}
+
+.page-header-icon img {
+	border-radius: 3px;
+}
+
+.link-to-page {
+	margin: 1em 0;
+	padding: 0;
+	border: none;
+	font-weight: 500;
+}
+
+p > .user {
+	opacity: 0.5;
+}
+
+td > .user,
+td > time {
+	white-space: nowrap;
+}
+
+input[type="checkbox"] {
+	transform: scale(1.5);
+	margin-right: 0.6em;
+	vertical-align: middle;
+}
+
+p {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+.image {
+	border: none;
+	margin: 1.5em 0;
+	padding: 0;
+	border-radius: 0;
+	text-align: center;
+}
+
+.code,
+code {
+	background: rgba(135, 131, 120, 0.15);
+	border-radius: 3px;
+	padding: 0.2em 0.4em;
+	border-radius: 3px;
+	font-size: 85%;
+	tab-size: 2;
+}
+
+code {
+	color: #eb5757;
+}
+
+.code {
+	padding: 1.5em 1em;
+}
+
+.code-wrap {
+	white-space: pre-wrap;
+	word-break: break-all;
+}
+
+.code > code {
+	background: none;
+	padding: 0;
+	font-size: 100%;
+	color: inherit;
+}
+
+blockquote {
+	font-size: 1em;
+	margin: 1em 0;
+	padding-left: 1em;
+	border-left: 3px solid rgb(55, 53, 47);
+}
+
+blockquote.quote-large {
+	font-size: 1.25em;
+}
+
+.bookmark {
+	text-decoration: none;
+	max-height: 8em;
+	padding: 0;
+	display: flex;
+	width: 100%;
+	align-items: stretch;
+}
+
+.bookmark-title {
+	font-size: 0.85em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	height: 1.75em;
+	white-space: nowrap;
+}
+
+.bookmark-text {
+	display: flex;
+	flex-direction: column;
+}
+
+.bookmark-info {
+	flex: 4 1 180px;
+	padding: 12px 14px 14px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.bookmark-image {
+	width: 33%;
+	flex: 1 1 180px;
+	display: block;
+	position: relative;
+	object-fit: cover;
+	border-radius: 1px;
+}
+
+.bookmark-description {
+	color: rgba(55, 53, 47, 0.6);
+	font-size: 0.75em;
+	overflow: hidden;
+	max-height: 4.5em;
+	word-break: break-word;
+}
+
+.bookmark-href {
+	font-size: 0.75em;
+	margin-top: 0.25em;
+}
+
+.sans { font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol"; }
+.code { font-family: "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace; }
+.serif { font-family: Lyon-Text, Georgia, ui-serif, serif; }
+.mono { font-family: iawriter-mono, Nitti, Menlo, Courier, monospace; }
+.pdf .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK JP'; }
+.pdf:lang(zh-CN) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK SC'; }
+.pdf:lang(zh-TW) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK TC'; }
+.pdf:lang(ko-KR) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK KR'; }
+.pdf .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.pdf .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK JP'; }
+.pdf:lang(zh-CN) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK SC'; }
+.pdf:lang(zh-TW) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK TC'; }
+.pdf:lang(ko-KR) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK KR'; }
+.pdf .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.highlight-default {
+	color: rgba(44, 44, 43, 1);
+}
+.highlight-gray {
+	color: rgba(125, 122, 117, 1);
+	fill: rgba(125, 122, 117, 1);
+}
+.highlight-brown {
+	color: rgba(159, 118, 90, 1);
+	fill: rgba(159, 118, 90, 1);
+}
+.highlight-orange {
+	color: rgba(210, 123, 45, 1);
+	fill: rgba(210, 123, 45, 1);
+}
+.highlight-yellow {
+	color: rgba(203, 148, 52, 1);
+	fill: rgba(203, 148, 52, 1);
+}
+.highlight-teal {
+	color: rgba(80, 148, 110, 1);
+	fill: rgba(80, 148, 110, 1);
+}
+.highlight-blue {
+	color: rgba(56, 125, 201, 1);
+	fill: rgba(56, 125, 201, 1);
+}
+.highlight-purple {
+	color: rgba(154, 107, 180, 1);
+	fill: rgba(154, 107, 180, 1);
+}
+.highlight-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.highlight-red {
+	color: rgba(207, 81, 72, 1);
+	fill: rgba(207, 81, 72, 1);
+}
+.highlight-default_background {
+	color: rgba(44, 44, 43, 1);
+}
+.highlight-gray_background {
+	background: rgba(42, 28, 0, 0.07);
+}
+.highlight-brown_background {
+	background: rgba(139, 46, 0, 0.086);
+}
+.highlight-orange_background {
+	background: rgba(224, 101, 1, 0.129);
+}
+.highlight-yellow_background {
+	background: rgba(211, 168, 0, 0.137);
+}
+.highlight-teal_background {
+	background: rgba(0, 100, 45, 0.09);
+}
+.highlight-blue_background {
+	background: rgba(0, 124, 215, 0.094);
+}
+.highlight-purple_background {
+	background: rgba(102, 0, 178, 0.078);
+}
+.highlight-pink_background {
+	background: rgba(197, 0, 93, 0.086);
+}
+.highlight-red_background {
+	background: rgba(223, 22, 0, 0.094);
+}
+.block-color-default {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray {
+	color: rgba(125, 122, 117, 1);
+	fill: rgba(125, 122, 117, 1);
+}
+.block-color-brown {
+	color: rgba(159, 118, 90, 1);
+	fill: rgba(159, 118, 90, 1);
+}
+.block-color-orange {
+	color: rgba(210, 123, 45, 1);
+	fill: rgba(210, 123, 45, 1);
+}
+.block-color-yellow {
+	color: rgba(203, 148, 52, 1);
+	fill: rgba(203, 148, 52, 1);
+}
+.block-color-teal {
+	color: rgba(80, 148, 110, 1);
+	fill: rgba(80, 148, 110, 1);
+}
+.block-color-blue {
+	color: rgba(56, 125, 201, 1);
+	fill: rgba(56, 125, 201, 1);
+}
+.block-color-purple {
+	color: rgba(154, 107, 180, 1);
+	fill: rgba(154, 107, 180, 1);
+}
+.block-color-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.block-color-red {
+	color: rgba(207, 81, 72, 1);
+	fill: rgba(207, 81, 72, 1);
+}
+.block-color-default_background {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray_background {
+	background: rgba(240, 239, 237, 1);
+}
+.block-color-brown_background {
+	background: rgba(245, 237, 233, 1);
+}
+.block-color-orange_background {
+	background: rgba(251, 235, 222, 1);
+}
+.block-color-yellow_background {
+	background: rgba(249, 243, 220, 1);
+}
+.block-color-teal_background {
+	background: rgba(232, 241, 236, 1);
+}
+.block-color-blue_background {
+	background: rgba(229, 242, 252, 1);
+}
+.block-color-purple_background {
+	background: rgba(243, 235, 249, 1);
+}
+.block-color-pink_background {
+	background: rgba(250, 233, 241, 1);
+}
+.block-color-red_background {
+	background: rgba(252, 233, 231, 1);
+}
+.select-value-color-default { background-color: rgba(42, 28, 0, 0.07); }
+.select-value-color-gray { background-color: rgba(28, 19, 1, 0.11); }
+.select-value-color-brown { background-color: rgba(127, 51, 0, 0.156); }
+.select-value-color-orange { background-color: rgba(196, 88, 0, 0.203); }
+.select-value-color-yellow { background-color: rgba(209, 156, 0, 0.282); }
+.select-value-color-green { background-color: rgba(0, 96, 38, 0.156); }
+.select-value-color-blue { background-color: rgba(0, 118, 217, 0.203); }
+.select-value-color-purple { background-color: rgba(92, 0, 163, 0.141); }
+.select-value-color-pink { background-color: rgba(183, 0, 78, 0.152); }
+.select-value-color-red { background-color: rgba(206, 24, 0, 0.164); }
+
+.checkbox {
+	display: inline-flex;
+	vertical-align: text-bottom;
+	width: 16;
+	height: 16;
+	background-size: 16px;
+	margin-left: 2px;
+	margin-right: 5px;
+}
+
+.checkbox-on {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20width%3D%2216%22%20height%3D%2216%22%20fill%3D%22%2358A9D7%22%2F%3E%0A%3Cpath%20d%3D%22M6.71429%2012.2852L14%204.9995L12.7143%203.71436L6.71429%209.71378L3.28571%206.2831L2%207.57092L6.71429%2012.2852Z%22%20fill%3D%22white%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+
+.checkbox-off {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20x%3D%220.75%22%20y%3D%220.75%22%20width%3D%2214.5%22%20height%3D%2214.5%22%20fill%3D%22white%22%20stroke%3D%22%2336352F%22%20stroke-width%3D%221.5%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+	
+</style></head><body><article id="34356a65-5ef2-484b-b944-03c02d79f616" class="page sans"><header><div class="page-header-icon undefined"><span class="icon">📹</span></div><h1 class="page-title" dir="auto">Full Teams Transcript — Database Exploration with Eudias</h1><p class="page-description" dir="auto"></p></header><div class="page-body"><div style="display:contents" dir="ltr"><figure class="block-color-gray_background callout" style="white-space:pre-wrap;display:flex" id="46488a97-c741-43bd-8ea9-69a088c54695"><div style="font-size:1.5em"><span class="icon">📋</span></div><div style="width:100%"><div style="display:contents" dir="auto"><p id="a21cd4b4-ae63-415c-a348-e8db3b29d0ed" class=""><strong>Source:</strong> Microsoft Teams auto-transcription</p></div><div style="display:contents" dir="auto"><p id="3bcf87cc-dee7-4d9e-85d9-28403ffc75e7" class=""><strong>Meeting:</strong> Database Exploration with Eudias</p></div><div style="display:contents" dir="auto"><p id="c28c8d05-72f5-4bb3-893d-253f93aaebd6" class=""><strong>Duration:</strong> 2:12:32</p></div><div style="display:contents" dir="auto"><p id="674e1712-eca0-42e2-908a-d988472910a3" class=""><strong>Date:</strong> December 17, 2025</p></div><div style="display:contents" dir="auto"><p id="9444db1f-1b23-4f90-a05c-252ebc2f3b58" class=""><strong>Participants:</strong> Steve Nahrup, Eudias Kifem, Patrick Stiller (brief)</p></div></div></figure></div><div style="display:contents" dir="auto"><hr id="2c83799e-35a3-4d56-bec9-08341ab217d7"/></div><div style="display:contents" dir="auto"><h2 id="99955d6a-7c68-47e1-a48c-83d68c68c7d9" class="">Full Raw Transcript</h2></div><div style="display:contents" dir="auto"><p id="e181acbc-508c-4168-ab57-f3d2aea47574" class=""><strong>Steve Nahrup</strong> [0:04]: Uh, I haven&#x27;t changed my default.</p></div><div style="display:contents" dir="auto"><p id="b408f3eb-264b-4637-a952-4f02be06f34f" class=""><strong>Steve Nahrup</strong> [0:10]: Browser OK.</p></div><div style="display:contents" dir="auto"><p id="be410feb-7d07-45cf-a3d0-b6a5f52b07ee" class=""><strong>Eudias Kifem</strong> [0:17]: Are you able to open it now?</p></div><div style="display:contents" dir="auto"><p id="33680dee-2f5d-4d91-ae76-5b37f3823fa9" class=""><strong>Steve Nahrup</strong> [0:21]: Yeah, I just getting a verification code for one password.</p></div><div style="display:contents" dir="auto"><p id="f0efb5fd-b15a-412f-bdb3-794ffed4b7a2" class=""><strong>Eudias Kifem</strong> [0:27]: Oh.</p></div><div style="display:contents" dir="auto"><p id="89a627ca-4a25-4c60-b075-4e905e71e6d5" class=""><strong>Steve Nahrup</strong> [0:28]: OK, OK, there it is. So user SQL read.</p></div><div style="display:contents" dir="auto"><p id="30e35664-849b-4200-b157-11b49fabc59a" class=""><strong>Eudias Kifem</strong> [0:31]: OK.</p></div><div style="display:contents" dir="auto"><p id="20887444-21fb-41d5-b78c-65803807031e" class=""><strong>Eudias Kifem</strong> [0:35]: Yes. So if you share your screen and open up Management Studio, we could try to see if it will give us if it will get you in the database.</p></div><div style="display:contents" dir="auto"><p id="6412a455-55bc-452a-9ef4-8afaa3f08d62" class=""><strong>Steve Nahrup</strong> [0:52]: I just need to. I didn&#x27;t download that quite yet. I.</p></div><div style="display:contents" dir="auto"><p id="c00cdd4c-f56f-41f1-9610-bc06b5927feb" class=""><strong>Steve Nahrup</strong> [1:00]: Should download it yesterday. It&#x27;ll take two seconds. OK, so.</p></div><div style="display:contents" dir="auto"><p id="08d7c6ef-29ed-44f0-9481-ff8ebfb5a5b3" class=""><strong>Steve Nahrup</strong> [1:06]: There we go.</p></div><div style="display:contents" dir="auto"><p id="6ef08c19-332c-4549-80e5-c9810ee001eb" class=""><strong>Steve Nahrup</strong> [1:13]: Beautiful. There we go. OK, here&#x27;s my screen.</p></div><div style="display:contents" dir="auto"><p id="c4a7f9e8-24f3-4ac3-82e6-0291fb8b53c6" class=""><strong>Eudias Kifem</strong> [1:37]: OK.</p></div><div style="display:contents" dir="auto"><p id="84e3e749-ba1b-4979-8874-78e7fbc93ca3" class=""><strong>Eudias Kifem</strong> [1:39]: Do this one.</p></div><div style="display:contents" dir="auto"><p id="6fd3b370-e38f-4f84-9dbe-35bf6e985c73" class=""><strong>Steve Nahrup</strong> [1:39]: Oh, shoot. Where is that?</p></div><div style="display:contents" dir="auto"><p id="cdbeb92e-491c-455c-911e-9297de352599" class=""><strong>Eudias Kifem</strong> [1:53]: Were you able to download it?</p></div><div style="display:contents" dir="auto"><p id="7f678ca4-a24d-4c71-ad38-ed5f69821f12" class=""><strong>Steve Nahrup</strong> [1:56]: Mm-hmm. There we go.</p></div><div style="display:contents" dir="auto"><p id="6a15a319-5778-4959-854c-c188d3fb777b" class=""><strong>Eudias Kifem</strong> [1:57]: All right.</p></div><div style="display:contents" dir="auto"><p id="1345c255-145b-47e9-8ad3-1ee4c0a58df5" class=""><strong>Steve Nahrup</strong> [2:21]: I accidentally inverted my. I accidentally had my caps lock caps lock on when I was creating the password, so it&#x27;s inverted from what it would usually be.</p></div><div style="display:contents" dir="auto"><p id="8e400a34-4553-4525-b8da-31184a583261" class=""><strong>Eudias Kifem</strong> [2:26]: Oh, yeah.</p></div><div style="display:contents" dir="auto"><p id="e98dfbda-d906-4b0a-944a-40b7546f2b71" class=""><strong>Eudias Kifem</strong> [2:35]: Yeah.</p></div><div style="display:contents" dir="auto"><p id="96c431d1-a08f-4ccd-bbf6-5a1efb29884c" class=""><strong>Steve Nahrup</strong> [2:38]: Deward thought that was pretty funny.</p></div><div style="display:contents" dir="auto"><p id="e0ed369f-0b19-4dc0-b5d9-9a4891d72cb6" class=""><strong>Steve Nahrup</strong> [3:05]: Mhm.</p></div><div style="display:contents" dir="auto"><p id="3e4d8621-ae02-4156-991e-a864224d5836" class=""><strong>Eudias Kifem</strong> [3:11]: How is Charleston? Is it warm?</p></div><div style="display:contents" dir="auto"><p id="b4f11063-550c-4bd9-a0c9-ca390ce1860c" class=""><strong>Steve Nahrup</strong> [3:14]: Yeah, I mean, today is what, 57 right now?</p></div><div style="display:contents" dir="auto"><p id="417397f0-ade2-409f-aea0-bb7eb8dedc14" class=""><strong>Eudias Kifem</strong> [3:18]: Oh, that&#x27;s cool.</p></div><div style="display:contents" dir="auto"><p id="2b86c441-3a50-4703-aef6-78fa07d35660" class=""><strong>Steve Nahrup</strong> [3:19]: Should be a high of 60, high of 64, yes.</p></div><div style="display:contents" dir="auto"><p id="0ee8db5b-c698-4aca-a519-d6cf8eaf13fa" class=""><strong>Eudias Kifem</strong> [3:23]: Hi, that&#x27;s nice. We visited Columbia like last month. We went on a road trip to to North Carolina. So from when, when, OK, then the next day we we drove down to South Carolina and.</p></div><div style="display:contents" dir="auto"><p id="ad7f4bf6-4a76-43ed-98c1-8e4718e93d3c" class=""><strong>Steve Nahrup</strong> [3:25]: What is?</p></div><div style="display:contents" dir="auto"><p id="a4a440d6-30af-468f-8640-9639f6fb61d9" class=""><strong>Steve Nahrup</strong> [3:28]: Yeah, mm.</p></div><div style="display:contents" dir="auto"><p id="d72e7e19-f21f-4baa-bb91-228721587f7c" class=""><strong>Eudias Kifem</strong> [3:41]: Spent the whole day at Columbia, so it was kind of cool. I would not gone there before, but it was fun.</p></div><div style="display:contents" dir="auto"><p id="9ce61b8c-f4d6-440c-9d59-9d9daacd2260" class=""><strong>Steve Nahrup</strong> [3:44]: Yeah, the end of the cap.</p></div><div style="display:contents" dir="auto"><p id="3123013f-d88e-4061-897f-7f8d334b2b49" class=""><strong>Steve Nahrup</strong> [3:48]: Yeah, it&#x27;s um.</p></div><div style="display:contents" dir="auto"><p id="4c7a296b-139e-4675-a0a8-9afe51a7e6fe" class=""><strong>Steve Nahrup</strong> [3:52]: I mean, Columbia is like definitely more. I mean, it&#x27;s the capital, but it&#x27;s like the center of the state. But it&#x27;s Charleston&#x27;s. Charleston&#x27;s like like a coastal, like like the ocean, like live there.</p></div><div style="display:contents" dir="auto"><p id="6df17a3a-327f-46f6-8d0c-4d4be34ce6b2" class=""><strong>Eudias Kifem</strong> [3:57]: OK.</p></div><div style="display:contents" dir="auto"><p id="aa617cdd-6fea-4b36-b3b9-b025e2565c49" class=""><strong>Eudias Kifem</strong> [4:02]: Oh.</p></div><div style="display:contents" dir="auto"><p id="2149f957-feb4-4967-908b-71deb6d1067d" class=""><strong>Eudias Kifem</strong> [4:05]: Oh, there is no ocean, an ocean there.</p></div><div style="display:contents" dir="auto"><p id="1fa10c53-0469-4f1e-bb6b-d1167226da87" class=""><strong>Steve Nahrup</strong> [4:08]: It&#x27;s the Atlantic, just right? Like business intelligence. Let&#x27;s see, what is this?</p></div><div style="display:contents" dir="auto"><p id="44b83817-4f15-456a-99ea-4f9645b58876" class=""><strong>Eudias Kifem</strong> [4:10]: Wow.</p></div><div style="display:contents" dir="auto"><p id="07b61fa2-0c8b-467c-b9bb-5ead03c413b8" class=""><strong>Steve Nahrup</strong> [4:21]: Sure.</p></div><div style="display:contents" dir="auto"><p id="367e44c4-70f9-4c35-8634-54847652fd14" class=""><strong>Steve Nahrup</strong> [4:29]: Um.</p></div><div style="display:contents" dir="auto"><p id="66a92fa0-8e5e-44a7-8a34-412e3935f153" class=""><strong>Eudias Kifem</strong> [4:36]: So you are, I would say you&#x27;re most familiar with APIs than running SQL queries, right? I don&#x27;t.</p></div><div style="display:contents" dir="auto"><p id="f5e74780-175c-4f63-a473-8aab09872073" class=""><strong>Steve Nahrup</strong> [4:44]: Yeah, more like the like using Management Studio itself. I I&#x27;ve been used it for a while. Like it&#x27;s just, you know, the traditional like going in like, you know, throwing queries in, et cetera. I&#x27;m.</p></div><div style="display:contents" dir="auto"><hr id="06e0a8d3-60ad-47b1-ad2a-1368be5cc2cb"/></div><div style="display:contents" dir="auto"><p id="b1480347-a7e4-4b78-a876-b55a66d4df8c" class=""><strong>Steve Nahrup</strong> [56:50]: Sizing it so that it can basically auto size. So if there are very large spikes when there&#x27;s a refresh or something like that it it can spin up, use a little bit more and then spin down so that it&#x27;s not you know pricing.</p></div><div style="display:contents" dir="auto"><p id="b752025b-4146-465d-9129-5ac5464b8e7c" class=""><strong>Eudias Kifem</strong> [56:59]: Mhm.</p></div><div style="display:contents" dir="auto"><p id="254516ff-8450-4895-805a-dc8e854fd413" class=""><strong>Steve Nahrup</strong> [57:07]: Pricing us out of the, does that make sense? Like there&#x27;s different ways that we can size it in terms of accommodating. So, so we don&#x27;t have to get like a multi-million dollar capacity just to handle jobs, we can just get a smaller one.</p></div><div style="display:contents" dir="auto"><p id="8cfdc86e-2c1f-43fd-81fc-c6a3abc1247b" class=""><strong>Eudias Kifem</strong> [57:13]: OK, yeah, right.</p></div><div style="display:contents" dir="auto"><p id="a9460308-d36c-4c9d-9730-a3581175b150" class=""><strong>Steve Nahrup</strong> [57:23]: Pay for auto sizing or auto scaling and it will automatically once it red lines spins up and then spins back down. So right sizes it as needed. So there are ways around it. We just need to figure out where what tables.</p></div><div style="display:contents" dir="auto"><p id="4b048d83-c2f3-4939-9abc-ebd2d51ae6f5" class=""><strong>Steve Nahrup</strong> [57:39]: You know, we need to rank the size of the tables, the value of the tables, you know, identify which ones we would 100% bring in. What would be the downside of not bringing in some of the tables that we initially identify as, you know, I wouldn&#x27;t say unimportant, but not essential for reporting.</p></div><div style="display:contents" dir="auto"><p id="1dfbbe9a-1430-4fb4-88fd-463c53c117eb" class=""><strong>Steve Nahrup</strong> [57:57]: And just kind of doing that kind of.</p></div><div style="display:contents" dir="auto"><p id="d0f495ca-c860-4e27-98f9-506683c1500f" class=""><strong>Eudias Kifem</strong> [57:58]: OK.</p></div><div style="display:contents" dir="auto"><p id="34bb5b72-b334-4b76-98f5-56b27cec19a5" class=""><strong>Eudias Kifem</strong> [58:02]: OK. Well, yeah, that that&#x27;s that&#x27;s good to know. So from there now we&#x27;ll be able to like because one of the things I was going to be asking was I, I noticed on the meeting you had with Mike, there was something there about the fabrics, fabric strategy.</p></div><div style="display:contents" dir="auto"><p id="304c9c1b-b34d-40d6-a9be-d298046ea2d7" class=""><strong>Eudias Kifem</strong> [58:22]: Which is also something I&#x27;ve been thinking about, like how do we want to design this? Like, you know, like we have different companies through, yeah, I would say 3 now since you know, Plastic and HK are kind of merging together, so.</p></div><div style="display:contents" dir="auto"><p id="4fec9cf4-87b5-44a1-9f32-fb6985b42afb" class=""><strong>Eudias Kifem</strong> [58:37]: How would the design be? Will it be like have a capacity just for NAC and then another one for in plastic or another one for MP or we&#x27;re gonna do it by department like for example accounting or?</p></div><div style="display:contents" dir="auto"><p id="c9b58e6c-db10-45b3-ba84-44819e516e74" class=""><strong>Steve Nahrup</strong> [58:39]: But.</p></div><div style="display:contents" dir="auto"><p id="4a9b16d5-5f16-4416-b848-d7b42922348b" class=""><strong>Eudias Kifem</strong> [58:54]: Oh, inventory or this? I don&#x27;t know. Have you thought of that at all?</p></div><div style="display:contents" dir="auto"><p id="05907077-0f6f-4da2-923b-b4bae6e150d4" class=""><strong>Steve Nahrup</strong> [58:57]: So that&#x27;s so I have I I haven&#x27;t we haven&#x27;t landed on anything yet but that&#x27;s what I I still been trying to kind of flesh out. I understand how everything is kind of structured and what not and and we&#x27;re not gonna get to landing on that until mid January but still like.</p></div><div style="display:contents" dir="auto"><p id="5e92aa2f-0213-40c7-85a0-6617886ed11c" class=""><strong>Eudias Kifem</strong> [59:15]: OK.</p></div><div style="display:contents" dir="auto"><p id="103d2c9e-5e54-4726-bb9c-e6b10f2e8092" class=""><strong>Steve Nahrup</strong> [59:16]: The the thing that he and I I just needed to make clear was like, OK, these companies need to be isolated like in terms of like there is going to be a need to share things between them, but they cannot have an open.</p></div><div style="display:contents" dir="auto"><p id="420ebe28-de45-474e-92c2-442fd5a9ea8d" class=""><strong>Eudias Kifem</strong> [59:30]: Mm.</p></div><div style="display:contents" dir="auto"><p id="a5f5789a-d806-4a51-b4a5-69abf5a5dc2f" class=""><strong>Steve Nahrup</strong> [59:32]: Connection in terms of just free flowing data between them, like they need to be kind of partitioned in terms of company by company, but the ability needs to be there if as an executive of this multi subsidy.</p></div><div style="display:contents" dir="auto"><p id="377c34b2-0592-406b-8e4e-e4414e38aa81" class=""><strong>Eudias Kifem</strong> [59:39]: Okay. Mm-hmm.</p></div><div style="display:contents" dir="auto"><p id="5ad2035d-baf7-463d-8e8d-26663ea085b0" class=""><strong>Steve Nahrup</strong> [59:48]: Company. I want to see something across all of them. I can do that and it&#x27;s not a pain in the *. So it&#x27;s it&#x27;s a higher level ability to do it if we need to, but we shouldn&#x27;t shove everything all together and just.</p></div><div style="display:contents" dir="auto"><p id="998b0fda-e0d9-4d1b-98d5-ef55e7749426" class=""><strong>Eudias Kifem</strong> [59:54]: Okay.</p></div><div style="display:contents" dir="auto"><p id="0ee7591e-da2a-4827-b39b-ef45b0595520" class=""><strong>Steve Nahrup</strong> [1:00:03]: Hope that nothing bad comes a bit later. Does that make sense?</p></div><div style="display:contents" dir="auto"><p id="5a4beee9-4c74-468d-aa9f-8838a8214cda" class=""><strong>Eudias Kifem</strong> [1:00:07]: Yeah, yeah, yeah.</p></div><div style="display:contents" dir="auto"><p id="95708f91-1565-48c5-b404-faccae03fa82" class=""><strong>Steve Nahrup</strong> [1:00:08]: But so we don&#x27;t know if it&#x27;s going to be a different capacity per subsidiary or if it&#x27;s going to be, how do you guys refer to them as just companies? So I don&#x27;t keep saying subsidiary and sound like an idiot.</p></div><div style="display:contents" dir="auto"><p id="81ada6fe-babf-49cc-800f-d16b1288671d" class=""><strong>Eudias Kifem</strong> [1:00:17]: E.</p></div><div style="display:contents" dir="auto"><p id="06b4da68-145d-42e3-a875-b3c58d38c8aa" class=""><strong>Eudias Kifem</strong> [1:00:20]: Yeah, yeah. I just, I just call them companies, but I heard sometimes they call it entities, sometimes call it companies or yeah.</p></div><div style="display:contents" dir="auto"><p id="ae8a3f3b-f9d9-4a44-9479-cf999477e335" class=""><strong>Steve Nahrup</strong> [1:00:25]: OK.</p></div><div style="display:contents" dir="auto"><p id="7801fce6-1456-4434-863c-703c1920bf67" class=""><strong>Steve Nahrup</strong> [1:00:30]: Entity feels more natural to me for some reason. OK, so so whether that&#x27;s getting, I personally think that it would be best to do the capacities like 1 capacity per entity and then in each of those capacities it&#x27;s.</p></div><div style="display:contents" dir="auto"><p id="9514aba8-47bd-4685-94c7-ac108a963c47" class=""><strong>Eudias Kifem</strong> [1:00:32]: OK, introduce, yeah.</p></div><div style="display:contents" dir="auto"><p id="f2d8b2fa-75af-4665-acab-22c88739f082" class=""><strong>Steve Nahrup</strong> [1:00:45]: Separated. It&#x27;s kind of separated by domains. So as you were saying like accounting and product and all that kind of stuff because what what that does is.</p></div><div style="display:contents" dir="auto"><p id="bd2cf33a-2889-4900-9c1f-904455ad63e8" class=""><strong>Eudias Kifem</strong> [1:00:49]: OK, yes.</p></div><div style="display:contents" dir="auto"><p id="577d80f7-f1c0-424a-8f55-5aeab6f68097" class=""><strong>Eudias Kifem</strong> [1:00:54]: OK.</p></div><div style="display:contents" dir="auto"><p id="a50bb8bf-8cf9-46eb-9163-e3840f83fa8e" class=""><strong>Steve Nahrup</strong> [1:00:58]: It at least gives people at a higher level or the need to see across the entire data of the state the ability to. But if there was an audit or there was some kind of compliance thing where they needed to see how each.</p></div><div style="display:contents" dir="auto"><p id="d2271bbd-331b-449c-8b67-135fcb4347d2" class=""><strong>Steve Nahrup</strong> [1:01:16]: Companies data is being.</p></div><div style="display:contents" dir="auto"><p id="e846d962-eef0-4a39-9b8e-f40837ba83ab" class=""><strong>Steve Nahrup</strong> [1:01:19]: You know, shared whatever. Or they need to acquire another company or merge or whatever. Like it&#x27;s not an absolute disaster or headache trying to figure out how it&#x27;s going to fit into our existing.</p></div><div style="display:contents" dir="auto"><hr id="ed3bb10d-53b1-47e9-baf0-cd9ac9515a87"/></div><div style="display:contents" dir="auto"><p id="0ff46a7a-f6ab-4049-8cb8-a6e3f940a36d" class=""><strong>Steve Nahrup</strong> [1:21:10]: But you can&#x27;t do it across like you can&#x27;t say I want to pull data from this semantic model in this capacity. So that&#x27;s what that&#x27;s what I mean.</p></div><div style="display:contents" dir="auto"><p id="dad5b978-04d4-4b61-b28c-62e5ba9ac23f" class=""><strong>Eudias Kifem</strong> [1:21:19]: Oh, OK, OK. So they need to be in the same capacity.</p></div><div style="display:contents" dir="auto"><p id="42c3a7c4-95bb-4a3e-9b44-889ab3c28513" class=""><strong>Steve Nahrup</strong> [1:21:24]: Correct. But those those gold level data models are really just pulling from the gold, you know, warehouse, right? Like the gold and state warehouse and you&#x27;re you because you&#x27;ve already done all the transformations and stuff.</p></div><div style="display:contents" dir="auto"><p id="5970d37f-df3a-4076-a601-1128447eeab3" class=""><strong>Steve Nahrup</strong> [1:21:40]: So so you would be able to create a.</p></div><div style="display:contents" dir="auto"><p id="ea18fe60-8dd1-4f4e-be7a-80d9184f38b6" class=""><strong>Eudias Kifem</strong> [1:21:41]: Yeah.</p></div><div style="display:contents" dir="auto"><p id="dffc65c0-70a1-4c57-8eb7-101e1cedc9c4" class=""><strong>Steve Nahrup</strong> [1:21:45]: Report in here and for the source connect to you know the one Lake warehouse and say connect to this whatever the you know the host name is and all of that. So that would work because you&#x27;re hitting the warehouse, you&#x27;re not hitting the.</p></div><div style="display:contents" dir="auto"><p id="400ac5ef-abf0-49d2-b7c6-ecd901cbc6ba" class=""><strong>Eudias Kifem</strong> [1:21:51]: Mhm.</p></div><div style="display:contents" dir="auto"><p id="25025844-c21e-45ed-892b-77a8ce4f15b8" class=""><strong>Steve Nahrup</strong> [1:22:01]: Semantic model. So it&#x27;s really just, it&#x27;s really just semantics. You&#x27;re just not. You&#x27;re just pulling it straight from the same source as.</p></div><div style="display:contents" dir="auto"><p id="fb0e51ac-4fdf-49c0-9eb5-21d3a78b2fc5" class=""><strong>Eudias Kifem</strong> [1:22:02]: Oh.</p></div><div style="display:contents" dir="auto"><p id="a360edc4-f3c9-4f21-8cfb-3057a5967c64" class=""><strong>Steve Nahrup</strong> [1:22:12]: The other semantic model pulled from. You&#x27;re just not pulling it from that semantic model itself. Does that make sense?</p></div><div style="display:contents" dir="auto"><p id="b57ab83f-9812-486d-a1fc-54a9b62869ce" class=""><strong>Eudias Kifem</strong> [1:22:19]: Yes, so you won&#x27;t be able to reuse the semantic model.</p></div><div style="display:contents" dir="auto"><p id="a18a1743-749c-4a7e-beb3-1d276031993d" class=""><strong>Steve Nahrup</strong> [1:22:20]: I&#x27;m.</p></div><div style="display:contents" dir="auto"><p id="169d2f73-9814-4651-ac08-178bdb5f811b" class=""><strong>Steve Nahrup</strong> [1:22:23]: Across capacities, just.</p></div><div style="display:contents" dir="auto"><p id="be380dc8-906f-44c9-abcf-eb72dd5c0445" class=""><strong>Eudias Kifem</strong> [1:22:24]: OK, you would just have to go directly.</p></div><div style="display:contents" dir="auto"><p id="49009405-6d3c-43bf-8c04-4caf8d6860d4" class=""><strong>Steve Nahrup</strong> [1:22:28]: Yeah.</p></div><div style="display:contents" dir="auto"><p id="39b05f2b-e368-4f90-848f-f174fda11676" class=""><strong>Eudias Kifem</strong> [1:22:29]: OK, that&#x27;s that&#x27;s interesting.</p></div><div style="display:contents" dir="auto"><p id="0150ed59-c368-445b-9644-eb121778a376" class=""><strong>Steve Nahrup</strong> [1:22:34]: I based on everything it seems like you really want out of like want to be able to do and stuff. Sounds like you&#x27;re thinking about all of the right stuff and have like all the right questions, which is really exciting. It&#x27;s exciting. So I think you&#x27;re gonna love this.</p></div><div style="display:contents" dir="auto"><p id="aa0d5c30-b7e1-453b-b100-18959e167dcf" class=""><strong>Eudias Kifem</strong> [1:22:45]: OK.</p></div><div style="display:contents" dir="auto"><p id="473067b3-396b-400d-8f0b-c4384325fd91" class=""><strong>Eudias Kifem</strong> [1:22:49]: OK. Well, yeah, I&#x27;m, I&#x27;m, I&#x27;m excited. And yeah, as we talk more with the the team and get your ideas, we might be refining some of these and making better decisions because we really will rely on your guidance because we&#x27;re kind of like all new to this, so.</p></div><div style="display:contents" dir="auto"><p id="bbc15c28-dd77-4128-9570-20d31bff2021" class=""><strong>Steve Nahrup</strong> [1:22:49]: Oh, also has.</p></div><div style="display:contents" dir="auto"><p id="b6e56135-b817-4310-986b-ed01f6f22969" class=""><strong>Steve Nahrup</strong> [1:22:52]: But.</p></div><div style="display:contents" dir="auto"><p id="558272d8-33bc-48e4-a98f-e5c19eb31042" class=""><strong>Steve Nahrup</strong> [1:23:07]: Yeah.</p></div><div style="display:contents" dir="auto"><p id="e64415aa-f1e3-40c2-ad24-7ea6a9db32fb" class=""><strong>Eudias Kifem</strong> [1:23:07]: And if there are some trainings you recommend that we take while maybe you&#x27;re prepping all those, that will help us along the way as we go so we can have the same idea as you. You can recommend any trainings that you think might be helpful so we can take those and be ready.</p></div><div style="display:contents" dir="auto"><p id="d06a8384-b4b8-453a-ab8b-31b311c3f367" class=""><strong>Steve Nahrup</strong> [1:23:19]: Yep.</p></div><div style="display:contents" dir="auto"><p id="77babb29-5a0f-4d18-b10a-780ccda234f9" class=""><strong>Eudias Kifem</strong> [1:23:24]: When you&#x27;re ready to, that would be great.</p></div><div style="display:contents" dir="auto"><p id="adc95201-c0b9-48fd-b29a-f133d9a666f4" class=""><strong>Steve Nahrup</strong> [1:23:25]: Yeah.</p></div><div style="display:contents" dir="auto"><p id="81bf4fe9-7604-44c0-8635-2342b3b7b8b6" class=""><strong>Steve Nahrup</strong> [1:23:28]: Is there a shoot? Just a second. I I wanted to show you something that drives me nuts, right? Not drives me nuts. That&#x27;s the wrong way to say it, but something that I have come to realize when.</p></div><div style="display:contents" dir="auto"><p id="cc26a8da-2fbf-4e75-9956-a7699c7a1d86" class=""><strong>Eudias Kifem</strong> [1:23:35]: 2.</p></div><div style="display:contents" dir="auto"><p id="5b33468f-3a25-4b36-b944-96896f95e7d7" class=""><strong>Steve Nahrup</strong> [1:23:44]: When trying to get an organization to become like familiar with, you know, you know, just using Power BI in general and like comfortable with it and onboard and get the adoption rate up across the organization, I have come to realize that the more that they can make it look like an intern.</p></div><div style="display:contents" dir="auto"><p id="1e3a7991-e9e4-4dc8-958b-c7cb0a6f50af" class=""><strong>Eudias Kifem</strong> [1:23:54]: Mhm.</p></div><div style="display:contents" dir="auto"><p id="84e11880-dd17-4ddc-b8bf-fa4b964fc14b" class=""><strong>Steve Nahrup</strong> [1:24:04]: Internal UI or like something that&#x27;s not like foreign to them. The the much higher the adoption rate is in my experience and I don&#x27;t know if anybody in turn. I was going to send Mike an e-mail on Friday about this, but I was going to ask him if.</p></div><div style="display:contents" dir="auto"><p id="38c7c869-e1f8-4f1a-94b7-7a561716405a" class=""><strong>Eudias Kifem</strong> [1:24:11]: Uh huh.</p></div><div style="display:contents" dir="auto"><p id="0305ec90-8d44-4789-b8f9-709fa40b418b" class=""><strong>Steve Nahrup</strong> [1:24:23]: I could have temporary access to work with somebody to like just update the like just the UI of Power BI. It takes like no time at all, like literally 3 seconds. But here I&#x27;ll show you what I did for another client.</p></div><div style="display:contents" dir="auto"><p id="12b38c15-c0dc-41e8-8c8a-75af1d03226c" class=""><strong>Eudias Kifem</strong> [1:24:37]: Oh, yes.</p></div><div style="display:contents" dir="auto"><p id="94a30331-87c1-4b17-b795-cbe44575ef5a" class=""><strong>Eudias Kifem</strong> [1:24:39]: Show me.</p></div><div style="display:contents" dir="auto"><p id="f76c582d-5abc-431d-ad6b-43f3c0e608ff" class=""><strong>Steve Nahrup</strong> [1:24:40]: Uh, but uh, let&#x27;s see. There we go.</p></div><div style="display:contents" dir="auto"><p id="50d17af0-c737-4a79-92b3-758b6e49681e" class=""><strong>Steve Nahrup</strong> [1:24:47]: OK, I&#x27;m just.</p></div><div style="display:contents" dir="auto"><p id="182688bb-f276-437a-b32e-fb26987539ba" class=""><strong>Steve Nahrup</strong> [1:24:57]: No, no.</p></div><div style="display:contents" dir="auto"><p id="c36807b6-bab3-485b-bae1-e2af70a7110c" class=""><strong>Steve Nahrup</strong> [1:25:02]: Am I sharing my screen yet?</p></div><div style="display:contents" dir="auto"><p id="0f44e888-6393-4ba8-8b3e-b1fd34dde19f" class=""><strong>Eudias Kifem</strong> [1:25:06]: Not yet.</p></div><div style="display:contents" dir="auto"><p id="ca5213da-f48f-475d-9133-b10b289f5116" class=""><strong>Steve Nahrup</strong> [1:25:08]: OK.</p></div><div style="display:contents" dir="auto"><hr id="e2f8574b-47af-4cc0-92fc-d11f8a0fd38f"/></div><div style="display:contents" dir="auto"><p id="e9141520-5f33-4bb8-b961-96ee9f4facd4" class=""><strong>Steve Nahrup</strong> [1:45:08]: I.</p></div><div style="display:contents" dir="auto"><p id="a540265f-9adc-465b-8798-fb2c3357f9dd" class=""><strong>Steve Nahrup</strong> [1:45:12]: I thought this was, I I thought this was a metadata driven architecture. I thought that&#x27;s what this was. I was like, wow, OK, so maybe we got more done than I thought.</p></div><div style="display:contents" dir="auto"><p id="25c7b777-b5f0-4a27-a040-b1b18724fb5f" class=""><strong>Eudias Kifem</strong> [1:45:19]: No, no, no, no, no, it&#x27;s not. It&#x27;s not. It&#x27;s just a link table that we&#x27;ve used for ETL, so.</p></div><div style="display:contents" dir="auto"><p id="98b35587-a953-4238-8d42-09502feebbab" class=""><strong>Steve Nahrup</strong> [1:45:26]: Because this is the type of table that is like the linchpin within a metadata driven architecture. Because there are processes that happen to basically like they do an audit of everything and it like changes a record to A1 like or a zero or updates whatever record you know what I mean like.</p></div><div style="display:contents" dir="auto"><p id="e678b6ec-7898-4dd8-a109-d064f835cb2a" class=""><strong>Steve Nahrup</strong> [1:45:46]: The ones and zeros are the flags that determine the dynamic ETL pipelines down the road. Like it&#x27;ll run a check on that record. If it&#x27;s a one, then it&#x27;ll run a certain way versus a zero. It&#x27;ll run a different way, so like.</p></div><div style="display:contents" dir="auto"><p id="3952daf1-7446-4e16-83e6-131ae08746ed" class=""><strong>Steve Nahrup</strong> [1:46:04]: It takes its cues from this table. So you have multiple processes, but one process is to actually populate this table and then the following processes, they are driven entirely on this table. Does that make sense? So it&#x27;s like that&#x27;s how it drives itself, if that makes sense, but like so it&#x27;s not one way or.</p></div><div style="display:contents" dir="auto"><p id="e9580cdc-fd0e-401c-bca7-6cba25e4b400" class=""><strong>Eudias Kifem</strong> [1:46:21]: Oh.</p></div><div style="display:contents" dir="auto"><p id="ce1ee6e5-10ae-49e8-b6c4-8c4b98be611e" class=""><strong>Steve Nahrup</strong> [1:46:24]: Or the other it&#x27;s do process A to determine the state of the tables and then like determine if it&#x27;s you know if it needs to be refreshed the last couple days because it failed. Like what was the last date that it?</p></div><div style="display:contents" dir="auto"><p id="9f9f06bf-eca2-49f9-9d06-38bec0876721" class=""><strong>Steve Nahrup</strong> [1:46:41]: It was run or whatever and then based on that the data and the table populated from that first process, all the subsequent processes run based on those flags. I don&#x27;t know, it&#x27;s hard to. It would be really easy if I drew it out, but we we don&#x27;t need to know it right now. But this is just what a metadata driven.</p></div><div style="display:contents" dir="auto"><p id="7a51ce2b-2042-43df-a005-f0e9a219175d" class=""><strong>Eudias Kifem</strong> [1:46:56]: OK. Yeah, that. Yes, yes, that that makes sense. I think I get the idea. It will, it will help in this. Yeah, in updating and inserting new records. But yeah, but this was just a way of identifying these like.</p></div><div style="display:contents" dir="auto"><p id="98820395-fc19-4d4e-a3c9-5e1b3e141c6d" class=""><strong>Steve Nahrup</strong> [1:46:59]: Table looks like like.</p></div><div style="display:contents" dir="auto"><p id="816798d7-a582-4ba8-8bb1-610a83c05f7c" class=""><strong>Steve Nahrup</strong> [1:47:04]: Mm.</p></div><div style="display:contents" dir="auto"><p id="1ee47a3e-44ce-4a58-855a-d90559aa483a" class=""><strong>Eudias Kifem</strong> [1:47:15]: Knowing what tables to pull down from a cloud. So this one here I&#x27;m just OK.</p></div><div style="display:contents" dir="auto"><p id="21b32f9e-66e8-49ff-8d15-c2038c80daef" class=""><strong>Eudias Kifem</strong> [1:47:23]: This is the database that I&#x27;m using to source Power BI. For example, all those tables, all those what the reports I showed you. Yeah.</p></div><div style="display:contents" dir="auto"><p id="0389b3ea-190f-439a-87d0-fbf62567740c" class=""><strong>Steve Nahrup</strong> [1:47:35]: Reports. Yep.</p></div><div style="display:contents" dir="auto"><p id="3c72b568-62a9-4778-8f0a-5a01e7726d62" class=""><strong>Eudias Kifem</strong> [1:47:39]: So their source is like it&#x27;s coming out of here. Well, that&#x27;s kind of weird. I don&#x27;t have any stored procedures here. OK.</p></div><div style="display:contents" dir="auto"><p id="a980158b-7809-4187-9d14-02948dc0cce3" class=""><strong>Eudias Kifem</strong> [1:47:54]: Goodbye. Right.</p></div><div style="display:contents" dir="auto"><p id="dcda3999-1447-4f6b-84f5-2f87bfe50ac3" class=""><strong>Eudias Kifem</strong> [1:47:58]: Let me see. I&#x27;m gonna do it.</p></div><div style="display:contents" dir="auto"><p id="0ef1542e-7ee9-4339-8dd1-99c92197fa00" class=""><strong>Eudias Kifem</strong> [1:48:03]: I I just wanna show you what I&#x27;m gonna show you here would hope. I&#x27;m hoping it will help you see how we how we can how we are using like those tables to write.</p></div><div style="display:contents" dir="auto"><p id="02fa8746-83db-43e0-8502-448a3353cd3f" class=""><strong>Eudias Kifem</strong> [1:48:22]: Like stored procedures and some reports, something like that. So that&#x27;s what I&#x27;m hoping this can guide you to do, but yeah.</p></div><div style="display:contents" dir="auto"><p id="d606959b-4f90-4d86-a630-94bbb2b1aba9" class=""><strong>Steve Nahrup</strong> [1:48:29]: Got it.</p></div><div style="display:contents" dir="auto"><p id="4fa13b7b-5783-4b15-bca2-d9dee1878674" class=""><strong>Steve Nahrup</strong> [1:48:32]: Oops, sorry.</p></div><div style="display:contents" dir="auto"><p id="a5df49dc-bb4d-4cc5-8dab-3c6c4f4c659b" class=""><strong>Eudias Kifem</strong> [1:48:34]: It&#x27;s okay.</p></div><div style="display:contents" dir="auto"><p id="e692dcf4-e3c9-4d82-86b3-c524150a6725" class=""><strong>Steve Nahrup</strong> [1:48:35]: Need to move this over real quick. Just move this over here, OK?</p></div><div style="display:contents" dir="auto"><p id="effae4c6-9674-45d0-87ba-37346834466f" class=""><strong>Eudias Kifem</strong> [1:48:41]: Yes, OK.</p></div><div style="display:contents" dir="auto"><p id="372a6c01-9b1e-4056-abf0-e495c7ae3516" class=""><strong>Eudias Kifem</strong> [1:48:46]: Yes, Steve.</p></div><div style="display:contents" dir="auto"><p id="3fd13962-64c6-4f61-8a1f-e4463ff2094a" class=""><strong>Steve Nahrup</strong> [1:48:47]: Is it gone?</p></div><div style="display:contents" dir="auto"><p id="9cb2b191-ef49-494d-a506-be06ac07bf34" class=""><strong>Eudias Kifem</strong> [1:48:49]: Not too bad. Did you see my message earlier from the direction we&#x27;re gonna go with as far as which system M3?</p></div><div style="display:contents" dir="auto"><p id="1f62bc60-0cff-4e24-91ff-dd425fc83892" class=""><strong>Steve Nahrup</strong> [1:49:01]: Uh, in in here or like?</p></div><div style="display:contents" dir="auto"><p id="43c0bc01-ff1e-499e-ab3d-d981b288d3e5" class=""><strong>Eudias Kifem</strong> [1:49:04]: In one of our chats. So it was a group chat, No.</p></div><div style="display:contents" dir="auto"><p id="09a58def-0dd0-4d6a-8cf7-9c3b951a16b7" class=""><strong>Steve Nahrup</strong> [1:49:08]: OK. Oh, oh, it was from yesterday&#x27;s. Yes, I did see that.</p></div><div style="display:contents" dir="auto"><p id="8ef3a20a-8e4f-4c61-bb9c-f71e0317f6b8" class=""><strong>Eudias Kifem</strong> [1:49:10]: Yeah.</p></div><div style="display:contents" dir="auto"><p id="cdb4dc9a-a88d-4b07-86dc-b20988814578" class=""><strong>Eudias Kifem</strong> [1:49:12]: Perfect. OK, just wanted to check. Is there anything else you need from me for today?</p></div><div style="display:contents" dir="auto"><p id="39284e11-bb8d-471d-964c-34be012f7bac" class=""><strong>Steve Nahrup</strong> [1:49:13]: Yep. Mm-hmm.</p></div><div style="display:contents" dir="auto"><p id="175c6b48-6f4e-4001-a756-4fe87dced827" class=""><strong>Steve Nahrup</strong> [1:49:16]: No, I mean, we&#x27;ve how long have we been on Eudias? I think we&#x27;ve been on since. Shoot. What? How much time is?</p></div><div style="display:contents" dir="auto"><p id="3a416054-8c67-4099-b1a8-3cdb5fe205dc" class=""><strong>Eudias Kifem</strong> [1:49:18]: It.</p></div><div style="display:contents" dir="auto"><p id="a940b5e6-c6e2-44f9-9316-9b9ddbfb405e" class=""><strong>Eudias Kifem</strong> [1:49:21]: Yeah.</p></div><div style="display:contents" dir="auto"><p id="7100ed36-451b-4b40-aa33-deba1b4f8f89" class=""><strong>Eudias Kifem</strong> [1:49:23]: Are you hogging all of his time? Yes, I am. Good for you.</p></div><div style="display:contents" dir="auto"><p id="3a49a09f-677c-48db-81a2-f97729bcfd2e" class=""><strong>Steve Nahrup</strong> [1:49:26]: We&#x27;re coming up on 2 hours, so yeah, no, it&#x27;s it&#x27;s been, yeah, it&#x27;s been very productive, been very productive.</p></div><div style="display:contents" dir="auto"><p id="f47338f1-2979-4423-bd01-b361e565bc5e" class=""><strong>Eudias Kifem</strong> [1:49:29]: You give him a chance to at least use the rest of them or what? We&#x27;re almost done.</p></div><div style="display:contents" dir="auto"><p id="753aec51-0c0c-4d1c-b178-d693f3ee5993" class=""><strong>Eudias Kifem</strong> [1:49:37]: Good, good. Oh, and this is, this is what if, you know, if you&#x27;re not getting things, that&#x27;s this is the person to talk to. She&#x27;ll get you there. We&#x27;ll figure it out. I&#x27;m gonna, I&#x27;m gonna duck out. So if you need me, you&#x27;ll have to trace me down. Did I send you my cell phone number, Steve?</p></div><div style="display:contents" dir="auto"><p id="5cea4b19-51ad-4ad3-a23e-44beeacec30e" class=""><strong>Steve Nahrup</strong> [1:49:38]: Yeah.</p></div><div style="display:contents" dir="auto"><p id="c0bc6250-f5eb-4a53-b3e6-b5bbac1fff74" class=""><strong>Steve Nahrup</strong> [1:49:45]: Yep.</p></div><div style="display:contents" dir="auto"><p id="453bdf22-23d4-409f-a875-d22873f84771" class=""><strong>Steve Nahrup</strong> [1:49:46]: Appreciate.</p></div><div style="display:contents" dir="auto"><p id="84c3ecaa-a140-4f3b-9581-3727736ec582" class=""><strong>Steve Nahrup</strong> [1:49:54]: I do. I have it.</p></div><div style="display:contents" dir="auto"><p id="d26c9dcf-1d7f-4b12-a539-3cf55534036e" class=""><strong>Eudias Kifem</strong> [1:49:55]: OK, you got it. If you need to, if you need to call it. Teams, for whatever reason, does not work on my cell phone and it&#x27;s the painter that doesn&#x27;t paint their own house. I have not tried to chase it down. It works on my iPad. I&#x27;m good enough. But if you actually need to get hold me, use my cell.</p></div><div style="display:contents" dir="auto"><p id="a94c4c59-5c0e-45c2-b0a3-ca6e602b8160" class=""><strong>Steve Nahrup</strong> [1:49:59]: Yep. Uh, let&#x27;s.</p></div><div style="display:contents" dir="auto"><p id="29006f11-4e1d-4096-a40c-736fef637dc8" class=""><strong>Steve Nahrup</strong> [1:50:03]: Got it.</p></div><div style="display:contents" dir="auto"><p id="d176a6b9-0aa0-43a8-a1bc-32c3dade6d7b" class=""><strong>Steve Nahrup</strong> [1:50:13]: OK.</p></div><div style="display:contents" dir="auto"><p id="4b2c3fd2-d8a4-4b4e-912a-bd0a0ed90503" class=""><strong>Steve Nahrup</strong> [1:50:15]: Feel better. Hope you&#x27;re doing OK also.</p></div><div style="display:contents" dir="auto"><hr id="20481902-3cdf-485c-a78d-29a356d89e9f"/></div><div style="display:contents" dir="auto"><p id="c561f709-18bc-49e6-8af0-c9cdf3e89044" class=""><strong>Steve Nahrup</strong> [2:03:21]: If somebody were to ask me what is the most significant concept in Dax, I would 100% say context if you can understand context like the different.</p></div><div style="display:contents" dir="auto"><p id="b90c6ace-27e9-404c-8b00-c38a3a0f8e0a" class=""><strong>Steve Nahrup</strong> [2:03:37]: The different contact types and then how they&#x27;re used. It opens up your understanding of why DAX does.</p></div><div style="display:contents" dir="auto"><p id="70ba9195-6b8e-4ce0-8688-9225539eec56" class=""><strong>Steve Nahrup</strong> [2:03:46]: The like the things that it does like it, it goes from. It takes you from being able to just like memorize stuff and reasons why you do it to understanding the reason behind how it&#x27;s written and you start to actually.</p></div><div style="display:contents" dir="auto"><p id="8e0d2e3f-6655-4edb-ab01-d5dbacb33257" class=""><strong>Eudias Kifem</strong> [2:03:48]: OK.</p></div><div style="display:contents" dir="auto"><p id="c76ba9ec-b9d3-423a-b275-dd7cafa09c02" class=""><strong>Steve Nahrup</strong> [2:04:02]: Not just write decks because you memorized it that way, but rather you&#x27;re working through it logically. So that would be my recommendation if you&#x27;re on some unsolicited advice in terms of learning decks, but.</p></div><div style="display:contents" dir="auto"><p id="0415a1b1-55e6-4275-ab92-9460663747be" class=""><strong>Eudias Kifem</strong> [2:04:16]: Yeah, that&#x27;s right. And that&#x27;s something that I kind of struggle with like cause Dax. Sometimes I use Dax to do something and then I come back to try to understand what it actually did because.</p></div><div style="display:contents" dir="auto"><p id="fdb200f1-4b68-4820-9b1b-1b274fa9f302" class=""><strong>Eudias Kifem</strong> [2:04:53]: Oh.</p></div><div style="display:contents" dir="auto"><p id="cd736b90-cfc9-4620-86aa-a1e90bd5256f" class=""><strong>Steve Nahrup</strong> [2:04:53]: To optimize the way that it&#x27;s run to like get to use the least amount of resources to not, you know, be such a drain on your report and all that. So there are reasons behind it. It&#x27;s just once you understand context, you it puts you down, it sends you down a road of truly understanding.</p></div><div style="display:contents" dir="auto"><p id="9a48010a-1d09-4d5e-bac7-0a83a5009892" class=""><strong>Steve Nahrup</strong> [2:05:12]: The genius behind Dax, that&#x27;s all.</p></div><div style="display:contents" dir="auto"><p id="35098701-3a97-4282-aeb5-8fd665539df3" class=""><strong>Eudias Kifem</strong> [2:05:13]: That is absolutely true. That is true. And that&#x27;s something that when I was doing my course, I really wanted to understand, but it was kind of hard to understand. I didn&#x27;t really try much, but that&#x27;s something that I need to. I need to work on understanding the concept because it&#x27;s very like when.</p></div><div style="display:contents" dir="auto"><p id="2a8f8cab-88ee-4a74-a165-7ea91e72b2c8" class=""><strong>Steve Nahrup</strong> [2:05:17]: Yeah.</p></div><div style="display:contents" dir="auto"><p id="27584de5-ca7f-455b-ab56-45d83ccf82bf" class=""><strong>Steve Nahrup</strong> [2:05:25]: It.</p></div><div style="display:contents" dir="auto"><p id="1f243d57-a54a-48ff-98e8-99936fa079d9" class=""><strong>Eudias Kifem</strong> [2:05:33]: They are talking about filter flow, things like that.</p></div><div style="display:contents" dir="auto"><p id="dbe79e59-791e-44b8-bb6c-93b7b02efbc9" class=""><strong>Steve Nahrup</strong> [2:05:36]: Yeah, you just, you just, yeah, I mean it and it doesn&#x27;t click like there isn&#x27;t like a point in time. I mean, there is a time when it clicks, but you don&#x27;t get there until you just do it over and over and over and you just like things start to click like as you go and then.</p></div><div style="display:contents" dir="auto"><p id="fd71276a-26ac-4d58-8e00-b5fc15701ac2" class=""><strong>Steve Nahrup</strong> [2:05:53]: You learn contact, then it you feel like all of it fits together and you finally understand it. I remember the where I was in the day that it happened where I was like.</p></div><div style="display:contents" dir="auto"><p id="f8f70dc0-80f0-4da2-9f9e-77a39a2d608b" class=""><strong>Eudias Kifem</strong> [2:06:03]: You get it now. Oh gosh, that&#x27;s that&#x27;s cool. I would love to. The only well, then I can say the only docs function that I am almost, yeah, well, I would say I&#x27;m most a little more comfortable with, but I&#x27;m not fully.</p></div><div style="display:contents" dir="auto"><p id="7d29ab5d-4963-4176-a73c-24a757677ef8" class=""><strong>Steve Nahrup</strong> [2:06:04]: I get it.</p></div><div style="display:contents" dir="auto"><p id="3b377626-859f-48d0-9f20-169d6c22aced" class=""><strong>Steve Nahrup</strong> [2:06:06]: Yeah, it I I felt like I should be like given a a true it was.</p></div><div style="display:contents" dir="auto"><p id="5cdb285d-bb06-482a-a894-6968bf65fb8f" class=""><strong>Eudias Kifem</strong> [2:06:23]: Mastard it is calculate. That&#x27;s the. But yeah, but I haven&#x27;t really mastered everything in ever. That&#x27;s the most the easiest one for me. OK, yeah, but this, this, this is what I am like.</p></div><div style="display:contents" dir="auto"><p id="091daae7-afa7-4667-86c0-fa3bbc1a1ad5" class=""><strong>Steve Nahrup</strong> [2:06:25]: Yeah, that&#x27;s that&#x27;s the basis of everything.</p></div><div style="display:contents" dir="auto"><p id="81b5c747-34a0-4940-ae24-c2315797c77d" class=""><strong>Steve Nahrup</strong> [2:06:30]: Yeah.</p></div><div style="display:contents" dir="auto"><p id="3aefbd82-9f1a-47a3-8a02-c820c3dc3b7c" class=""><strong>Steve Nahrup</strong> [2:06:32]: Yeah, you do a lot with this, but yeah.</p></div><div style="display:contents" dir="auto"><p id="d7af575d-aad3-4f12-9d45-65f8abce0f0c" class=""><strong>Eudias Kifem</strong> [2:06:40]: Every day I&#x27;m running this stored procedure and loading that NAC sales BI. So if every morning the stored procedure runs and inserts records into this table and then the BI refreshes and then it picks in the new data that was added to this table and reflects it on the BI. So this is that table and this is joining.</p></div><div style="display:contents" dir="auto"><p id="e50f88a9-a6e5-4a3c-b43b-4e325a800572" class=""><strong>Eudias Kifem</strong> [2:07:00]: To the M3 cloud, the tables are the same, it&#x27;s just that M3 cloud doesn&#x27;t have schema. So if you want to look at some of these and see how we define them, it might also help you like for example if you&#x27;re looking at something and you&#x27;re like OK.</p></div><div style="display:contents" dir="auto"><p id="de38b1f8-94cb-4ac4-985e-224ede0e6281" class=""><strong>Eudias Kifem</strong> [2:07:17]: Look at for example here where we&#x27;re defining order type.</p></div><div style="display:contents" dir="auto"><p id="003358ac-964a-4ee3-80c0-53943281601f" class=""><strong>Eudias Kifem</strong> [2:07:22]: And then we&#x27;ll say phase this, this is this is just gonna list you the order types and so on. But yeah, this is just another brain exercise, so feel free to look over there and.</p></div><div style="display:contents" dir="auto"><p id="45179d2e-5b69-4d16-869b-88831b32b8a0" class=""><strong>Steve Nahrup</strong> [2:07:30]: How long? How long did it take you to write the?</p></div><div style="display:contents" dir="auto"><p id="24214a9d-8055-4efd-a100-c9f356f83b57" class=""><strong>Eudias Kifem</strong> [2:07:34]: Oh my gosh. Well, I would. I did not start this one from scratch because Carrie is the original writer of this, but only doing updates to this.</p></div><div style="display:contents" dir="auto"><p id="144b84bd-2762-413c-b899-5cc334ccb49f" class=""><strong>Eudias Kifem</strong> [2:07:49]: It takes a while to figure out what to even put in it. Like sometimes you don&#x27;t exactly because you see how these M3 tables are and there&#x27;s nothing that is telling you that if if you&#x27;re looking for this, look at this table. You have to go in there and be like I&#x27;m looking for this. Does this table have the things I am trying to get?</p></div><div style="display:contents" dir="auto"><p id="8a36c424-33cc-48cf-9ab0-6b09fcc568ae" class=""><strong>Eudias Kifem</strong> [2:08:09]: You keep going through different tables like that until you get the one that you really want. So that&#x27;s one of the challenges we still have too. So yeah, but you can you can save these queries on your on your laptop so that where.</p></div><div style="display:contents" dir="auto"><p id="6130c2d8-662d-4471-89d0-59a36829a675" class=""><strong>Steve Nahrup</strong> [2:08:19]: Yeah.</p></div><div style="display:contents" dir="auto"><p id="a40cc067-23f5-4de8-9df0-9d005b618818" class=""><strong>Steve Nahrup</strong> [2:08:20]: Um, wait, why does this?</p></div><div style="display:contents" dir="auto"><p id="ebcbc720-fb23-4194-b938-b0eebc3bd3cf" class=""><strong>Eudias Kifem</strong> [2:08:29]: just save it. You can come over here, and yeah, I think that&#x27;s safe. It is</p></div><div style="display:contents" dir="auto"><p id="de3dcfec-0dd7-44a9-a195-356162e68c51" class=""><strong>Eudias Kifem</strong> [2:08:40]: You can. OK, well, I don&#x27;t know what you&#x27;re doing, but I was just.</p></div><div style="display:contents" dir="auto"><p id="ea32d1fb-f8e2-4207-b771-5fa89ad37530" class=""><strong>Steve Nahrup</strong> [2:08:44]: Oh, sorry, I was just taking a quick screenshot real quick just to.</p></div><div style="display:contents" dir="auto"><p id="1e81fb6b-7dfb-4075-b988-606b0d9099ad" class=""><strong>Eudias Kifem</strong> [2:08:49]: Oh, okay, see? Yeah, you can create a folder. However, you want to structure it. Oh, you do have management studio folder already, so you can. Let&#x27;s see. Let&#x27;s just see.</p></div><div style="display:contents" dir="auto"><p id="084f559a-2ca0-41a3-b0c0-541bab0c2edd" class=""><strong>Steve Nahrup</strong> [2:08:50]: Just so I could see the.</p></div><div style="display:contents" dir="auto"><p id="7f930a84-ad78-4b7e-a914-4624617bcd9e" class=""><strong>Steve Nahrup</strong> [2:09:01]: Yeah, you can go ahead and save it.</p></div><div style="display:contents" dir="auto"><p id="1b6b77bd-273a-4ae5-b6dd-c8c2abb29985" class=""><strong>Eudias Kifem</strong> [2:09:04]: Okay, let&#x27;s just see.</p></div><div style="display:contents" dir="auto"><p id="f6faba14-fc50-4500-a8f8-645c85212a41" class=""><strong>Eudias Kifem</strong> [2:09:13]: Yes.</p></div><div style="display:contents" dir="auto"><p id="06d158ea-6828-45bf-9962-35ad1b93d850" class=""><strong>Eudias Kifem</strong> [2:09:21]: Yes.</p></div><div style="display:contents" dir="auto"><p id="c3432453-421a-4bd8-bc27-d5800007148a" class=""><strong>Steve Nahrup</strong> [2:09:37]: Oh, sorry, you here just um.</p></div><div style="display:contents" dir="auto"><p id="2f751abb-68bd-498c-9b05-5e4e3936b5c0" class=""><strong>Steve Nahrup</strong> [2:09:41]: OK, there you go. Go ahead. Oh, now do it.</p></div><div style="display:contents" dir="auto"><p id="e5ed7ccb-1cf2-4591-864a-28ffc0336c90" class=""><strong>Steve Nahrup</strong> [2:09:49]: What are you trying to do? Move the here. Go ahead. Now go. Now click it. Or shouldn&#x27;t be. Yeah.</p></div><div style="display:contents" dir="auto"><p id="90068c9a-ef12-43a1-96b2-0e638f86be42" class=""><strong>Eudias Kifem</strong> [2:09:52]: Right.</p></div><div style="display:contents" dir="auto"><p id="9eb1d1c1-31bb-4320-aa38-995663fd8435" class=""><strong>Eudias Kifem</strong> [2:09:55]: I&#x27;m there.</p></div><div style="display:contents" dir="auto"><p id="202cfb41-928c-4951-a20a-c2dc839728d5" class=""><strong>Eudias Kifem</strong> [2:10:01]: ohh This one you might not need it. I&#x27;m just going to close it.</p></div><div style="display:contents" dir="auto"><p id="03b3079c-8b95-4bb3-a29c-abb20964e79a" class=""><strong>Eudias Kifem</strong> [2:10:09]: Oh, yeah, let&#x27;s see.</p></div><div style="display:contents" dir="auto"><p id="9a6edf93-7bff-4789-966c-3327ace83ea6" class=""><strong>Eudias Kifem</strong> [2:10:20]: You see what I was saying? I&#x27;m using a different type now. Look at get three table, get every table. I&#x27;m just going to say groups.</p></div><div style="display:contents" dir="auto"><p id="20a8b97c-7a1c-463f-9901-c73d3fefa117" class=""><strong>Steve Nahrup</strong> [2:10:23]: Yeah.</p></div><div style="display:contents" dir="auto"><p id="e0cf1d4d-eeff-40df-a8cd-4a024a5a85bd" class=""><strong>Steve Nahrup</strong> [2:10:32]: Perfect. Straight to the point.</p></div><div style="display:contents" dir="auto"><p id="bee7fdfb-3d7f-4955-9280-cf929d80644c" class=""><strong>Eudias Kifem</strong> [2:11:13]: All right, then, if you want to open them, I&#x27;m sure you can come over here.</p></div><div style="display:contents" dir="auto"><p id="b83a68ca-a4d8-416c-8159-af505f9d460a" class=""><strong>Eudias Kifem</strong> [2:11:18]: Yeah, I think it should. I mean, this management studio is pretty new, but I think, yeah, by opening from there, it should take you to. You should be able to open those files. But yeah, you have access.</p></div><div style="display:contents" dir="auto"><p id="e784b930-9edf-4586-b945-23e7e9d5ec72" class=""><strong>Steve Nahrup</strong> [2:11:24]: Yeah.</p></div><div style="display:contents" dir="auto"><p id="0ba867af-6df9-4643-bd12-ab70a4508d67" class=""><strong>Steve Nahrup</strong> [2:11:28]: Awesome.</p></div><div style="display:contents" dir="auto"><p id="d1eec025-c30b-47aa-bf6a-bd58308e5f2b" class=""><strong>Steve Nahrup</strong> [2:11:34]: Thank you. Appreciate it.</p></div><div style="display:contents" dir="auto"><p id="e74a8373-288f-46cc-b111-148274a10fd8" class=""><strong>Eudias Kifem</strong> [2:11:36]: Yeah. All right. I am. OK. I&#x27;m sorry, Steve, but this was really great. I really appreciate this clears a lot of my questions, so I&#x27;ll stop bugging everyone. I&#x27;ll be like, Yep, Yep, we&#x27;ll get there.</p></div><div style="display:contents" dir="auto"><p id="9f55a7b2-d1f0-4464-8984-0121222160bc" class=""><strong>Steve Nahrup</strong> [2:11:37]: Right.</p></div><div style="display:contents" dir="auto"><p id="c22dbcc8-5cca-453b-b16d-df6bcf389ffe" class=""><strong>Steve Nahrup</strong> [2:11:43]: No, no, I.</p></div><div style="display:contents" dir="auto"><p id="8efdb681-3416-4220-96c3-1c80e472cc96" class=""><strong>Steve Nahrup</strong> [2:11:50]: No, no, no. I I appreciate you taking the time to help walk me through it and stuff. And I mean, I yeah, I I could use just don&#x27;t ever, I guess don&#x27;t ever feel like you can&#x27;t.</p></div><div style="display:contents" dir="auto"><p id="7cf8942e-faa7-4b04-8017-5c59968aa7de" class=""><strong>Steve Nahrup</strong> [2:12:05]: Bring any of that kind of stuff up to me like like actual concerns or like you know questions about the architecture or anything like that like please the more of the like I I welcome it though cause I&#x27;m not I&#x27;m not doing it and pushing it on you guys like it&#x27;s.</p></div><div style="display:contents" dir="auto"><p id="1984420d-ba50-43dd-86aa-1da1e7dc1de7" class=""><strong>Eudias Kifem</strong> [2:12:15]: It.</p></div><div style="display:contents" dir="auto"><p id="e6908379-045e-40c9-a2d2-f35675e784cf" class=""><strong>Steve Nahrup</strong> [2:12:24]: Whatever you guys want, but just all working towards the same goal. That&#x27;s all so.</p></div><div style="display:contents" dir="auto"><p id="9a4a64f7-98c3-414c-907a-36249ae219e1" class=""><strong>Eudias Kifem</strong> [2:12:29]: All right. Thank you so much.</p></div><div style="display:contents" dir="auto"><p id="03512b77-7cfa-4601-b43a-94ce6cfb1ec0" class=""><strong>Steve Nahrup</strong> [2:12:30]: Thank you. Have a good one, Yedius. Bye.</p></div><div style="display:contents" dir="auto"><p id="e43cc34d-b35d-4359-b217-50e0ebf34a14" class=""><strong>Eudias Kifem</strong> [2:12:32]: All right, bye. Thank you.</p></div></div></article><span class="sans" style="font-size:14px;padding-top:2em"></span></body></html>

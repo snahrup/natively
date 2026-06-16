@@ -1,0 +1,744 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>Data Strategy &amp; Team Status Meeting — 2026-01-27</title><style>
+/* cspell:disable-file */
+/* webkit printing magic: print all background colors */
+html {
+	-webkit-print-color-adjust: exact;
+}
+* {
+	box-sizing: border-box;
+	-webkit-print-color-adjust: exact;
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+}
+@media only screen {
+	body {
+		margin: 2em auto;
+		max-width: 900px;
+		color: rgb(55, 53, 47);
+	}
+}
+
+body {
+	line-height: 1.5;
+	white-space: pre-wrap;
+}
+
+a,
+a.visited {
+	color: inherit;
+	text-decoration: underline;
+}
+
+.pdf-relative-link-path {
+	font-size: 80%;
+	color: #444;
+}
+
+h1,
+h2,
+h3 {
+	letter-spacing: -0.01em;
+	line-height: 1.2;
+	font-weight: 600;
+	margin-bottom: 0;
+}
+
+/* Override strong tags inside headings to maintain consistent weight */
+h1 strong,
+h2 strong,
+h3 strong {
+	font-weight: 600;
+}
+
+.page-title {
+	font-size: 2.5rem;
+	font-weight: 700;
+	margin-top: 0;
+	margin-bottom: 0.75em;
+}
+
+h1 {
+	font-size: 1.875rem;
+	margin-top: 1.875rem;
+}
+
+h2 {
+	font-size: 1.5rem;
+	margin-top: 1.5rem;
+}
+
+h3 {
+	font-size: 1.25rem;
+	margin-top: 1.25rem;
+}
+
+.source {
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	padding: 1.5em;
+	word-break: break-all;
+}
+
+.callout {
+	border-radius: 10px;
+	padding: 1rem;
+}
+
+figure {
+	margin: 1.25em 0;
+	page-break-inside: avoid;
+}
+
+figcaption {
+	opacity: 0.5;
+	font-size: 85%;
+	margin-top: 0.5em;
+}
+
+mark {
+	background-color: transparent;
+}
+
+.indented {
+	padding-left: 1.5em;
+}
+
+hr {
+	background: transparent;
+	display: block;
+	width: 100%;
+	height: 1px;
+	visibility: visible;
+	border: none;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+img {
+	max-width: 100%;
+}
+
+@media only print {
+	img {
+		max-height: 100vh;
+		object-fit: contain;
+	}
+
+	table.collection-content {
+		width: 100%;
+		table-layout: fixed;
+	}
+
+	table.collection-content th,
+	table.collection-content td {
+		overflow-wrap: anywhere;
+	}
+
+	table.collection-content td > .user,
+	table.collection-content td > time {
+		white-space: pre-wrap;
+	}
+}
+
+@page {
+	margin: 1in;
+}
+
+.collection-content-wrapper {
+	overflow-x: auto;
+}
+
+@media only print {
+	.collection-content-wrapper {
+		overflow-x: visible;
+	}
+}
+
+.collection-content {
+	font-size: 0.875rem;
+}
+
+.collection-content td {
+	white-space: pre-wrap;
+	word-break: break-word;
+}
+
+.column-list {
+	display: flex;
+	gap: 46px;
+}
+
+.column {
+	min-width: 0;
+	overflow: hidden;
+}
+
+.column > *:first-child {
+	margin-top: 0;
+}
+
+.table_of_contents-item {
+	display: block;
+	font-size: 0.875rem;
+	line-height: 1.3;
+	padding: 0.125rem;
+}
+
+.table_of_contents-indent-1 {
+	margin-left: 1.5rem;
+}
+
+.table_of_contents-indent-2 {
+	margin-left: 3rem;
+}
+
+.table_of_contents-indent-3 {
+	margin-left: 4.5rem;
+}
+
+.table_of_contents-link {
+	text-decoration: none;
+	opacity: 0.7;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.18);
+}
+
+table,
+th,
+td {
+	border: 1px solid rgba(55, 53, 47, 0.09);
+	border-collapse: collapse;
+}
+
+table {
+	border-left: none;
+	border-right: none;
+}
+
+th,
+td {
+	font-weight: normal;
+	padding: 0.25em 0.5em;
+	line-height: 1.5;
+	min-height: 1.5em;
+	text-align: left;
+}
+
+th {
+	color: rgba(55, 53, 47, 0.6);
+}
+
+ol,
+ul {
+	margin: 0;
+	margin-block-start: 0.6em;
+	margin-block-end: 0.6em;
+}
+
+li > ol:first-child,
+li > ul:first-child {
+	margin-block-start: 0.6em;
+}
+
+ul > li {
+	list-style: disc;
+}
+
+ul.to-do-list {
+	padding-inline-start: 0;
+}
+
+ul.to-do-list > li {
+	list-style: none;
+}
+
+.to-do-children-checked {
+	text-decoration: line-through;
+	opacity: 0.375;
+}
+
+ul.toggle > li {
+	list-style: none;
+}
+
+ul {
+	padding-inline-start: 1.7em;
+}
+
+ul > li {
+	padding-left: 0.1em;
+}
+
+ol {
+	padding-inline-start: 1.6em;
+}
+
+ol.numbered-list.numbered-list-digits-2 {
+	padding-inline-start: 2em;
+}
+
+ol.numbered-list.numbered-list-digits-3plus {
+	padding-inline-start: 2.4em;
+}
+
+ol > li {
+	padding-left: 0.2em;
+}
+
+.mono ol {
+	padding-inline-start: 2em;
+}
+
+.mono ol > li {
+	text-indent: -0.4em;
+}
+
+.toggle {
+	padding-inline-start: 0em;
+	list-style-type: none;
+}
+
+/* Indent toggle children */
+.toggle > li > details {
+	padding-left: 1.7em;
+}
+
+.toggle > li > details > summary {
+	margin-left: -1.1em;
+}
+
+.selected-value {
+	display: inline-block;
+	padding: 0 0.5em;
+	background: rgba(206, 205, 202, 0.5);
+	border-radius: 3px;
+	margin-right: 0.5em;
+	margin-top: 0.3em;
+	margin-bottom: 0.3em;
+	white-space: nowrap;
+}
+
+.collection-title {
+	display: inline-block;
+	margin-right: 1em;
+}
+
+.page-description {
+	margin-bottom: 2em;
+}
+
+.simple-table {
+	margin-top: 1em;
+	font-size: 0.875rem;
+	empty-cells: show;
+}
+.simple-table td {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table th {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table-header-color {
+	background: rgb(247, 246, 243);
+	color: black;
+}
+.simple-table-header {
+	font-weight: 500;
+}
+
+time {
+	opacity: 0.5;
+}
+
+.icon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	max-width: 1.2em;
+	max-height: 1.2em;
+	text-decoration: none;
+	vertical-align: text-bottom;
+	margin-right: 0.5em;
+}
+
+img.icon {
+	border-radius: 3px;
+}
+
+.callout img.notion-static-icon {
+	width: 1em;
+	height: 1em;
+}
+
+.callout p {
+	margin: 0;
+}
+
+.callout h1,
+.callout h2,
+.callout h3 {
+	margin: 0 0 0.6rem;
+}
+
+.user-icon {
+	width: 1.5em;
+	height: 1.5em;
+	border-radius: 100%;
+	margin-right: 0.5rem;
+}
+
+.user-icon-inner {
+	font-size: 0.8em;
+}
+
+.text-icon {
+	border: 1px solid #000;
+	text-align: center;
+}
+
+.page-cover-image {
+	display: block;
+	object-fit: cover;
+	width: 100%;
+	max-height: 30vh;
+}
+
+.page-header-icon {
+	font-size: 3rem;
+	margin-bottom: 1rem;
+}
+
+.page-header-icon-with-cover {
+	margin-top: -0.72em;
+	margin-left: 0.07em;
+}
+
+.page-header-icon img {
+	border-radius: 3px;
+}
+
+.link-to-page {
+	margin: 1em 0;
+	padding: 0;
+	border: none;
+	font-weight: 500;
+}
+
+p > .user {
+	opacity: 0.5;
+}
+
+td > .user,
+td > time {
+	white-space: nowrap;
+}
+
+input[type="checkbox"] {
+	transform: scale(1.5);
+	margin-right: 0.6em;
+	vertical-align: middle;
+}
+
+p {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+.image {
+	border: none;
+	margin: 1.5em 0;
+	padding: 0;
+	border-radius: 0;
+	text-align: center;
+}
+
+.code,
+code {
+	background: rgba(135, 131, 120, 0.15);
+	border-radius: 3px;
+	padding: 0.2em 0.4em;
+	border-radius: 3px;
+	font-size: 85%;
+	tab-size: 2;
+}
+
+code {
+	color: #eb5757;
+}
+
+.code {
+	padding: 1.5em 1em;
+}
+
+.code-wrap {
+	white-space: pre-wrap;
+	word-break: break-all;
+}
+
+.code > code {
+	background: none;
+	padding: 0;
+	font-size: 100%;
+	color: inherit;
+}
+
+blockquote {
+	font-size: 1em;
+	margin: 1em 0;
+	padding-left: 1em;
+	border-left: 3px solid rgb(55, 53, 47);
+}
+
+blockquote.quote-large {
+	font-size: 1.25em;
+}
+
+.bookmark {
+	text-decoration: none;
+	max-height: 8em;
+	padding: 0;
+	display: flex;
+	width: 100%;
+	align-items: stretch;
+}
+
+.bookmark-title {
+	font-size: 0.85em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	height: 1.75em;
+	white-space: nowrap;
+}
+
+.bookmark-text {
+	display: flex;
+	flex-direction: column;
+}
+
+.bookmark-info {
+	flex: 4 1 180px;
+	padding: 12px 14px 14px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.bookmark-image {
+	width: 33%;
+	flex: 1 1 180px;
+	display: block;
+	position: relative;
+	object-fit: cover;
+	border-radius: 1px;
+}
+
+.bookmark-description {
+	color: rgba(55, 53, 47, 0.6);
+	font-size: 0.75em;
+	overflow: hidden;
+	max-height: 4.5em;
+	word-break: break-word;
+}
+
+.bookmark-href {
+	font-size: 0.75em;
+	margin-top: 0.25em;
+}
+
+.sans { font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol"; }
+.code { font-family: "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace; }
+.serif { font-family: Lyon-Text, Georgia, ui-serif, serif; }
+.mono { font-family: iawriter-mono, Nitti, Menlo, Courier, monospace; }
+.pdf .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK JP'; }
+.pdf:lang(zh-CN) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK SC'; }
+.pdf:lang(zh-TW) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK TC'; }
+.pdf:lang(ko-KR) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK KR'; }
+.pdf .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.pdf .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK JP'; }
+.pdf:lang(zh-CN) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK SC'; }
+.pdf:lang(zh-TW) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK TC'; }
+.pdf:lang(ko-KR) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK KR'; }
+.pdf .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.highlight-default {
+	color: rgba(44, 44, 43, 1);
+}
+.highlight-gray {
+	color: rgba(125, 122, 117, 1);
+	fill: rgba(125, 122, 117, 1);
+}
+.highlight-brown {
+	color: rgba(159, 118, 90, 1);
+	fill: rgba(159, 118, 90, 1);
+}
+.highlight-orange {
+	color: rgba(210, 123, 45, 1);
+	fill: rgba(210, 123, 45, 1);
+}
+.highlight-yellow {
+	color: rgba(203, 148, 52, 1);
+	fill: rgba(203, 148, 52, 1);
+}
+.highlight-teal {
+	color: rgba(80, 148, 110, 1);
+	fill: rgba(80, 148, 110, 1);
+}
+.highlight-blue {
+	color: rgba(56, 125, 201, 1);
+	fill: rgba(56, 125, 201, 1);
+}
+.highlight-purple {
+	color: rgba(154, 107, 180, 1);
+	fill: rgba(154, 107, 180, 1);
+}
+.highlight-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.highlight-red {
+	color: rgba(207, 81, 72, 1);
+	fill: rgba(207, 81, 72, 1);
+}
+.highlight-default_background {
+	color: rgba(44, 44, 43, 1);
+}
+.highlight-gray_background {
+	background: rgba(42, 28, 0, 0.07);
+}
+.highlight-brown_background {
+	background: rgba(139, 46, 0, 0.086);
+}
+.highlight-orange_background {
+	background: rgba(224, 101, 1, 0.129);
+}
+.highlight-yellow_background {
+	background: rgba(211, 168, 0, 0.137);
+}
+.highlight-teal_background {
+	background: rgba(0, 100, 45, 0.09);
+}
+.highlight-blue_background {
+	background: rgba(0, 124, 215, 0.094);
+}
+.highlight-purple_background {
+	background: rgba(102, 0, 178, 0.078);
+}
+.highlight-pink_background {
+	background: rgba(197, 0, 93, 0.086);
+}
+.highlight-red_background {
+	background: rgba(223, 22, 0, 0.094);
+}
+.block-color-default {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray {
+	color: rgba(125, 122, 117, 1);
+	fill: rgba(125, 122, 117, 1);
+}
+.block-color-brown {
+	color: rgba(159, 118, 90, 1);
+	fill: rgba(159, 118, 90, 1);
+}
+.block-color-orange {
+	color: rgba(210, 123, 45, 1);
+	fill: rgba(210, 123, 45, 1);
+}
+.block-color-yellow {
+	color: rgba(203, 148, 52, 1);
+	fill: rgba(203, 148, 52, 1);
+}
+.block-color-teal {
+	color: rgba(80, 148, 110, 1);
+	fill: rgba(80, 148, 110, 1);
+}
+.block-color-blue {
+	color: rgba(56, 125, 201, 1);
+	fill: rgba(56, 125, 201, 1);
+}
+.block-color-purple {
+	color: rgba(154, 107, 180, 1);
+	fill: rgba(154, 107, 180, 1);
+}
+.block-color-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.block-color-red {
+	color: rgba(207, 81, 72, 1);
+	fill: rgba(207, 81, 72, 1);
+}
+.block-color-default_background {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray_background {
+	background: rgba(240, 239, 237, 1);
+}
+.block-color-brown_background {
+	background: rgba(245, 237, 233, 1);
+}
+.block-color-orange_background {
+	background: rgba(251, 235, 222, 1);
+}
+.block-color-yellow_background {
+	background: rgba(249, 243, 220, 1);
+}
+.block-color-teal_background {
+	background: rgba(232, 241, 236, 1);
+}
+.block-color-blue_background {
+	background: rgba(229, 242, 252, 1);
+}
+.block-color-purple_background {
+	background: rgba(243, 235, 249, 1);
+}
+.block-color-pink_background {
+	background: rgba(250, 233, 241, 1);
+}
+.block-color-red_background {
+	background: rgba(252, 233, 231, 1);
+}
+.select-value-color-default { background-color: rgba(42, 28, 0, 0.07); }
+.select-value-color-gray { background-color: rgba(28, 19, 1, 0.11); }
+.select-value-color-brown { background-color: rgba(127, 51, 0, 0.156); }
+.select-value-color-orange { background-color: rgba(196, 88, 0, 0.203); }
+.select-value-color-yellow { background-color: rgba(209, 156, 0, 0.282); }
+.select-value-color-green { background-color: rgba(0, 96, 38, 0.156); }
+.select-value-color-blue { background-color: rgba(0, 118, 217, 0.203); }
+.select-value-color-purple { background-color: rgba(92, 0, 163, 0.141); }
+.select-value-color-pink { background-color: rgba(183, 0, 78, 0.152); }
+.select-value-color-red { background-color: rgba(206, 24, 0, 0.164); }
+
+.checkbox {
+	display: inline-flex;
+	vertical-align: text-bottom;
+	width: 16;
+	height: 16;
+	background-size: 16px;
+	margin-left: 2px;
+	margin-right: 5px;
+}
+
+.checkbox-on {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20width%3D%2216%22%20height%3D%2216%22%20fill%3D%22%2358A9D7%22%2F%3E%0A%3Cpath%20d%3D%22M6.71429%2012.2852L14%204.9995L12.7143%203.71436L6.71429%209.71378L3.28571%206.2831L2%207.57092L6.71429%2012.2852Z%22%20fill%3D%22white%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+
+.checkbox-off {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20x%3D%220.75%22%20y%3D%220.75%22%20width%3D%2214.5%22%20height%3D%2214.5%22%20fill%3D%22white%22%20stroke%3D%22%2336352F%22%20stroke-width%3D%221.5%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+	
+</style></head><body><article id="2f556320-92ca-8049-8125-db5cd8521479" class="page sans"><header><h1 class="page-title" dir="auto">Data Strategy &amp; Team Status Meeting — 2026-01-27</h1><p class="page-description" dir="auto"></p><table class="properties"><tbody><tr class="property-row property-row-status"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/burst_gray.svg" style="width:14px;height:14px;display:block"/></span>Processing</th><td><span class="status-value select-value-color-green"><div class="status-dot status-dot-color-green"></div>Processed</span></td></tr><tr class="property-row property-row-text"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/description_gray.svg" style="width:14px;height:14px;display:block"/></span>Agenda</th><td>Microsoft Fabric implementation overview, Purview documentation layer, MDM strategy, Citrine project &amp; R&amp;D integration, Ann&#x27;s contract &amp; critical resource concerns, team status updates (UDS/Jason/Matt/Francis/Steve), action items</td></tr><tr class="property-row property-row-date"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/calendar_gray.svg" style="width:14px;height:14px;display:block"/></span>Date</th><td><time>January 27, 2026</time></td></tr><tr class="property-row property-row-multi_select"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/list_gray.svg" style="width:14px;height:14px;display:block"/></span>Attendees</th><td><span class="selected-value select-value-color-pink">Internal</span></td></tr><tr class="property-row property-row-select"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/arrow-circle-down_gray.svg" style="width:14px;height:14px;display:block"/></span>Meeting Type</th><td><span class="selected-value select-value-color-orange">Team Meeting</span></td></tr><tr class="property-row property-row-person"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/friends_gray.svg" style="width:14px;height:14px;display:block"/></span>Organizer</th><td><span class="user"><span class="icon text-icon user-icon"><span class="user-icon-inner">P</span></span>Patrick Stiller</span></td></tr><tr class="property-row property-row-select"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/arrow-circle-down_gray.svg" style="width:14px;height:14px;display:block"/></span>Priority</th><td><span class="selected-value select-value-color-red">High</span></td></tr><tr class="property-row property-row-checkbox"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/checkmark-square_gray.svg" style="width:14px;height:14px;display:block"/></span>Has Cluely Transcript</th><td><div class="checkbox checkbox-off"></div></td></tr><tr class="property-row property-row-checkbox"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/checkmark-square_gray.svg" style="width:14px;height:14px;display:block"/></span>Has Final Transcript</th><td><div class="checkbox checkbox-off"></div></td></tr><tr class="property-row property-row-select"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/arrow-circle-down_gray.svg" style="width:14px;height:14px;display:block"/></span>Status</th><td><span class="selected-value select-value-color-brown">Completed</span></td></tr><tr class="property-row property-row-checkbox"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/checkmark-square_gray.svg" style="width:14px;height:14px;display:block"/></span>Has Notion Transcript</th><td><div class="checkbox checkbox-on"></div></td></tr><tr class="property-row property-row-checkbox"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/checkmark-square_gray.svg" style="width:14px;height:14px;display:block"/></span>Has Teams Transcript</th><td><div class="checkbox checkbox-off"></div></td></tr><tr class="property-row property-row-number"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/hashtag_gray.svg" style="width:14px;height:14px;display:block"/></span>Mtg #</th><td>17</td></tr><tr class="property-row property-row-checkbox"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/checkmark-square_gray.svg" style="width:14px;height:14px;display:block"/></span>Merged to Feed</th><td><div class="checkbox checkbox-off"></div></td></tr></tbody></table></header><div class="page-body"><div style="display:contents" dir="ltr"><div id="2f556320-92ca-80a2-8a2e-f407c95be2f0" class="transcription"><div style="border-bottom:0.05em solid;border-bottom-color:rgba(42, 28, 0, 0.07)">Summary<br/></div><div style="display:contents" dir="auto"><h3 id="2f556320-92ca-8156-a4d1-e4868d81f42f" class="">Microsoft Fabric Implementation Overview</h3></div><div style="display:contents" dir="auto"><ul id="2f556320-92ca-8188-8619-f0f08afd24d3" class="bulleted-list"><li style="list-style-type:disc">Steve outlined the comprehensive Microsoft Fabric implementation project across the entire organization ‣<div style="display:contents" dir="auto"><ul id="2f556320-92ca-81fb-942e-c11b7c447ddf" class="bulleted-list"><li style="list-style-type:circle">Goal is to centralize all data from various sources into a single location accessible to all divisions and departments ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2f556320-92ca-81fa-849b-dd63a67cd0da" class="bulleted-list"><li style="list-style-type:circle">Will enable real-time or near real-time data access without relying on standard SSRS reports</li></ul></div><div style="display:contents" dir="auto"><ul id="2f556320-92ca-8191-9941-e0d9f895cc58" class="bulleted-list"><li style="list-style-type:circle">Executives like Mike Spencer need a 360-degree view of data across all departments, which is currently not feasible ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2f556320-92ca-8140-b49e-e1787e0920f1" class="bulleted-list"><li style="list-style-type:circle">Fabric will serve data scientists, data analysts, data engineers, business analysts, and regular business users in a single interface ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2f556320-92ca-8118-85d7-e1c6c15a8e06" class="bulleted-list"><li style="list-style-type:circle">Plans to layer in Copilot as an AI interface for data interaction and report creation ‣</li></ul></div></li></ul></div><div style="display:contents" dir="auto"><h3 id="2f556320-92ca-810e-8fd7-f32e9887ee49" class="">Microsoft Purview Documentation Layer</h3></div><div style="display:contents" dir="auto"><ul id="2f556320-92ca-8163-a563-ddf0770341b2" class="bulleted-list"><li style="list-style-type:disc">Documentation and data governance will be handled through Microsoft Purview (being folded into Fabric) ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2f556320-92ca-81ff-91db-c6f9d1669da2" class="bulleted-list"><li style="list-style-type:disc">Will provide comprehensive data lineage tracking from source to reports ‣<div style="display:contents" dir="auto"><ul id="2f556320-92ca-8199-9371-e1d64ed145e9" class="bulleted-list"><li style="list-style-type:circle">Track how data transforms through ETLs</li></ul></div><div style="display:contents" dir="auto"><ul id="2f556320-92ca-8192-ba1f-c41d7099af4e" class="bulleted-list"><li style="list-style-type:circle">View formula changes and definition modifications throughout the data journey</li></ul></div><div style="display:contents" dir="auto"><ul id="2f556320-92ca-81d3-a6f6-d9d3a058b4d9" class="bulleted-list"><li style="list-style-type:circle">Enable impact analysis before making changes to understand downstream effects ‣</li></ul></div></li></ul></div><div style="display:contents" dir="auto"><ul id="2f556320-92ca-81d1-abf1-ea0347c30fd0" class="bulleted-list"><li style="list-style-type:disc">Will identify data stewards and owners for proactive communication when changes are needed ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2f556320-92ca-81eb-acf7-f9d5890fd986" class="bulleted-list"><li style="list-style-type:disc">Purview implementation will run in parallel with Fabric deployment ‣</li></ul></div><div style="display:contents" dir="auto"><h3 id="2f556320-92ca-8197-a4c5-c697051492a7" class="">Master Data Management (MDM) Strategy</h3></div><div style="display:contents" dir="auto"><ul id="2f556320-92ca-8194-9e8c-f47a4d05074c" class="bulleted-list"><li style="list-style-type:disc">MDM initiative aims to establish common terminology and processes across the organization ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2f556320-92ca-81c3-8a72-dee2b83b4223" class="bulleted-list"><li style="list-style-type:disc">Key focus on defining system of record and standardizing calculations ‣<div style="display:contents" dir="auto"><ul id="2f556320-92ca-81d8-881b-eb6cf3152cf5" class="bulleted-list"><li style="list-style-type:circle">Currently, different entities calculate metrics differently</li></ul></div><div style="display:contents" dir="auto"><ul id="2f556320-92ca-81c6-8f77-f385db528314" class="bulleted-list"><li style="list-style-type:circle">Need to establish where formulas live and what the official system of record is ‣</li></ul></div></li></ul></div><div style="display:contents" dir="auto"><h3 id="2f556320-92ca-81f1-8daf-d1bda5e99b0e" class="">Citrine Project and R&amp;D Integration</h3></div><div style="display:contents" dir="auto"><ul id="2f556320-92ca-81ab-bed0-f0fdc193a6c3" class="bulleted-list"><li style="list-style-type:disc">Ann clarified that Citrine is a tool for R&amp;D chemists, not a database or system of record ‣<div style="display:contents" dir="auto"><ul id="2f556320-92ca-81e3-b13b-ff4fd0d16c24" class="bulleted-list"><li style="list-style-type:circle">Used for formulation work and machine learning/modeling</li></ul></div><div style="display:contents" dir="auto"><ul id="2f556320-92ca-818b-a5f9-dc8a86cd2493" class="bulleted-list"><li style="list-style-type:circle">Data temporarily stored in Citrine during development but not intended as a repository ‣</li></ul></div></li></ul></div><div style="display:contents" dir="auto"><ul id="2f556320-92ca-810b-8d9f-c10b1a4beb72" class="bulleted-list"><li style="list-style-type:disc">Current challenge: source data for Citrine is scattered across multiple locations with unclear access ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2f556320-92ca-81d7-b28e-c19ea8b5702d" class="bulleted-list"><li style="list-style-type:disc">Citrine and Fabric initiatives are complementary - Fabric can provide the organized data sources that Citrine needs ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2f556320-92ca-8102-87b4-f0259aaa7c1f" class="bulleted-list"><li style="list-style-type:disc">Costing workbench discussion: need to address how to keep costing data current in Citrine, as costs constantly change ‣ ‣</li></ul></div><div style="display:contents" dir="auto"><h3 id="2f556320-92ca-8179-9bce-cc5960361c75" class="">Critical Resource Concerns</h3></div><div style="display:contents" dir="auto"><ul id="2f556320-92ca-81c3-90b4-c1134a7ab2d8" class="bulleted-list"><li style="list-style-type:disc">Ann&#x27;s contract ends in February (next month), which is causing significant concern ‣ ‣<div style="display:contents" dir="auto"><ul id="2f556320-92ca-81b9-94c0-e8bee9935184" class="bulleted-list"><li style="list-style-type:circle">Ann has a master&#x27;s degree in health data science from University of Minnesota with focus on statistics and data science ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2f556320-92ca-81fe-a92a-fa6cae64e255" class="bulleted-list"><li style="list-style-type:circle">Background is more on analysis side rather than data engineering</li></ul></div></li></ul></div><div style="display:contents" dir="auto"><ul id="2f556320-92ca-812d-aef1-f95d7bd1c38e" class="bulleted-list"><li style="list-style-type:disc">Team consensus that Ann is a critical resource the organization cannot afford to lose ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2f556320-92ca-81d0-9978-da1b9f9b63ad" class="bulleted-list"><li style="list-style-type:disc">Steve emphasized the scope of Fabric implementation requires approximately five full-time developers ‣<div style="display:contents" dir="auto"><ul id="2f556320-92ca-81ef-a8f4-c1d7a1937ef6" class="bulleted-list"><li style="list-style-type:circle">Cannot rely on part-time or rotating resources due to extensive ramp-up time (two months) ‣</li></ul></div></li></ul></div><div style="display:contents" dir="auto"><ul id="2f556320-92ca-8102-babe-d1890b238b19" class="bulleted-list"><li style="list-style-type:disc">Strong agreement that data team needs someone embedded in R&amp;D with domain expertise ‣ ‣<div style="display:contents" dir="auto"><ul id="2f556320-92ca-818e-b976-c65a7288aa6a" class="bulleted-list"><li style="list-style-type:circle">IT-only approach will not produce results that business users will find useful ‣</li></ul></div></li></ul></div><div style="display:contents" dir="auto"><h3 id="2f556320-92ca-8112-8c4b-ee4d6f6727d3" class="">Resource and Team Structure Discussion</h3></div><div style="display:contents" dir="auto"><ul id="2f556320-92ca-81bb-b2f7-ce93ec76fb57" class="bulleted-list"><li style="list-style-type:disc">Discussion of need for dedicated data team and potentially a chief data officer role ‣ ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2f556320-92ca-81a8-a0f1-df98b2d77257" class="bulleted-list"><li style="list-style-type:disc">Identified Tallarico and others as potential future resources for the project ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2f556320-92ca-81b4-921b-f542cf5189fc" class="bulleted-list"><li style="list-style-type:disc">Jim Sinclair identified as supportive and would advocate for keeping Ann ‣ ‣</li></ul></div><div style="display:contents" dir="auto"><h3 id="2f556320-92ca-81a0-b819-e380579b19f0" class="">Next Steps for Data Strategy</h3></div><div style="display:contents" dir="auto"><ul id="2f556320-92ca-8127-a932-fc36b57ac485" class="bulleted-list"><li style="list-style-type:disc">Schedule weekly touchpoints to discuss data progress ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2f556320-92ca-8127-869f-d8df6683165a" class="bulleted-list"><li style="list-style-type:disc">Patrick to speak with Mike about resources and team structure ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2f556320-92ca-818d-9d5f-f10153bb6f4f" class="bulleted-list"><li style="list-style-type:disc">Consider meeting with Jim Sinclair to discuss:<div style="display:contents" dir="auto"><ul id="2f556320-92ca-81e8-a200-cb830c0478c7" class="bulleted-list"><li style="list-style-type:circle">Project vision and requirements</li></ul></div><div style="display:contents" dir="auto"><ul id="2f556320-92ca-8136-b47f-fee17234d69c" class="bulleted-list"><li style="list-style-type:circle">Extending Ann&#x27;s contract</li></ul></div><div style="display:contents" dir="auto"><ul id="2f556320-92ca-8147-a17b-d5b81915cbe0" class="bulleted-list"><li style="list-style-type:circle">Building out the data team ‣ ‣</li></ul></div></li></ul></div><div style="display:contents" dir="auto"><ul id="2f556320-92ca-8170-aaf0-f0cbc7cd0fdf" class="bulleted-list"><li style="list-style-type:disc">Ann will be on-site Thursday at the data center for Citrine training ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2f556320-92ca-8145-8a43-c5d3906cad95" class="bulleted-list"><li style="list-style-type:disc">Plan follow-up discussion between Steve, Patrick, Ann, and potentially Jim ‣</li></ul></div><div style="display:contents" dir="auto"><h3 id="2f556320-92ca-812d-a5b0-efb69e082234" class="">Team Status Updates</h3></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-817b-ab5b-d9292b7ea625" class=""><strong>UDS (Patrick):</strong></p></div><div style="display:contents" dir="auto"><ul id="2f556320-92ca-813f-b3a8-d64f5d202937" class="bulleted-list"><li style="list-style-type:disc">ATQ server: OVF reports converted to use prod version, waiting for confirmation on other reports before disabling current server ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2f556320-92ca-8194-8f3a-f203401f2b7f" class="bulleted-list"><li style="list-style-type:disc">Customer Service KPI: Working with Michelle on order accuracy additions, should have update in 1-2 weeks ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2f556320-92ca-81e6-bba2-e39c6a886740" class="bulleted-list"><li style="list-style-type:disc">Order confirmation meeting scheduled for today ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2f556320-92ca-8191-ac06-c7c38068221f" class="bulleted-list"><li style="list-style-type:disc">NPCLCI: Follow-up meeting scheduled to review reports; meeting with Brad Carlson (main accountant) on Friday ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2f556320-92ca-818b-bb2f-d65b409b67e5" class="bulleted-list"><li style="list-style-type:disc">Create I and J for NAC: Waiting for sales review through Mandy ‣</li></ul></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-810f-8196-d3416a6c0971" class=""><strong>Jason:</strong></p></div><div style="display:contents" dir="auto"><ul id="2f556320-92ca-8124-85d1-e2c23e8e6493" class="bulleted-list"><li style="list-style-type:disc">Zebra print issues with Canada still being resolved, waiting for Tracy&#x27;s approval ‣ ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2f556320-92ca-81f0-a3f5-c530f3a99cb1" class="bulleted-list"><li style="list-style-type:disc">NAC SDS cleanup of hazardous materials in progress ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2f556320-92ca-8149-b36b-e3a732c427ca" class="bulleted-list"><li style="list-style-type:disc">Zebra label updates to enable system switch ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2f556320-92ca-816c-9afe-d1038fa88896" class="bulleted-list"><li style="list-style-type:disc">Citrine extraction tickets assigned ‣</li></ul></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-81a4-b01f-e3e4aa9d3ba5" class=""><strong>Matt:</strong></p></div><div style="display:contents" dir="auto"><ul id="2f556320-92ca-8138-9c0f-d1840db77848" class="bulleted-list"><li style="list-style-type:disc">Backorder report approved and ready to deploy ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2f556320-92ca-8198-b5b5-cbadd4bdbd72" class="bulleted-list"><li style="list-style-type:disc">Will check with Felicia about closing report ticket - believes all available data calculations are complete ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2f556320-92ca-81ed-8823-ebcdb4de322e" class="bulleted-list"><li style="list-style-type:disc">Working on ticket 77 for Sarah ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2f556320-92ca-8178-8f09-c5b321c8de6b" class="bulleted-list"><li style="list-style-type:disc">Ticket 54: Will clone for production deployment rather than create new ticket ‣</li></ul></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-8170-87ca-ceee0efbc169" class=""><strong>Francis:</strong></p></div><div style="display:contents" dir="auto"><ul id="2f556320-92ca-817d-af22-d63f821c2406" class="bulleted-list"><li style="list-style-type:disc">BOL (Bill of Lading) targeted for end of week deployment - has significant visibility ‣ ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2f556320-92ca-81a6-b3f3-c0ea89680290" class="bulleted-list"><li style="list-style-type:disc">Waiting for Elena to confirm production push date ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2f556320-92ca-812d-8a38-de05d6ed86cc" class="bulleted-list"><li style="list-style-type:disc">Snarr validation on hold due to Rachel being out (back mid-February) ‣ ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2f556320-92ca-81a5-969a-faeae1e84c6c" class="bulleted-list"><li style="list-style-type:disc">Logistics dashboard: Made good progress getting Francis up to speed ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2f556320-92ca-81cb-9582-c6f3e6b0a728" class="bulleted-list"><li style="list-style-type:disc">Price support app: Application working well in dev, blocked on wildcard cert for HTTPS from Teal ‣ ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2f556320-92ca-81f7-b071-f7ec45b37455" class="bulleted-list"><li style="list-style-type:disc">Working on Entra ID authentication implementation ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2f556320-92ca-81f9-8de3-eab7115ce5a5" class="bulleted-list"><li style="list-style-type:disc">Fort Wright blend project: CyberTools wants on-site visit ‣ ‣</li></ul></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-8190-9d25-e8d899c66d6a" class=""><strong>Steve:</strong></p></div><div style="display:contents" dir="auto"><ul id="2f556320-92ca-819f-bcc8-f12ca64b64be" class="bulleted-list"><li style="list-style-type:disc">Processing meetings and transcripts from last week&#x27;s on-site visit ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2f556320-92ca-81e7-8607-c5fdc6177f3c" class="bulleted-list"><li style="list-style-type:disc">Focus this week: Working with Udius to stand up trial capacity for Fabric ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2f556320-92ca-81f3-b1f4-cbd0208e2bdd" class="bulleted-list"><li style="list-style-type:disc">Need decision from Mike on which domain/department to start with (finance, MES, etc.) ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2f556320-92ca-8104-a89e-de72c1447589" class="bulleted-list"><li style="list-style-type:disc">Working with Udius and Carrie on foundational structure for organizing domains in relation to Fabric ‣</li></ul></div><div style="display:contents" dir="auto"><h3 id="2f556320-92ca-81e7-b2e8-df55103458ef" class="">Action Items</h3></div><div style="display:contents" dir="auto"><ul id="2f556320-92ca-811c-8925-c5146a497199" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Patrick to set up costing workbench for Ann at 10:30 ‣ ‣</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="2f556320-92ca-8195-875b-c94ca954582a" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Schedule weekly data team touchpoints ‣</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="2f556320-92ca-81ec-8b39-e9a873ecd804" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Patrick to discuss resources and data team structure with Mike ‣</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="2f556320-92ca-811c-921c-f20ccf0c5e9a" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Consider scheduling meeting with Jim Sinclair about project vision and Ann&#x27;s contract extension ‣ ‣</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="2f556320-92ca-813f-b8b1-c65c90a43d7f" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Schedule follow-up meeting with Steve, Patrick, Ann, and Dominique about data next steps ‣</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="2f556320-92ca-8189-b1c9-c24cf332c44f" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Patrick to update ticket with Power BI information ‣</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="2f556320-92ca-8184-a2bf-edc15b8138f1" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Patrick to confirm expanded scope with Michelle on ticket 17 ‣</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="2f556320-92ca-813e-9c81-c408321c2ef0" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Matt to clone ticket 54 for production (remove test from description) ‣ ‣</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="2f556320-92ca-8189-b7ab-e4a992d47132" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Get feedback from Elena on BOL production push date ‣</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="2f556320-92ca-8127-b1c5-fc2d3ad820ba" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Patrick to get list from Suresh to pass to Gary ‣</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="2f556320-92ca-816f-8bf0-db33897925d6" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Steve to create tickets for Fabric implementation work in the board ‣</span><div class="indented"></div></li></ul></div><div style="border-bottom:0.05em solid;border-bottom-color:rgba(42, 28, 0, 0.07)">Notes<br/></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-80e8-b248-e5ad3824a93c" class="">
+</p></div><div style="border-bottom:0.05em solid;border-bottom-color:rgba(42, 28, 0, 0.07)">Transcript<br/></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-805e-9e95-c8fefa8f818b" class="">Lou Hello! Oh, we&#x27;re gonna do the camera thing. Oh, I mean, we don&#x27;t have to. I just thought the first meet and greet was one of those instances.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-80a2-a4d2-d6a0e159d2f7" class="">That is pretty nice. Hey!</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-8004-8b16-f19b6297dbb0" class="">Awesome place.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-80f7-96fd-d383157bd6d2" class="">Okay. All right. I wanted to have this meeting just because everybody&#x27;s working on this, and we&#x27;ve got, I know we started talking about the awesome MDM last week, the week before. I can&#x27;t really remember. And, of course, we have the Supreme Project that I know, Anne, you&#x27;re going to be lead on. So we just want to make sure that we&#x27;re kind of working cohesively because I know data as a whole within IT has been a challenge, and we want to make sure that we are starting off on the right foot Thank you.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-802e-bf6b-cbe59901fb98" class="">I&#x27;m going to throw it out there again, if you may have thought that, is we can grow our team with the people who are here at the ground floor and go from there. Patrick, do you want to maybe give us a bit of an oversight of like MDM and data in general and where your vision is on this? That actually might come better from Steve because you can have a lot more background. My ideal is that MDM will have a master data that&#x27;s going to start driving common terms, common processes and we&#x27;re going to see all that data roll up and start to have the systems roll better and having people talk the same lingo and we&#x27;ll be focusing initially on subsection for our kickoff, but it&#x27;s going to be company-wide.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-80f5-8977-def495cf3f41" class="">But Steve can probably talk to that much better than I can, since that&#x27;s what he does.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-80a5-85d0-eaf1d0666872" class="">Great. So... You want to know exactly how MDM is I&#x27;m out. I&#x27;ll just share with what I&#x27;m gonna, what I&#x27;ve been asked to do. Does that work? Sure. Basically, I&#x27;ve been asked to Lead the Microsoft Fabric integration and implementation across the entire organization. Basically, You get to know everything about how all the data at the company is structured, how it needs to be, I guess, reformatted, cleaned up, documented, everything like that, and then basically Organized and transformed into The form it needs to be in to properly get it all into a single location in Microsoft Fabric.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-8043-acee-d7114d679716" class="">whether that&#x27;sa massive lake house with warehouses and all of that so that at the end of the day we are able to, like every single division and department, is able to access The data that they need when they need it in a very uniform way without having to basically get use standard Uh, I guess. Stay O. reports Everything is accessed in real time or near real time depending on the source. They have the ability to just access it all in one location without basically leaving Microsoft Fabric because Right now, there&#x27;s so much sprawl in terms of where data is, what Where it came from, whether or not it&#x27;s accurate, you&#x27;re obviously familiar with.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-804b-8692-df34c099f882" class="">certain aspects of the data right now and the work that you&#x27;ve been doing so you have some idea of what I&#x27;m kind of talking about but Also, we need the execs like Mike Spencer, for example. He needs to be able to see a 360 degree view of all data across all the departments and divisions. And if you were to ask him, If he&#x27;s easily able to access the data that he needs across all of the divisions or domains, Easily he would laugh at you hysterically because Right now that&#x27;s just not even feasible.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-802b-9038-e28151b4d55d" class="">And so that&#x27;s the main objective, but Fabric, I don&#x27;t know how familiar you are with fabric, but fabric is really, without going too deep into it, Fabric is meant to allow everybody from data scientists like yourself, data analysts, data engineers business analysts, normal business users, all to basically access and work with the data in that single interface, whether that&#x27;s, you know, Fabric notebooks, fabric, you know, data pipelines, everything like that and then hopefully Once everything&#x27;s in there and kind of organized the way it needs to be, we can confidently Uh...</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-801e-9f07-c06ff3b67afc" class="">layer in, co-pilot as their AI layer so it can You know, they can leverage that to even be able to interact with the data, create reports all through that kind of, you know, Copilot interface. So sorry that went in a lot of different directions, but that&#x27;s the gist.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-8087-aad0-db811c7949aa" class="">The only thing to add on there, we also have a common terminology and common place where we can see how things are calculated. Right now, a calculation for one entity doesn&#x27;t leave the same as another. The other thing too that&#x27;s been a common thing is that, hey, can someone ask me, you know, use this example, give me all the formulas. Define that help us to define what that is. Where&#x27;s the system of record is the system of record and we believe it to be on TV and it should be on TV at this point.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-8009-a69e-e9dc1a89562d" class="">So right now, you know, I could go pull formulas from him. Yeah, I could go pull formulas from them free. You know, denoting what that System record as well.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-802a-971b-ecd12c389ab4" class="">I&#x27;m glad you went there.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-80da-9f96-de90f88b19b8" class="">Oh, now you&#x27;re calling me the carpet. So, because I want to layer Ann in here.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-809b-b7a4-f6a1d7d4511d" class="">So what Ann is here saying, specifically for the citrine product.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-80ca-8835-d46b0f503149" class="">That was the idea at the first. Like, specifically for citrine to make sure we could use citrine. Now, that said, that&#x27;s great. But why isolate it there? Why not bring all of that data into the fabric and have Ann work with Steve getting that data there?</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-80b6-9b99-d209fd145bbf" class="">can then be used for the drink but it also can be used in other places so that&#x27;s where i&#x27;m trying to get to like how do we get are we putting the carpet before the horse well exactly how do we get in working with steve on this to make sure that we&#x27;re getting everything in the same place sorry i forgot about a point because we might have to redo it oh that&#x27;s good i was just saying that i forgot to mention like the documentation layer that everyone&#x27;s kind of alluding to is actually going to uh be focused or it&#x27;s going to come about in the form of Microsoft Purview that&#x27;s there.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-8021-9409-f088ba67302e" class="">I guess documentation, data dictionary, data catalog, being able to view the lineage, whether I mean the level of granularity we&#x27;re talking about is being able to basically see Okay, I want to see This specific column in this table where it is in the source, All the way through to what reports it&#x27;s being stored in, how it&#x27;s being used, and everywhere in between you&#x27;re able to see What ETLs are impacting and transforming it throughout.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-80c1-b742-e14ef51a44b7" class="">how if it&#x27;s you know if the formula is one way at a certain point you know in its Journey How is that being altered? Does it change the context of it? Does the definition change? Why was it changed? And then also, whenever changes are made anywhere in the stream, you need to know or want to know how it will impact everything downstream from it, And so being able to perform that kind of impact analysis is really important and right now The way that it works is, You change it and then you just wait for the other shoe to drop basically who&#x27;s going to call me and be upset about it breaking a report, messing up some type of calculation downstream.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-80fa-9957-d198922c32c8" class="">So being able to proactively say, okay, we&#x27;re going to make these changes. These are the things that it&#x27;s going to impact and being able to actually see, like click through to those things that it&#x27;s going to impact and being able to see, okay, the data steward for this report or what have you is this person. I&#x27;m going to proactively reach out to that person and let them know. Having that, I guess, Having that documentation around not only what things are, where they live, but who Who to contact to make sure that the data has been validated.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-8028-8b25-eb165e9b4a22" class="">anything you need to know about that data. It&#x27;s really important. That&#x27;s basically the whole ecosystem, but the Microsoft Purview initiative, it is a separate platform technically but they have folded it into Microsoft fabric in a way that Eventually, or soon enough, it&#x27;s not even going to be called Purview. It&#x27;s going to be Microsoft like documentation, or fabric documentation so to speak. So the way that they&#x27;ve done that with all the different parts of fabric anyway.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-809c-814e-de92c358c55b" class="">So yeah, that&#x27;s just, that&#x27;s gonna run in parallel because that documentation, standing that up is gonna be something that we&#x27;re gonna do perfectly in parallel with the whole implementation in general, so. Sorry, okay. I should have mentioned that at the beginning.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-80a3-8d83-d9484bacbdd6" class="">So that goes back to how do we layer in all of this R&amp;D stuff that Anna&#x27;s doing? And I apologize Anna, I don&#x27;t have all the details. So maybe you want to get into the details of what you&#x27;re doing and how we can... Get everything.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-80c9-831f-c1f8cf067b1f" class="">You&#x27;re turning.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-807f-8f1a-ff53c3407eb4" class="">The more I can get here, the more it helps me to better You know, plan some of the responses, some things you might need and how to, like Dominique says, maybe we think about how we bring that in or do we bring it in now and then change its source to be fabric when fabric&#x27;s set up. All of those questions come into play for me, so I&#x27;m sorry. Go ahead. Definitely, yeah. This is very exciting to me because I think currently as we&#x27;re kind of starting with the Citrine project, there&#x27;s maybe like a slightMisconception.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-80b3-bad3-e3f7e5cf0d2a" class="">That&#x27;s history is sort of intended to be like a database or it&#x27;s intended to be a place to store data, which is not really it&#x27;s intended purpose, right? So I think that these projects are really complimentary because the The issue that we&#x27;re kind of working on Right now, it&#x27;s that in order to feed data into Citrine so that it can do machine learning and modeling, the data is in so many different places.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-8037-823d-df1fa2668122" class="">Some of which I don&#x27;t have access to or it&#x27;s not clear where it is. So I think that the The goals are very complementary, right? I think of Citrinas as being a very kind of integral part of the R&amp;D. Um... Ecosystem, it&#x27;s important to have for how to pull together data but the data isn&#x27;t kind of living and being stored in the tree. Okay. So Citrine, my understanding is you guys are going to use that for doing your formulating and kind of changing and modifying but it won&#x27;t be thoughBoom.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-80df-8162-ff89e5fd7e1b" class="">system of record, if I&#x27;m understanding correctly. for, I&#x27;ll say a formula or specifications, but rather just a place where you&#x27;re doing your work and then and either going to turn chair and type it in or you&#x27;re going to send it. through another piece where we can automatically populate where you&#x27;re going to have a formula and that starts the system of record now at that point. Yeah, that&#x27;s a good explanation.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-8022-9973-fe5a2ccabc8a" class="">So, CITRAIN is intended to be kind of a tool that chemists and the R&amp;D team can use and It&#x27;s kind of like a place where Through the process of development, reforculating projects like that, the data kind of in the interim is stored in Citrine, but it&#x27;s not really intended to be like a repository for all our formulas or anything like that. Okay. So I guess mine is going down. I guess for me, one of my questions I might want to work with you closer on is I&#x27;ve gotten some requests for formulas or for the one I talked with Dominique yesterday is You wanted costing for some of the, like the cost workbench, I think.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-8019-9d9f-fc633c9fc34c" class="">I worked with Bradley to get it installed on his computer and he said you weren&#x27;t available right away and he would have to get it on yours. Did you, first of all, did you get it on yours? No, I haven&#x27;t heard from Brad about that, so I can try after this meeting. He sent me kind of instructions, but yeah. Let me take a look and see what I got. If you have time today, I can get mine yours too. Yeah, that&#x27;d be great.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-807d-b661-c85ef00ef3a1" class="">I&#x27;ve got 1030 open. Does that work for you? Yeah, that&#x27;d be great. Leave it in there real quick and we&#x27;ll get that knocked out. And then too, the other topic was, you know, get the cost and workbench, but then, I mean, the cost and workbench is used to do a one-off and stuff like that. How do we extract it into, Um... populate that data for you. The question I was starting to talk with Dominique is thatWell, I can get you a positive thing.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-80e6-a3de-f6398fcc3380" class="">That&#x27;s good. The concern I have is that costing constantly shifts and changes and so how can we keep that?</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-80bc-be93-c66d7a52a575" class="">and think for you.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-80c0-8cdc-da92da984ea0" class="">Definitely, and that&#x27;s also kind of a question I have. more largely about the train is it&#x27;s not really intended to be kind of like a real time Um... kind of like update real time, right? There&#x27;s this, in order to get data in, you have to manually upload these spreadsheets. So that&#x27;s kind of a larger question I have is how If it&#x27;s important to keep the costing information in Citrine and incorporate that into the R&amp;D process, how weKeep that current And how we kind of work with the train to get that.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-8034-8441-d9e39a94051a" class="">To have it regularly populated, that&#x27;s what I was bringing up, yeah. Okay. Dominique, sorry, you were starting to say something earlier? Sorry, I&#x27;m just trying to make sure that we know what is the next step here Do all of these wonderful data things. I&#x27;m not a data expert. You guys are. We can work you into the fold. Come on in the room. Okay, great. I&#x27;m always here by default. I just want to make sure that, you know, we&#x27;ve got this great resource, Ann, over in R&amp;D, and we as an organization are starting kind of to really embrace data and really get there.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-80d3-a18f-eda7d98ba7ae" class="">And we&#x27;ve got Steve, of course, and we&#x27;ve got, I know we&#x27;re using Telarico. I want to see with where we&#x27;re going to go. We all learn to sit train. Because I know to sit train is amazing. So far it&#x27;s looking awesome. But, you know, we&#x27;ve got, I think I&#x27;ve heard Steve use the term vector database, and I keep telling everyone it&#x27;s a little Star Wars-y for me. But all of these other databases, like, how are we going to make sure that we&#x27;re leveraging them, we&#x27;re putting them in a place that it&#x27;s used?</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-80ff-a775-e2ad7868d0d0" class="">I know that&#x27;s... I don&#x27;t wanna take it. and thunder, but we also need it. And how do we work together to make all that happen? I don&#x27;t personally have any idea what the next step would be. And I don&#x27;t know if you guys do. I don&#x27;t know if I know from that level, I mean, what the next step, I mean, I guess what I&#x27;m hearing, and your background comes in statistics, I&#x27;ve briefly seen some information, you know, tell me a little bit more about your background.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-80df-b2ea-c95349fb8783" class="">Yeah, definitely. So I just this past year graduated from University of Minnesota and I got a master&#x27;s degree in health data science. So you&#x27;re right that that degree, it was within The biostatistics department, so it focused on statistics as well as data science. So a little bit less on the sort of data engineering side of things and a little bit more heavily on analysis. So that&#x27;s kind of the background that I&#x27;m bringing in to this process.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-8013-b120-fd6afae32134" class="">Are you contract right now by chance? Yeah, yep.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-8052-b429-dd278b3ff2c0" class="">How long--When your contract stops, don&#x27;t you? No, that&#x27;s what I was gonna ask.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-8010-8bc6-c979d725d947" class="">Currently the end of February. Yeah, way too soon. What? That&#x27;s kind of why I was,Yeah, I can tell you where you&#x27;re going with that, I&#x27;m trying to figure out how it works.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-8065-a760-c5f2a19a11a4" class="">Like next month, February? Yes. Well... That&#x27;s not.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-80f6-9c80-e3882a69fa22" class="">focus on RID. I&#x27;m looking at this R&amp;D resource that I don&#x27;t think this organization can afford to lose.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-8059-b722-e42487bdeea0" class="">I mean, honestly, Patrick and I were touching on that when I was in town. I was like, I... I feel like Most people don&#x27;t really understand the scope of this fabric implementation. Like, in all seriousness, like this... to do this like end to end from start to finish across like All domains, it&#x27;s really like a five person full time job, like five full-time developers focusing just on this. So, Ah. Yeah, I feel like getting part-time People it&#x27;s like not gonna work Wait.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-807f-a905-df93dc19bbf0" class="">We just need to have some dedicated resources internally in terms of like helping where they can.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-80cf-a009-fdf89ce1afd8" class="">Not saying they have to do this full time, but like, Yeah, we can&#x27;t have people popping in and popping out. That is never going to work. Too much ramp time? Like, even now, it&#x27;s two months just to ramp up.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-806a-b658-e7e164632339" class="">Yeah, that&#x27;s what I was...</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-8031-ab3f-d22ba533dbe4" class="">And you mentioned Tallarico is one that we&#x27;ve identified for future down this and really the fabric also has been very much involved as well. So even so, I don&#x27;t disagree that this is probably gonna take. We know it&#x27;s going to take more resources than we have assigned to it right now. And to me, it&#x27;s also the specialty. Somebody who&#x27;s embedded in R&amp;D, I think, is going to be absolutely essential. This can&#x27;t be IT only to me.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-8061-96e3-d97a5f2b10c6" class="">I don&#x27;t disagree, especially meaning that we are a chemical manufacturing company. Exactly.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-8084-ad93-f595cd5e779b" class="">Having it only be IT people, the end result will not be anything that the business users willAgreed.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-80b0-9cd1-e6e0c66e0c89" class="">It would help for manufacturing with that. and maybe find out, but... Yeah, yeah, I think we&#x27;re all saying the same thing. We need to push forward as an organization. So we, I want to make sure we know next steps. So could be next steps is that we have a weekly touch point and talk about where are we with data and Patrick, I&#x27;m going to trust that you help me carry the torch on this and go straight to Mike and say, hey, we&#x27;ve got this resource, what can we do here?</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-80a3-8013-c8819e8fb5c7" class="">And talk to Jim Sincere. I think Jim Sincere would... The 100% would be 100% on board with this and would help drive.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-8089-baa4-ee642588d6a4" class="">Basically, in that meeting that we had with him, where him and I kind of went on a tangent, Ann was in that. That was actually the first time I had any interaction with her. with Anne and it seemed pretty clear that He would. He would be all for it. He wouldn&#x27;t really... be opposed to it.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-8027-8c16-c5684f66fd7d" class="">Should I set up a session with Jim? Where we can all kind of talk about where we&#x27;re seeing this I mean, if you think that would be beneficial, I just, as long as we have like a definitive, like, this is what we&#x27;re trying to accomplish by the end of the meeting, we should walk away with.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-80b0-b9da-c64e5bfacfbc" class="">these agreements or understanding like because right now if we don&#x27;t really have that I feel that we could go and The number of different tangents are down a lot of different roads, but still walk away without what we need. We just need to identify what we need from him.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-809a-be9c-ec374672f35b" class="">And I agree and I think that&#x27;s part of where I&#x27;m struggling is I know like this is like we&#x27;re trying to boil the ocean now. We need to understand what exactly are the next concrete steps that we can take for what outcome. Like my ultimate outcome is to have a data team that works together. Maybe not everybody full-time but everybody is on this project. and has input into that. But how do we get from where we are today to somebody who, our resource we&#x27;re gonna lose in a month, Okay.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-805a-95cf-ef815561f886" class="">For all intents and purposes to this awesome data team, how do we go from point A to point B?</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-80cf-ba8d-e762f77101d8" class="">Dominique&#x27;s pushing for a chief data officer role.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-8063-92c1-d34ecf0d86d5" class="">Damn. Wow, no, not me.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-80c1-8459-c741bde33929" class="">No, I was just saying, we need a data team. Just looking for a specific, dedicated data.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-8007-bce1-d9568dbe0345" class="">I agree, actually.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-80df-a4dd-cf6a50d79b8f" class="">But I didn&#x27;t think it was my place to...</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-8006-83a0-fd4af236cb38" class="">I&#x27;m all for it. Yeah. And I&#x27;m guessing you don&#x27;t have anything at this point lined up right now or maybe you are contemplating what the next step is if we don&#x27;t, for lack of another word, nab you up to keep you focused on this project. That&#x27;s my first question. I got a question for Steve too. Yeah, I would say that&#x27;s correct. Okay. Steve, we have a conversation with Mike. Maybe we talk about resources as well during that conversation.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-8019-91d8-c96303d7c5c7" class="">I mean, I just...</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-808f-8d97-f4d307f67703" class="">I&#x27;m I wasn&#x27;t implying that I don&#x27;t have what I need in order to...</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-802f-888c-ce1a5bb25292" class="">Like, do any...</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-8025-8a73-e68efbfbfeeb" class="">Oh, no, I think we know. Okay. I think we&#x27;ll kind of...</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-802b-bfa3-e41dea79b647" class="">No, no. You&#x27;re right, we need to have a concrete, I think that&#x27;s where I&#x27;m struggling in. We all need to. I&#x27;m just trying to get a good data. You&#x27;re right. I&#x27;m just pushing. The timing of when you decided to allow them to end your contract sucks. I will say that much. If I could get another... Tell Jim to extend it once and maybe we can definitely make it a little easier to make a transition.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-80c2-8438-cf4f24c8d771" class="">Oh, Jim is the one doing the negotiation?</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-8000-9128-c37afcc4ef08" class="">Thank you. Long time we&#x27;re talking about. How do we augment that? No. Keep her embedded and knowledgeable with You&#x27;re keen to have her be part of the data team and Yeah. Wait, wait. But her skill set in the chemistry Well, I am not a chemist. Normally a rocket scientist, so we&#x27;re all on the same page. But uh... So my skillset there would not be good. I&#x27;m glad you said that because I did too. I made it in teacher, that&#x27;s part of it, but that&#x27;s another discussion.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-80ed-ba66-cb5daee2c73f" class="">I thought it was fascinating, but I could get past the teacher. I love my teacher, and that poor guy was trying to help me out so much. And I still can&#x27;t. I think he gave me a 51 to say he&#x27;s supposed to get me to pass. Anyway.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-8030-9919-ecdc282ba581" class="">Is Robin somebody that we would need to include? I&#x27;m sorry, I don&#x27;t really know Robin&#x27;s, like... exact role, but like, is she somebody that we need to Include.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-8030-8efa-f71f7f884e86" class="">Well, she&#x27;s in the conversation we&#x27;re having with Steve here coming up here.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-80c5-8dfa-e5682b4475c1" class="">That&#x27;s what I was... I think that&#x27;s another topic we just had to do after talking about this.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-80b5-b4fc-e0fc06abe8c1" class="">I mean, I know what we&#x27;re talking about initially is talking about some of those initial things like what data domain do we go after, who are the stakeholders, what&#x27;s the next step of the meeting, but I think... Resources are gonna become issues fairly quickly especially as they&#x27;re ramping up faster and we have And here as a resource, I think now is the time to I think it better than that option. So Ann will be on site, I think, correct me if I&#x27;m wrong, on Thursday.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-80e4-bcbd-f4af7195e14e" class="">You&#x27;re going to be at the data center in the all-person train.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-80b6-8d8e-cbcfa36834cf" class="">So Ann will be... Well Steve&#x27;s going back up here too then, right? And you&#x27;re coming in as well?</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-8038-b661-db3acc1fdbb1" class="">In February? God, I know how cold it is there.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-80fc-8a2a-d07b57a54b4f" class="">You joking? I mean, what is it two?</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-80ed-8fa6-dd4420ccd7e9" class="">I&#x27;m dealing with three feet of snow here. I&#x27;m not going anywhere. I mean, it&#x27;s actually pretty cold here. It&#x27;s supposed to get like 45 today. Poor thing.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-8028-928a-c61393c38504" class="">Someone leave that guy.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-80fe-943c-c2ff605de564" class="">So maybe that would be the next step is to have a discussion that leads you guys meet in person with Ann on, and Jim will be on the site as well. So that would be, because I never want Jim to think we&#x27;re doing any kind of poaching, if anything, we&#x27;re trying to give him a really strong use case about Alex, because I know he wants Ann to stay as well. So this is, I think everybody&#x27;s... You lost me. We go.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-80a8-bdd1-cbc708839760" class="">leverage that mindset, I think it could also do as well too. Should I schedule then? I&#x27;ll let you guys handle any discussions on Thursday because I won&#x27;t be there, but should I schedule a quick touch point just the four of us and just say, okay, what really are our next steps in terms of data? Because no matter what happens, we&#x27;ve got Anne for another month at least, so let&#x27;s use the time wisely. Yeah, I would not be opposed to doing that.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-801a-be7f-e1fb6e9d5f79" class="">And I&#x27;m looking forward to one, I&#x27;m getting the costume with French talking a little bit one on one, but then also if you&#x27;re gonna be here on Thursday, from when to when? I&#x27;ll be there all day except from like 9 to 4. Where are you? Where are you, Ann?</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-8039-a050-f0b13b963257" class="">I&#x27;m in the Minneapolis facility.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-801f-b605-e28a61fba1dc" class="">Next time you come up here, you&#x27;re going to get to tour that facility as well. Dominique, have you toured some? Yeah.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-80c8-9f3c-d791ff58402f" class="">I didn&#x27;t accidentally walk in there?</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-8040-920a-f251f6f9391c" class="">I&#x27;m not traveling international borders with skill-to-o-toots. That&#x27;s not a thing that&#x27;s going to happen.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-801b-ba13-c9f4fc4b741d" class="">Do you have skill-to-o-o-toots, Steve? That&#x27;s a good point.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-8010-a2dd-c76b8b89eee7" class="">No, I just gotta go to... Gotta go buy some new ones, you know?</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-80d2-abab-d2d6e66be023" class="">We need to figure out next month&#x27;s trip as soon as possible by the way. Yeah, that&#x27;s part of the discussion that we have coming up here as well.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-80f6-a289-c38524d8261f" class="">Okay. Thanks, guys. Bye guys. Bye.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-8015-9073-d0642e9d6be4" class="">I am talking to myself on here.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-800e-9e0f-dce90691776e" class="">No, I can hear you. I was talking to myself. Mm-hmm.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-80bd-863a-fc249acb4a99" class="">Okay, let&#x27;s give Patrick, oh there he is, okay. All right. First up, UDS. How are things going? Good. So calm, so my place. Hmm. ATQ server required. The OVF reports have been converted to use the broad version. I&#x27;m still waiting to hear. If there are other reports anyone needs, any other sources that need to be changed before we move forward to disabling the current one. So it&#x27;s still in progress.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-806b-a298-f0726e4ee89a" class="">Customer service KPI. Before you go on the eCQ link server, there&#x27;s still that BI that you just stopped at. Did you get that one in the ticket too while we&#x27;re trying to address it? The ATQ? The Power BI? Oh, I did not update it on the ticket yet, but I can do that. Yeah, afterwards, just make sure you throw that in there so we get captured and then, yeah, sorry.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-8084-bd75-c8d97c286dad" class="">Oh, okay, I will. The bedding. Okay. Order accuracy I spoke with Michelle, about that, she...</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-80e4-a4a3-f42bb017a9b9" class="">Um... She has been a little busy and haven&#x27;t had time to work on that, but after I spoke with her, she did. Check it out and give some All the things she wants to be added to that DI. I will be starting work on it again. So we should probably have an update next week or two. So yeah, I have things that I need to work on on that. And then Through the order confirmation, we have a meeting today to go over what we have put together, so that one is still in progress too.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-8044-b00d-c52f026b8de9" class="">And then NPCLCI That one. That one, I did schedule A follow-up meeting to go over The reports the MP people use, so that meeting is set. And then I also have another meeting with the main accountant for MP. Who is Brad Carlson. So I will be meeting with him this Friday to just show him the BI and subsequently get his feedback.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-8073-bebf-e9e2bdcbbcb4" class="">And then, create I and J for NAC. That one is still waiting for review from the sales people.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-80cc-a782-e91e55b233cc" class="">So I&#x27;m working with Mandy on that. So that is also. something that&#x27;s going. So, they are all active. Okay, do you need help with pushing or driving anybody to get these things done?</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-800d-8066-ca25d705d968" class="">No, I am good.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-800c-9321-ea3d67deaf22" class="">Did I hear you correctly that Michelle is expanding the scope on 17? Yes. He has That, that part I steal. To confirm with her that she really wants that, what she mentioned, implemented. She was going to think over it and let me know if she wanted me to proceed with that. We&#x27;re still the 12th more than that. Okay. She still hasn&#x27;t responded. It&#x27;s been a week.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-8065-b2d2-d64f41942542" class="">I&#x27;m waiting with no, I thought I updated this yesterday. Well, maybe it&#x27;s the comments or maybe...</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-80c1-b26b-d2ef6afe0905" class="">Oh, that&#x27;s okay. That&#x27;s okay. As long as you have her from her, then that&#x27;s fine. And not if you forgot, whatever, that&#x27;s okay. I just want to make sure that she is getting in touch with you in a timely manner. Yes, he did respond. Okay, perfect.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-80d9-b5ce-db461bf90770" class="">Um... Okay, Jason. Oh. What do we, uh... What do we got? We wrapped up a few The zebra print still having some issues with Uh, Canada asks the S for diff and that should be all done.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-80c7-8a58-f74b43f71bc0" class="">Is it all done? Is there any other action on our part that we need to do?</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-802e-8e9c-fe15c3ccf833" class="">I mean, I think we were just waiting for approval from Tracy and we just had a meeting yesterday and she was talking about blogs, so...</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-80da-b5f6-dfd60c5512c1" class="">So we think this one is done? Yeah.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-80cd-b3a5-ce9a65a5ac4c" class="">Anything else going on? Uh... Yeah, we still got it. From NAC. Um... SDS clean up of some of the hazardous materials. And then it was the zebra label to try to Get the update. going so we can start switching stuff over.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-80fe-a567-e57e76c178ef" class="">There&#x27;s a couple also that I just had Omar put in related to the citrine extraction that we&#x27;ll be assigning them as well. Perfect. Okay, great. Carry forward as usual. Everything&#x27;s fine.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-80a4-a696-fe8551126049" class="">Um, okay.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-80e4-9139-d8a5c83aad14" class="">The backorder report is approved to put out. I got it yesterday. I just...</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-80cc-b0dd-fe7ac38662ae" class="">Didn&#x27;t get it in here yet, so I gotta Update the back order and move it out.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-804f-bb61-d7882b6ac681" class="">I&#x27;m going to talk to Felicia today because Telerico laid out the report and we put it out in the portal.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-8011-a9ee-ff714ec2a49d" class="">Um... Ciao.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-800b-9c93-d999a0d93b7c" class="">I think that I have done all the calculations and pieces I can do with the data available. for her report. I&#x27;m going to check with her today.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-80e3-9cc8-d03a6d86b89f" class="">I think I can close that one. Yes, those three are the next. development and You just put my things in the back lot from my sissay, so... I&#x27;m not. 100% ready to... go down that path yet, actually.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-80b3-9421-d5432ba2b4dc" class="">Oh no, that&#x27;s totally fine. I just wanted to make sure that we could see everything and that you could see everything in one place and accurately prioritize them based on whatever the ask is. Yeah, and trying to get rid of the rest of the little CIS-AIDS out of my CIS-AID box in case there&#x27;s some more that I might ask you to... Stand up for me. Sure. Okay. Anything, anybody that we need to chase down for you that&#x27;s gonna make your life a little easier?</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-8094-b5fe-f38135ad9d62" class="">Um...</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-80b4-925e-cb417aa3ee64" class="">No. Hey.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-8094-a1ad-c84be8f3e129" class="">That part&#x27;s okay right now.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-80f1-99c5-d193c0a2d11c" class="">It&#x27;s nothing chasing you into getting to.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-8050-b2d3-ef1eadb96710" class="">I know, I know. Not enough hours in a day. I am working on getting more hours. I&#x27;m joking. I don&#x27;t think that&#x27;s your thing. You&#x27;re like Groundhog Day. Exactly. Waking up and it&#x27;s always the same day.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-80d0-aaf5-c77c36aae84a" class="">It does feel like that sometimes. Okay, Matt.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-80e5-850c-fd2846ada546" class="">Oh, other man, sorry.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-80ba-9073-d45d3a5488c0" class="">I was just working on 77. Today and yesterday for Sarah. Working on various other things. For 54, I don&#x27;t. That That ticket is just for test. But I don&#x27;t know. I don&#x27;t really think we need to create another one for Parade. Uh, plural. Weird that they just created one for tests. Which ticket is that?</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-80cc-a893-ccd26a6cbf35" class="">54. Oh, she is gonna want this in production though. So maybe touch base with her.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-8068-80c5-f099be0542a2" class="">Yeah, I&#x27;ll present the comments she has to the letter. Okay.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-8023-8bff-c08e18ab2a8a" class="">It&#x27;s totally up to you. Do you want to make a new ticket for production? We can just clone this one.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-80a3-aed5-cf7e33dcae03" class="">Yeah, I got it. I&#x27;ll just call now.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-8069-a3df-e07456a8220f" class="">I would probably just keep it as a ticket that we&#x27;re moving from test abroad. I don&#x27;t think any of us bring one of that. I wouldn&#x27;t want to take it. That&#x27;s what I would say too. Yeah, just take tests out of the description. You got your whole history in there right there. I&#x27;ll remove this due date. That was there for me, by the way, not for anybody else. Okay. So that&#x27;s just so everybody&#x27;s aware that BOL has a lot of eyes on it right now.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-801e-8bb6-f46bf7b08aec" class="">And it is gonna go in, hopefully touch wood. It is going to go in end of week, so. Again, this means A lot of ice on it.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-808f-878d-f970c62c9880" class="">You just need to tell me that test looks good and push it in.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-80b6-bc79-daf97b5352da" class="">Do you need some feedback from Elena?</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-803e-a1ea-d01161ab6300" class="">Oh, yeah. Excuse me. I just need someone to tell me that yes, we should do it.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-80e9-985c-c0d3489738f1" class="">Let me just make sure that she, I know she&#x27;s really busy, so she might just have, you know, I can&#x27;t make sure. I think she&#x27;s meeting with the team leader today.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-804a-a1f7-ca1efeeb3520" class="">So she may not have-I think you mean data, not date, correct?</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-8024-ae2c-fe4d0a44baf1" class="">No, the date it should be pushed to production. Okay. So the date of the character, am I making sense? That could be me. I could be like having a moment. I wasn&#x27;t sure if you meant the date of the analogy. Can you confirm if the date that you also want pushed to production? That probably would be prepared. Okay. This is, this, this. Eta, should be, does that make more sense? Sure. Honestly, no it doesn&#x27;t, because my brain is really slow.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-80b7-82b6-e93f97b188f1" class="">No, it does. It&#x27;s on all the paper and trying to figure out... No, no, my brain is like really... Please do pick on me today. My brain is really slow.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-80e6-a036-cbebd7c13e39" class="">Okay, any other questions? Item&#x27;s not free. Hello?</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-8056-afe3-e43793110c87" class="">And cut out. All right. Um... Let&#x27;s go down quick. So the Sharr validation is kind of on hold with Rachel being out.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-8047-b49d-fe2da9012137" class="">She&#x27;s another key resource and main stakeholder in that one.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-80bf-95e9-dac490fb2c44" class="">She&#x27;s back. Is she back now? I thought she commented on it sometime. Yeah.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-8076-b074-f76c9c17aaf9" class="">Back.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-8060-b56d-d5236037b9b9" class="">Maybe not full capacity.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-80da-8a20-d488c3697f46" class="">I don&#x27;t think it&#x27;s full capacity. It won&#x27;t be full capacity until mid-February. Yeah.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-80b2-99ac-e6f45d36a667" class="">All right.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-8053-8a7b-e3c20766893a" class="">Sorry, it&#x27;s bouncing around on me. This is really annoying. Sorry. That&#x27;s no problem.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-80a3-a1ac-cb41fb15b13b" class="">So logistics dashboard, getting Mr. Francis up to speed on some of that. I think he&#x27;s made good progress.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-8055-b79f-d5c231c6e3ec" class="">We walked through an example yesterday, which I think should clear a lot of the confusion up and I expect that to start ramping up here. I know we have a meeting on it later too so we can talk more about it.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-8011-be72-f0b1b422037b" class="">Then the price support app, the The application itself is going really well. I&#x27;m working with Teal.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-8070-ad1a-f6349b317da8" class="">I just put a ticket in yesterday. I need a wildcard cert for the HTTPS site and what&#x27;s happening is when I published it, It wants a secure redirect site for the Entra ID and we don&#x27;t have one yet. So I&#x27;m working with him to try to get that. Part of your published but the application itself on my dev machine is working as expected There&#x27;s a lot of updates I put comments in there on everything that&#x27;s been being worked on with that, but that is one I don&#x27;t want to call it a blocker, but that&#x27;s something that&#x27;s...</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-80b8-9341-c589057d4e89" class="">stopping that from moving right now. So I&#x27;m working with them on that. which relates to the one right underneath of that, the Entrez ID. Essentially that&#x27;s the new Microsoft modern way to authenticate applications to make sure that they can just do the one click install them to have a separate password and all that kind of stuff. So that&#x27;s why we&#x27;re going that route. It&#x27;s the most secure way to do it.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-8056-98e7-f905842324f6" class="">Uh...</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-807e-86f7-dad8f2d3a9d4" class="">Yesterday I think we talked about mass substitution.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-80e7-98eb-f2761eb9bc38" class="">Yeah, I think we can close this one.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-8028-8de0-c022a4a7f385" class="">Yeah, yeah. Let me close that one and the one underneath that because that was this morning.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-80f4-b5aa-f02fb3dc8445" class="">For now, it&#x27;s assigned to me because I&#x27;m still trying to gather, I just messaged, Suresh, I got what I need to get the pieces for Gary so we can get which ones I need to focus on. Okay, got it. So let me just add that to the comment. Uh, sign to Patrick. That&#x27;s right. You get the list from Suresh to pass on to the Am. Okay, and... This one, did you just say this one could be closed?</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-809a-b896-de37d4309db6" class="">Yes, this morning we jumped on with Adobe O Resource, Lori and I, and ran that update in. We were actually able to open the MEC. Francis, I should follow up with you after this. You were able to open the MEC. management page or whatever we call that, that&#x27;s what was freezing up. I think we&#x27;re in good shape with that, so I think we can close it if there&#x27;s any further follow-up. We&#x27;ll just reopen the ticket or add a new one.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-801d-a452-fa477fbfb4ae" class="">Okay, Lori is saying it&#x27;s continuing to time out, but it&#x27;s not a concern, we still want to close it.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-8029-8e6d-d3fe609bb2ab" class="">I just stopped down there. She just followed up a little bit ago and said she was able to get in. We can... Yeah, honestly we can leave it open for now. I don&#x27;t think we&#x27;re in a rush to close it out. Kind of. Maybe still kind of an ongoing thing. And then the other big thing is all the Fort Wright blood and stuff. CyberTools recently wanted to come on site to serve I gotta figure out how I&#x27;m gonna handle that, &#x27;cause, um...</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-80f8-9aee-e80dd9d74c8f" class="">Not necessarily, but we&#x27;re all collaborating on this together. So I&#x27;m trying to figure out how to best approach that. But that&#x27;s the other big thing I play right now is that All those things that came out of the Fort Wright blend.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-80f7-8eba-e773db55adb1" class="">That&#x27;s not officially a project, though, yet, is it?</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-8053-973f-da62dfda9b7f" class="">Yeah, poor red blind doesn&#x27;t realize that&#x27;s in place. Yeah. Oh, it is in place. Yeah, that one&#x27;s not. That&#x27;s a... engineering whole T project, but we&#x27;re heavily involved with what we have been for last five or six years. Yeah, so Cybertroll&#x27;s reaching out. They want me to come on site there and try to figure out what exactly they&#x27;re trying to do. Oh. All right, uh, Piper.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-8086-bf0e-d8bc9bfea650" class="">I have not made much change on these here. Like I said, I&#x27;ve just been trying to chase down this math substitution and discussion with Matt on that. And last week was... Normally busy with the and the stuff and will probably continue to be. So I&#x27;m still playing catch up. Oh And Steve, you are also a board guy these days.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-8019-88e3-d71888da1e1b" class="">I&#x27;m bored guy. Sorry. Totally bored. Nothing to do. So, oh, got it. The, I&#x27;m basically confused. Consolidating and processing all of the meetings and transcripts and all the stuff from last week from the on-site visit. Almost finished with that, but then the main focus of this week is Working with Udius and whoever else I basically need to pull in on an as-needed basis to stand up the trial capacity for fabric and Hopefully Get a decision from Mike and other stakeholders exactly what domain/department/ Internal focus we&#x27;re going to start with, whether it&#x27;s finance or MES or what have you.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-80a2-a22c-f2a0a6351818" class="">And then also work between Udius and Carrie and whoever else wants to be included. hopefully getting a foundational structure of how we want to basically organize and architect the domains in relation to fabric and All that other stuff that we didn&#x27;t really get to finish last week during that long meeting. But overall, I just wanted to say Thanks to everybody that, you know, attended and was helping move the conversation along.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-8034-83a8-c17e97ad8cce" class="">So thank you. But, um, yeah. I think that&#x27;s about it. Don&#x27;t worry. Reborn.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-80a5-a13c-e48962478842" class="">Anybody have any Like things that you need changed, anything you need chased around, anything that we can do to make your life easier. Information that you need on a more regular basis, less information, totally up to you. If things are just fine, you have no comments right now, fine, I&#x27;ll ask again next week. I was actually about to ask about that if I should just go in and create the tickets for the stuff that I&#x27;m working on in here.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-804a-944b-f5027f342081" class="">Absolutely. Okay. So you actually have more than one board.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-80d8-8ad4-dfff3fbb7723" class="">So you can either put it here. It&#x27;s totally up to you guys where you want it. I also created you your own where&#x27;s your board.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-80db-9de8-cb0a2db9478d" class="">You have a board.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-8074-9967-e763eda4e597" class="">I can set it up so that it basically... Ah, here it is. So it replicates... things across both boards, that&#x27;s not a problem.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-80d2-84f3-d84cab583673" class="">I&#x27;m pretty sure I made you a, uh, admin of this space.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-80a9-8d47-c112f9bf2625" class="">Yep, okay, that&#x27;s what I thought.</p></div><div style="display:contents" dir="auto"><p id="2f556320-92ca-8075-9ccc-de951069e3b9" class="">So, uh, Let me just make absolutely sure. Okay, so you should be good to go. If there&#x27;s anything else you want, Okay. Oh! Alright, thanks everyone. Have a great rest of the day. Thanks guys. -</p></div></div></div></div></article><span class="sans" style="font-size:14px;padding-top:2em"></span></body></html>

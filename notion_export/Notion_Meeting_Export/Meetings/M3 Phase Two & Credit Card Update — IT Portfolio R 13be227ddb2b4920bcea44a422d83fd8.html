@@ -1,0 +1,743 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>M3 Phase Two &amp; Credit Card Update — IT Portfolio Review — 2026-01-16</title><style>
+/* cspell:disable-file */
+/* webkit printing magic: print all background colors */
+html {
+	-webkit-print-color-adjust: exact;
+}
+* {
+	box-sizing: border-box;
+	-webkit-print-color-adjust: exact;
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+}
+@media only screen {
+	body {
+		margin: 2em auto;
+		max-width: 900px;
+		color: rgb(55, 53, 47);
+	}
+}
+
+body {
+	line-height: 1.5;
+	white-space: pre-wrap;
+}
+
+a,
+a.visited {
+	color: inherit;
+	text-decoration: underline;
+}
+
+.pdf-relative-link-path {
+	font-size: 80%;
+	color: #444;
+}
+
+h1,
+h2,
+h3 {
+	letter-spacing: -0.01em;
+	line-height: 1.2;
+	font-weight: 600;
+	margin-bottom: 0;
+}
+
+/* Override strong tags inside headings to maintain consistent weight */
+h1 strong,
+h2 strong,
+h3 strong {
+	font-weight: 600;
+}
+
+.page-title {
+	font-size: 2.5rem;
+	font-weight: 700;
+	margin-top: 0;
+	margin-bottom: 0.75em;
+}
+
+h1 {
+	font-size: 1.875rem;
+	margin-top: 1.875rem;
+}
+
+h2 {
+	font-size: 1.5rem;
+	margin-top: 1.5rem;
+}
+
+h3 {
+	font-size: 1.25rem;
+	margin-top: 1.25rem;
+}
+
+.source {
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	padding: 1.5em;
+	word-break: break-all;
+}
+
+.callout {
+	border-radius: 10px;
+	padding: 1rem;
+}
+
+figure {
+	margin: 1.25em 0;
+	page-break-inside: avoid;
+}
+
+figcaption {
+	opacity: 0.5;
+	font-size: 85%;
+	margin-top: 0.5em;
+}
+
+mark {
+	background-color: transparent;
+}
+
+.indented {
+	padding-left: 1.5em;
+}
+
+hr {
+	background: transparent;
+	display: block;
+	width: 100%;
+	height: 1px;
+	visibility: visible;
+	border: none;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+img {
+	max-width: 100%;
+}
+
+@media only print {
+	img {
+		max-height: 100vh;
+		object-fit: contain;
+	}
+
+	table.collection-content {
+		width: 100%;
+		table-layout: fixed;
+	}
+
+	table.collection-content th,
+	table.collection-content td {
+		overflow-wrap: anywhere;
+	}
+
+	table.collection-content td > .user,
+	table.collection-content td > time {
+		white-space: pre-wrap;
+	}
+}
+
+@page {
+	margin: 1in;
+}
+
+.collection-content-wrapper {
+	overflow-x: auto;
+}
+
+@media only print {
+	.collection-content-wrapper {
+		overflow-x: visible;
+	}
+}
+
+.collection-content {
+	font-size: 0.875rem;
+}
+
+.collection-content td {
+	white-space: pre-wrap;
+	word-break: break-word;
+}
+
+.column-list {
+	display: flex;
+	gap: 46px;
+}
+
+.column {
+	min-width: 0;
+	overflow: hidden;
+}
+
+.column > *:first-child {
+	margin-top: 0;
+}
+
+.table_of_contents-item {
+	display: block;
+	font-size: 0.875rem;
+	line-height: 1.3;
+	padding: 0.125rem;
+}
+
+.table_of_contents-indent-1 {
+	margin-left: 1.5rem;
+}
+
+.table_of_contents-indent-2 {
+	margin-left: 3rem;
+}
+
+.table_of_contents-indent-3 {
+	margin-left: 4.5rem;
+}
+
+.table_of_contents-link {
+	text-decoration: none;
+	opacity: 0.7;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.18);
+}
+
+table,
+th,
+td {
+	border: 1px solid rgba(55, 53, 47, 0.09);
+	border-collapse: collapse;
+}
+
+table {
+	border-left: none;
+	border-right: none;
+}
+
+th,
+td {
+	font-weight: normal;
+	padding: 0.25em 0.5em;
+	line-height: 1.5;
+	min-height: 1.5em;
+	text-align: left;
+}
+
+th {
+	color: rgba(55, 53, 47, 0.6);
+}
+
+ol,
+ul {
+	margin: 0;
+	margin-block-start: 0.6em;
+	margin-block-end: 0.6em;
+}
+
+li > ol:first-child,
+li > ul:first-child {
+	margin-block-start: 0.6em;
+}
+
+ul > li {
+	list-style: disc;
+}
+
+ul.to-do-list {
+	padding-inline-start: 0;
+}
+
+ul.to-do-list > li {
+	list-style: none;
+}
+
+.to-do-children-checked {
+	text-decoration: line-through;
+	opacity: 0.375;
+}
+
+ul.toggle > li {
+	list-style: none;
+}
+
+ul {
+	padding-inline-start: 1.7em;
+}
+
+ul > li {
+	padding-left: 0.1em;
+}
+
+ol {
+	padding-inline-start: 1.6em;
+}
+
+ol.numbered-list.numbered-list-digits-2 {
+	padding-inline-start: 2em;
+}
+
+ol.numbered-list.numbered-list-digits-3plus {
+	padding-inline-start: 2.4em;
+}
+
+ol > li {
+	padding-left: 0.2em;
+}
+
+.mono ol {
+	padding-inline-start: 2em;
+}
+
+.mono ol > li {
+	text-indent: -0.4em;
+}
+
+.toggle {
+	padding-inline-start: 0em;
+	list-style-type: none;
+}
+
+/* Indent toggle children */
+.toggle > li > details {
+	padding-left: 1.7em;
+}
+
+.toggle > li > details > summary {
+	margin-left: -1.1em;
+}
+
+.selected-value {
+	display: inline-block;
+	padding: 0 0.5em;
+	background: rgba(206, 205, 202, 0.5);
+	border-radius: 3px;
+	margin-right: 0.5em;
+	margin-top: 0.3em;
+	margin-bottom: 0.3em;
+	white-space: nowrap;
+}
+
+.collection-title {
+	display: inline-block;
+	margin-right: 1em;
+}
+
+.page-description {
+	margin-bottom: 2em;
+}
+
+.simple-table {
+	margin-top: 1em;
+	font-size: 0.875rem;
+	empty-cells: show;
+}
+.simple-table td {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table th {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table-header-color {
+	background: rgb(247, 246, 243);
+	color: black;
+}
+.simple-table-header {
+	font-weight: 500;
+}
+
+time {
+	opacity: 0.5;
+}
+
+.icon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	max-width: 1.2em;
+	max-height: 1.2em;
+	text-decoration: none;
+	vertical-align: text-bottom;
+	margin-right: 0.5em;
+}
+
+img.icon {
+	border-radius: 3px;
+}
+
+.callout img.notion-static-icon {
+	width: 1em;
+	height: 1em;
+}
+
+.callout p {
+	margin: 0;
+}
+
+.callout h1,
+.callout h2,
+.callout h3 {
+	margin: 0 0 0.6rem;
+}
+
+.user-icon {
+	width: 1.5em;
+	height: 1.5em;
+	border-radius: 100%;
+	margin-right: 0.5rem;
+}
+
+.user-icon-inner {
+	font-size: 0.8em;
+}
+
+.text-icon {
+	border: 1px solid #000;
+	text-align: center;
+}
+
+.page-cover-image {
+	display: block;
+	object-fit: cover;
+	width: 100%;
+	max-height: 30vh;
+}
+
+.page-header-icon {
+	font-size: 3rem;
+	margin-bottom: 1rem;
+}
+
+.page-header-icon-with-cover {
+	margin-top: -0.72em;
+	margin-left: 0.07em;
+}
+
+.page-header-icon img {
+	border-radius: 3px;
+}
+
+.link-to-page {
+	margin: 1em 0;
+	padding: 0;
+	border: none;
+	font-weight: 500;
+}
+
+p > .user {
+	opacity: 0.5;
+}
+
+td > .user,
+td > time {
+	white-space: nowrap;
+}
+
+input[type="checkbox"] {
+	transform: scale(1.5);
+	margin-right: 0.6em;
+	vertical-align: middle;
+}
+
+p {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+.image {
+	border: none;
+	margin: 1.5em 0;
+	padding: 0;
+	border-radius: 0;
+	text-align: center;
+}
+
+.code,
+code {
+	background: rgba(135, 131, 120, 0.15);
+	border-radius: 3px;
+	padding: 0.2em 0.4em;
+	border-radius: 3px;
+	font-size: 85%;
+	tab-size: 2;
+}
+
+code {
+	color: #eb5757;
+}
+
+.code {
+	padding: 1.5em 1em;
+}
+
+.code-wrap {
+	white-space: pre-wrap;
+	word-break: break-all;
+}
+
+.code > code {
+	background: none;
+	padding: 0;
+	font-size: 100%;
+	color: inherit;
+}
+
+blockquote {
+	font-size: 1em;
+	margin: 1em 0;
+	padding-left: 1em;
+	border-left: 3px solid rgb(55, 53, 47);
+}
+
+blockquote.quote-large {
+	font-size: 1.25em;
+}
+
+.bookmark {
+	text-decoration: none;
+	max-height: 8em;
+	padding: 0;
+	display: flex;
+	width: 100%;
+	align-items: stretch;
+}
+
+.bookmark-title {
+	font-size: 0.85em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	height: 1.75em;
+	white-space: nowrap;
+}
+
+.bookmark-text {
+	display: flex;
+	flex-direction: column;
+}
+
+.bookmark-info {
+	flex: 4 1 180px;
+	padding: 12px 14px 14px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.bookmark-image {
+	width: 33%;
+	flex: 1 1 180px;
+	display: block;
+	position: relative;
+	object-fit: cover;
+	border-radius: 1px;
+}
+
+.bookmark-description {
+	color: rgba(55, 53, 47, 0.6);
+	font-size: 0.75em;
+	overflow: hidden;
+	max-height: 4.5em;
+	word-break: break-word;
+}
+
+.bookmark-href {
+	font-size: 0.75em;
+	margin-top: 0.25em;
+}
+
+.sans { font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol"; }
+.code { font-family: "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace; }
+.serif { font-family: Lyon-Text, Georgia, ui-serif, serif; }
+.mono { font-family: iawriter-mono, Nitti, Menlo, Courier, monospace; }
+.pdf .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK JP'; }
+.pdf:lang(zh-CN) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK SC'; }
+.pdf:lang(zh-TW) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK TC'; }
+.pdf:lang(ko-KR) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK KR'; }
+.pdf .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.pdf .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK JP'; }
+.pdf:lang(zh-CN) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK SC'; }
+.pdf:lang(zh-TW) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK TC'; }
+.pdf:lang(ko-KR) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK KR'; }
+.pdf .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.highlight-default {
+	color: rgba(44, 44, 43, 1);
+}
+.highlight-gray {
+	color: rgba(125, 122, 117, 1);
+	fill: rgba(125, 122, 117, 1);
+}
+.highlight-brown {
+	color: rgba(159, 118, 90, 1);
+	fill: rgba(159, 118, 90, 1);
+}
+.highlight-orange {
+	color: rgba(210, 123, 45, 1);
+	fill: rgba(210, 123, 45, 1);
+}
+.highlight-yellow {
+	color: rgba(203, 148, 52, 1);
+	fill: rgba(203, 148, 52, 1);
+}
+.highlight-teal {
+	color: rgba(80, 148, 110, 1);
+	fill: rgba(80, 148, 110, 1);
+}
+.highlight-blue {
+	color: rgba(56, 125, 201, 1);
+	fill: rgba(56, 125, 201, 1);
+}
+.highlight-purple {
+	color: rgba(154, 107, 180, 1);
+	fill: rgba(154, 107, 180, 1);
+}
+.highlight-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.highlight-red {
+	color: rgba(207, 81, 72, 1);
+	fill: rgba(207, 81, 72, 1);
+}
+.highlight-default_background {
+	color: rgba(44, 44, 43, 1);
+}
+.highlight-gray_background {
+	background: rgba(42, 28, 0, 0.07);
+}
+.highlight-brown_background {
+	background: rgba(139, 46, 0, 0.086);
+}
+.highlight-orange_background {
+	background: rgba(224, 101, 1, 0.129);
+}
+.highlight-yellow_background {
+	background: rgba(211, 168, 0, 0.137);
+}
+.highlight-teal_background {
+	background: rgba(0, 100, 45, 0.09);
+}
+.highlight-blue_background {
+	background: rgba(0, 124, 215, 0.094);
+}
+.highlight-purple_background {
+	background: rgba(102, 0, 178, 0.078);
+}
+.highlight-pink_background {
+	background: rgba(197, 0, 93, 0.086);
+}
+.highlight-red_background {
+	background: rgba(223, 22, 0, 0.094);
+}
+.block-color-default {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray {
+	color: rgba(125, 122, 117, 1);
+	fill: rgba(125, 122, 117, 1);
+}
+.block-color-brown {
+	color: rgba(159, 118, 90, 1);
+	fill: rgba(159, 118, 90, 1);
+}
+.block-color-orange {
+	color: rgba(210, 123, 45, 1);
+	fill: rgba(210, 123, 45, 1);
+}
+.block-color-yellow {
+	color: rgba(203, 148, 52, 1);
+	fill: rgba(203, 148, 52, 1);
+}
+.block-color-teal {
+	color: rgba(80, 148, 110, 1);
+	fill: rgba(80, 148, 110, 1);
+}
+.block-color-blue {
+	color: rgba(56, 125, 201, 1);
+	fill: rgba(56, 125, 201, 1);
+}
+.block-color-purple {
+	color: rgba(154, 107, 180, 1);
+	fill: rgba(154, 107, 180, 1);
+}
+.block-color-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.block-color-red {
+	color: rgba(207, 81, 72, 1);
+	fill: rgba(207, 81, 72, 1);
+}
+.block-color-default_background {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray_background {
+	background: rgba(240, 239, 237, 1);
+}
+.block-color-brown_background {
+	background: rgba(245, 237, 233, 1);
+}
+.block-color-orange_background {
+	background: rgba(251, 235, 222, 1);
+}
+.block-color-yellow_background {
+	background: rgba(249, 243, 220, 1);
+}
+.block-color-teal_background {
+	background: rgba(232, 241, 236, 1);
+}
+.block-color-blue_background {
+	background: rgba(229, 242, 252, 1);
+}
+.block-color-purple_background {
+	background: rgba(243, 235, 249, 1);
+}
+.block-color-pink_background {
+	background: rgba(250, 233, 241, 1);
+}
+.block-color-red_background {
+	background: rgba(252, 233, 231, 1);
+}
+.select-value-color-default { background-color: rgba(42, 28, 0, 0.07); }
+.select-value-color-gray { background-color: rgba(28, 19, 1, 0.11); }
+.select-value-color-brown { background-color: rgba(127, 51, 0, 0.156); }
+.select-value-color-orange { background-color: rgba(196, 88, 0, 0.203); }
+.select-value-color-yellow { background-color: rgba(209, 156, 0, 0.282); }
+.select-value-color-green { background-color: rgba(0, 96, 38, 0.156); }
+.select-value-color-blue { background-color: rgba(0, 118, 217, 0.203); }
+.select-value-color-purple { background-color: rgba(92, 0, 163, 0.141); }
+.select-value-color-pink { background-color: rgba(183, 0, 78, 0.152); }
+.select-value-color-red { background-color: rgba(206, 24, 0, 0.164); }
+
+.checkbox {
+	display: inline-flex;
+	vertical-align: text-bottom;
+	width: 16;
+	height: 16;
+	background-size: 16px;
+	margin-left: 2px;
+	margin-right: 5px;
+}
+
+.checkbox-on {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20width%3D%2216%22%20height%3D%2216%22%20fill%3D%22%2358A9D7%22%2F%3E%0A%3Cpath%20d%3D%22M6.71429%2012.2852L14%204.9995L12.7143%203.71436L6.71429%209.71378L3.28571%206.2831L2%207.57092L6.71429%2012.2852Z%22%20fill%3D%22white%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+
+.checkbox-off {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20x%3D%220.75%22%20y%3D%220.75%22%20width%3D%2214.5%22%20height%3D%2214.5%22%20fill%3D%22white%22%20stroke%3D%22%2336352F%22%20stroke-width%3D%221.5%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+	
+</style></head><body><article id="13be227d-db2b-4920-bcea-44a422d83fd8" class="page sans"><header><div class="page-header-icon undefined"><span class="icon">📊</span></div><h1 class="page-title" dir="auto">M3 Phase Two &amp; Credit Card Update — IT Portfolio Review — 2026-01-16</h1><p class="page-description" dir="auto"></p><table class="properties"><tbody><tr class="property-row property-row-status"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/burst_gray.svg" style="width:14px;height:14px;display:block"/></span>Processing</th><td><span class="status-value select-value-color-green"><div class="status-dot status-dot-color-green"></div>Processed</span></td></tr><tr class="property-row property-row-text"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/description_gray.svg" style="width:14px;height:14px;display:block"/></span>Agenda</th><td>IT Portfolio Review: M3 Phase 2 status (3 stories/27pts completed, awaiting Anne&#x27;s CR approval), Credit Card Integration (waiting on SAL/SLA), Factory Track (requirements gathering, scanners shipping), Production Scheduling (Wipro walkthrough done), JPMC Phase 2 (integration testing), DOL Invoicing (QA finishing, UAT next week), AI for R&amp;D (2 major projects, training Jan 22 &amp; 29), App Infrastructure (legal review of MSA/DPA), AD Cleanup (object cleanup Monday), Status Reporting template rollout, Steve on-site visit next week</td></tr><tr class="property-row property-row-date"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/calendar_gray.svg" style="width:14px;height:14px;display:block"/></span>Date</th><td><time>January 16, 2026</time></td></tr><tr class="property-row property-row-multi_select"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/list_gray.svg" style="width:14px;height:14px;display:block"/></span>Attendees</th><td><span class="selected-value select-value-color-pink">Internal</span></td></tr><tr class="property-row property-row-select"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/arrow-circle-down_gray.svg" style="width:14px;height:14px;display:block"/></span>Meeting Type</th><td><span class="selected-value select-value-color-orange">Team Meeting</span></td></tr><tr class="property-row property-row-person"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/friends_gray.svg" style="width:14px;height:14px;display:block"/></span>Organizer</th><td><span class="user"><span class="icon text-icon user-icon"><span class="user-icon-inner">P</span></span>Patrick Stiller</span></td></tr><tr class="property-row property-row-select"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/arrow-circle-down_gray.svg" style="width:14px;height:14px;display:block"/></span>Priority</th><td><span class="selected-value select-value-color-red">High</span></td></tr><tr class="property-row property-row-checkbox"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/checkmark-square_gray.svg" style="width:14px;height:14px;display:block"/></span>Has Cluely Transcript</th><td><div class="checkbox checkbox-on"></div></td></tr><tr class="property-row property-row-checkbox"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/checkmark-square_gray.svg" style="width:14px;height:14px;display:block"/></span>Has Final Transcript</th><td><div class="checkbox checkbox-on"></div></td></tr><tr class="property-row property-row-select"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/arrow-circle-down_gray.svg" style="width:14px;height:14px;display:block"/></span>Status</th><td><span class="selected-value select-value-color-brown">Completed</span></td></tr><tr class="property-row property-row-checkbox"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/checkmark-square_gray.svg" style="width:14px;height:14px;display:block"/></span>Has Notion Transcript</th><td><div class="checkbox checkbox-off"></div></td></tr><tr class="property-row property-row-checkbox"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/checkmark-square_gray.svg" style="width:14px;height:14px;display:block"/></span>Has Teams Transcript</th><td><div class="checkbox checkbox-off"></div></td></tr><tr class="property-row property-row-checkbox"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/checkmark-square_gray.svg" style="width:14px;height:14px;display:block"/></span>Merged to Feed</th><td><div class="checkbox checkbox-on"></div></td></tr></tbody></table></header><div class="page-body"><div style="display:contents" dir="ltr"><figure class="block-color-purple_background callout" style="white-space:pre-wrap;display:flex" id="1c157e48-7d46-4148-a950-80caf35b3b88"><div style="font-size:1.5em"><span class="icon">🎯</span></div><div style="width:100%"><div style="display:contents" dir="auto"><p id="cfee181e-ef37-40c7-80ef-8a3efb81d65f" class=""><strong>M3 Phase Two &amp; Credit Card Update — IT Portfolio Review</strong></p></div><div style="display:contents" dir="auto"><p id="9077c642-69d6-4f34-b7f4-2156ed0ba773" class=""><strong>Date:</strong> Friday, January 16, 2026</p></div><div style="display:contents" dir="auto"><p id="4892f04a-6069-4e89-a34d-6088b4df43cf" class=""><strong>Purpose:</strong> Weekly IT project portfolio status review covering all active initiatives</p></div><div style="display:contents" dir="auto"><p id="f9ac2080-adc4-4362-9da8-cb19f6f6ec67" class=""><strong>Attendees:</strong> Steve, Mike Spencer, Dominique, Elena, Brenda Lins, Connor, Matt Francis, and IT team</p></div></div></figure></div><div style="display:contents" dir="auto"><hr id="1d1bcb1f-38b6-429f-87ee-5109be51a967"/></div><div style="display:contents" dir="auto"><h2 id="167f3fef-a4fc-401a-8d2a-e2b4caba6e6e" class="">📝 Summary</h2></div><div style="display:contents" dir="ltr"><figure class="block-color-blue_background callout" style="white-space:pre-wrap;display:flex" id="a7ecd297-dfb1-4c74-aeec-c0d078cc6c7c"><div style="font-size:1.5em"><span class="icon">💡</span></div><div style="width:100%"><div style="display:contents" dir="auto"><p id="f73e85db-435d-4bb6-899a-4cc242861ea5" class=""><strong>Key Outcomes:</strong> M3 Phase 2 remains at risk (red) pending Anne&#x27;s CR approval; Credit Card Integration waiting on SAL/SLA; Factory Track scanners shipping Friday; AI for R&amp;D training scheduled Jan 22 (remote) and Jan 29 (on-site); Weekly status reporting template introduced for all project leads.</p></div></div></figure></div><div style="display:contents" dir="auto"><hr id="8bf7b884-9539-43e5-af27-413a0ca9c951"/></div><div style="display:contents" dir="auto"><h2 id="69de6c9f-db13-4b07-8d5f-3bc6ca77ccd6" class="">📊 Project Status Updates</h2></div><div style="display:contents" dir="auto"><h3 id="75f0a9a4-0f75-4ff0-b056-3b08f33a6ec7" class="">M3 Phase 2 Enhancements</h3></div><div style="display:contents" dir="auto"><ul id="a8cbaf80-ba89-45cd-a95e-3629b6644d48" class="bulleted-list"><li style="list-style-type:disc"><code>Fact:</code> Completed <strong>3 stories (27 story points)</strong> as of end of day yesterday</li></ul></div><div style="display:contents" dir="auto"><ul id="4d8e20fb-60f2-4acd-ac1d-9b57fa693a0c" class="bulleted-list"><li style="list-style-type:disc"><code>Risk:</code> Schedule remains <strong>at risk (red)</strong> — &quot;I don&#x27;t think we&#x27;re ever not going to be in red on this one&quot;</li></ul></div><div style="display:contents" dir="auto"><ul id="7c923d6c-8576-469b-b0aa-4ca3652ad712" class="bulleted-list"><li style="list-style-type:disc"><code>Risk:</code> Still awaiting Anne&#x27;s sign-off on no-cost CR with firm end date</li></ul></div><div style="display:contents" dir="auto"><ul id="eabcc113-4793-4df0-9ede-e6af8332cad3" class="bulleted-list"><li style="list-style-type:disc"><code>Fact:</code> Environment refreshes have started; team planning regular cadence (meeting Monday)</li></ul></div><div style="display:contents" dir="auto"><ul id="be39df9b-bace-4dd3-af87-970b2f891eaa" class="bulleted-list"><li style="list-style-type:disc"><code>Next step:</code> Follow up with Anne on CR approval and end date</li></ul></div><div style="display:contents" dir="auto"><h3 id="c621518f-e822-4d30-85fc-95831b550e10" class="">Credit Card Integration (Taco Truck)</h3></div><div style="display:contents" dir="auto"><ul id="af04ce5a-e261-4fee-a3eb-543e3919ca6e" class="bulleted-list"><li style="list-style-type:disc"><code>Fact:</code> Waiting on SAL (or SLA) to set timeline</li></ul></div><div style="display:contents" dir="auto"><ul id="310d7520-c4b2-47c1-9819-d440be199967" class="bulleted-list"><li style="list-style-type:disc"><code>Fact:</code> Steve and Mike are primary owners</li></ul></div><div style="display:contents" dir="auto"><ul id="8f9a2081-5ada-46a1-a543-7e2e44f0b9f0" class="bulleted-list"><li style="list-style-type:disc"><code>Risk:</code> No timelines yet — dependent on SAL</li></ul></div><div style="display:contents" dir="auto"><ul id="ca9b8b59-a5f0-4af0-a1d2-0788c4bc5502" class="bulleted-list"><li style="list-style-type:disc"><code>Next step:</code> Steve &amp; Mike to obtain SAL and establish timeline</li></ul></div><div style="display:contents" dir="auto"><h3 id="177b7391-1328-412d-b7fe-95f6b1696af0" class="">Factory Track</h3></div><div style="display:contents" dir="auto"><ul id="1f4a62d9-8b9d-4531-bf93-24f223dd47b4" class="bulleted-list"><li style="list-style-type:disc"><code>Fact:</code> Requirements gathering underway; business review pending</li></ul></div><div style="display:contents" dir="auto"><ul id="bafa26d4-4877-44fc-a771-57d04451da07" class="bulleted-list"><li style="list-style-type:disc"><code>Fact:</code> Order confirmations received yesterday; shipment expected Friday</li></ul></div><div style="display:contents" dir="auto"><ul id="2d7e09c2-c7d1-416c-8f01-dc23ea813130" class="bulleted-list"><li style="list-style-type:disc"><code>Fact:</code> Configuration to start the following week</li></ul></div><div style="display:contents" dir="auto"><ul id="3c78482a-e87b-4b12-9993-c01f4075951a" class="bulleted-list"><li style="list-style-type:disc"><code>Next step:</code> Connor to configure scanners; ship to sites</li></ul></div><div style="display:contents" dir="auto"><ul id="799a51d3-d7c6-484a-9974-328b0a72dc1f" class="bulleted-list"><li style="list-style-type:disc"><code>Risk:</code> Key resource coverage — Joe&#x27;s availability needed; Andy suggested as backup</li></ul></div><div style="display:contents" dir="auto"><h3 id="2ce0290d-9709-4f80-a457-da916c47e50e" class="">Production Scheduling</h3></div><div style="display:contents" dir="auto"><ul id="86df88dc-5589-4564-a533-7af5350cbf50" class="bulleted-list"><li style="list-style-type:disc"><code>Fact:</code> No current issues</li></ul></div><div style="display:contents" dir="auto"><ul id="2015ed53-f991-4a40-9815-8141f3ad12a6" class="bulleted-list"><li style="list-style-type:disc"><code>Fact:</code> Wipro walkthrough with Rachel completed</li></ul></div><div style="display:contents" dir="auto"><ul id="068031e6-ee62-44e6-902f-01fbbb56378d" class="bulleted-list"><li style="list-style-type:disc"><code>Fact:</code> Demo environment preparation pending</li></ul></div><div style="display:contents" dir="auto"><ul id="46726967-fe95-44ed-984d-b05931bc3a29" class="bulleted-list"><li style="list-style-type:disc"><code>Next step:</code> Anne to confirm Monday when demo can be sent to demo team</li></ul></div><div style="display:contents" dir="auto"><h3 id="6cb6ae23-2ab2-4d6e-9b36-27093fc08705" class="">JPMC Phase 2 (Bank Account Integration)</h3></div><div style="display:contents" dir="auto"><ul id="978e36ae-9e27-489a-a8f2-e3ac75096d9b" class="bulleted-list"><li style="list-style-type:disc"><code>Fact:</code> Integration testing in progress; files being sent to bank (excluding lockbox)</li></ul></div><div style="display:contents" dir="auto"><ul id="9af8023e-3bc3-4709-97b9-020494238192" class="bulleted-list"><li style="list-style-type:disc"><code>Fact:</code> On track; lockbox changes expected in next few weeks</li></ul></div><div style="display:contents" dir="auto"><h3 id="2aa1d6c2-81a1-4441-bbcf-1fcf2e7c8234" class="">DOL Invoicing Updates</h3></div><div style="display:contents" dir="auto"><ul id="efa8d02a-1cfc-401e-b4aa-4a335bb62160" class="bulleted-list"><li style="list-style-type:disc"><code>Fact:</code> One issue identified; solution proposed and communicated</li></ul></div><div style="display:contents" dir="auto"><ul id="dcd6d057-dad4-4817-9221-4b4403f34464" class="bulleted-list"><li style="list-style-type:disc"><code>Fact:</code> QA testing to finish today; UAT slated for next week</li></ul></div><div style="display:contents" dir="auto"><ul id="4599dc28-f721-4f5d-9279-feffaee4488a" class="bulleted-list"><li style="list-style-type:disc"><code>Fact:</code> No major risks remaining</li></ul></div><div style="display:contents" dir="auto"><h3 id="f9b4e2bd-349b-4c2c-95ef-50e4955cf6de" class="">AI for R&amp;D Projects</h3></div><div style="display:contents" dir="auto"><ul id="3fe57814-ba6c-4da1-94f5-5b5d8b89ef1c" class="bulleted-list"><li style="list-style-type:disc"><code>Fact:</code> Two major projects identified: <strong>MP optimization</strong> and <strong>DOE optimization</strong> (names TBD)</li></ul></div><div style="display:contents" dir="auto"><ul id="4a4a9a6d-85b0-4077-ae9c-2ae71595cd35" class="bulleted-list"><li style="list-style-type:disc"><code>Fact:</code> Third project (<strong>NAC SKU optimization</strong>) being refined</li></ul></div><div style="display:contents" dir="auto"><ul id="e61e2a0e-48d8-4dd0-8277-35ce2b0f558c" class="bulleted-list"><li style="list-style-type:disc"><code>Fact:</code> Data team: Steve, Anne (full-time data lead), and R&amp;D members</li></ul></div><div style="display:contents" dir="auto"><ul id="69b471a2-2f58-49d0-bf1b-ccb66153b436" class="bulleted-list"><li style="list-style-type:disc"><code>Fact:</code> Off-site training <strong>Jan 22</strong>; on-site vendor training <strong>Jan 29</strong> (full day, Training Center booked)</li></ul></div><div style="display:contents" dir="auto"><h3 id="81c5f094-8bca-4d51-b945-1181b35fca4f" class="">App Infrastructure (CCAS UCAS)</h3></div><div style="display:contents" dir="auto"><ul id="7c9a11a6-36ae-403f-acb8-f428b7dee248" class="bulleted-list"><li style="list-style-type:disc"><code>Fact:</code> Project intake form completed</li></ul></div><div style="display:contents" dir="auto"><ul id="71cba2e4-8f09-431a-b352-879f6fce73a5" class="bulleted-list"><li style="list-style-type:disc"><code>Fact:</code> IP red-line review of MSA/DPA done; now with legal</li></ul></div><div style="display:contents" dir="auto"><ul id="1f6c811e-7807-4f98-993d-c3deadd27dc1" class="bulleted-list"><li style="list-style-type:disc"><code>Fact:</code> Test case scheduled Monday to determine next steps</li></ul></div><div style="display:contents" dir="auto"><ul id="95fd154c-19ce-4045-b897-0ee37eaa8a8a" class="bulleted-list"><li style="list-style-type:disc"><code>Next step:</code> Finalize discovery-phase RFP once MSA/DPA signed</li></ul></div><div style="display:contents" dir="auto"><h3 id="074c66bf-15c4-4a86-97f7-04d313c81dd0" class="">SysAid Upgrade/Replacement</h3></div><div style="display:contents" dir="auto"><ul id="a903e20e-b537-4a76-bb7e-cd56634cf591" class="bulleted-list"><li style="list-style-type:disc"><code>Fact:</code> Internal kickoff held; business requirements draft started</li></ul></div><div style="display:contents" dir="auto"><ul id="68668d7f-92ee-4c7f-8067-7c61556dd647" class="bulleted-list"><li style="list-style-type:disc"><code>Fact:</code> Coordinating with CCAS, UCAS, and AD to stagger work and avoid overload</li></ul></div><div style="display:contents" dir="auto"><h3 id="adbde0a2-e794-480e-a9db-9946eabe4a93" class="">Active Directory Cleanup</h3></div><div style="display:contents" dir="auto"><ul id="29cf042a-41de-4d91-a763-971b1498032d" class="bulleted-list"><li style="list-style-type:disc"><code>Fact:</code> Object cleanup to finish Monday; final review of permission issues</li></ul></div><div style="display:contents" dir="auto"><ul id="9584a40a-e0da-41ad-a33a-f8b8a8f07d2d" class="bulleted-list"><li style="list-style-type:disc"><code>Fact:</code> LDAP scan ran 24 hrs; top 25 active users identified for further analysis</li></ul></div><div style="display:contents" dir="auto"><hr id="af28c138-528e-4c89-92e8-efd4e2f7ae6d"/></div><div style="display:contents" dir="auto"><h2 id="e6c927ac-0463-472c-81e2-87deeba18424" class="">📅 Steve&#x27;s On-Site Visit (Next Week)</h2></div><div style="display:contents" dir="ltr"><figure class="block-color-teal_background callout" style="white-space:pre-wrap;display:flex" id="9215b43d-47f3-4699-9695-9086bd9ebbd9"><div style="font-size:1.5em"><span class="icon">📍</span></div><div style="width:100%"><div style="display:contents" dir="auto"><p id="ef519114-65da-4068-a982-1df778eff0a7" class=""><code>Fact:</code> Steve will be on-site next week for plant tours and data-state mapping</p></div><div style="display:contents" dir="auto"><p id="7ddbde29-1e8a-4f37-bc89-bb5638809bb2" class=""><code>Fact:</code> Changed from 5 separate meetings to one long session with lunch break</p></div><div style="display:contents" dir="auto"><p id="4b33b387-d295-445d-a7a5-f9f54f7babbe" class=""><strong>Goal:</strong> Align all stakeholders, finalize actionable milestones, produce clear action plan</p></div></div></figure></div><div style="display:contents" dir="auto"><hr id="acd342d7-1ed6-4f77-9f34-a4ecf52873d7"/></div><div style="display:contents" dir="auto"><h2 id="bbe7fce9-11ee-40ab-8fb0-f4d6e6cdcf78" class="">📧 Status Reporting Template Rollout</h2></div><div style="display:contents" dir="ltr"><figure class="block-color-yellow_background callout" style="white-space:pre-wrap;display:flex" id="57a2da64-af9c-4661-b6ca-0d321051404c"><div style="font-size:1.5em"><span class="icon">📝</span></div><div style="width:100%"><div style="display:contents" dir="auto"><p id="9619a79b-f2e4-4b08-ae87-02853678ce03" class=""><strong>New Process:</strong> Weekly status email from each project lead</p></div><div style="display:contents" dir="auto"><ul id="1c162581-f495-40ef-822c-a74c87b0a07c" class="bulleted-list"><li style="list-style-type:disc"><strong>When:</strong> Every Thursday by 1:00 PM</li></ul></div><div style="display:contents" dir="auto"><ul id="2060a4fb-8c5b-4146-a06a-9ec2af69ad5d" class="bulleted-list"><li style="list-style-type:disc"><strong>To:</strong> Project team, stakeholders, Dominique, ELT</li></ul></div><div style="display:contents" dir="auto"><ul id="7261bd12-6489-47fd-a07b-46c47ebc07ca" class="bulleted-list"><li style="list-style-type:disc"><strong>Format:</strong> Use shared template; max 3 risks/issues</li></ul></div><div style="display:contents" dir="auto"><ul id="26f37f26-b199-4f5f-8c40-c56cf46d4576" class="bulleted-list"><li style="list-style-type:disc"><strong>Reminders:</strong> Tuesday reminders set; template uploaded to SharePoint</li></ul></div></div></figure></div><div style="display:contents" dir="auto"><hr id="09c52615-41d9-44a2-b9aa-3161867775cb"/></div><div style="display:contents" dir="auto"><h2 id="95d18927-1318-4f39-be73-241e27ef2bc6" class="">✅ Action Items</h2></div><div style="display:contents" dir="auto"><h3 id="17c94962-94e9-443d-82d0-d4ce629e427f" class="">Steve</h3></div><div style="display:contents" dir="auto"><ul id="4d50dc4d-bbbb-41fe-adca-212fc4c8e231" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked"><code>Next step:</code> Follow up with Anne on no-cost CR approval and firm end date</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="97dad61a-848c-404c-9135-91d01f3dc0b8" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked"><code>Next step:</code> Work with team to set regular environment-refresh cadence; confirm Monday meeting outcome</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="40c19cff-8cbb-4e9a-97ad-ddd7c30e7e91" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked"><code>Next step:</code> Obtain SAL/SLA for credit card integration with Mike and establish timeline</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="e8763cbf-42ed-4c49-8479-205d2939862d" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked"><code>Next step:</code> Identify backup resource (Joe, Andy, or Lance) while team member recovers</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="3afc1e2b-fdbb-4d64-baba-a9bbef8825ae" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked"><code>Next step:</code> Confirm with Anne earliest demo slot for production scheduling</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="c210cfc5-766f-4d9e-8e82-8f878e1d6676" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked"><code>Next step:</code> Attend off-site AI R&amp;D training (Jan 22) and on-site vendor training (Jan 29)</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="88010566-ac8a-41fe-8d27-e3a7403a45cf" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked"><code>Next step:</code> Finalize discovery-phase RFP for app infrastructure after legal review</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><h3 id="e6486c7b-9317-48b0-bde1-3ed28e47493c" class="">Dominique</h3></div><div style="display:contents" dir="auto"><ul id="c6adecad-2140-403b-a7b6-e0c62396b5cd" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked"><code>Next step:</code> Upload weekly status report template to SharePoint</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="d3ecbe0b-946d-4b14-ad55-feed6b8c9fdb" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked"><code>Next step:</code> Set recurring Tuesday reminders for team</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="eee63f38-c7c6-499c-948e-b82d5300f914" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked"><code>Next step:</code> Help distribute status reports and update demand planning</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><h3 id="d7aa1733-970a-4b1d-a96c-bea8dae41bed" class="">Team</h3></div><div style="display:contents" dir="auto"><ul id="8500b1e7-e5e0-45f7-be26-d147fdfb45fa" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked"><code>Next step:</code> Submit kudos for monthly meeting next week</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="7d048653-20c4-4422-8d7e-32739b778a0e" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked"><code>Next step:</code> Send weekly status reports every Thursday by 1 PM using template</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><hr id="9220bc78-769d-485e-8796-42dd090e88c6"/></div><div style="display:contents" dir="auto"><h2 id="5d14c4bf-48f9-4fef-94b7-334d401593d2" class="">🧠 Team Culture Reminders</h2></div><div style="display:contents" dir="auto"><ul id="afc87b7d-e2bb-463f-a56b-13e15884ef78" class="bulleted-list"><li style="list-style-type:disc">Monthly meeting next week — submit kudos beforehand</li></ul></div><div style="display:contents" dir="auto"><ul id="fbcfe2a4-8c44-4f1e-bea3-22651897a101" class="bulleted-list"><li style="list-style-type:disc">Open feedback encouraged; suggestion box available</li></ul></div><div style="display:contents" dir="auto"><ul id="a1fae56c-ea66-44dc-8485-fb3b5ebc2d3f" class="bulleted-list"><li style="list-style-type:disc">Keep status communications concise (max 3 risks/issues)</li></ul></div><div style="display:contents" dir="auto"><ul id="41d8ccbe-06b2-4b24-8fb8-e1209ed7181f" class="bulleted-list"><li style="list-style-type:disc">Use shared template for consistency</li></ul></div><div style="display:contents" dir="auto"><hr id="f2f245a9-5843-4807-b7a4-9ff567408015"/></div><div style="display:contents" dir="auto"><h2 id="c2ff8c33-313f-4fbc-a0ad-65864636f00a" class="">🧾 Evidence Matrix</h2></div><div style="display:contents" dir="ltr"><table id="28f28337-d545-421b-b9e9-3b7998095c8a" class="simple-table"><thead class="simple-table-header"><div style="display:contents" dir="ltr"><tr id="188488f1-058c-41d0-9da1-6540a376e0a8"><th id="bOy_" class="simple-table-header-color simple-table-header">Item ID</th><th id="UvJW" class="simple-table-header-color simple-table-header">Type</th><th id="&gt;p^r" class="simple-table-header-color simple-table-header">Speaker</th><th id="jm;:" class="simple-table-header-color simple-table-header">Timestamp</th><th id="=&gt;;}" class="simple-table-header-color simple-table-header">Evidence snippet</th><th id="GM~E" class="simple-table-header-color simple-table-header">Context</th><th id="EY~O" class="simple-table-header-color simple-table-header">Confidence</th></tr></div></thead><tbody><div style="display:contents" dir="ltr"><tr id="449868d6-ccd1-4e50-b6d7-61b090c6ae11"><td id="bOy_" class="">M3-RISK-1</td><td id="UvJW" class="">Risk</td><td id="&gt;p^r" class="">Steve</td><td id="jm;:" class="">1:25</td><td id="=&gt;;}" class="">&quot;the schedule is going to continue to be at risk just at this point i don&#x27;t think we&#x27;re ever not going to be in red on this one&quot;</td><td id="GM~E" class="">M3 Phase 2 status assessment</td><td id="EY~O" class="">High</td></tr></div><div style="display:contents" dir="ltr"><tr id="28048036-402e-49a9-ae26-deb8dfc66e32"><td id="bOy_" class="">M3-FACT-1</td><td id="UvJW" class="">Fact</td><td id="&gt;p^r" class="">Steve</td><td id="jm;:" class="">0:56</td><td id="=&gt;;}" class="">&quot;we completed three stories... twenty seven story points&quot;</td><td id="GM~E" class="">Progress update</td><td id="EY~O" class="">High</td></tr></div><div style="display:contents" dir="ltr"><tr id="169d7272-260c-4418-a0a6-bc053d1b75c0"><td id="bOy_" class="">ENV-FACT-1</td><td id="UvJW" class="">Fact</td><td id="&gt;p^r" class="">Steve</td><td id="jm;:" class="">1:46</td><td id="=&gt;;}" class="">&quot;environment refreshes have already happened and the team is looking at putting in a cadence in place if it&#x27;s meeting on monday&quot;</td><td id="GM~E" class="">Environment refresh status</td><td id="EY~O" class="">High</td></tr></div><div style="display:contents" dir="ltr"><tr id="4bb5a5fa-80fa-47cd-bb16-cc792066ff18"><td id="bOy_" class="">CC-FACT-1</td><td id="UvJW" class="">Fact</td><td id="&gt;p^r" class="">Steve</td><td id="jm;:" class="">2:56</td><td id="=&gt;;}" class="">&quot;i don&#x27;t have timelines yet those will be coming when i get a sal&quot;</td><td id="GM~E" class="">Credit card timeline dependency</td><td id="EY~O" class="">High</td></tr></div><div style="display:contents" dir="ltr"><tr id="7a0e0605-dca1-45b9-9047-352d8b7c4c2a"><td id="bOy_" class="">FT-FACT-1</td><td id="UvJW" class="">Fact</td><td id="&gt;p^r" class="">Steve</td><td id="jm;:" class="">3:47</td><td id="=&gt;;}" class="">&quot;we got order confirmation yesterday so it should arrive here shortly that&#x27;s a friday&quot;</td><td id="GM~E" class="">Factory Track scanner delivery</td><td id="EY~O" class="">High</td></tr></div><div style="display:contents" dir="ltr"><tr id="59367488-6994-4441-bdaf-e494869af85f"><td id="bOy_" class="">AI-FACT-1</td><td id="UvJW" class="">Fact</td><td id="&gt;p^r" class="">Steve</td><td id="jm;:" class="">11:33</td><td id="=&gt;;}" class="">&quot;on the twenty ninth the training center has been booked all day that is an on site to train the ai vendor will be on site&quot;</td><td id="GM~E" class="">AI R&amp;D training</td><td id="EY~O" class="">High</td></tr></div><div style="display:contents" dir="ltr"><tr id="b659174e-9126-43dc-853f-1ce2940ab08b"><td id="bOy_" class="">VIS-FACT-1</td><td id="UvJW" class="">Fact</td><td id="&gt;p^r" class="">Steve</td><td id="jm;:" class="">17:39</td><td id="=&gt;;}" class="">&quot;we ended up changing it from like five meetings or something like that into one long one with lunch in the middle&quot;</td><td id="GM~E" class="">On-site visit format</td><td id="EY~O" class="">High</td></tr></div></tbody></table></div><div style="display:contents" dir="auto"><hr id="a8509c16-5bb6-495f-b467-b61051a6f0c0"/></div><div style="display:contents" dir="auto"><h2 id="56979b6e-8a65-4028-9459-937eb33dc3c9" class="">📜 Cluely Transcript</h2></div><div style="display:contents" dir="ltr"><figure class="block-color-gray_background callout" style="white-space:pre-wrap;display:flex" id="c22b89bb-b408-4e52-b5a4-894b4a3f6165"><div style="font-size:1.5em"><span class="icon">🎵</span></div><div style="width:100%"><div style="display:contents" dir="auto"><p id="45bf70f8-d994-4d2d-8f9c-f7d4cc4f4e10" class=""><strong>Source:</strong> Cluely transcript (partial — see full transcript below)</p></div></div></figure></div><div style="display:contents" dir="auto"><ul id="337da710-54d3-4e7b-9ee8-5f5eb4fd2b0d" class="toggle"><li><details open=""><summary>Full Transcript</summary></details></li></ul></div><div style="display:contents" dir="auto"><p id="3d98a88b-af9f-4e5a-8450-bfd32979b129" class=""><em>(Transcript included in meeting notes — covers M3 Phase 2, Credit Card Integration, Factory Track, Production Scheduling, JPMC Phase 2, DOL Invoicing, AI for R&amp;D, App Infrastructure, SysAid Upgrade, Active Directory Cleanup, Demand Planning, Status Reporting, and Steve&#x27;s on-site visit)</em></p></div></div></article><span class="sans" style="font-size:14px;padding-top:2em"></span></body></html>

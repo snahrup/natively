@@ -1,0 +1,743 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>Meetings</title><style>
+/* cspell:disable-file */
+/* webkit printing magic: print all background colors */
+html {
+	-webkit-print-color-adjust: exact;
+}
+* {
+	box-sizing: border-box;
+	-webkit-print-color-adjust: exact;
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+}
+@media only screen {
+	body {
+		margin: 2em auto;
+		max-width: 900px;
+		color: rgb(55, 53, 47);
+	}
+}
+
+body {
+	line-height: 1.5;
+	white-space: pre-wrap;
+}
+
+a,
+a.visited {
+	color: inherit;
+	text-decoration: underline;
+}
+
+.pdf-relative-link-path {
+	font-size: 80%;
+	color: #444;
+}
+
+h1,
+h2,
+h3 {
+	letter-spacing: -0.01em;
+	line-height: 1.2;
+	font-weight: 600;
+	margin-bottom: 0;
+}
+
+/* Override strong tags inside headings to maintain consistent weight */
+h1 strong,
+h2 strong,
+h3 strong {
+	font-weight: 600;
+}
+
+.page-title {
+	font-size: 2.5rem;
+	font-weight: 700;
+	margin-top: 0;
+	margin-bottom: 0.75em;
+}
+
+h1 {
+	font-size: 1.875rem;
+	margin-top: 1.875rem;
+}
+
+h2 {
+	font-size: 1.5rem;
+	margin-top: 1.5rem;
+}
+
+h3 {
+	font-size: 1.25rem;
+	margin-top: 1.25rem;
+}
+
+.source {
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	padding: 1.5em;
+	word-break: break-all;
+}
+
+.callout {
+	border-radius: 10px;
+	padding: 1rem;
+}
+
+figure {
+	margin: 1.25em 0;
+	page-break-inside: avoid;
+}
+
+figcaption {
+	opacity: 0.5;
+	font-size: 85%;
+	margin-top: 0.5em;
+}
+
+mark {
+	background-color: transparent;
+}
+
+.indented {
+	padding-left: 1.5em;
+}
+
+hr {
+	background: transparent;
+	display: block;
+	width: 100%;
+	height: 1px;
+	visibility: visible;
+	border: none;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+img {
+	max-width: 100%;
+}
+
+@media only print {
+	img {
+		max-height: 100vh;
+		object-fit: contain;
+	}
+
+	table.collection-content {
+		width: 100%;
+		table-layout: fixed;
+	}
+
+	table.collection-content th,
+	table.collection-content td {
+		overflow-wrap: anywhere;
+	}
+
+	table.collection-content td > .user,
+	table.collection-content td > time {
+		white-space: pre-wrap;
+	}
+}
+
+@page {
+	margin: 1in;
+}
+
+.collection-content-wrapper {
+	overflow-x: auto;
+}
+
+@media only print {
+	.collection-content-wrapper {
+		overflow-x: visible;
+	}
+}
+
+.collection-content {
+	font-size: 0.875rem;
+}
+
+.collection-content td {
+	white-space: pre-wrap;
+	word-break: break-word;
+}
+
+.column-list {
+	display: flex;
+	gap: 46px;
+}
+
+.column {
+	min-width: 0;
+	overflow: hidden;
+}
+
+.column > *:first-child {
+	margin-top: 0;
+}
+
+.table_of_contents-item {
+	display: block;
+	font-size: 0.875rem;
+	line-height: 1.3;
+	padding: 0.125rem;
+}
+
+.table_of_contents-indent-1 {
+	margin-left: 1.5rem;
+}
+
+.table_of_contents-indent-2 {
+	margin-left: 3rem;
+}
+
+.table_of_contents-indent-3 {
+	margin-left: 4.5rem;
+}
+
+.table_of_contents-link {
+	text-decoration: none;
+	opacity: 0.7;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.18);
+}
+
+table,
+th,
+td {
+	border: 1px solid rgba(55, 53, 47, 0.09);
+	border-collapse: collapse;
+}
+
+table {
+	border-left: none;
+	border-right: none;
+}
+
+th,
+td {
+	font-weight: normal;
+	padding: 0.25em 0.5em;
+	line-height: 1.5;
+	min-height: 1.5em;
+	text-align: left;
+}
+
+th {
+	color: rgba(55, 53, 47, 0.6);
+}
+
+ol,
+ul {
+	margin: 0;
+	margin-block-start: 0.6em;
+	margin-block-end: 0.6em;
+}
+
+li > ol:first-child,
+li > ul:first-child {
+	margin-block-start: 0.6em;
+}
+
+ul > li {
+	list-style: disc;
+}
+
+ul.to-do-list {
+	padding-inline-start: 0;
+}
+
+ul.to-do-list > li {
+	list-style: none;
+}
+
+.to-do-children-checked {
+	text-decoration: line-through;
+	opacity: 0.375;
+}
+
+ul.toggle > li {
+	list-style: none;
+}
+
+ul {
+	padding-inline-start: 1.7em;
+}
+
+ul > li {
+	padding-left: 0.1em;
+}
+
+ol {
+	padding-inline-start: 1.6em;
+}
+
+ol.numbered-list.numbered-list-digits-2 {
+	padding-inline-start: 2em;
+}
+
+ol.numbered-list.numbered-list-digits-3plus {
+	padding-inline-start: 2.4em;
+}
+
+ol > li {
+	padding-left: 0.2em;
+}
+
+.mono ol {
+	padding-inline-start: 2em;
+}
+
+.mono ol > li {
+	text-indent: -0.4em;
+}
+
+.toggle {
+	padding-inline-start: 0em;
+	list-style-type: none;
+}
+
+/* Indent toggle children */
+.toggle > li > details {
+	padding-left: 1.7em;
+}
+
+.toggle > li > details > summary {
+	margin-left: -1.1em;
+}
+
+.selected-value {
+	display: inline-block;
+	padding: 0 0.5em;
+	background: rgba(206, 205, 202, 0.5);
+	border-radius: 3px;
+	margin-right: 0.5em;
+	margin-top: 0.3em;
+	margin-bottom: 0.3em;
+	white-space: nowrap;
+}
+
+.collection-title {
+	display: inline-block;
+	margin-right: 1em;
+}
+
+.page-description {
+	margin-bottom: 2em;
+}
+
+.simple-table {
+	margin-top: 1em;
+	font-size: 0.875rem;
+	empty-cells: show;
+}
+.simple-table td {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table th {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table-header-color {
+	background: rgb(247, 246, 243);
+	color: black;
+}
+.simple-table-header {
+	font-weight: 500;
+}
+
+time {
+	opacity: 0.5;
+}
+
+.icon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	max-width: 1.2em;
+	max-height: 1.2em;
+	text-decoration: none;
+	vertical-align: text-bottom;
+	margin-right: 0.5em;
+}
+
+img.icon {
+	border-radius: 3px;
+}
+
+.callout img.notion-static-icon {
+	width: 1em;
+	height: 1em;
+}
+
+.callout p {
+	margin: 0;
+}
+
+.callout h1,
+.callout h2,
+.callout h3 {
+	margin: 0 0 0.6rem;
+}
+
+.user-icon {
+	width: 1.5em;
+	height: 1.5em;
+	border-radius: 100%;
+	margin-right: 0.5rem;
+}
+
+.user-icon-inner {
+	font-size: 0.8em;
+}
+
+.text-icon {
+	border: 1px solid #000;
+	text-align: center;
+}
+
+.page-cover-image {
+	display: block;
+	object-fit: cover;
+	width: 100%;
+	max-height: 30vh;
+}
+
+.page-header-icon {
+	font-size: 3rem;
+	margin-bottom: 1rem;
+}
+
+.page-header-icon-with-cover {
+	margin-top: -0.72em;
+	margin-left: 0.07em;
+}
+
+.page-header-icon img {
+	border-radius: 3px;
+}
+
+.link-to-page {
+	margin: 1em 0;
+	padding: 0;
+	border: none;
+	font-weight: 500;
+}
+
+p > .user {
+	opacity: 0.5;
+}
+
+td > .user,
+td > time {
+	white-space: nowrap;
+}
+
+input[type="checkbox"] {
+	transform: scale(1.5);
+	margin-right: 0.6em;
+	vertical-align: middle;
+}
+
+p {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+.image {
+	border: none;
+	margin: 1.5em 0;
+	padding: 0;
+	border-radius: 0;
+	text-align: center;
+}
+
+.code,
+code {
+	background: rgba(135, 131, 120, 0.15);
+	border-radius: 3px;
+	padding: 0.2em 0.4em;
+	border-radius: 3px;
+	font-size: 85%;
+	tab-size: 2;
+}
+
+code {
+	color: #eb5757;
+}
+
+.code {
+	padding: 1.5em 1em;
+}
+
+.code-wrap {
+	white-space: pre-wrap;
+	word-break: break-all;
+}
+
+.code > code {
+	background: none;
+	padding: 0;
+	font-size: 100%;
+	color: inherit;
+}
+
+blockquote {
+	font-size: 1em;
+	margin: 1em 0;
+	padding-left: 1em;
+	border-left: 3px solid rgb(55, 53, 47);
+}
+
+blockquote.quote-large {
+	font-size: 1.25em;
+}
+
+.bookmark {
+	text-decoration: none;
+	max-height: 8em;
+	padding: 0;
+	display: flex;
+	width: 100%;
+	align-items: stretch;
+}
+
+.bookmark-title {
+	font-size: 0.85em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	height: 1.75em;
+	white-space: nowrap;
+}
+
+.bookmark-text {
+	display: flex;
+	flex-direction: column;
+}
+
+.bookmark-info {
+	flex: 4 1 180px;
+	padding: 12px 14px 14px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.bookmark-image {
+	width: 33%;
+	flex: 1 1 180px;
+	display: block;
+	position: relative;
+	object-fit: cover;
+	border-radius: 1px;
+}
+
+.bookmark-description {
+	color: rgba(55, 53, 47, 0.6);
+	font-size: 0.75em;
+	overflow: hidden;
+	max-height: 4.5em;
+	word-break: break-word;
+}
+
+.bookmark-href {
+	font-size: 0.75em;
+	margin-top: 0.25em;
+}
+
+.sans { font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol"; }
+.code { font-family: "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace; }
+.serif { font-family: Lyon-Text, Georgia, ui-serif, serif; }
+.mono { font-family: iawriter-mono, Nitti, Menlo, Courier, monospace; }
+.pdf .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK JP'; }
+.pdf:lang(zh-CN) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK SC'; }
+.pdf:lang(zh-TW) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK TC'; }
+.pdf:lang(ko-KR) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK KR'; }
+.pdf .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.pdf .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK JP'; }
+.pdf:lang(zh-CN) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK SC'; }
+.pdf:lang(zh-TW) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK TC'; }
+.pdf:lang(ko-KR) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK KR'; }
+.pdf .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.highlight-default {
+	color: rgba(44, 44, 43, 1);
+}
+.highlight-gray {
+	color: rgba(125, 122, 117, 1);
+	fill: rgba(125, 122, 117, 1);
+}
+.highlight-brown {
+	color: rgba(159, 118, 90, 1);
+	fill: rgba(159, 118, 90, 1);
+}
+.highlight-orange {
+	color: rgba(210, 123, 45, 1);
+	fill: rgba(210, 123, 45, 1);
+}
+.highlight-yellow {
+	color: rgba(203, 148, 52, 1);
+	fill: rgba(203, 148, 52, 1);
+}
+.highlight-teal {
+	color: rgba(80, 148, 110, 1);
+	fill: rgba(80, 148, 110, 1);
+}
+.highlight-blue {
+	color: rgba(56, 125, 201, 1);
+	fill: rgba(56, 125, 201, 1);
+}
+.highlight-purple {
+	color: rgba(154, 107, 180, 1);
+	fill: rgba(154, 107, 180, 1);
+}
+.highlight-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.highlight-red {
+	color: rgba(207, 81, 72, 1);
+	fill: rgba(207, 81, 72, 1);
+}
+.highlight-default_background {
+	color: rgba(44, 44, 43, 1);
+}
+.highlight-gray_background {
+	background: rgba(42, 28, 0, 0.07);
+}
+.highlight-brown_background {
+	background: rgba(139, 46, 0, 0.086);
+}
+.highlight-orange_background {
+	background: rgba(224, 101, 1, 0.129);
+}
+.highlight-yellow_background {
+	background: rgba(211, 168, 0, 0.137);
+}
+.highlight-teal_background {
+	background: rgba(0, 100, 45, 0.09);
+}
+.highlight-blue_background {
+	background: rgba(0, 124, 215, 0.094);
+}
+.highlight-purple_background {
+	background: rgba(102, 0, 178, 0.078);
+}
+.highlight-pink_background {
+	background: rgba(197, 0, 93, 0.086);
+}
+.highlight-red_background {
+	background: rgba(223, 22, 0, 0.094);
+}
+.block-color-default {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray {
+	color: rgba(125, 122, 117, 1);
+	fill: rgba(125, 122, 117, 1);
+}
+.block-color-brown {
+	color: rgba(159, 118, 90, 1);
+	fill: rgba(159, 118, 90, 1);
+}
+.block-color-orange {
+	color: rgba(210, 123, 45, 1);
+	fill: rgba(210, 123, 45, 1);
+}
+.block-color-yellow {
+	color: rgba(203, 148, 52, 1);
+	fill: rgba(203, 148, 52, 1);
+}
+.block-color-teal {
+	color: rgba(80, 148, 110, 1);
+	fill: rgba(80, 148, 110, 1);
+}
+.block-color-blue {
+	color: rgba(56, 125, 201, 1);
+	fill: rgba(56, 125, 201, 1);
+}
+.block-color-purple {
+	color: rgba(154, 107, 180, 1);
+	fill: rgba(154, 107, 180, 1);
+}
+.block-color-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.block-color-red {
+	color: rgba(207, 81, 72, 1);
+	fill: rgba(207, 81, 72, 1);
+}
+.block-color-default_background {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray_background {
+	background: rgba(240, 239, 237, 1);
+}
+.block-color-brown_background {
+	background: rgba(245, 237, 233, 1);
+}
+.block-color-orange_background {
+	background: rgba(251, 235, 222, 1);
+}
+.block-color-yellow_background {
+	background: rgba(249, 243, 220, 1);
+}
+.block-color-teal_background {
+	background: rgba(232, 241, 236, 1);
+}
+.block-color-blue_background {
+	background: rgba(229, 242, 252, 1);
+}
+.block-color-purple_background {
+	background: rgba(243, 235, 249, 1);
+}
+.block-color-pink_background {
+	background: rgba(250, 233, 241, 1);
+}
+.block-color-red_background {
+	background: rgba(252, 233, 231, 1);
+}
+.select-value-color-default { background-color: rgba(42, 28, 0, 0.07); }
+.select-value-color-gray { background-color: rgba(28, 19, 1, 0.11); }
+.select-value-color-brown { background-color: rgba(127, 51, 0, 0.156); }
+.select-value-color-orange { background-color: rgba(196, 88, 0, 0.203); }
+.select-value-color-yellow { background-color: rgba(209, 156, 0, 0.282); }
+.select-value-color-green { background-color: rgba(0, 96, 38, 0.156); }
+.select-value-color-blue { background-color: rgba(0, 118, 217, 0.203); }
+.select-value-color-purple { background-color: rgba(92, 0, 163, 0.141); }
+.select-value-color-pink { background-color: rgba(183, 0, 78, 0.152); }
+.select-value-color-red { background-color: rgba(206, 24, 0, 0.164); }
+
+.checkbox {
+	display: inline-flex;
+	vertical-align: text-bottom;
+	width: 16;
+	height: 16;
+	background-size: 16px;
+	margin-left: 2px;
+	margin-right: 5px;
+}
+
+.checkbox-on {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20width%3D%2216%22%20height%3D%2216%22%20fill%3D%22%2358A9D7%22%2F%3E%0A%3Cpath%20d%3D%22M6.71429%2012.2852L14%204.9995L12.7143%203.71436L6.71429%209.71378L3.28571%206.2831L2%207.57092L6.71429%2012.2852Z%22%20fill%3D%22white%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+
+.checkbox-off {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20x%3D%220.75%22%20y%3D%220.75%22%20width%3D%2214.5%22%20height%3D%2214.5%22%20fill%3D%22white%22%20stroke%3D%22%2336352F%22%20stroke-width%3D%221.5%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+	
+</style></head><body><article id="abe39200-7ffa-4f96-9b75-4450f164e392" class="page sans"><header><div class="page-header-icon undefined"><span class="icon">📅</span></div><h1 class="page-title" dir="auto">Meetings</h1><p class="page-description" dir="auto"></p></header><div class="page-body"><div class="collection-content-wrapper"><table class="collection-content"><thead><tr><th><span class="icon property-icon"><img src="https://www.notion.so/icons/burst_gray.svg" style="width:14px;height:14px;display:block"/></span>Processing</th><th><span class="icon property-icon"><img src="https://www.notion.so/icons/font_gray.svg" style="width:14px;height:14px;display:block"/></span>Meeting Name</th><th><span class="icon property-icon"><img src="https://www.notion.so/icons/description_gray.svg" style="width:14px;height:14px;display:block"/></span>Agenda</th><th><span class="icon property-icon"><img src="https://www.notion.so/icons/list_gray.svg" style="width:14px;height:14px;display:block"/></span>Attendees</th><th><span class="icon property-icon"><img src="https://www.notion.so/icons/calendar_gray.svg" style="width:14px;height:14px;display:block"/></span>Date</th><th><span class="icon property-icon"><img src="https://www.notion.so/icons/arrow-circle-down_gray.svg" style="width:14px;height:14px;display:block"/></span>Meeting Type</th><th><span class="icon property-icon"><img src="https://www.notion.so/icons/friends_gray.svg" style="width:14px;height:14px;display:block"/></span>Organizer</th><th><span class="icon property-icon"><img src="https://www.notion.so/icons/arrow-circle-down_gray.svg" style="width:14px;height:14px;display:block"/></span>Priority</th><th><span class="icon property-icon"><img src="https://www.notion.so/icons/arrow-circle-down_gray.svg" style="width:14px;height:14px;display:block"/></span>Status</th><th><span class="icon property-icon"><img src="https://www.notion.so/icons/checkmark-square_gray.svg" style="width:14px;height:14px;display:block"/></span>Has Cluely Transcript</th><th><span class="icon property-icon"><img src="https://www.notion.so/icons/checkmark-square_gray.svg" style="width:14px;height:14px;display:block"/></span>Has Final Transcript</th><th><span class="icon property-icon"><img src="https://www.notion.so/icons/checkmark-square_gray.svg" style="width:14px;height:14px;display:block"/></span>Has Notion Transcript</th><th><span class="icon property-icon"><img src="https://www.notion.so/icons/checkmark-square_gray.svg" style="width:14px;height:14px;display:block"/></span>Has Teams Transcript</th><th><span class="icon property-icon"><img src="https://www.notion.so/icons/hashtag_gray.svg" style="width:14px;height:14px;display:block"/></span>Mtg #</th><th><span class="icon property-icon"><img src="https://www.notion.so/icons/checkmark-square_gray.svg" style="width:14px;height:14px;display:block"/></span>Merged to Feed</th></tr></thead><tbody><tr id="31256320-92ca-8005-88f4-fdaf7b847af1"><td class="cell-U^Rl"></td><td class="cell-title"><a href="Meetings/Dental%20Consult%20Appointment%203125632092ca800588f4fdaf7b847af1.html">Dental Consult Appointment </a></td><td class="cell-?;BR"></td><td class="cell-=Qcm"></td><td class="cell-&lt;Jt@"><time>February 25, 2026 10:00 AM</time></td><td class="cell-[VKz"></td><td class="cell-K{ix"></td><td class="cell-Ug&gt;v"></td><td class="cell-dp{Z"></td><td class="cell-kwyh"><div class="checkbox checkbox-off"></div></td><td class="cell-h@r:"><div class="checkbox checkbox-off"></div></td><td class="cell-EX[Z"><div class="checkbox checkbox-off"></div></td><td class="cell-d@|i"><div class="checkbox checkbox-off"></div></td><td class="cell-hJ=^"></td><td class="cell-B&lt;ad"><div class="checkbox checkbox-off"></div></td></tr><tr id="30a56320-92ca-8061-a829-f8ac6da9093a"><td class="cell-U^Rl"></td><td class="cell-title"><a href="Meetings/Dev%20Team%20Meeting%2030a5632092ca8061a829f8ac6da9093a.html">Dev Team Meeting</a></td><td class="cell-?;BR"></td><td class="cell-=Qcm"></td><td class="cell-&lt;Jt@"><time>February 17, 2026 4:00 PM (UTC)</time></td><td class="cell-[VKz"></td><td class="cell-K{ix"></td><td class="cell-Ug&gt;v"></td><td class="cell-dp{Z"></td><td class="cell-kwyh"><div class="checkbox checkbox-off"></div></td><td class="cell-h@r:"><div class="checkbox checkbox-off"></div></td><td class="cell-EX[Z"><div class="checkbox checkbox-off"></div></td><td class="cell-d@|i"><div class="checkbox checkbox-off"></div></td><td class="cell-hJ=^"></td><td class="cell-B&lt;ad"><div class="checkbox checkbox-off"></div></td></tr><tr id="cade6400-1aa0-4dc3-9f8e-0cd59fc538d8"><td class="cell-U^Rl"><span class="status-value select-value-color-green"><div class="status-dot status-dot-color-green"></div>Processed</span></td><td class="cell-title"><a href="Meetings/Discuss%20MDM%20Data%20Priorities%20%E2%80%94%20Robin%20Virginia%20&amp;%20Pat%20cade64001aa04dc39f8e0cd59fc538d8.html"><span class="icon">📅</span>Discuss MDM Data Priorities — Robin Virginia &amp; Patrick Stiller — 2026-02-13</a></td><td class="cell-?;BR">MDM data domain prioritization, quote-to-cash Salesforce perspective, hierarchy mapping approach, Phase 1/2 planning, data ownership challenges</td><td class="cell-=Qcm"><span class="selected-value select-value-color-pink">Internal</span></td><td class="cell-&lt;Jt@"><time>February 13, 2026</time></td><td class="cell-[VKz"><span class="selected-value select-value-color-orange">Team Meeting</span></td><td class="cell-K{ix"><span class="user"><img src="https://lh3.googleusercontent.com/a/ACg8ocLHfVvdl28jS936w7CBB6TObsUa1P-X8cbdsUSKdeEn_MD7Bw=s96-c" class="icon user-icon"/>Steve </span></td><td class="cell-Ug&gt;v"><span class="selected-value select-value-color-red">High</span></td><td class="cell-dp{Z"><span class="selected-value select-value-color-brown">Completed</span></td><td class="cell-kwyh"><div class="checkbox checkbox-off"></div></td><td class="cell-h@r:"><div class="checkbox checkbox-off"></div></td><td class="cell-EX[Z"><div class="checkbox checkbox-off"></div></td><td class="cell-d@|i"><div class="checkbox checkbox-off"></div></td><td class="cell-hJ=^">15</td><td class="cell-B&lt;ad"><div class="checkbox checkbox-on"></div></td></tr><tr id="2f656320-92ca-8035-8508-e19ce23ace20"><td class="cell-U^Rl"><span class="status-value select-value-color-green"><div class="status-dot status-dot-color-green"></div>Processed</span></td><td class="cell-title"><a href="Meetings/MVP%20Strategy%20Follow-Up%20%E2%80%94%20Foundation-First%20Pivot%20%E2%80%94%20%202f65632092ca80358508e19ce23ace20.html">MVP Strategy Follow-Up — Foundation-First Pivot — 2026-01-28</a></td><td class="cell-?;BR">MVP strategy pivot to foundational bronze/silver infrastructure before selecting functional reporting domain, follow-up action items</td><td class="cell-=Qcm"><span class="selected-value select-value-color-pink">Internal</span></td><td class="cell-&lt;Jt@"><time>January 28, 2026</time></td><td class="cell-[VKz"><span class="selected-value select-value-color-default">1:1</span></td><td class="cell-K{ix"><span class="user"><img src="https://lh3.googleusercontent.com/a/ACg8ocLHfVvdl28jS936w7CBB6TObsUa1P-X8cbdsUSKdeEn_MD7Bw=s96-c" class="icon user-icon"/>Steve </span></td><td class="cell-Ug&gt;v"><span class="selected-value select-value-color-yellow">Medium</span></td><td class="cell-dp{Z"><span class="selected-value select-value-color-brown">Completed</span></td><td class="cell-kwyh"><div class="checkbox checkbox-off"></div></td><td class="cell-h@r:"><div class="checkbox checkbox-off"></div></td><td class="cell-EX[Z"><div class="checkbox checkbox-on"></div></td><td class="cell-d@|i"><div class="checkbox checkbox-off"></div></td><td class="cell-hJ=^">19</td><td class="cell-B&lt;ad"><div class="checkbox checkbox-off"></div></td></tr><tr id="2f656320-92ca-806d-be6c-f8c45000806d"><td class="cell-U^Rl"><span class="status-value select-value-color-green"><div class="status-dot status-dot-color-green"></div>Processed</span></td><td class="cell-title"><a href="Meetings/Microsoft%20Fabric%20MVP%20Planning%20Discussion%20%E2%80%94%20Mike%20Sp%202f65632092ca806dbe6cf8c45000806d.html">Microsoft Fabric MVP Planning Discussion — Mike Spencer — 2026-01-28</a></td><td class="cell-?;BR">POC-to-MVP rebranding, Fabric capabilities overview, data governance &amp; stewardship model, bronze/silver/gold architecture, data domain strategy, MES/M3 starting point decision, Purview parallel implementation, MVP objectives</td><td class="cell-=Qcm"><span class="selected-value select-value-color-pink">Internal</span></td><td class="cell-&lt;Jt@"><time>January 28, 2026</time></td><td class="cell-[VKz"><span class="selected-value select-value-color-yellow">Planning</span></td><td class="cell-K{ix"><span class="user"><img src="https://lh3.googleusercontent.com/a/ACg8ocLHfVvdl28jS936w7CBB6TObsUa1P-X8cbdsUSKdeEn_MD7Bw=s96-c" class="icon user-icon"/>Steve </span></td><td class="cell-Ug&gt;v"><span class="selected-value select-value-color-red">High</span></td><td class="cell-dp{Z"><span class="selected-value select-value-color-brown">Completed</span></td><td class="cell-kwyh"><div class="checkbox checkbox-off"></div></td><td class="cell-h@r:"><div class="checkbox checkbox-off"></div></td><td class="cell-EX[Z"><div class="checkbox checkbox-on"></div></td><td class="cell-d@|i"><div class="checkbox checkbox-off"></div></td><td class="cell-hJ=^">18</td><td class="cell-B&lt;ad"><div class="checkbox checkbox-off"></div></td></tr><tr id="2f556320-92ca-8049-8125-db5cd8521479"><td class="cell-U^Rl"><span class="status-value select-value-color-green"><div class="status-dot status-dot-color-green"></div>Processed</span></td><td class="cell-title"><a href="Meetings/Data%20Strategy%20&amp;%20Team%20Status%20Meeting%20%E2%80%94%202026-01-27%202f55632092ca80498125db5cd8521479.html">Data Strategy &amp; Team Status Meeting — 2026-01-27</a></td><td class="cell-?;BR">Microsoft Fabric implementation overview, Purview documentation layer, MDM strategy, Citrine project &amp; R&amp;D integration, Ann&#x27;s contract &amp; critical resource concerns, team status updates (UDS/Jason/Matt/Francis/Steve), action items</td><td class="cell-=Qcm"><span class="selected-value select-value-color-pink">Internal</span></td><td class="cell-&lt;Jt@"><time>January 27, 2026</time></td><td class="cell-[VKz"><span class="selected-value select-value-color-orange">Team Meeting</span></td><td class="cell-K{ix"><span class="user"><span class="icon text-icon user-icon"><span class="user-icon-inner">P</span></span>Patrick Stiller</span></td><td class="cell-Ug&gt;v"><span class="selected-value select-value-color-red">High</span></td><td class="cell-dp{Z"><span class="selected-value select-value-color-brown">Completed</span></td><td class="cell-kwyh"><div class="checkbox checkbox-off"></div></td><td class="cell-h@r:"><div class="checkbox checkbox-off"></div></td><td class="cell-EX[Z"><div class="checkbox checkbox-on"></div></td><td class="cell-d@|i"><div class="checkbox checkbox-off"></div></td><td class="cell-hJ=^">17</td><td class="cell-B&lt;ad"><div class="checkbox checkbox-off"></div></td></tr><tr id="2f556320-92ca-808f-be3a-e8a0f9eec687"><td class="cell-U^Rl"><span class="status-value select-value-color-green"><div class="status-dot status-dot-color-green"></div>Processed</span></td><td class="cell-title"><a href="Meetings/Internal%20Team%20Status%20Update%20%E2%80%94%20Patrick%20Stiller%20%E2%80%94%2020%202f55632092ca808fbe3ae8a0f9eec687.html">Internal Team Status Update — Patrick Stiller — 2026-01-27</a></td><td class="cell-?;BR">Recording &amp; transcription practices, visual creation task follow-up, Ann meeting prep &amp; background assessment, Power BI Fabric trial capacity setup (Udius), service principal configuration (Michael Thiel)</td><td class="cell-=Qcm"><span class="selected-value select-value-color-pink">Internal</span></td><td class="cell-&lt;Jt@"><time>January 27, 2026</time></td><td class="cell-[VKz"><span class="selected-value select-value-color-default">1:1</span></td><td class="cell-K{ix"><span class="user"><img src="https://lh3.googleusercontent.com/a/ACg8ocLHfVvdl28jS936w7CBB6TObsUa1P-X8cbdsUSKdeEn_MD7Bw=s96-c" class="icon user-icon"/>Steve </span></td><td class="cell-Ug&gt;v"><span class="selected-value select-value-color-yellow">Medium</span></td><td class="cell-dp{Z"><span class="selected-value select-value-color-brown">Completed</span></td><td class="cell-kwyh"><div class="checkbox checkbox-off"></div></td><td class="cell-h@r:"><div class="checkbox checkbox-off"></div></td><td class="cell-EX[Z"><div class="checkbox checkbox-on"></div></td><td class="cell-d@|i"><div class="checkbox checkbox-off"></div></td><td class="cell-hJ=^">16</td><td class="cell-B&lt;ad"><div class="checkbox checkbox-off"></div></td></tr><tr id="13be227d-db2b-4920-bcea-44a422d83fd8"><td class="cell-U^Rl"><span class="status-value select-value-color-green"><div class="status-dot status-dot-color-green"></div>Processed</span></td><td class="cell-title"><a href="Meetings/M3%20Phase%20Two%20&amp;%20Credit%20Card%20Update%20%E2%80%94%20IT%20Portfolio%20R%2013be227ddb2b4920bcea44a422d83fd8.html"><span class="icon">📊</span>M3 Phase Two &amp; Credit Card Update — IT Portfolio Review — 2026-01-16</a></td><td class="cell-?;BR">IT Portfolio Review: M3 Phase 2 status (3 stories/27pts completed, awaiting Anne&#x27;s CR approval), Credit Card Integration (waiting on SAL/SLA), Factory Track (requirements gathering, scanners shipping), Production Scheduling (Wipro walkthrough done), JPMC Phase 2 (integration testing), DOL Invoicing (QA finishing, UAT next week), AI for R&amp;D (2 major projects, training Jan 22 &amp; 29), App Infrastructure (legal review of MSA/DPA), AD Cleanup (object cleanup Monday), Status Reporting template rollout, Steve on-site visit next week</td><td class="cell-=Qcm"><span class="selected-value select-value-color-pink">Internal</span></td><td class="cell-&lt;Jt@"><time>January 16, 2026</time></td><td class="cell-[VKz"><span class="selected-value select-value-color-orange">Team Meeting</span></td><td class="cell-K{ix"><span class="user"><span class="icon text-icon user-icon"><span class="user-icon-inner">P</span></span>Patrick Stiller</span></td><td class="cell-Ug&gt;v"><span class="selected-value select-value-color-red">High</span></td><td class="cell-dp{Z"><span class="selected-value select-value-color-brown">Completed</span></td><td class="cell-kwyh"><div class="checkbox checkbox-on"></div></td><td class="cell-h@r:"><div class="checkbox checkbox-on"></div></td><td class="cell-EX[Z"><div class="checkbox checkbox-off"></div></td><td class="cell-d@|i"><div class="checkbox checkbox-off"></div></td><td class="cell-hJ=^"></td><td class="cell-B&lt;ad"><div class="checkbox checkbox-on"></div></td></tr><tr id="2e956320-92ca-8034-a56d-f8c86e65334e"><td class="cell-U^Rl"><span class="status-value select-value-color-green"><div class="status-dot status-dot-color-green"></div>Processed</span></td><td class="cell-title"><a href="Meetings/MDM%20Meeting%20Planning%20Discussion%20%E2%80%94%20Patrick%20Stiller%20%202e95632092ca8034a56df8c86e65334e.html">MDM Meeting Planning Discussion — Patrick Stiller — 2026-01-15</a></td><td class="cell-?;BR">Planning MDM kickoff meeting: scheduling (Wed Dec 21, 10am-1pm with lunch break), attendee list (Matt Tallarico, Brenda Lins, Robin Virginia, Dominique, Mike Kenny, Carrie Browse + optional UDS, Tallarico Stewart, Mike Spencer), logistics (Training Center room, lunch arrangements), Steve travel arrangements (Holiday Inn Express, Uber from airport)</td><td class="cell-=Qcm"><span class="selected-value select-value-color-pink">Internal</span></td><td class="cell-&lt;Jt@"><time>January 15, 2026</time></td><td class="cell-[VKz"><span class="selected-value select-value-color-yellow">Planning</span></td><td class="cell-K{ix"><span class="user"><span class="icon text-icon user-icon"><span class="user-icon-inner">P</span></span>Patrick Stiller</span></td><td class="cell-Ug&gt;v"><span class="selected-value select-value-color-yellow">Medium</span></td><td class="cell-dp{Z"><span class="selected-value select-value-color-brown">Completed</span></td><td class="cell-kwyh"><div class="checkbox checkbox-off"></div></td><td class="cell-h@r:"><div class="checkbox checkbox-on"></div></td><td class="cell-EX[Z"><div class="checkbox checkbox-on"></div></td><td class="cell-d@|i"><div class="checkbox checkbox-off"></div></td><td class="cell-hJ=^"></td><td class="cell-B&lt;ad"><div class="checkbox checkbox-on"></div></td></tr><tr id="22852a0c-148d-411b-afb5-731dce48ccbe"><td class="cell-U^Rl"><span class="status-value select-value-color-green"><div class="status-dot status-dot-color-green"></div>Processed</span></td><td class="cell-title"><a href="Meetings/Pre-Onsite%20Planning%20and%20Scoping%2022852a0c148d411bafb5731dce48ccbe.html"><span class="icon">📋</span>Pre-Onsite Planning and Scoping</a></td><td class="cell-?;BR">Pre-sizing workspace planning session with Patrick Stiller. Align on sizing/workspace model before Cybertrol meeting, discuss dedicated workspace vs. capacity, confirm three priority meetings, data normalization/terminology guidelines, introduce Robin (new hire with MDM interest).</td><td class="cell-=Qcm"><span class="selected-value select-value-color-pink">Internal</span></td><td class="cell-&lt;Jt@"><time>January 13, 2026 2:00 PM (UTC)</time></td><td class="cell-[VKz"><span class="selected-value select-value-color-default">1:1</span></td><td class="cell-K{ix"><span class="user"><img src="https://lh3.googleusercontent.com/a/ACg8ocLHfVvdl28jS936w7CBB6TObsUa1P-X8cbdsUSKdeEn_MD7Bw=s96-c" class="icon user-icon"/>Steve </span></td><td class="cell-Ug&gt;v"><span class="selected-value select-value-color-red">High</span></td><td class="cell-dp{Z"><span class="selected-value select-value-color-brown">Completed</span></td><td class="cell-kwyh"><div class="checkbox checkbox-on"></div></td><td class="cell-h@r:"><div class="checkbox checkbox-on"></div></td><td class="cell-EX[Z"><div class="checkbox checkbox-off"></div></td><td class="cell-d@|i"><div class="checkbox checkbox-off"></div></td><td class="cell-hJ=^"></td><td class="cell-B&lt;ad"><div class="checkbox checkbox-off"></div></td></tr><tr id="2e756320-92ca-8086-8fff-de69286ee496"><td class="cell-U^Rl"><span class="status-value select-value-color-green"><div class="status-dot status-dot-color-green"></div>Processed</span></td><td class="cell-title"><a href="Meetings/Meeting%20Planning%20&amp;%20Coordination%20%E2%80%94%20Patrick%20Stiller%20%202e75632092ca80868fffde69286ee496.html">Meeting Planning &amp; Coordination — Patrick Stiller — 2026-01-13</a></td><td class="cell-?;BR">Next week meeting planning with Robin, Mike, IT team; Fabric implementation discussion; Cybertrol meeting prep (sizing, workspace vs capacity); Team staffing (Rob in Virginia, Matt Teller)</td><td class="cell-=Qcm"><span class="selected-value select-value-color-pink">Internal</span></td><td class="cell-&lt;Jt@"><time>January 13, 2026 8:52 AM (UTC)</time></td><td class="cell-[VKz"><span class="selected-value select-value-color-default">1:1</span></td><td class="cell-K{ix"><span class="user"><span class="icon text-icon user-icon"><span class="user-icon-inner">P</span></span>Patrick Stiller</span></td><td class="cell-Ug&gt;v"><span class="selected-value select-value-color-red">High</span></td><td class="cell-dp{Z"><span class="selected-value select-value-color-brown">Completed</span></td><td class="cell-kwyh"><div class="checkbox checkbox-off"></div></td><td class="cell-h@r:"><div class="checkbox checkbox-on"></div></td><td class="cell-EX[Z"><div class="checkbox checkbox-on"></div></td><td class="cell-d@|i"><div class="checkbox checkbox-off"></div></td><td class="cell-hJ=^"></td><td class="cell-B&lt;ad"><div class="checkbox checkbox-off"></div></td></tr><tr id="2e756320-92ca-802f-8fb6-f0bbf4c07718"><td class="cell-U^Rl"><span class="status-value select-value-color-green"><div class="status-dot status-dot-color-green"></div>Processed</span></td><td class="cell-title"><a href="Meetings/sysAid%20to%20Jira%20Automation%20Discussion%202e75632092ca802f8fb6f0bbf4c07718.html">sysAid to Jira Automation Discussion</a></td><td class="cell-?;BR">sysAid to Jira integration; Zapier evaluation; Microsoft Fabric data flow; Citrine meeting planning; Team dynamics and role observations</td><td class="cell-=Qcm"><span class="selected-value select-value-color-pink">Internal</span></td><td class="cell-&lt;Jt@"><time>January 13, 2026</time></td><td class="cell-[VKz"><span class="selected-value select-value-color-default">1:1</span></td><td class="cell-K{ix"><span class="user"><img src="https://lh3.googleusercontent.com/a/ACg8ocLHfVvdl28jS936w7CBB6TObsUa1P-X8cbdsUSKdeEn_MD7Bw=s96-c" class="icon user-icon"/>Steve </span></td><td class="cell-Ug&gt;v"><span class="selected-value select-value-color-yellow">Medium</span></td><td class="cell-dp{Z"><span class="selected-value select-value-color-brown">Completed</span></td><td class="cell-kwyh"><div class="checkbox checkbox-on"></div></td><td class="cell-h@r:"><div class="checkbox checkbox-on"></div></td><td class="cell-EX[Z"><div class="checkbox checkbox-off"></div></td><td class="cell-d@|i"><div class="checkbox checkbox-off"></div></td><td class="cell-hJ=^"></td><td class="cell-B&lt;ad"><div class="checkbox checkbox-off"></div></td></tr><tr id="2e656320-92ca-800e-85c0-c6a70484e9fd"><td class="cell-U^Rl"><span class="status-value select-value-color-green"><div class="status-dot status-dot-color-green"></div>Processed</span></td><td class="cell-title"><a href="Meetings/Brief%20Check-in%20Meeting%20%E2%80%94%20Patrick%20Stiller%20%E2%80%94%202026-01%202e65632092ca800e85c0c6a70484e9fd.html">Brief Check-in Meeting — Patrick Stiller — 2026-01-12</a></td><td class="cell-?;BR">Quick sync on upcoming meetings; Sales BI demo prep; NAC vs Manufacturing differences discussion; Purview work status with Stuart</td><td class="cell-=Qcm"><span class="selected-value select-value-color-pink">Internal</span></td><td class="cell-&lt;Jt@"><time>January 12, 2026 11:00 AM (UTC)</time></td><td class="cell-[VKz"><span class="selected-value select-value-color-default">1:1</span></td><td class="cell-K{ix"><span class="user"><span class="icon text-icon user-icon"><span class="user-icon-inner">P</span></span>Patrick Stiller</span></td><td class="cell-Ug&gt;v"><span class="selected-value select-value-color-yellow">Medium</span></td><td class="cell-dp{Z"><span class="selected-value select-value-color-brown">Completed</span></td><td class="cell-kwyh"><div class="checkbox checkbox-off"></div></td><td class="cell-h@r:"><div class="checkbox checkbox-on"></div></td><td class="cell-EX[Z"><div class="checkbox checkbox-on"></div></td><td class="cell-d@|i"><div class="checkbox checkbox-off"></div></td><td class="cell-hJ=^"></td><td class="cell-B&lt;ad"><div class="checkbox checkbox-off"></div></td></tr><tr id="2e656320-92ca-80d8-b6ad-d83e7cd216dd"><td class="cell-U^Rl"><span class="status-value select-value-color-green"><div class="status-dot status-dot-color-green"></div>Processed</span></td><td class="cell-title"><a href="Meetings/Empty%20Recording%20%E2%80%94%202026-01-12%202e65632092ca80d8b6add83e7cd216dd.html">Empty Recording — 2026-01-12</a></td><td class="cell-?;BR">Short/empty recording — no actionable content</td><td class="cell-=Qcm"></td><td class="cell-&lt;Jt@"><time>January 12, 2026 10:14 AM (UTC)</time></td><td class="cell-[VKz"><span class="selected-value select-value-color-pink">Other</span></td><td class="cell-K{ix"></td><td class="cell-Ug&gt;v"><span class="selected-value select-value-color-green">Low</span></td><td class="cell-dp{Z"><span class="selected-value select-value-color-default">Cancelled</span></td><td class="cell-kwyh"><div class="checkbox checkbox-off"></div></td><td class="cell-h@r:"><div class="checkbox checkbox-off"></div></td><td class="cell-EX[Z"><div class="checkbox checkbox-off"></div></td><td class="cell-d@|i"><div class="checkbox checkbox-off"></div></td><td class="cell-hJ=^"></td><td class="cell-B&lt;ad"><div class="checkbox checkbox-off"></div></td></tr><tr id="2e356320-92ca-80f5-9f49-f50405652c90"><td class="cell-U^Rl"><span class="status-value select-value-color-green"><div class="status-dot status-dot-color-green"></div>Processed</span></td><td class="cell-title"><a href="Meetings/IT%20Project%20Portfolio%20Review%20Meeting%202e35632092ca80f59f49f50405652c90.html">IT Project Portfolio Review Meeting</a></td><td class="cell-?;BR">IT project portfolio status review covering M3 Phase 2/3, Credit Card Integration, Factory Track, JPMC Phase 2, BOL Invoicing, AI for R&amp;D (Citrine), CCAS UCAS, CISAID Upgrade, MDM Data Governance, Hot List Dashboard, Price Support Application, AD Cleanup, M3 Cloud Integration timeline</td><td class="cell-=Qcm"><span class="selected-value select-value-color-pink">Internal</span></td><td class="cell-&lt;Jt@"><time>January 9, 2026</time></td><td class="cell-[VKz"><span class="selected-value select-value-color-orange">Team Meeting</span></td><td class="cell-K{ix"><span class="user"><img src="https://lh3.googleusercontent.com/a/ACg8ocLHfVvdl28jS936w7CBB6TObsUa1P-X8cbdsUSKdeEn_MD7Bw=s96-c" class="icon user-icon"/>Steve </span></td><td class="cell-Ug&gt;v"><span class="selected-value select-value-color-yellow">Medium</span></td><td class="cell-dp{Z"><span class="selected-value select-value-color-brown">Completed</span></td><td class="cell-kwyh"><div class="checkbox checkbox-off"></div></td><td class="cell-h@r:"><div class="checkbox checkbox-off"></div></td><td class="cell-EX[Z"><div class="checkbox checkbox-on"></div></td><td class="cell-d@|i"><div class="checkbox checkbox-off"></div></td><td class="cell-hJ=^"></td><td class="cell-B&lt;ad"><div class="checkbox checkbox-off"></div></td></tr><tr id="2e156320-92ca-8017-9b06-c6c50e690534"><td class="cell-U^Rl"><span class="status-value select-value-color-green"><div class="status-dot status-dot-color-green"></div>Processed</span></td><td class="cell-title"><a href="Meetings/Power%20BI%20Access%20&amp;%20Project%20Timeline%20Review%202e15632092ca80179b06c6c50e690534.html">Power BI Access &amp; Project Timeline Review</a></td><td class="cell-?;BR">Power BI workspace access levels (viewer for Steve), workspace cleanup (remove inactive), Azure app registration IDs for XMLA endpoint, Jira project setup with Dominique, Implementation timeline review (95 weeks), AI platform selection (Azure Foundry)</td><td class="cell-=Qcm"><span class="selected-value select-value-color-pink">Internal</span></td><td class="cell-&lt;Jt@"><time>January 7, 2026</time></td><td class="cell-[VKz"><span class="selected-value select-value-color-default">1:1</span></td><td class="cell-K{ix"><span class="user"><span class="icon text-icon user-icon"><span class="user-icon-inner">P</span></span>Patrick Stiller</span></td><td class="cell-Ug&gt;v"><span class="selected-value select-value-color-yellow">Medium</span></td><td class="cell-dp{Z"><span class="selected-value select-value-color-brown">Completed</span></td><td class="cell-kwyh"><div class="checkbox checkbox-off"></div></td><td class="cell-h@r:"><div class="checkbox checkbox-off"></div></td><td class="cell-EX[Z"><div class="checkbox checkbox-on"></div></td><td class="cell-d@|i"><div class="checkbox checkbox-off"></div></td><td class="cell-hJ=^"></td><td class="cell-B&lt;ad"><div class="checkbox checkbox-off"></div></td></tr><tr id="2e156320-92ca-80a2-acfc-da7a902a106d"><td class="cell-U^Rl"><span class="status-value select-value-color-green"><div class="status-dot status-dot-color-green"></div>Processed</span></td><td class="cell-title"><a href="Meetings/Technical%20Systems%20Meeting%202e15632092ca80a2acfcda7a902a106d.html">Technical Systems Meeting</a></td><td class="cell-?;BR">Factory Talk/PLC integration challenges, Hot List status, Hazmat report updates, MP batch card issues, Hazardous ingredients report, Authentication/Entrez ID setup, ETQ BI build progress, M3 order confirmation date retrieval, Contract developer staffing</td><td class="cell-=Qcm"><span class="selected-value select-value-color-pink">Internal</span></td><td class="cell-&lt;Jt@"><time>January 7, 2026</time></td><td class="cell-[VKz"><span class="selected-value select-value-color-red">Standup</span></td><td class="cell-K{ix"><span class="user"><span class="icon text-icon user-icon"><span class="user-icon-inner">P</span></span>Patrick Stiller</span></td><td class="cell-Ug&gt;v"><span class="selected-value select-value-color-yellow">Medium</span></td><td class="cell-dp{Z"><span class="selected-value select-value-color-brown">Completed</span></td><td class="cell-kwyh"><div class="checkbox checkbox-off"></div></td><td class="cell-h@r:"><div class="checkbox checkbox-off"></div></td><td class="cell-EX[Z"><div class="checkbox checkbox-on"></div></td><td class="cell-d@|i"><div class="checkbox checkbox-off"></div></td><td class="cell-hJ=^"></td><td class="cell-B&lt;ad"><div class="checkbox checkbox-off"></div></td></tr><tr id="2df56320-92ca-80ce-9aa4-cabe216bc096"><td class="cell-U^Rl"><span class="status-value select-value-color-green"><div class="status-dot status-dot-color-green"></div>Processed</span></td><td class="cell-title"><a href="Meetings/Weekly%20Standup%20and%20Team%20Onboarding%20Discussion%20%E2%80%94%2020%202df5632092ca80ce9aa4cabe216bc096.html">Weekly Standup and Team Onboarding Discussion — 2026-01-05</a></td><td class="cell-?;BR">Weekly standup cadence, Matt Tallarico BI onboarding, Yudia Fabric training, ETQ dashboard project, Cybertrol contract review, access requests</td><td class="cell-=Qcm"><span class="selected-value select-value-color-pink">Internal</span></td><td class="cell-&lt;Jt@"><time>January 5, 2026</time></td><td class="cell-[VKz"><span class="selected-value select-value-color-red">Standup</span></td><td class="cell-K{ix"><span class="user"><img src="https://lh3.googleusercontent.com/a/ACg8ocLHfVvdl28jS936w7CBB6TObsUa1P-X8cbdsUSKdeEn_MD7Bw=s96-c" class="icon user-icon"/>Steve </span></td><td class="cell-Ug&gt;v"><span class="selected-value select-value-color-yellow">Medium</span></td><td class="cell-dp{Z"><span class="selected-value select-value-color-brown">Completed</span></td><td class="cell-kwyh"><div class="checkbox checkbox-off"></div></td><td class="cell-h@r:"><div class="checkbox checkbox-on"></div></td><td class="cell-EX[Z"><div class="checkbox checkbox-on"></div></td><td class="cell-d@|i"><div class="checkbox checkbox-off"></div></td><td class="cell-hJ=^"></td><td class="cell-B&lt;ad"><div class="checkbox checkbox-off"></div></td></tr><tr id="b3655885-3180-4e36-9523-20633f035dde"><td class="cell-U^Rl"><span class="status-value select-value-color-green"><div class="status-dot status-dot-color-green"></div>Processed</span></td><td class="cell-title"><a href="Meetings/Mike%20Spencer%20%E2%80%94%20AD%20Standardization%20&amp;%20SOC%202%20Planning%20b365588531804e36952320633f035dde.html"><span class="icon">🔐</span>Mike Spencer — AD Standardization &amp; SOC 2 Planning</a></td><td class="cell-?;BR">Active Directory standardization initiative, ADP integration planning, SOC 2 controls alignment, infrastructure/security architecture layers, travel &amp; expense process updates, Cybertrol SOW discussion, Fabric data strategy</td><td class="cell-=Qcm"><span class="selected-value select-value-color-pink">Internal</span></td><td class="cell-&lt;Jt@"><time>January 2, 2026</time></td><td class="cell-[VKz"><span class="selected-value select-value-color-default">1:1</span></td><td class="cell-K{ix"><span class="user"><img src="https://lh3.googleusercontent.com/a/ACg8ocLHfVvdl28jS936w7CBB6TObsUa1P-X8cbdsUSKdeEn_MD7Bw=s96-c" class="icon user-icon"/>Steve </span></td><td class="cell-Ug&gt;v"><span class="selected-value select-value-color-red">High</span></td><td class="cell-dp{Z"><span class="selected-value select-value-color-brown">Completed</span></td><td class="cell-kwyh"><div class="checkbox checkbox-on"></div></td><td class="cell-h@r:"><div class="checkbox checkbox-off"></div></td><td class="cell-EX[Z"><div class="checkbox checkbox-off"></div></td><td class="cell-d@|i"><div class="checkbox checkbox-off"></div></td><td class="cell-hJ=^"></td><td class="cell-B&lt;ad"><div class="checkbox checkbox-off"></div></td></tr><tr id="2da56320-92ca-8089-ad1e-c1bb8c7fcd5a"><td class="cell-U^Rl"><span class="status-value select-value-color-green"><div class="status-dot status-dot-color-green"></div>Processed</span></td><td class="cell-title"><a href="Meetings/Team%20Reorganization%20Discussion%202da5632092ca8089ad1ec1bb8c7fcd5a.html">Team Reorganization Discussion</a></td><td class="cell-?;BR">George Madison team transfer discussion, career alignment assessment (BI/data analytics), upcoming data project staffing, first visit game plan adjustment, Stuart Purview collaboration</td><td class="cell-=Qcm"><span class="selected-value select-value-color-pink">Internal</span></td><td class="cell-&lt;Jt@"><time>December 31, 2025</time></td><td class="cell-[VKz"><span class="selected-value select-value-color-default">1:1</span></td><td class="cell-K{ix"><span class="user"><img src="https://lh3.googleusercontent.com/a/ACg8ocLHfVvdl28jS936w7CBB6TObsUa1P-X8cbdsUSKdeEn_MD7Bw=s96-c" class="icon user-icon"/>Steve </span></td><td class="cell-Ug&gt;v"><span class="selected-value select-value-color-yellow">Medium</span></td><td class="cell-dp{Z"><span class="selected-value select-value-color-brown">Completed</span></td><td class="cell-kwyh"><div class="checkbox checkbox-off"></div></td><td class="cell-h@r:"><div class="checkbox checkbox-off"></div></td><td class="cell-EX[Z"><div class="checkbox checkbox-on"></div></td><td class="cell-d@|i"><div class="checkbox checkbox-off"></div></td><td class="cell-hJ=^"></td><td class="cell-B&lt;ad"><div class="checkbox checkbox-off"></div></td></tr><tr id="b13b1c35-a5fd-4aa7-8dbf-0d0388458b36"><td class="cell-U^Rl"><span class="status-value select-value-color-green"><div class="status-dot status-dot-color-green"></div>Processed</span></td><td class="cell-title"><a href="Meetings/Database%20Exploration%20with%20Eudias%20b13b1c35a5fd4aa78dbf0d0388458b36.html">Database Exploration with Eudias</a></td><td class="cell-?;BR"></td><td class="cell-=Qcm"><span class="selected-value select-value-color-pink">Internal</span></td><td class="cell-&lt;Jt@"><time>December 17, 2025</time></td><td class="cell-[VKz"><span class="selected-value select-value-color-orange">Team Meeting</span></td><td class="cell-K{ix"><span class="user"><img src="https://lh3.googleusercontent.com/a/ACg8ocLHfVvdl28jS936w7CBB6TObsUa1P-X8cbdsUSKdeEn_MD7Bw=s96-c" class="icon user-icon"/>Steve </span></td><td class="cell-Ug&gt;v"><span class="selected-value select-value-color-red">High</span></td><td class="cell-dp{Z"><span class="selected-value select-value-color-brown">Completed</span></td><td class="cell-kwyh"><div class="checkbox checkbox-on"></div></td><td class="cell-h@r:"><div class="checkbox checkbox-on"></div></td><td class="cell-EX[Z"><div class="checkbox checkbox-off"></div></td><td class="cell-d@|i"><div class="checkbox checkbox-on"></div></td><td class="cell-hJ=^"></td><td class="cell-B&lt;ad"><div class="checkbox checkbox-off"></div></td></tr><tr id="2cb56320-92ca-80f2-ad8e-eab966eeff45"><td class="cell-U^Rl"><span class="status-value select-value-color-green"><div class="status-dot status-dot-color-green"></div>Processed</span></td><td class="cell-title"><a href="Meetings/IP%20Corp%20%E2%80%94%20Stuart%20Langley%20Intro%20+%20Database%20Access%20P%202cb5632092ca80f2ad8eeab966eeff45.html">IP Corp — Stuart Langley Intro + Database Access Planning</a></td><td class="cell-?;BR">1. Stuart Langley intro (SA credentials setup)<br/>2. Mike meeting recap (Dec 13)<br/>3. Database access planning (SSL VPN vs RDP)<br/>4. Power BI/Fabric licensing and admin roles<br/>5. Purview status and PII policies<br/>6. POC planning (M3 vs MES)</td><td class="cell-=Qcm"><span class="selected-value select-value-color-pink">Internal</span></td><td class="cell-&lt;Jt@"><time>December 16, 2025</time></td><td class="cell-[VKz"><span class="selected-value select-value-color-yellow">Planning</span></td><td class="cell-K{ix"><span class="user"><img src="https://lh3.googleusercontent.com/a/ACg8ocLHfVvdl28jS936w7CBB6TObsUa1P-X8cbdsUSKdeEn_MD7Bw=s96-c" class="icon user-icon"/>Steve </span></td><td class="cell-Ug&gt;v"><span class="selected-value select-value-color-red">High</span></td><td class="cell-dp{Z"><span class="selected-value select-value-color-brown">Completed</span></td><td class="cell-kwyh"><div class="checkbox checkbox-on"></div></td><td class="cell-h@r:"><div class="checkbox checkbox-on"></div></td><td class="cell-EX[Z"><div class="checkbox checkbox-on"></div></td><td class="cell-d@|i"><div class="checkbox checkbox-off"></div></td><td class="cell-hJ=^">14</td><td class="cell-B&lt;ad"><div class="checkbox checkbox-off"></div></td></tr><tr id="2c756320-92ca-8077-af0f-f7d2d3d218c9"><td class="cell-U^Rl"><span class="status-value select-value-color-green"><div class="status-dot status-dot-color-green"></div>Processed</span></td><td class="cell-title"><a href="Meetings/Mike%20Spencer%20%E2%80%94%20CIO%20Architecture%20Meeting%202c75632092ca8077af0ff7d2d3d218c9.html">Mike Spencer — CIO Architecture Meeting</a></td><td class="cell-?;BR">MDM strategy discussion, CIO alignment on data management initiative, stakeholder engagement planning, executive sponsorship confirmation, steering committee structure, Fabric/Purview approach, ELT introduction timing</td><td class="cell-=Qcm"><span class="selected-value select-value-color-pink">Internal</span></td><td class="cell-&lt;Jt@"><time>December 12, 2025</time></td><td class="cell-[VKz"><span class="selected-value select-value-color-default">1:1</span></td><td class="cell-K{ix"><span class="user"><img src="https://lh3.googleusercontent.com/a/ACg8ocLHfVvdl28jS936w7CBB6TObsUa1P-X8cbdsUSKdeEn_MD7Bw=s96-c" class="icon user-icon"/>Steve </span></td><td class="cell-Ug&gt;v"><span class="selected-value select-value-color-red">High</span></td><td class="cell-dp{Z"><span class="selected-value select-value-color-brown">Completed</span></td><td class="cell-kwyh"><div class="checkbox checkbox-on"></div></td><td class="cell-h@r:"><div class="checkbox checkbox-on"></div></td><td class="cell-EX[Z"><div class="checkbox checkbox-on"></div></td><td class="cell-d@|i"><div class="checkbox checkbox-off"></div></td><td class="cell-hJ=^">13</td><td class="cell-B&lt;ad"><div class="checkbox checkbox-off"></div></td></tr><tr id="2c656320-92ca-80a5-b292-ea836691201b"><td class="cell-U^Rl"><span class="status-value select-value-color-green"><div class="status-dot status-dot-color-green"></div>Processed</span></td><td class="cell-title"><a href="Meetings/Project%20Kickoff%20Wrap-Up%20Conversation%202c65632092ca80a5b292ea836691201b.html">Project Kickoff Wrap-Up Conversation</a></td><td class="cell-?;BR">Engagement progress check-in, communication preferences, stakeholder dynamics, working relationship with Patrick</td><td class="cell-=Qcm"><span class="selected-value select-value-color-pink">Internal</span></td><td class="cell-&lt;Jt@"><time>December 11, 2025</time></td><td class="cell-[VKz"><span class="selected-value select-value-color-default">1:1</span></td><td class="cell-K{ix"><span class="user"><img src="https://lh3.googleusercontent.com/a/ACg8ocLHfVvdl28jS936w7CBB6TObsUa1P-X8cbdsUSKdeEn_MD7Bw=s96-c" class="icon user-icon"/>Steve </span></td><td class="cell-Ug&gt;v"><span class="selected-value select-value-color-yellow">Medium</span></td><td class="cell-dp{Z"><span class="selected-value select-value-color-brown">Completed</span></td><td class="cell-kwyh"><div class="checkbox checkbox-on"></div></td><td class="cell-h@r:"><div class="checkbox checkbox-on"></div></td><td class="cell-EX[Z"><div class="checkbox checkbox-on"></div></td><td class="cell-d@|i"><div class="checkbox checkbox-off"></div></td><td class="cell-hJ=^">10</td><td class="cell-B&lt;ad"><div class="checkbox checkbox-off"></div></td></tr><tr id="2c656320-92ca-8055-bc9f-d7d44a0b252a"><td class="cell-U^Rl"><span class="status-value select-value-color-green"><div class="status-dot status-dot-color-green"></div>Processed</span></td><td class="cell-title"><a href="Meetings/IT%20Systems%20and%20Reporting%20Infrastructure%20Meeting%202c65632092ca8055bc9fd7d44a0b252a.html">IT Systems and Reporting Infrastructure Meeting</a></td><td class="cell-?;BR">SSRS reporting infrastructure overview, data sources walkthrough (M3, ETQ, Optiva, Thermograph, SysAid), report organization structure, system access planning</td><td class="cell-=Qcm"><span class="selected-value select-value-color-pink">Internal</span></td><td class="cell-&lt;Jt@"><time>December 11, 2025</time></td><td class="cell-[VKz"><span class="selected-value select-value-color-orange">Team Meeting</span></td><td class="cell-K{ix"><span class="user"><img src="https://lh3.googleusercontent.com/a/ACg8ocLHfVvdl28jS936w7CBB6TObsUa1P-X8cbdsUSKdeEn_MD7Bw=s96-c" class="icon user-icon"/>Steve </span></td><td class="cell-Ug&gt;v"><span class="selected-value select-value-color-yellow">Medium</span></td><td class="cell-dp{Z"><span class="selected-value select-value-color-brown">Completed</span></td><td class="cell-kwyh"><div class="checkbox checkbox-on"></div></td><td class="cell-h@r:"><div class="checkbox checkbox-on"></div></td><td class="cell-EX[Z"><div class="checkbox checkbox-on"></div></td><td class="cell-d@|i"><div class="checkbox checkbox-off"></div></td><td class="cell-hJ=^">9</td><td class="cell-B&lt;ad"><div class="checkbox checkbox-off"></div></td></tr><tr id="2c656320-92ca-80c7-b64a-c64645763ef2"><td class="cell-U^Rl"><span class="status-value select-value-color-green"><div class="status-dot status-dot-color-green"></div>Processed</span></td><td class="cell-title"><a href="Meetings/MES%20Integration%20and%20Traceability%20Review%202c65632092ca80c7b64ac64645763ef2.html">MES Integration and Traceability Review</a></td><td class="cell-?;BR">End-to-end MES flow walkthrough (Optiva → MES → M3 → QC), Batch ID traceability, plant vs corporate formulas, MES-M3 integration rates (98-99%), disposition codes, S3/S4 yield accounting, ANV recommendations</td><td class="cell-=Qcm"><span class="selected-value select-value-color-pink">Internal</span></td><td class="cell-&lt;Jt@"><time>December 11, 2025</time></td><td class="cell-[VKz"><span class="selected-value select-value-color-orange">Team Meeting</span></td><td class="cell-K{ix"><span class="user"><img src="https://lh3.googleusercontent.com/a/ACg8ocLHfVvdl28jS936w7CBB6TObsUa1P-X8cbdsUSKdeEn_MD7Bw=s96-c" class="icon user-icon"/>Steve </span></td><td class="cell-Ug&gt;v"><span class="selected-value select-value-color-red">High</span></td><td class="cell-dp{Z"><span class="selected-value select-value-color-brown">Completed</span></td><td class="cell-kwyh"><div class="checkbox checkbox-on"></div></td><td class="cell-h@r:"><div class="checkbox checkbox-on"></div></td><td class="cell-EX[Z"><div class="checkbox checkbox-off"></div></td><td class="cell-d@|i"><div class="checkbox checkbox-off"></div></td><td class="cell-hJ=^">12</td><td class="cell-B&lt;ad"><div class="checkbox checkbox-off"></div></td></tr><tr id="2c656320-92ca-80cc-bdcb-e535dca21ffb"><td class="cell-U^Rl"><span class="status-value select-value-color-green"><div class="status-dot status-dot-color-green"></div>Processed</span></td><td class="cell-title"><a href="Meetings/M3%20Salesforce%20Integration%20Deep%20Dive%20with%20Data%20Mode%202c65632092ca80ccbdcbe535dca21ffb.html">M3 Salesforce Integration Deep Dive with Data Model, Price Supports and Sync Cadence</a></td><td class="cell-?;BR">M3 database structure overview, Metadata Publisher demo, Salesforce integration (dbAMP), M3-Salesforce sync cadence, price supports process, data source mapping</td><td class="cell-=Qcm"><span class="selected-value select-value-color-pink">Internal</span></td><td class="cell-&lt;Jt@"><time>December 11, 2025</time></td><td class="cell-[VKz"><span class="selected-value select-value-color-orange">Team Meeting</span></td><td class="cell-K{ix"><span class="user"><img src="https://lh3.googleusercontent.com/a/ACg8ocLHfVvdl28jS936w7CBB6TObsUa1P-X8cbdsUSKdeEn_MD7Bw=s96-c" class="icon user-icon"/>Steve </span></td><td class="cell-Ug&gt;v"><span class="selected-value select-value-color-red">High</span></td><td class="cell-dp{Z"><span class="selected-value select-value-color-brown">Completed</span></td><td class="cell-kwyh"><div class="checkbox checkbox-on"></div></td><td class="cell-h@r:"><div class="checkbox checkbox-on"></div></td><td class="cell-EX[Z"><div class="checkbox checkbox-on"></div></td><td class="cell-d@|i"><div class="checkbox checkbox-off"></div></td><td class="cell-hJ=^">11</td><td class="cell-B&lt;ad"><div class="checkbox checkbox-off"></div></td></tr><tr id="534c7dee-801d-484a-a62f-cafcad6c4bab"><td class="cell-U^Rl"><span class="status-value select-value-color-green"><div class="status-dot status-dot-color-green"></div>Processed</span></td><td class="cell-title"><a href="Meetings/MDM%20Systems%20Lite%20Discussion%20534c7dee801d484aa62fcafcad6c4bab.html">MDM Systems Lite Discussion</a></td><td class="cell-?;BR">Company structure walkthrough (NAC distributorship, Interplastic/HK, Molding Products), MES vs non-MES plants, R&amp;D systems (DataColor, X-Rite), SDS management (Optiva + Sphera IA), quality systems (ETQ, SPC), price supports</td><td class="cell-=Qcm"><span class="selected-value select-value-color-pink">Internal</span></td><td class="cell-&lt;Jt@"><time>December 10, 2025 2:00 PM (UTC)</time></td><td class="cell-[VKz"><span class="selected-value select-value-color-orange">Team Meeting</span></td><td class="cell-K{ix"><span class="user"><img src="https://lh3.googleusercontent.com/a/ACg8ocLHfVvdl28jS936w7CBB6TObsUa1P-X8cbdsUSKdeEn_MD7Bw=s96-c" class="icon user-icon"/>Steve </span></td><td class="cell-Ug&gt;v"><span class="selected-value select-value-color-yellow">Medium</span></td><td class="cell-dp{Z"><span class="selected-value select-value-color-brown">Completed</span></td><td class="cell-kwyh"><div class="checkbox checkbox-off"></div></td><td class="cell-h@r:"><div class="checkbox checkbox-off"></div></td><td class="cell-EX[Z"><div class="checkbox checkbox-off"></div></td><td class="cell-d@|i"><div class="checkbox checkbox-off"></div></td><td class="cell-hJ=^">8</td><td class="cell-B&lt;ad"><div class="checkbox checkbox-off"></div></td></tr><tr id="e38467d0-0e29-44e2-8580-56257135c71e"><td class="cell-U^Rl"><span class="status-value select-value-color-green"><div class="status-dot status-dot-color-green"></div>Processed</span></td><td class="cell-title"><a href="Meetings/Diagram%20Review%20Session%20with%20Pat%20e38467d00e2944e2858056257135c71e.html">Diagram Review Session with Pat</a></td><td class="cell-?;BR">Architecture diagram corrections: MES scope, remove BatchWorks/PlantPAx/Adage, add FactoryTalk Batch, OATES spelling, Sphera IA naming, ANV placement, name corrections (Kerri Voiss, Matt Pennaz)</td><td class="cell-=Qcm"><span class="selected-value select-value-color-pink">Internal</span></td><td class="cell-&lt;Jt@"><time>December 10, 2025</time></td><td class="cell-[VKz"><span class="selected-value select-value-color-default">1:1</span></td><td class="cell-K{ix"><span class="user"><img src="https://lh3.googleusercontent.com/a/ACg8ocLHfVvdl28jS936w7CBB6TObsUa1P-X8cbdsUSKdeEn_MD7Bw=s96-c" class="icon user-icon"/>Steve </span></td><td class="cell-Ug&gt;v"><span class="selected-value select-value-color-yellow">Medium</span></td><td class="cell-dp{Z"><span class="selected-value select-value-color-brown">Completed</span></td><td class="cell-kwyh"><div class="checkbox checkbox-off"></div></td><td class="cell-h@r:"><div class="checkbox checkbox-off"></div></td><td class="cell-EX[Z"><div class="checkbox checkbox-off"></div></td><td class="cell-d@|i"><div class="checkbox checkbox-off"></div></td><td class="cell-hJ=^">7</td><td class="cell-B&lt;ad"><div class="checkbox checkbox-off"></div></td></tr><tr id="2c556320-92ca-805f-8b6c-f52260d5d4c8"><td class="cell-U^Rl"><span class="status-value select-value-color-green"><div class="status-dot status-dot-color-green"></div>Processed</span></td><td class="cell-title"><a href="Meetings/Database%20Architecture%20Overview%20&amp;%20AI%20Toolbox%20Discus%202c55632092ca805f8b6cf52260d5d4c8.html">Database Architecture Overview &amp; AI Toolbox Discussion</a></td><td class="cell-?;BR">SQL Server database walkthrough, M3 ERP database structure, Fabric Toolbox AI demo, database administration practices, Optiva/ETQ systems overview</td><td class="cell-=Qcm"><span class="selected-value select-value-color-pink">Internal</span></td><td class="cell-&lt;Jt@"><time>December 10, 2025</time></td><td class="cell-[VKz"><span class="selected-value select-value-color-default">1:1</span></td><td class="cell-K{ix"><span class="user"><img src="https://lh3.googleusercontent.com/a/ACg8ocLHfVvdl28jS936w7CBB6TObsUa1P-X8cbdsUSKdeEn_MD7Bw=s96-c" class="icon user-icon"/>Steve </span></td><td class="cell-Ug&gt;v"><span class="selected-value select-value-color-yellow">Medium</span></td><td class="cell-dp{Z"><span class="selected-value select-value-color-brown">Completed</span></td><td class="cell-kwyh"><div class="checkbox checkbox-off"></div></td><td class="cell-h@r:"><div class="checkbox checkbox-on"></div></td><td class="cell-EX[Z"><div class="checkbox checkbox-on"></div></td><td class="cell-d@|i"><div class="checkbox checkbox-off"></div></td><td class="cell-hJ=^">6</td><td class="cell-B&lt;ad"><div class="checkbox checkbox-off"></div></td></tr><tr id="2c556320-92ca-803d-b902-d479bc587f51"><td class="cell-U^Rl"><span class="status-value select-value-color-green"><div class="status-dot status-dot-color-green"></div>Processed</span></td><td class="cell-title"><a href="Meetings/Data%20Architecture%20Planning%20Meeting%20with%20Pat%202c55632092ca803db902d479bc587f51.html">Data Architecture Planning Meeting with Pat</a></td><td class="cell-?;BR">Architecture planning session with Patrick, discovery priorities, stakeholder alignment</td><td class="cell-=Qcm"><span class="selected-value select-value-color-pink">Internal</span></td><td class="cell-&lt;Jt@"><time>December 9, 2025</time></td><td class="cell-[VKz"><span class="selected-value select-value-color-default">1:1</span></td><td class="cell-K{ix"><span class="user"><img src="https://lh3.googleusercontent.com/a/ACg8ocLHfVvdl28jS936w7CBB6TObsUa1P-X8cbdsUSKdeEn_MD7Bw=s96-c" class="icon user-icon"/>Steve </span></td><td class="cell-Ug&gt;v"><span class="selected-value select-value-color-yellow">Medium</span></td><td class="cell-dp{Z"><span class="selected-value select-value-color-brown">Completed</span></td><td class="cell-kwyh"><div class="checkbox checkbox-off"></div></td><td class="cell-h@r:"><div class="checkbox checkbox-off"></div></td><td class="cell-EX[Z"><div class="checkbox checkbox-on"></div></td><td class="cell-d@|i"><div class="checkbox checkbox-off"></div></td><td class="cell-hJ=^">5</td><td class="cell-B&lt;ad"><div class="checkbox checkbox-off"></div></td></tr><tr id="2c456320-92ca-809d-aa9d-ee04078a6e1e"><td class="cell-U^Rl"><span class="status-value select-value-color-green"><div class="status-dot status-dot-color-green"></div>Processed</span></td><td class="cell-title"><a href="Meetings/IP%20Corp%20%E2%80%94%20Data%20Architecture%20Review%20&amp;%20DB%20Systems%20%E2%80%94%20%202c45632092ca809daa9dee04078a6e1e.html">IP Corp — Data Architecture Review &amp; DB Systems — 2025-12-09</a></td><td class="cell-?;BR">Data architecture review, database systems deep dive, schema inventory discussion</td><td class="cell-=Qcm"><span class="selected-value select-value-color-pink">Internal</span></td><td class="cell-&lt;Jt@"><time>December 9, 2025</time></td><td class="cell-[VKz"><span class="selected-value select-value-color-orange">Team Meeting</span></td><td class="cell-K{ix"><span class="user"><img src="https://lh3.googleusercontent.com/a/ACg8ocLHfVvdl28jS936w7CBB6TObsUa1P-X8cbdsUSKdeEn_MD7Bw=s96-c" class="icon user-icon"/>Steve </span></td><td class="cell-Ug&gt;v"><span class="selected-value select-value-color-yellow">Medium</span></td><td class="cell-dp{Z"><span class="selected-value select-value-color-brown">Completed</span></td><td class="cell-kwyh"><div class="checkbox checkbox-on"></div></td><td class="cell-h@r:"><div class="checkbox checkbox-off"></div></td><td class="cell-EX[Z"><div class="checkbox checkbox-on"></div></td><td class="cell-d@|i"><div class="checkbox checkbox-off"></div></td><td class="cell-hJ=^">4</td><td class="cell-B&lt;ad"><div class="checkbox checkbox-off"></div></td></tr><tr id="2f183af4-45e8-4b99-833b-4211768e07e8"><td class="cell-U^Rl"><span class="status-value select-value-color-green"><div class="status-dot status-dot-color-green"></div>Processed</span></td><td class="cell-title"><a href="Meetings/Monday%20Kickoff%20with%20Patrick%202f183af445e84b99833b4211768e07e8.html">Monday Kickoff with Patrick</a></td><td class="cell-?;BR">Patrick intro, IT landscape overview, 2-week priorities, ERP structure (M3 cloud + on-prem), security boundaries, Product domain prioritization, Fabric greenfield status</td><td class="cell-=Qcm"><span class="selected-value select-value-color-pink">Internal</span></td><td class="cell-&lt;Jt@"><time>December 8, 2025</time></td><td class="cell-[VKz"><span class="selected-value select-value-color-default">1:1</span></td><td class="cell-K{ix"><span class="user"><img src="https://lh3.googleusercontent.com/a/ACg8ocLHfVvdl28jS936w7CBB6TObsUa1P-X8cbdsUSKdeEn_MD7Bw=s96-c" class="icon user-icon"/>Steve </span></td><td class="cell-Ug&gt;v"><span class="selected-value select-value-color-red">High</span></td><td class="cell-dp{Z"><span class="selected-value select-value-color-brown">Completed</span></td><td class="cell-kwyh"><div class="checkbox checkbox-off"></div></td><td class="cell-h@r:"><div class="checkbox checkbox-off"></div></td><td class="cell-EX[Z"><div class="checkbox checkbox-off"></div></td><td class="cell-d@|i"><div class="checkbox checkbox-off"></div></td><td class="cell-hJ=^">2</td><td class="cell-B&lt;ad"><div class="checkbox checkbox-off"></div></td></tr><tr id="6e9db7b3-00bf-47ac-9b44-7fcd5eec0b1c"><td class="cell-U^Rl"><span class="status-value select-value-color-green"><div class="status-dot status-dot-color-green"></div>Processed</span></td><td class="cell-title"><a href="Meetings/Data%20Architecture%20Discovery%20Session%206e9db7b300bf47ac9b447fcd5eec0b1c.html">Data Architecture Discovery Session</a></td><td class="cell-?;BR">High-level data systems overview, ERP walkthrough (M3), MES operational hub, cross-system key (Batch ID), data quality challenges, systems inventory (ANV, OATES, MPD SHAR, Optiva, CPR, EAM, ETQ, ION, SSRS)</td><td class="cell-=Qcm"><span class="selected-value select-value-color-pink">Internal</span></td><td class="cell-&lt;Jt@"><time>December 8, 2025</time></td><td class="cell-[VKz"><span class="selected-value select-value-color-orange">Team Meeting</span></td><td class="cell-K{ix"><span class="user"><img src="https://lh3.googleusercontent.com/a/ACg8ocLHfVvdl28jS936w7CBB6TObsUa1P-X8cbdsUSKdeEn_MD7Bw=s96-c" class="icon user-icon"/>Steve </span></td><td class="cell-Ug&gt;v"><span class="selected-value select-value-color-red">High</span></td><td class="cell-dp{Z"><span class="selected-value select-value-color-brown">Completed</span></td><td class="cell-kwyh"><div class="checkbox checkbox-off"></div></td><td class="cell-h@r:"><div class="checkbox checkbox-on"></div></td><td class="cell-EX[Z"><div class="checkbox checkbox-on"></div></td><td class="cell-d@|i"><div class="checkbox checkbox-off"></div></td><td class="cell-hJ=^">3</td><td class="cell-B&lt;ad"><div class="checkbox checkbox-off"></div></td></tr><tr id="33556320-92ca-80d4-9104-f53a3e065580"><td class="cell-U^Rl"></td><td class="cell-title"><a href="Meetings/Untitled%203355632092ca80d49104f53a3e065580.html">Untitled</a></td><td class="cell-?;BR"></td><td class="cell-=Qcm"></td><td class="cell-&lt;Jt@"></td><td class="cell-[VKz"></td><td class="cell-K{ix"></td><td class="cell-Ug&gt;v"></td><td class="cell-dp{Z"></td><td class="cell-kwyh"><div class="checkbox checkbox-off"></div></td><td class="cell-h@r:"><div class="checkbox checkbox-off"></div></td><td class="cell-EX[Z"><div class="checkbox checkbox-off"></div></td><td class="cell-d@|i"><div class="checkbox checkbox-off"></div></td><td class="cell-hJ=^"></td><td class="cell-B&lt;ad"><div class="checkbox checkbox-off"></div></td></tr><tr id="33356320-92ca-809b-aefc-c0f985828930"><td class="cell-U^Rl"></td><td class="cell-title"><a href="Meetings/Untitled%203335632092ca809baefcc0f985828930.html">Untitled</a></td><td class="cell-?;BR"></td><td class="cell-=Qcm"></td><td class="cell-&lt;Jt@"></td><td class="cell-[VKz"></td><td class="cell-K{ix"></td><td class="cell-Ug&gt;v"></td><td class="cell-dp{Z"></td><td class="cell-kwyh"><div class="checkbox checkbox-off"></div></td><td class="cell-h@r:"><div class="checkbox checkbox-off"></div></td><td class="cell-EX[Z"><div class="checkbox checkbox-off"></div></td><td class="cell-d@|i"><div class="checkbox checkbox-off"></div></td><td class="cell-hJ=^"></td><td class="cell-B&lt;ad"><div class="checkbox checkbox-off"></div></td></tr><tr id="32e56320-92ca-809d-8526-e9e276faf1a1"><td class="cell-U^Rl"></td><td class="cell-title"><a href="Meetings/Untitled%2032e5632092ca809d8526e9e276faf1a1.html">Untitled</a></td><td class="cell-?;BR"></td><td class="cell-=Qcm"></td><td class="cell-&lt;Jt@"></td><td class="cell-[VKz"></td><td class="cell-K{ix"></td><td class="cell-Ug&gt;v"></td><td class="cell-dp{Z"></td><td class="cell-kwyh"><div class="checkbox checkbox-off"></div></td><td class="cell-h@r:"><div class="checkbox checkbox-off"></div></td><td class="cell-EX[Z"><div class="checkbox checkbox-off"></div></td><td class="cell-d@|i"><div class="checkbox checkbox-off"></div></td><td class="cell-hJ=^"></td><td class="cell-B&lt;ad"><div class="checkbox checkbox-off"></div></td></tr><tr id="32356320-92ca-80d6-bfc5-df39a29268fb"><td class="cell-U^Rl"></td><td class="cell-title"><a href="Meetings/Marjorie%E2%80%99s%20Birthday%20Planning%203235632092ca80d6bfc5df39a29268fb.html">Marjorie’s Birthday Planning</a></td><td class="cell-?;BR"></td><td class="cell-=Qcm"></td><td class="cell-&lt;Jt@"></td><td class="cell-[VKz"></td><td class="cell-K{ix"></td><td class="cell-Ug&gt;v"></td><td class="cell-dp{Z"></td><td class="cell-kwyh"><div class="checkbox checkbox-off"></div></td><td class="cell-h@r:"><div class="checkbox checkbox-off"></div></td><td class="cell-EX[Z"><div class="checkbox checkbox-off"></div></td><td class="cell-d@|i"><div class="checkbox checkbox-off"></div></td><td class="cell-hJ=^"></td><td class="cell-B&lt;ad"><div class="checkbox checkbox-off"></div></td></tr><tr id="32156320-92ca-8034-ae8c-fcb177d65a77"><td class="cell-U^Rl"></td><td class="cell-title"><a href="Meetings/Untitled%203215632092ca8034ae8cfcb177d65a77.html">Untitled</a></td><td class="cell-?;BR"></td><td class="cell-=Qcm"></td><td class="cell-&lt;Jt@"></td><td class="cell-[VKz"></td><td class="cell-K{ix"></td><td class="cell-Ug&gt;v"></td><td class="cell-dp{Z"></td><td class="cell-kwyh"><div class="checkbox checkbox-off"></div></td><td class="cell-h@r:"><div class="checkbox checkbox-off"></div></td><td class="cell-EX[Z"><div class="checkbox checkbox-off"></div></td><td class="cell-d@|i"><div class="checkbox checkbox-off"></div></td><td class="cell-hJ=^"></td><td class="cell-B&lt;ad"><div class="checkbox checkbox-off"></div></td></tr><tr id="32156320-92ca-8007-b2b7-c6374479ec5a"><td class="cell-U^Rl"></td><td class="cell-title"><a href="Meetings/Untitled%203215632092ca8007b2b7c6374479ec5a.html">Untitled</a></td><td class="cell-?;BR"></td><td class="cell-=Qcm"></td><td class="cell-&lt;Jt@"></td><td class="cell-[VKz"></td><td class="cell-K{ix"></td><td class="cell-Ug&gt;v"></td><td class="cell-dp{Z"></td><td class="cell-kwyh"><div class="checkbox checkbox-off"></div></td><td class="cell-h@r:"><div class="checkbox checkbox-off"></div></td><td class="cell-EX[Z"><div class="checkbox checkbox-off"></div></td><td class="cell-d@|i"><div class="checkbox checkbox-off"></div></td><td class="cell-hJ=^"></td><td class="cell-B&lt;ad"><div class="checkbox checkbox-off"></div></td></tr><tr id="32156320-92ca-80f1-ad49-cb713a36ef0e"><td class="cell-U^Rl"></td><td class="cell-title"><a href="Meetings/Untitled%203215632092ca80f1ad49cb713a36ef0e.html">Untitled</a></td><td class="cell-?;BR"></td><td class="cell-=Qcm"></td><td class="cell-&lt;Jt@"></td><td class="cell-[VKz"></td><td class="cell-K{ix"></td><td class="cell-Ug&gt;v"></td><td class="cell-dp{Z"></td><td class="cell-kwyh"><div class="checkbox checkbox-off"></div></td><td class="cell-h@r:"><div class="checkbox checkbox-off"></div></td><td class="cell-EX[Z"><div class="checkbox checkbox-off"></div></td><td class="cell-d@|i"><div class="checkbox checkbox-off"></div></td><td class="cell-hJ=^"></td><td class="cell-B&lt;ad"><div class="checkbox checkbox-off"></div></td></tr><tr id="32156320-92ca-803a-9021-de715feddc41"><td class="cell-U^Rl"></td><td class="cell-title"><a href="Meetings/Untitled%203215632092ca803a9021de715feddc41.html">Untitled</a></td><td class="cell-?;BR"></td><td class="cell-=Qcm"></td><td class="cell-&lt;Jt@"></td><td class="cell-[VKz"></td><td class="cell-K{ix"></td><td class="cell-Ug&gt;v"></td><td class="cell-dp{Z"></td><td class="cell-kwyh"><div class="checkbox checkbox-off"></div></td><td class="cell-h@r:"><div class="checkbox checkbox-off"></div></td><td class="cell-EX[Z"><div class="checkbox checkbox-off"></div></td><td class="cell-d@|i"><div class="checkbox checkbox-off"></div></td><td class="cell-hJ=^"></td><td class="cell-B&lt;ad"><div class="checkbox checkbox-off"></div></td></tr><tr id="31256320-92ca-8058-9540-fe150c1cf2e8"><td class="cell-U^Rl"></td><td class="cell-title"><a href="Meetings/Untitled%203125632092ca80589540fe150c1cf2e8.html">Untitled</a></td><td class="cell-?;BR"></td><td class="cell-=Qcm"></td><td class="cell-&lt;Jt@"></td><td class="cell-[VKz"></td><td class="cell-K{ix"></td><td class="cell-Ug&gt;v"></td><td class="cell-dp{Z"></td><td class="cell-kwyh"><div class="checkbox checkbox-off"></div></td><td class="cell-h@r:"><div class="checkbox checkbox-off"></div></td><td class="cell-EX[Z"><div class="checkbox checkbox-off"></div></td><td class="cell-d@|i"><div class="checkbox checkbox-off"></div></td><td class="cell-hJ=^"></td><td class="cell-B&lt;ad"><div class="checkbox checkbox-off"></div></td></tr><tr id="30a56320-92ca-80c5-9f7e-cbc86c4c6824"><td class="cell-U^Rl"></td><td class="cell-title"><a href="Meetings/@February%2017,%202026%2011%2026%20AM%2030a5632092ca80c59f7ecbc86c4c6824.html">@February 17, 2026 11:26 AM</a></td><td class="cell-?;BR"></td><td class="cell-=Qcm"></td><td class="cell-&lt;Jt@"></td><td class="cell-[VKz"></td><td class="cell-K{ix"></td><td class="cell-Ug&gt;v"></td><td class="cell-dp{Z"></td><td class="cell-kwyh"><div class="checkbox checkbox-off"></div></td><td class="cell-h@r:"><div class="checkbox checkbox-off"></div></td><td class="cell-EX[Z"><div class="checkbox checkbox-off"></div></td><td class="cell-d@|i"><div class="checkbox checkbox-off"></div></td><td class="cell-hJ=^"></td><td class="cell-B&lt;ad"><div class="checkbox checkbox-off"></div></td></tr><tr id="30a56320-92ca-804f-ae81-cacf7910c950"><td class="cell-U^Rl"></td><td class="cell-title"><a href="Meetings/Pentaho%20&amp;%20M3%20Cloud%20Architecture%2030a5632092ca804fae81cacf7910c950.html">Pentaho &amp; M3 Cloud Architecture</a></td><td class="cell-?;BR"></td><td class="cell-=Qcm"></td><td class="cell-&lt;Jt@"></td><td class="cell-[VKz"></td><td class="cell-K{ix"></td><td class="cell-Ug&gt;v"></td><td class="cell-dp{Z"></td><td class="cell-kwyh"><div class="checkbox checkbox-off"></div></td><td class="cell-h@r:"><div class="checkbox checkbox-off"></div></td><td class="cell-EX[Z"><div class="checkbox checkbox-off"></div></td><td class="cell-d@|i"><div class="checkbox checkbox-off"></div></td><td class="cell-hJ=^"></td><td class="cell-B&lt;ad"><div class="checkbox checkbox-off"></div></td></tr><tr id="30356320-92ca-80f0-947b-fc28fc62b9e0"><td class="cell-U^Rl"></td><td class="cell-title"><a href="Meetings/@February%2010,%202026%2011%2049%20AM%203035632092ca80f0947bfc28fc62b9e0.html">@February 10, 2026 11:49 AM</a></td><td class="cell-?;BR"></td><td class="cell-=Qcm"></td><td class="cell-&lt;Jt@"></td><td class="cell-[VKz"></td><td class="cell-K{ix"></td><td class="cell-Ug&gt;v"></td><td class="cell-dp{Z"></td><td class="cell-kwyh"><div class="checkbox checkbox-off"></div></td><td class="cell-h@r:"><div class="checkbox checkbox-off"></div></td><td class="cell-EX[Z"><div class="checkbox checkbox-off"></div></td><td class="cell-d@|i"><div class="checkbox checkbox-off"></div></td><td class="cell-hJ=^"></td><td class="cell-B&lt;ad"><div class="checkbox checkbox-off"></div></td></tr><tr id="2f756320-92ca-800b-a952-f62a43c7bffa"><td class="cell-U^Rl"></td><td class="cell-title"><a href="Meetings/@January%2029,%202026%202%2024%20PM%202f75632092ca800ba952f62a43c7bffa.html">@January 29, 2026 2:24 PM</a></td><td class="cell-?;BR"></td><td class="cell-=Qcm"></td><td class="cell-&lt;Jt@"></td><td class="cell-[VKz"></td><td class="cell-K{ix"></td><td class="cell-Ug&gt;v"></td><td class="cell-dp{Z"></td><td class="cell-kwyh"><div class="checkbox checkbox-off"></div></td><td class="cell-h@r:"><div class="checkbox checkbox-off"></div></td><td class="cell-EX[Z"><div class="checkbox checkbox-off"></div></td><td class="cell-d@|i"><div class="checkbox checkbox-off"></div></td><td class="cell-hJ=^"></td><td class="cell-B&lt;ad"><div class="checkbox checkbox-off"></div></td></tr></tbody></table></div><br/><br/></div></article><span class="sans" style="font-size:14px;padding-top:2em"></span></body></html>

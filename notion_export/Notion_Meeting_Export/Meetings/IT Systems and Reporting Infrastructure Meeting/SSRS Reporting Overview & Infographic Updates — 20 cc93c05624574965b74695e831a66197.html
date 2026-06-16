@@ -1,0 +1,743 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>SSRS Reporting Overview &amp; Infographic Updates — 2025-12-11</title><style>
+/* cspell:disable-file */
+/* webkit printing magic: print all background colors */
+html {
+	-webkit-print-color-adjust: exact;
+}
+* {
+	box-sizing: border-box;
+	-webkit-print-color-adjust: exact;
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+}
+@media only screen {
+	body {
+		margin: 2em auto;
+		max-width: 900px;
+		color: rgb(55, 53, 47);
+	}
+}
+
+body {
+	line-height: 1.5;
+	white-space: pre-wrap;
+}
+
+a,
+a.visited {
+	color: inherit;
+	text-decoration: underline;
+}
+
+.pdf-relative-link-path {
+	font-size: 80%;
+	color: #444;
+}
+
+h1,
+h2,
+h3 {
+	letter-spacing: -0.01em;
+	line-height: 1.2;
+	font-weight: 600;
+	margin-bottom: 0;
+}
+
+/* Override strong tags inside headings to maintain consistent weight */
+h1 strong,
+h2 strong,
+h3 strong {
+	font-weight: 600;
+}
+
+.page-title {
+	font-size: 2.5rem;
+	font-weight: 700;
+	margin-top: 0;
+	margin-bottom: 0.75em;
+}
+
+h1 {
+	font-size: 1.875rem;
+	margin-top: 1.875rem;
+}
+
+h2 {
+	font-size: 1.5rem;
+	margin-top: 1.5rem;
+}
+
+h3 {
+	font-size: 1.25rem;
+	margin-top: 1.25rem;
+}
+
+.source {
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	padding: 1.5em;
+	word-break: break-all;
+}
+
+.callout {
+	border-radius: 10px;
+	padding: 1rem;
+}
+
+figure {
+	margin: 1.25em 0;
+	page-break-inside: avoid;
+}
+
+figcaption {
+	opacity: 0.5;
+	font-size: 85%;
+	margin-top: 0.5em;
+}
+
+mark {
+	background-color: transparent;
+}
+
+.indented {
+	padding-left: 1.5em;
+}
+
+hr {
+	background: transparent;
+	display: block;
+	width: 100%;
+	height: 1px;
+	visibility: visible;
+	border: none;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+img {
+	max-width: 100%;
+}
+
+@media only print {
+	img {
+		max-height: 100vh;
+		object-fit: contain;
+	}
+
+	table.collection-content {
+		width: 100%;
+		table-layout: fixed;
+	}
+
+	table.collection-content th,
+	table.collection-content td {
+		overflow-wrap: anywhere;
+	}
+
+	table.collection-content td > .user,
+	table.collection-content td > time {
+		white-space: pre-wrap;
+	}
+}
+
+@page {
+	margin: 1in;
+}
+
+.collection-content-wrapper {
+	overflow-x: auto;
+}
+
+@media only print {
+	.collection-content-wrapper {
+		overflow-x: visible;
+	}
+}
+
+.collection-content {
+	font-size: 0.875rem;
+}
+
+.collection-content td {
+	white-space: pre-wrap;
+	word-break: break-word;
+}
+
+.column-list {
+	display: flex;
+	gap: 46px;
+}
+
+.column {
+	min-width: 0;
+	overflow: hidden;
+}
+
+.column > *:first-child {
+	margin-top: 0;
+}
+
+.table_of_contents-item {
+	display: block;
+	font-size: 0.875rem;
+	line-height: 1.3;
+	padding: 0.125rem;
+}
+
+.table_of_contents-indent-1 {
+	margin-left: 1.5rem;
+}
+
+.table_of_contents-indent-2 {
+	margin-left: 3rem;
+}
+
+.table_of_contents-indent-3 {
+	margin-left: 4.5rem;
+}
+
+.table_of_contents-link {
+	text-decoration: none;
+	opacity: 0.7;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.18);
+}
+
+table,
+th,
+td {
+	border: 1px solid rgba(55, 53, 47, 0.09);
+	border-collapse: collapse;
+}
+
+table {
+	border-left: none;
+	border-right: none;
+}
+
+th,
+td {
+	font-weight: normal;
+	padding: 0.25em 0.5em;
+	line-height: 1.5;
+	min-height: 1.5em;
+	text-align: left;
+}
+
+th {
+	color: rgba(55, 53, 47, 0.6);
+}
+
+ol,
+ul {
+	margin: 0;
+	margin-block-start: 0.6em;
+	margin-block-end: 0.6em;
+}
+
+li > ol:first-child,
+li > ul:first-child {
+	margin-block-start: 0.6em;
+}
+
+ul > li {
+	list-style: disc;
+}
+
+ul.to-do-list {
+	padding-inline-start: 0;
+}
+
+ul.to-do-list > li {
+	list-style: none;
+}
+
+.to-do-children-checked {
+	text-decoration: line-through;
+	opacity: 0.375;
+}
+
+ul.toggle > li {
+	list-style: none;
+}
+
+ul {
+	padding-inline-start: 1.7em;
+}
+
+ul > li {
+	padding-left: 0.1em;
+}
+
+ol {
+	padding-inline-start: 1.6em;
+}
+
+ol.numbered-list.numbered-list-digits-2 {
+	padding-inline-start: 2em;
+}
+
+ol.numbered-list.numbered-list-digits-3plus {
+	padding-inline-start: 2.4em;
+}
+
+ol > li {
+	padding-left: 0.2em;
+}
+
+.mono ol {
+	padding-inline-start: 2em;
+}
+
+.mono ol > li {
+	text-indent: -0.4em;
+}
+
+.toggle {
+	padding-inline-start: 0em;
+	list-style-type: none;
+}
+
+/* Indent toggle children */
+.toggle > li > details {
+	padding-left: 1.7em;
+}
+
+.toggle > li > details > summary {
+	margin-left: -1.1em;
+}
+
+.selected-value {
+	display: inline-block;
+	padding: 0 0.5em;
+	background: rgba(206, 205, 202, 0.5);
+	border-radius: 3px;
+	margin-right: 0.5em;
+	margin-top: 0.3em;
+	margin-bottom: 0.3em;
+	white-space: nowrap;
+}
+
+.collection-title {
+	display: inline-block;
+	margin-right: 1em;
+}
+
+.page-description {
+	margin-bottom: 2em;
+}
+
+.simple-table {
+	margin-top: 1em;
+	font-size: 0.875rem;
+	empty-cells: show;
+}
+.simple-table td {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table th {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table-header-color {
+	background: rgb(247, 246, 243);
+	color: black;
+}
+.simple-table-header {
+	font-weight: 500;
+}
+
+time {
+	opacity: 0.5;
+}
+
+.icon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	max-width: 1.2em;
+	max-height: 1.2em;
+	text-decoration: none;
+	vertical-align: text-bottom;
+	margin-right: 0.5em;
+}
+
+img.icon {
+	border-radius: 3px;
+}
+
+.callout img.notion-static-icon {
+	width: 1em;
+	height: 1em;
+}
+
+.callout p {
+	margin: 0;
+}
+
+.callout h1,
+.callout h2,
+.callout h3 {
+	margin: 0 0 0.6rem;
+}
+
+.user-icon {
+	width: 1.5em;
+	height: 1.5em;
+	border-radius: 100%;
+	margin-right: 0.5rem;
+}
+
+.user-icon-inner {
+	font-size: 0.8em;
+}
+
+.text-icon {
+	border: 1px solid #000;
+	text-align: center;
+}
+
+.page-cover-image {
+	display: block;
+	object-fit: cover;
+	width: 100%;
+	max-height: 30vh;
+}
+
+.page-header-icon {
+	font-size: 3rem;
+	margin-bottom: 1rem;
+}
+
+.page-header-icon-with-cover {
+	margin-top: -0.72em;
+	margin-left: 0.07em;
+}
+
+.page-header-icon img {
+	border-radius: 3px;
+}
+
+.link-to-page {
+	margin: 1em 0;
+	padding: 0;
+	border: none;
+	font-weight: 500;
+}
+
+p > .user {
+	opacity: 0.5;
+}
+
+td > .user,
+td > time {
+	white-space: nowrap;
+}
+
+input[type="checkbox"] {
+	transform: scale(1.5);
+	margin-right: 0.6em;
+	vertical-align: middle;
+}
+
+p {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+.image {
+	border: none;
+	margin: 1.5em 0;
+	padding: 0;
+	border-radius: 0;
+	text-align: center;
+}
+
+.code,
+code {
+	background: rgba(135, 131, 120, 0.15);
+	border-radius: 3px;
+	padding: 0.2em 0.4em;
+	border-radius: 3px;
+	font-size: 85%;
+	tab-size: 2;
+}
+
+code {
+	color: #eb5757;
+}
+
+.code {
+	padding: 1.5em 1em;
+}
+
+.code-wrap {
+	white-space: pre-wrap;
+	word-break: break-all;
+}
+
+.code > code {
+	background: none;
+	padding: 0;
+	font-size: 100%;
+	color: inherit;
+}
+
+blockquote {
+	font-size: 1em;
+	margin: 1em 0;
+	padding-left: 1em;
+	border-left: 3px solid rgb(55, 53, 47);
+}
+
+blockquote.quote-large {
+	font-size: 1.25em;
+}
+
+.bookmark {
+	text-decoration: none;
+	max-height: 8em;
+	padding: 0;
+	display: flex;
+	width: 100%;
+	align-items: stretch;
+}
+
+.bookmark-title {
+	font-size: 0.85em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	height: 1.75em;
+	white-space: nowrap;
+}
+
+.bookmark-text {
+	display: flex;
+	flex-direction: column;
+}
+
+.bookmark-info {
+	flex: 4 1 180px;
+	padding: 12px 14px 14px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.bookmark-image {
+	width: 33%;
+	flex: 1 1 180px;
+	display: block;
+	position: relative;
+	object-fit: cover;
+	border-radius: 1px;
+}
+
+.bookmark-description {
+	color: rgba(55, 53, 47, 0.6);
+	font-size: 0.75em;
+	overflow: hidden;
+	max-height: 4.5em;
+	word-break: break-word;
+}
+
+.bookmark-href {
+	font-size: 0.75em;
+	margin-top: 0.25em;
+}
+
+.sans { font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol"; }
+.code { font-family: "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace; }
+.serif { font-family: Lyon-Text, Georgia, ui-serif, serif; }
+.mono { font-family: iawriter-mono, Nitti, Menlo, Courier, monospace; }
+.pdf .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK JP'; }
+.pdf:lang(zh-CN) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK SC'; }
+.pdf:lang(zh-TW) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK TC'; }
+.pdf:lang(ko-KR) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK KR'; }
+.pdf .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.pdf .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK JP'; }
+.pdf:lang(zh-CN) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK SC'; }
+.pdf:lang(zh-TW) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK TC'; }
+.pdf:lang(ko-KR) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK KR'; }
+.pdf .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.highlight-default {
+	color: rgba(44, 44, 43, 1);
+}
+.highlight-gray {
+	color: rgba(125, 122, 117, 1);
+	fill: rgba(125, 122, 117, 1);
+}
+.highlight-brown {
+	color: rgba(159, 118, 90, 1);
+	fill: rgba(159, 118, 90, 1);
+}
+.highlight-orange {
+	color: rgba(210, 123, 45, 1);
+	fill: rgba(210, 123, 45, 1);
+}
+.highlight-yellow {
+	color: rgba(203, 148, 52, 1);
+	fill: rgba(203, 148, 52, 1);
+}
+.highlight-teal {
+	color: rgba(80, 148, 110, 1);
+	fill: rgba(80, 148, 110, 1);
+}
+.highlight-blue {
+	color: rgba(56, 125, 201, 1);
+	fill: rgba(56, 125, 201, 1);
+}
+.highlight-purple {
+	color: rgba(154, 107, 180, 1);
+	fill: rgba(154, 107, 180, 1);
+}
+.highlight-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.highlight-red {
+	color: rgba(207, 81, 72, 1);
+	fill: rgba(207, 81, 72, 1);
+}
+.highlight-default_background {
+	color: rgba(44, 44, 43, 1);
+}
+.highlight-gray_background {
+	background: rgba(42, 28, 0, 0.07);
+}
+.highlight-brown_background {
+	background: rgba(139, 46, 0, 0.086);
+}
+.highlight-orange_background {
+	background: rgba(224, 101, 1, 0.129);
+}
+.highlight-yellow_background {
+	background: rgba(211, 168, 0, 0.137);
+}
+.highlight-teal_background {
+	background: rgba(0, 100, 45, 0.09);
+}
+.highlight-blue_background {
+	background: rgba(0, 124, 215, 0.094);
+}
+.highlight-purple_background {
+	background: rgba(102, 0, 178, 0.078);
+}
+.highlight-pink_background {
+	background: rgba(197, 0, 93, 0.086);
+}
+.highlight-red_background {
+	background: rgba(223, 22, 0, 0.094);
+}
+.block-color-default {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray {
+	color: rgba(125, 122, 117, 1);
+	fill: rgba(125, 122, 117, 1);
+}
+.block-color-brown {
+	color: rgba(159, 118, 90, 1);
+	fill: rgba(159, 118, 90, 1);
+}
+.block-color-orange {
+	color: rgba(210, 123, 45, 1);
+	fill: rgba(210, 123, 45, 1);
+}
+.block-color-yellow {
+	color: rgba(203, 148, 52, 1);
+	fill: rgba(203, 148, 52, 1);
+}
+.block-color-teal {
+	color: rgba(80, 148, 110, 1);
+	fill: rgba(80, 148, 110, 1);
+}
+.block-color-blue {
+	color: rgba(56, 125, 201, 1);
+	fill: rgba(56, 125, 201, 1);
+}
+.block-color-purple {
+	color: rgba(154, 107, 180, 1);
+	fill: rgba(154, 107, 180, 1);
+}
+.block-color-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.block-color-red {
+	color: rgba(207, 81, 72, 1);
+	fill: rgba(207, 81, 72, 1);
+}
+.block-color-default_background {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray_background {
+	background: rgba(240, 239, 237, 1);
+}
+.block-color-brown_background {
+	background: rgba(245, 237, 233, 1);
+}
+.block-color-orange_background {
+	background: rgba(251, 235, 222, 1);
+}
+.block-color-yellow_background {
+	background: rgba(249, 243, 220, 1);
+}
+.block-color-teal_background {
+	background: rgba(232, 241, 236, 1);
+}
+.block-color-blue_background {
+	background: rgba(229, 242, 252, 1);
+}
+.block-color-purple_background {
+	background: rgba(243, 235, 249, 1);
+}
+.block-color-pink_background {
+	background: rgba(250, 233, 241, 1);
+}
+.block-color-red_background {
+	background: rgba(252, 233, 231, 1);
+}
+.select-value-color-default { background-color: rgba(42, 28, 0, 0.07); }
+.select-value-color-gray { background-color: rgba(28, 19, 1, 0.11); }
+.select-value-color-brown { background-color: rgba(127, 51, 0, 0.156); }
+.select-value-color-orange { background-color: rgba(196, 88, 0, 0.203); }
+.select-value-color-yellow { background-color: rgba(209, 156, 0, 0.282); }
+.select-value-color-green { background-color: rgba(0, 96, 38, 0.156); }
+.select-value-color-blue { background-color: rgba(0, 118, 217, 0.203); }
+.select-value-color-purple { background-color: rgba(92, 0, 163, 0.141); }
+.select-value-color-pink { background-color: rgba(183, 0, 78, 0.152); }
+.select-value-color-red { background-color: rgba(206, 24, 0, 0.164); }
+
+.checkbox {
+	display: inline-flex;
+	vertical-align: text-bottom;
+	width: 16;
+	height: 16;
+	background-size: 16px;
+	margin-left: 2px;
+	margin-right: 5px;
+}
+
+.checkbox-on {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20width%3D%2216%22%20height%3D%2216%22%20fill%3D%22%2358A9D7%22%2F%3E%0A%3Cpath%20d%3D%22M6.71429%2012.2852L14%204.9995L12.7143%203.71436L6.71429%209.71378L3.28571%206.2831L2%207.57092L6.71429%2012.2852Z%22%20fill%3D%22white%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+
+.checkbox-off {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20x%3D%220.75%22%20y%3D%220.75%22%20width%3D%2214.5%22%20height%3D%2214.5%22%20fill%3D%22white%22%20stroke%3D%22%2336352F%22%20stroke-width%3D%221.5%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+	
+</style></head><body><article id="cc93c056-2457-4965-b746-95e831a66197" class="page sans"><header><h1 class="page-title" dir="auto">SSRS Reporting Overview &amp; Infographic Updates — 2025-12-11</h1><p class="page-description" dir="auto"></p></header><div class="page-body"><div style="display:contents" dir="auto"><h2 id="6fe2d62f-b45b-44ea-a84d-13ac343a3c6b" class="">🎯 Cluely Summary</h2></div><div style="display:contents" dir="auto"><h3 id="21701b50-6e44-4c32-8804-a60ba56e64b3" class="">Action Items</h3></div><div style="display:contents" dir="auto"><ul id="4e83ffda-8f25-44d2-b092-288eba9d5e67" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked"><strong>Update infographic per change list</strong> — MES core (operations), M3 core (enterprise), ETQ one-way from M3, PlantPAx/FactoryTalk → MES only, MPD SHAR → M3, etc.</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="fa782ab2-b26a-4363-9ab2-2b30a1234d36" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked"><strong>Follow up with Matt</strong> for deeper MES production-application details</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="e8e222b2-6bb9-4b43-be44-1865b64aaaad" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked"><strong>Schedule brief call/Teams chat</strong> to fill remaining blanks on data-source ownership and subscription monitoring</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="4292d204-a3ae-41f9-80a5-f917afa81a14" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked"><strong>Get VPN/role-based access</strong> to M3 on-prem and M3 Prod Actual for hands-on testing</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="ab54c8b8-9eef-435c-a33a-e8dc13e17e1c" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked"><strong>Arrange introductions to controls team</strong> (MPD SHAR, BatchWorks) for future walkthroughs</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="71270627-0179-45ab-9ad5-7b72ad79ea19" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked"><strong>Park link resiliency discovery</strong> — confirm if IDM has durable object ID/GUID for stable hyperlinks</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><hr id="17c89e94-7189-4d69-bff9-f0d8d96221a4"/></div><div style="display:contents" dir="auto"><h3 id="af5468dd-b6d9-4e45-b4e8-55bf35e834c0" class="">Meeting Overview</h3></div><div style="display:contents" dir="auto"><ul id="7a354bc2-3016-4faa-a0b3-62680fcdb4c8" class="bulleted-list"><li style="list-style-type:disc"><strong>Kerri Voiss</strong> leading SSRS portal walkthrough</li></ul></div><div style="display:contents" dir="auto"><ul id="cc37ba40-af24-4ab8-a0c1-a44103871b7b" class="bulleted-list"><li style="list-style-type:disc">Portal organized by data source/system, not by company</li></ul></div><div style="display:contents" dir="auto"><ul id="f7f74950-eb19-4e78-8c39-9ab12033e078" class="bulleted-list"><li style="list-style-type:disc">Goal: future function-based folders, hide company details from end users</li></ul></div><div style="display:contents" dir="auto"><ul id="40dde3aa-55fd-4d75-9ca1-6abbd5251c35" class="bulleted-list"><li style="list-style-type:disc">Mention of new SSRS shortcut features not available at original design</li></ul></div><div style="display:contents" dir="auto"><h3 id="54809903-fee3-40bb-aa04-649de8292178" class="">Data Sources Highlighted</h3></div><div style="display:contents" dir="ltr"><table id="ae7b2645-596d-4a96-8157-f1c8bdc78677" class="simple-table"><thead class="simple-table-header"><div style="display:contents" dir="ltr"><tr id="deca8703-f9af-4b6b-ab8d-0ae541eeebe5"><th id="Jlgg" class="simple-table-header-color simple-table-header">Source</th><th id="EIew" class="simple-table-header-color simple-table-header">Description</th></tr></div></thead><tbody><div style="display:contents" dir="ltr"><tr id="4b6ce0cc-a23d-4538-961a-236b53e93c8f"><td id="Jlgg" class=""><strong>Adage</strong></td><td id="EIew" class="">Legacy, historical only, being retired</td></tr></div><div style="display:contents" dir="ltr"><tr id="ff005b0c-978a-4612-87a4-53cad997e920"><td id="Jlgg" class=""><strong>Advanced Scheduler</strong></td><td id="EIew" class="">Reduction scheduling tool</td></tr></div><div style="display:contents" dir="ltr"><tr id="08e25cd4-1797-4cac-b4b5-56a5a562c954"><td id="Jlgg" class=""><strong>CPR</strong></td><td id="EIew" class="">Capital Planning Requests (RFEs)</td></tr></div><div style="display:contents" dir="ltr"><tr id="8a35b493-41c6-41f4-b016-50a74a5c4dbe"><td id="Jlgg" class=""><strong>EAM</strong></td><td id="EIew" class="">Enterprise Asset Management — maintenance work orders</td></tr></div><div style="display:contents" dir="ltr"><tr id="1bc65f13-2dcc-4370-83b1-583e2ad8ace1"><td id="Jlgg" class=""><strong>ETQ</strong></td><td id="EIew" class="">Quality &amp; HSE incidents, data sourced from M3 (direct DB loads, not ION)</td></tr></div><div style="display:contents" dir="ltr"><tr id="7858c615-24e3-4c4a-a067-4fee3ff0a206"><td id="Jlgg" class=""><strong>ION</strong></td><td id="EIew" class="">On-prem document management, links to IDM</td></tr></div><div style="display:contents" dir="ltr"><tr id="615c0992-cbb2-4216-9d5a-c0027bb190df"><td id="Jlgg" class=""><strong>M3 Cloud / M3 Prod / M3 Prod Actual</strong></td><td id="EIew" class="">Cloud, on-prem, and 30-min log-shipped copy</td></tr></div><div style="display:contents" dir="ltr"><tr id="86d30123-d920-4608-b17c-373c7ace7de9"><td id="Jlgg" class=""><strong>MESLive / MESDev</strong></td><td id="EIew" class="">Batch and cycle-count data</td></tr></div><div style="display:contents" dir="ltr"><tr id="1b7ad0bf-93bf-4aae-b2db-6fb47f162e2c"><td id="Jlgg" class=""><strong>MPD SHAR</strong></td><td id="EIew" class="">PLC controls for Molding Products</td></tr></div><div style="display:contents" dir="ltr"><tr id="3c06db88-78f9-41fe-92ab-cd2148ac95a0"><td id="Jlgg" class=""><strong>OptivaLive</strong></td><td id="EIew" class="">Formulas &amp; raw-material R&amp;D sandbox</td></tr></div><div style="display:contents" dir="ltr"><tr id="843d8e87-c286-4bd1-89be-a5960b9e60b7"><td id="Jlgg" class=""><strong>PCD</strong></td><td id="EIew" class="">Control-system material source decisions</td></tr></div><div style="display:contents" dir="ltr"><tr id="88778de5-d75d-4999-ae0d-c00c89f050d2"><td id="Jlgg" class=""><strong>Salesforce</strong></td><td id="EIew" class="">Mostly native reporting now; one SSRS report left</td></tr></div><div style="display:contents" dir="ltr"><tr id="8aa09c81-c3f8-4269-bbc0-4e0d0d0bf43b"><td id="Jlgg" class=""><strong>SDS</strong></td><td id="EIew" class="">Homegrown ticketing DB</td></tr></div><div style="display:contents" dir="ltr"><tr id="c818c0dc-bd3f-4e54-a9fe-ded97ccac71c"><td id="Jlgg" class=""><strong>Thermograph</strong></td><td id="EIew" class="">Viscosity/gel-time testing application</td></tr></div><div style="display:contents" dir="ltr"><tr id="7efc8e8e-4c13-41c4-878f-5e5644215c9d"><td id="Jlgg" class=""><strong>rpt_view_prod</strong></td><td id="EIew" class="">Helper DB for stored procedures (on M3 on-prem server)</td></tr></div><div style="display:contents" dir="ltr"><tr id="c5b2563c-ef52-4c3c-8ea0-badb57374279"><td id="Jlgg" class=""><strong>rpt_live</strong></td><td id="EIew" class="">Portal self-monitoring for failed subscriptions</td></tr></div></tbody></table></div><div style="display:contents" dir="auto"><h3 id="12fe11f0-fde7-429a-9fbf-935a4d2a6281" class="">Architecture Insights</h3></div><div style="display:contents" dir="auto"><ul id="d9ceb79b-d8f5-45c6-9837-57557ab67fea" class="bulleted-list"><li style="list-style-type:disc">M3 cloud and on-prem schemas almost identical; many Interplastic reports reused</li></ul></div><div style="display:contents" dir="auto"><ul id="47b1f4f9-0664-4b76-bf0f-a44ea9ba9674" class="bulleted-list"><li style="list-style-type:disc">ETQ receives data via <strong>direct DB loads from M3</strong>, not through ION/BODs</li></ul></div><div style="display:contents" dir="auto"><ul id="d8f236cd-de41-45d6-9a16-4dc720422f2e" class="bulleted-list"><li style="list-style-type:disc">IDM hyperlinks currently point to on-prem paths; <strong>no known durable GUID</strong></li></ul></div><div style="display:contents" dir="auto"><ul id="267b835c-0a56-403c-955d-0c367c86f732" class="bulleted-list"><li style="list-style-type:disc">DNS entries used for DB hosts to allow future moves, but not a full link-resiliency solution</li></ul></div><div style="display:contents" dir="auto"><ul id="63e464c5-da2e-42f4-b367-8d4aa4f939d2" class="bulleted-list"><li style="list-style-type:disc">Some reports use link servers across systems, raising potential breakage risk</li></ul></div><div style="display:contents" dir="auto"><h3 id="f46310f6-393b-4718-9317-507b01cfd8fa" class="">Link Resiliency Discussion</h3></div><div style="display:contents" dir="auto"><ul id="86a8dfb9-7bb7-489e-8e6c-b1a2eed22a58" class="bulleted-list"><li style="list-style-type:disc">Steve asked about a stable document key/GUID to prevent broken links after folder or company moves</li></ul></div><div style="display:contents" dir="auto"><ul id="ac58460c-8c93-4a85-a812-7dfa367abdb6" class="bulleted-list"><li style="list-style-type:disc">Kerri indicated <strong>no such standard exists today</strong>; links are brittle</li></ul></div><div style="display:contents" dir="auto"><ul id="fc449390-f6d4-4bbc-b6a9-63abf9a0e994" class="bulleted-list"><li style="list-style-type:disc">Suggested approach: store durable object ID in report and call IDM endpoint instead of static path</li></ul></div><div style="display:contents" dir="auto"><ul id="cd55cb7f-1608-4c9d-9aea-c3dcdc6a8f93" class="bulleted-list"><li style="list-style-type:disc">Agreed to <strong>park as low-effort discovery item</strong> while focusing on core SSRS walkthrough</li></ul></div><div style="display:contents" dir="auto"><h3 id="e666ad86-131d-4e12-bc8a-8a41bd211952" class="">Infographic Update Checklist (for Gemini 3)</h3></div><div style="display:contents" dir="auto"><p id="97439f9b-3e89-4766-866a-f7b0c44311c9" class=""><strong>Core Positioning:</strong></p></div><div style="display:contents" dir="auto"><ul id="59e8e9e8-20c9-4cae-bb81-a9ea864631fa" class="bulleted-list"><li style="list-style-type:disc">Keep <strong>MES as core to operations</strong> in the manufacturing layer</li></ul></div><div style="display:contents" dir="auto"><ul id="f03ab9c2-a028-4d3b-8cee-a7070fcabd07" class="bulleted-list"><li style="list-style-type:disc">Elevate <strong>M3 as core to the company</strong> for master/commercial/financial data</li></ul></div><div style="display:contents" dir="auto"><ul id="b9dc2cd0-f792-4c71-bfe2-700cb166d0e6" class="bulleted-list"><li style="list-style-type:disc">Visually show MES and M3 as the two hubs with distinct roles</li></ul></div><div style="display:contents" dir="auto"><p id="7cf34269-30a5-45cc-94fb-16fc2698bca7" class=""><strong>ETQ and SDS:</strong></p></div><div style="display:contents" dir="auto"><ul id="edafa911-86cd-4bc8-ac2d-ca97a0be2df2" class="bulleted-list"><li style="list-style-type:disc">Change ETQ to a <strong>one-way flow M3 → ETQ</strong>; remove any MES ↔ ETQ line</li></ul></div><div style="display:contents" dir="auto"><ul id="ec2f1f71-3c41-4fc1-bfca-55e0bab098a4" class="bulleted-list"><li style="list-style-type:disc">Keep SDS as a separate homegrown DB; <strong>no ETQ ↔ SDS arrow</strong> unless validated</li></ul></div><div style="display:contents" dir="auto"><ul id="34fa3a4f-f72b-4e8f-aefe-fc6acb717a30" class="bulleted-list"><li style="list-style-type:disc">Label SDS &quot;homegrown DB, reporting focus&quot;</li></ul></div><div style="display:contents" dir="auto"><p id="c19c1474-031e-4be0-a7c2-438c11d70f5c" class=""><strong>Rockwell/Plant Floor:</strong></p></div><div style="display:contents" dir="auto"><ul id="e699ea2b-78d3-443a-9968-693d58be99d6" class="bulleted-list"><li style="list-style-type:disc"><strong>PlantPAx ↔ MES only</strong> — no direct PlantPAx ↔ M3 line</li></ul></div><div style="display:contents" dir="auto"><ul id="c3c0d50b-7802-4a05-84c3-e17344e30906" class="bulleted-list"><li style="list-style-type:disc"><strong>FactoryTalk Batch ↔ MES only</strong> — remove any FactoryTalk ↔ M3 line</li></ul></div><div style="display:contents" dir="auto"><p id="919b0aa9-6702-478b-a94a-ed7f600a7388" class=""><strong>MPD SHAR and BatchWorks:</strong></p></div><div style="display:contents" dir="auto"><ul id="7897f014-3f7d-4f4f-a354-099ef92afc40" class="bulleted-list"><li style="list-style-type:disc">Move <strong>MPD SHAR to connect against M3</strong> (not MES); label &quot;MES light for MPD&quot;</li></ul></div><div style="display:contents" dir="auto"><ul id="34b33e48-a80b-434f-9059-544b8bdbd1a6" class="bulleted-list"><li style="list-style-type:disc">Connect <strong>BatchWorks to M3</strong>; no MES link unless confirmed</li></ul></div><div style="display:contents" dir="auto"><p id="18d24d0f-b79e-4467-9ab1-5852f1e5cbc3" class=""><strong>ANV &amp; OATS:</strong></p></div><div style="display:contents" dir="auto"><ul id="aa8b3dab-2b1a-44c7-b2cf-f90848f73887" class="bulleted-list"><li style="list-style-type:disc">Keep <strong>ANV ↔ MES only</strong></li></ul></div><div style="display:contents" dir="auto"><ul id="e0a88deb-87e8-4c13-ade7-7987fdc70b8d" class="bulleted-list"><li style="list-style-type:disc">Keep <strong>OATS ↔ MES</strong> via Batch ID</li></ul></div><div style="display:contents" dir="auto"><p id="fb26c641-fcb8-471e-bef8-1f33c92d1cea" class=""><strong>Adage:</strong></p></div><div style="display:contents" dir="auto"><ul id="5bbcf8e3-74e1-4d23-b2b6-f51427299fb2" class="bulleted-list"><li style="list-style-type:disc">Mark Adage <strong>&quot;legacy/historical only; migrated to M3 Cloud&quot;</strong></li></ul></div><div style="display:contents" dir="auto"><ul id="1d486e00-c308-44ca-a85f-23689cf7afe8" class="bulleted-list"><li style="list-style-type:disc">Remove active flows from Adage</li></ul></div><div style="display:contents" dir="auto"><p id="4da42843-dac2-406a-ab16-62df0db91460" class=""><strong>Reporting Layer (SSRS):</strong></p></div><div style="display:contents" dir="auto"><ul id="02de3333-55d1-458c-8fa7-c818fd916fa2" class="bulleted-list"><li style="list-style-type:disc">Show SSRS pulling from: M3 Prod, M3 Prod Actual, M3 Cloud, MES, Optiva, ETQ, EAM, CPR, Salesforce, SDS, Thermograph, rpt_view_prod, rpt_live</li></ul></div><div style="display:contents" dir="auto"><ul id="80ed8f64-e3f2-431f-b691-e8df62415f59" class="bulleted-list"><li style="list-style-type:disc">Note: <strong>rpt_live</strong> = portal self-monitoring for failed subscriptions</li></ul></div><div style="display:contents" dir="auto"><ul id="a344306a-8107-48e4-8349-22f94bddd4f2" class="bulleted-list"><li style="list-style-type:disc">Note: <strong>rpt_view_prod</strong> = helper DB on M3 on-prem server for stored procs/functions</li></ul></div><div style="display:contents" dir="auto"><p id="914a53cb-c01e-4137-aad2-840c43bb1b06" class=""><strong>Document Management:</strong></p></div><div style="display:contents" dir="auto"><ul id="31497e84-195d-4585-bd70-5ec3a45d7d0d" class="bulleted-list"><li style="list-style-type:disc">Add <strong>&quot;Infor Document Management (IDM) on-prem&quot;</strong> node attached to M3</li></ul></div><div style="display:contents" dir="auto"><ul id="5201844e-be58-4cba-89aa-7a73c079db1b" class="bulleted-list"><li style="list-style-type:disc">From SSRS, show hyperlinking to IDM documents (not a data integration)</li></ul></div><div style="display:contents" dir="auto"><p id="16f90e3a-5155-449f-a529-637eac696ad6" class=""><strong>Salesforce:</strong></p></div><div style="display:contents" dir="auto"><ul id="4001db8d-aac7-4d7a-9273-ce5b0f945235" class="bulleted-list"><li style="list-style-type:disc">Keep Salesforce as CRM, mostly native reporting now</li></ul></div><div style="display:contents" dir="auto"><ul id="c7807486-0356-46b2-928e-b9ccc5ef5bd9" class="bulleted-list"><li style="list-style-type:disc">Only one SSRS report remains; no Salesforce ↔ M3 unless confirmed</li></ul></div><div style="display:contents" dir="auto"><p id="9053013e-2e7a-44fe-b888-f4e60b293ed1" class=""><strong>Thermograph:</strong></p></div><div style="display:contents" dir="auto"><ul id="3ea94958-eb4a-4ef4-92d8-5405d81996c6" class="bulleted-list"><li style="list-style-type:disc">Depict as production testing data source for reporting</li></ul></div><div style="display:contents" dir="auto"><ul id="8bceca03-41b1-4b04-82c4-3de74b287489" class="bulleted-list"><li style="list-style-type:disc">No integration arrows to MES or M3 unless confirmed</li></ul></div><div style="display:contents" dir="auto"><p id="3f4381da-4089-4ce8-bb27-7db6f0ea5f9e" class=""><strong>ION Clarification:</strong></p></div><div style="display:contents" dir="auto"><ul id="c52189e0-ddba-4e2c-bfef-b9f1083f2735" class="bulleted-list"><li style="list-style-type:disc"><strong>ION is also in the cloud</strong> (not only on-prem)</li></ul></div><div style="display:contents" dir="auto"><ul id="39b35b14-4eec-407b-a6ed-59e524f606f6" class="bulleted-list"><li style="list-style-type:disc"><strong>MECH is only on-prem</strong></li></ul></div><div style="display:contents" dir="auto"><p id="84992760-14ae-4506-95c0-de4ded857c9b" class=""><strong>Legend Updates:</strong></p></div><div style="display:contents" dir="auto"><ul id="e41d9695-9ce8-47b6-ba68-a3f79a34e84e" class="bulleted-list"><li style="list-style-type:disc">Mark lines as <strong>[CONFIRMED]</strong> or <strong>[Assumed/Unverified]</strong>:<div style="display:contents" dir="auto"><ul id="a88fb960-e6c4-451d-b4da-edcc4a66db13" class="bulleted-list"><li style="list-style-type:circle">✅ Confirmed: MES ↔ M3, ANV ↔ MES, OATS ↔ MES, PlantPAx ↔ MES, FactoryTalk Batch ↔ MES, M3 → ETQ</li></ul></div><div style="display:contents" dir="auto"><ul id="9c53ae78-ac80-4202-9780-64cc17091175" class="bulleted-list"><li style="list-style-type:circle">❓ Assumed: ETQ ↔ SDS, BatchWorks ↔ which M3 instance, MPD SHAR ↔ which M3 instance, Thermograph integrations</li></ul></div></li></ul></div><div style="display:contents" dir="auto"><p id="425afae6-4d21-49f1-90ab-0f514c67b2e2" class=""><strong>Diagram Caption:</strong></p></div><div style="display:contents" dir="auto"><blockquote id="0d8573cc-12d5-4ea5-83a0-3d869c3abdfa" class="">&quot;MES is operational core; M3 is enterprise core. Plant-floor systems connect to MES; quality/safety (ETQ) receives data from M3; reporting spans both via SSRS with IDM hyperlinks; legacy Adage is historical only.&quot;</blockquote></div><div style="display:contents" dir="auto"><h3 id="cafb6238-6a69-4af6-b809-59d64eaf77cf" class="">Closing Remarks</h3></div><div style="display:contents" dir="auto"><ul id="f38c7ac2-61d6-43ca-a18a-cc7bd2f349c9" class="bulleted-list"><li style="list-style-type:disc">Steve appreciated the high-level view; noted it helps avoid getting lost in granular details</li></ul></div><div style="display:contents" dir="auto"><ul id="d50c6db9-896c-47da-9909-4aeacf00a203" class="bulleted-list"><li style="list-style-type:disc">Acknowledged upcoming off-site retreat and future stakeholder kickoff sessions</li></ul></div><div style="display:contents" dir="auto"><ul id="56ff189f-c797-4406-bc22-c003e437a863" class="bulleted-list"><li style="list-style-type:disc">Agreed to keep communication open via Teams/call for any remaining questions</li></ul></div><div style="display:contents" dir="auto"><ul id="5105f3cf-1537-44a1-8a21-5716ee18363e" class="bulleted-list"><li style="list-style-type:disc"><strong>Kerri = &quot;social connective tissue&quot;</strong> of the team — go-to for introductions and routing questions</li></ul></div><div style="display:contents" dir="auto"><hr id="7e0ae79c-331a-48b5-b484-a0ed831ac90c"/></div><div style="display:contents" dir="auto"><h2 id="655f3259-3276-4213-bff6-07aceadf4216" class="">🎙️ Cluely Transcript</h2></div><div style="display:contents" dir="auto"><p id="5e4743e8-3760-4570-b67d-a151066eec14" class=""><strong>Duration:</strong> ~28 minutes | <strong>Attendees:</strong> Steve, Kerri Voiss, Patrick Stiller</p></div><div style="display:contents" dir="auto"><h3 id="30b2c699-805d-4f0c-8195-1319f378bf34" class="">Key Segments</h3></div><div style="display:contents" dir="ltr"><table id="85cea00d-d34c-4cac-aafb-225f007d5876" class="simple-table"><thead class="simple-table-header"><div style="display:contents" dir="ltr"><tr id="ab7d232a-48b4-40bb-810b-ca190e79ca6c"><th id="pgUq" class="simple-table-header-color simple-table-header">Time</th><th id="VyJT" class="simple-table-header-color simple-table-header">Topic</th><th id=";|S;" class="simple-table-header-color simple-table-header">Notes</th></tr></div></thead><tbody><div style="display:contents" dir="ltr"><tr id="bb1cdc35-3360-4259-aaca-de4030583a93"><td id="pgUq" class="">0:00–2:30</td><td id="VyJT" class="">Portal overview</td><td id=";|S;" class="">Organized by data source/system, goal is function-based</td></tr></div><div style="display:contents" dir="ltr"><tr id="43758827-f9eb-4d35-a4f1-1defbd8db1b3"><td id="pgUq" class="">2:30–6:30</td><td id="VyJT" class="">Data sources walkthrough</td><td id=";|S;" class="">Adage, AS, CPR, EAM, ETQ, ION, M3 variants</td></tr></div><div style="display:contents" dir="ltr"><tr id="e00edee5-da5f-4a8e-ab7e-8fa47d083be0"><td id="pgUq" class="">6:30–10:30</td><td id="VyJT" class="">MES, MPD SHAR, Optiva, PCD</td><td id=";|S;" class="">Batch data, controls, formulas, material routing</td></tr></div><div style="display:contents" dir="ltr"><tr id="e73759cc-b0b6-4ed6-b446-8ce77d120664"><td id="pgUq" class="">10:30–13:30</td><td id="VyJT" class="">Link resiliency discussion</td><td id=";|S;" class="">GUID question, DNS entries, link servers</td></tr></div><div style="display:contents" dir="ltr"><tr id="a9bf8847-b38c-4251-a6e3-b60d4c4dbac2"><td id="pgUq" class="">13:30–16:00</td><td id="VyJT" class="">rpt_live, Salesforce, SDS, Thermograph</td><td id=";|S;" class="">Subscription monitoring, ticketing, viscosity testing</td></tr></div><div style="display:contents" dir="ltr"><tr id="c0e627b8-6cc7-4250-9f63-a292a0dc7061"><td id="pgUq" class="">16:00–23:00</td><td id="VyJT" class="">High-level appreciation</td><td id=";|S;" class="">Fire hose recovery, stakeholder intro planning</td></tr></div><div style="display:contents" dir="ltr"><tr id="df1ff269-fff0-4c14-9fb2-c89a60f098fc"><td id="pgUq" class="">23:00–28:00</td><td id="VyJT" class="">Infographic review</td><td id=";|S;" class="">Change list review, corrections confirmed</td></tr></div></tbody></table></div><div style="display:contents" dir="auto"><h3 id="6bd16f79-5324-4f4a-8c84-e2214881d1ec" class="">Notable Quotes</h3></div><div style="display:contents" dir="auto"><blockquote id="8ed7dbf6-a54c-4cbf-8c16-fcca7c985c34" class="">&quot;If you need an AP folder you go in the AP folder... the user shouldn&#x27;t have to care what company or system the report&#x27;s coming from&quot; — Kerri Voiss</blockquote></div><div style="display:contents" dir="auto"><blockquote id="33786836-e800-4acc-b8c8-3e9740d4f61b" class="">&quot;MES is core to the operations, but M3 is core to the company&quot; — Patrick Stiller</blockquote></div><div style="display:contents" dir="auto"><blockquote id="7efbc3d3-f2c1-4a14-889a-ee255dc5d7ee" class="">&quot;If I don&#x27;t know, I can tell you who does know&quot; — Kerri Voiss (social connective tissue)</blockquote></div><div style="display:contents" dir="auto"><h3 id="a2f416f2-3050-46f7-ac29-632565081dfd" class="">Transcript Quality Notes</h3></div><div style="display:contents" dir="auto"><ul id="ccb2fe91-6da0-4a1a-8579-ed76da0d2d8e" class="bulleted-list"><li style="list-style-type:disc">Auto-transcription has speaker attribution issues (all labeled &quot;Steve&quot;)</li></ul></div><div style="display:contents" dir="auto"><ul id="f86b3741-cd2e-4996-b730-dd2e2c6f9548" class="bulleted-list"><li style="list-style-type:disc">Kerri Voiss is primary presenter</li></ul></div><div style="display:contents" dir="auto"><ul id="9645a59e-193d-4074-a106-17dd95790763" class="bulleted-list"><li style="list-style-type:disc">Some personal banter about school photos, weather, kids</li></ul></div><div style="display:contents" dir="auto"><hr id="cbf20eea-01d3-4ab1-807b-b761085f85a2"/></div><div style="display:contents" dir="auto"><h2 id="bec318bf-13aa-4b55-af39-ab653aee13d3" class="">💡 Cluely Usage Log</h2></div><div style="display:contents" dir="auto"><p id="bf3a458a-9df2-4c30-831b-cc564ff1c4dc" class=""><strong>12 real-time assists during meeting:</strong></p></div><div style="display:contents" dir="ltr"><table id="66dc23ac-4897-45ef-a97f-b382c60e953c" class="simple-table"><thead class="simple-table-header"><div style="display:contents" dir="ltr"><tr id="c8928cdd-8633-4ad0-836b-bc0a57bfd665"><th id="RU\I" class="simple-table-header-color simple-table-header">Time</th><th id="HAnA" class="simple-table-header-color simple-table-header">Assist Type</th><th id="\^jG" class="simple-table-header-color simple-table-header">Content</th></tr></div></thead><tbody><div style="display:contents" dir="ltr"><tr id="63aa5f3d-4e1b-48d2-a81e-d6253b1ef047"><td id="RU\I" class="">12:41 PM</td><td id="HAnA" class="">Context reload</td><td id="\^jG" class="">Loaded Notion context from Mode</td></tr></div><div style="display:contents" dir="ltr"><tr id="869734f0-527f-47a9-91f7-59cf9a3f1e2b"><td id="RU\I" class="">12:43 PM</td><td id="HAnA" class="">Zinger mode enabled</td><td id="\^jG" class="">Protocol established for live follow-ups</td></tr></div><div style="display:contents" dir="ltr"><tr id="f23993cb-1166-48a0-86ba-8dc5d4e9fc94"><td id="RU\I" class="">12:44 PM</td><td id="HAnA" class="">Scope clarification</td><td id="\^jG" class="">Confirmed zingers based on live discussion only</td></tr></div><div style="display:contents" dir="ltr"><tr id="63a3c378-4741-4c94-9024-10905a483cc0"><td id="RU\I" class="">12:45 PM</td><td id="HAnA" class="">Protocol refinement</td><td id="\^jG" class="">Notion context for framing, not merging</td></tr></div><div style="display:contents" dir="ltr"><tr id="6c34de16-de7b-4a4c-985d-cb815369b6bc"><td id="RU\I" class="">12:46 PM</td><td id="HAnA" class="">Zinger</td><td id="\^jG" class="">IDM hyperlinks, ETQ source, auth patterns</td></tr></div><div style="display:contents" dir="ltr"><tr id="3dd5839e-ae84-4176-ac31-c09032fe1a47"><td id="RU\I" class="">12:48 PM</td><td id="HAnA" class="">Quick lookup</td><td id="\^jG" class="">Kerri Voiss role/background</td></tr></div><div style="display:contents" dir="ltr"><tr id="331840e7-7b54-4dce-bbd3-f5b47fc39b23"><td id="RU\I" class="">12:50 PM</td><td id="HAnA" class="">Catch-up + reassurance</td><td id="\^jG" class="">Summary of what&#x27;s been covered, line to say</td></tr></div><div style="display:contents" dir="ltr"><tr id="bc4af05b-56c8-4558-9fab-6304d82df675"><td id="RU\I" class="">12:52 PM</td><td id="HAnA" class="">Recovery script</td><td id="\^jG" class="">Clean recovery after &quot;horns&quot; look</td></tr></div><div style="display:contents" dir="ltr"><tr id="cdc8872f-fde3-4206-8a90-f0da95174f6a"><td id="RU\I" class="">12:53 PM</td><td id="HAnA" class="">What to say</td><td id="\^jG" class="">Smooth transition line</td></tr></div><div style="display:contents" dir="ltr"><tr id="63d67e40-10d1-4999-8315-b53f22e83221"><td id="RU\I" class="">12:55 PM</td><td id="HAnA" class="">Course correction</td><td id="\^jG" class="">Dropped link resiliency, moved on</td></tr></div><div style="display:contents" dir="ltr"><tr id="5e940258-b830-4963-b818-a913f5601203"><td id="RU\I" class="">1:03 PM</td><td id="HAnA" class="">Infographic framing</td><td id="\^jG" class="">How to describe current flow diagram</td></tr></div><div style="display:contents" dir="ltr"><tr id="45bb21fb-ba22-47ce-a015-c7496431ec74"><td id="RU\I" class="">1:06 PM</td><td id="HAnA" class="">Infographic change list</td><td id="\^jG" class="">Full detailed list for Gemini 3 update</td></tr></div></tbody></table></div><div style="display:contents" dir="auto"><h3 id="637b52c2-2e5a-440d-a6b2-31b8bb6470af" class="">Key Cluely-Assisted Insights</h3></div><div style="display:contents" dir="auto"><ul id="1479f2c4-2dd4-4dae-aefb-7de2f6aa7bf7" class="bulleted-list"><li style="list-style-type:disc">Identified <strong>ETQ = direct DB loads from M3</strong> (not ION/BODs)</li></ul></div><div style="display:contents" dir="auto"><ul id="0577a0c0-4e31-44de-b5b1-b3ea5c045f22" class="bulleted-list"><li style="list-style-type:disc">Confirmed <strong>no durable GUID</strong> for IDM hyperlinks → parked as discovery item</li></ul></div><div style="display:contents" dir="auto"><ul id="a7810c29-41d8-41ad-a88a-3d65bc6468f4" class="bulleted-list"><li style="list-style-type:disc">Captured <strong>full infographic correction list</strong> for Gemini 3 regeneration</li></ul></div><div style="display:contents" dir="auto"><ul id="cf1c1219-5041-481a-8141-7cb701ff78c8" class="bulleted-list"><li style="list-style-type:disc">Noted <strong>Kerri Voiss = social connective tissue</strong> for team routing</li></ul></div><div style="display:contents" dir="auto"><hr id="d20cd7fd-d666-4293-a827-72a0df44c580"/></div><div style="display:contents" dir="auto"><h2 id="f61964d9-1161-4b49-89c9-1db0d0004843" class="">🆕 New Facts (Not Yet in Feed)</h2></div><div style="display:contents" dir="ltr"><table id="7ff773df-b44c-4897-8a2f-244a71584b53" class="simple-table"><thead class="simple-table-header"><div style="display:contents" dir="ltr"><tr id="c9c73a46-d47c-408e-9779-99ff3e99b7a6"><th id="eA&gt;`" class="simple-table-header-color simple-table-header">Fact</th><th id="km^[" class="simple-table-header-color simple-table-header">Category</th><th id="keCP" class="simple-table-header-color simple-table-header">Status</th></tr></div></thead><tbody><div style="display:contents" dir="ltr"><tr id="ccc208e9-4b55-46ea-bd80-83fa40711828"><td id="eA&gt;`" class=""><strong>rpt_view_prod</strong> = helper DB on M3 on-prem for stored procs (can&#x27;t use log-shipped DB)</td><td id="km^[" class="">Systems</td><td id="keCP" class="">✅ Confirmed</td></tr></div><div style="display:contents" dir="ltr"><tr id="887f28f5-7562-4387-b374-be6fb3a6f978"><td id="eA&gt;`" class=""><strong>rpt_live</strong> = SSRS portal self-monitoring for failed subscriptions</td><td id="km^[" class="">Systems</td><td id="keCP" class="">✅ Confirmed</td></tr></div><div style="display:contents" dir="ltr"><tr id="cc5a1f5f-4d21-4ce3-993d-e02409ba6570"><td id="eA&gt;`" class=""><strong>ETQ</strong> = direct DB loads from M3 (not ION/BODs)</td><td id="km^[" class="">Data Flows</td><td id="keCP" class="">✅ Confirmed</td></tr></div><div style="display:contents" dir="ltr"><tr id="cc759a7c-fe0f-4c5e-a287-8fcaefb48239"><td id="eA&gt;`" class=""><strong>M3 Prod Actual</strong> = 30-minute log-shipped copy of M3 on-prem</td><td id="km^[" class="">Systems</td><td id="keCP" class="">✅ Confirmed</td></tr></div><div style="display:contents" dir="ltr"><tr id="7dca264f-8de9-4cdb-95ec-5b987d940a25"><td id="eA&gt;`" class=""><strong>PCD</strong> = control-system material source decisions (hatch vs drum vs vessel routing)</td><td id="km^[" class="">Systems</td><td id="keCP" class="">✅ Confirmed</td></tr></div><div style="display:contents" dir="ltr"><tr id="ba4ab564-8f2c-42ac-a76b-10da36fa405a"><td id="eA&gt;`" class=""><strong>Thermograph</strong> = viscosity/gel-time testing application for production</td><td id="km^[" class="">Systems</td><td id="keCP" class="">✅ Confirmed</td></tr></div><div style="display:contents" dir="ltr"><tr id="bacf0e83-88b1-4e1b-a903-ecebb4f5f5c1"><td id="eA&gt;`" class=""><strong>ION</strong> = exists in both cloud AND on-prem</td><td id="km^[" class="">Systems</td><td id="keCP" class="">✅ Confirmed</td></tr></div><div style="display:contents" dir="ltr"><tr id="931b74cd-b221-488f-be1d-5797b9b039b1"><td id="eA&gt;`" class=""><strong>MECH</strong> = only on-prem</td><td id="km^[" class="">Systems</td><td id="keCP" class="">✅ Confirmed</td></tr></div><div style="display:contents" dir="ltr"><tr id="eb6bebd0-01b6-4a90-b2d4-b09e1dc8d032"><td id="eA&gt;`" class=""><strong>No durable GUID</strong> for IDM hyperlinks today — links are brittle</td><td id="km^[" class="">Architecture</td><td id="keCP" class="">✅ Confirmed</td></tr></div><div style="display:contents" dir="ltr"><tr id="669f82ef-95ba-4c8f-a768-f0888837ae0a"><td id="eA&gt;`" class=""><strong>Kerri Voiss</strong> = &quot;social connective tissue&quot; of the team</td><td id="km^[" class="">People</td><td id="keCP" class="">✅ Confirmed</td></tr></div><div style="display:contents" dir="ltr"><tr id="d4aa5cc5-d7cc-43c5-836b-49ca54457e0a"><td id="eA&gt;`" class=""><strong>CFO</strong> previously worked at a major class photography company</td><td id="km^[" class="">People</td><td id="keCP" class="">✅ Confirmed (fun fact)</td></tr></div><div style="display:contents" dir="ltr"><tr id="7a66800e-1a02-411b-8f33-82075b957990"><td id="eA&gt;`" class=""><strong>PlantPAx and BatchWorks</strong> = &quot;we don&#x27;t use&quot; (per Patrick)</td><td id="km^[" class="">Systems</td><td id="keCP" class="">⚠️ Contradicts earlier — needs reconciliation</td></tr></div></tbody></table></div></div></article><span class="sans" style="font-size:14px;padding-top:2em"></span></body></html>

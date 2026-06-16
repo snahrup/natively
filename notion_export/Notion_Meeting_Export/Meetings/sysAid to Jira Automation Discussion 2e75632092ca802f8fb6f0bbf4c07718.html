@@ -1,0 +1,743 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>sysAid to Jira Automation Discussion</title><style>
+/* cspell:disable-file */
+/* webkit printing magic: print all background colors */
+html {
+	-webkit-print-color-adjust: exact;
+}
+* {
+	box-sizing: border-box;
+	-webkit-print-color-adjust: exact;
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+}
+@media only screen {
+	body {
+		margin: 2em auto;
+		max-width: 900px;
+		color: rgb(55, 53, 47);
+	}
+}
+
+body {
+	line-height: 1.5;
+	white-space: pre-wrap;
+}
+
+a,
+a.visited {
+	color: inherit;
+	text-decoration: underline;
+}
+
+.pdf-relative-link-path {
+	font-size: 80%;
+	color: #444;
+}
+
+h1,
+h2,
+h3 {
+	letter-spacing: -0.01em;
+	line-height: 1.2;
+	font-weight: 600;
+	margin-bottom: 0;
+}
+
+/* Override strong tags inside headings to maintain consistent weight */
+h1 strong,
+h2 strong,
+h3 strong {
+	font-weight: 600;
+}
+
+.page-title {
+	font-size: 2.5rem;
+	font-weight: 700;
+	margin-top: 0;
+	margin-bottom: 0.75em;
+}
+
+h1 {
+	font-size: 1.875rem;
+	margin-top: 1.875rem;
+}
+
+h2 {
+	font-size: 1.5rem;
+	margin-top: 1.5rem;
+}
+
+h3 {
+	font-size: 1.25rem;
+	margin-top: 1.25rem;
+}
+
+.source {
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	padding: 1.5em;
+	word-break: break-all;
+}
+
+.callout {
+	border-radius: 10px;
+	padding: 1rem;
+}
+
+figure {
+	margin: 1.25em 0;
+	page-break-inside: avoid;
+}
+
+figcaption {
+	opacity: 0.5;
+	font-size: 85%;
+	margin-top: 0.5em;
+}
+
+mark {
+	background-color: transparent;
+}
+
+.indented {
+	padding-left: 1.5em;
+}
+
+hr {
+	background: transparent;
+	display: block;
+	width: 100%;
+	height: 1px;
+	visibility: visible;
+	border: none;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+img {
+	max-width: 100%;
+}
+
+@media only print {
+	img {
+		max-height: 100vh;
+		object-fit: contain;
+	}
+
+	table.collection-content {
+		width: 100%;
+		table-layout: fixed;
+	}
+
+	table.collection-content th,
+	table.collection-content td {
+		overflow-wrap: anywhere;
+	}
+
+	table.collection-content td > .user,
+	table.collection-content td > time {
+		white-space: pre-wrap;
+	}
+}
+
+@page {
+	margin: 1in;
+}
+
+.collection-content-wrapper {
+	overflow-x: auto;
+}
+
+@media only print {
+	.collection-content-wrapper {
+		overflow-x: visible;
+	}
+}
+
+.collection-content {
+	font-size: 0.875rem;
+}
+
+.collection-content td {
+	white-space: pre-wrap;
+	word-break: break-word;
+}
+
+.column-list {
+	display: flex;
+	gap: 46px;
+}
+
+.column {
+	min-width: 0;
+	overflow: hidden;
+}
+
+.column > *:first-child {
+	margin-top: 0;
+}
+
+.table_of_contents-item {
+	display: block;
+	font-size: 0.875rem;
+	line-height: 1.3;
+	padding: 0.125rem;
+}
+
+.table_of_contents-indent-1 {
+	margin-left: 1.5rem;
+}
+
+.table_of_contents-indent-2 {
+	margin-left: 3rem;
+}
+
+.table_of_contents-indent-3 {
+	margin-left: 4.5rem;
+}
+
+.table_of_contents-link {
+	text-decoration: none;
+	opacity: 0.7;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.18);
+}
+
+table,
+th,
+td {
+	border: 1px solid rgba(55, 53, 47, 0.09);
+	border-collapse: collapse;
+}
+
+table {
+	border-left: none;
+	border-right: none;
+}
+
+th,
+td {
+	font-weight: normal;
+	padding: 0.25em 0.5em;
+	line-height: 1.5;
+	min-height: 1.5em;
+	text-align: left;
+}
+
+th {
+	color: rgba(55, 53, 47, 0.6);
+}
+
+ol,
+ul {
+	margin: 0;
+	margin-block-start: 0.6em;
+	margin-block-end: 0.6em;
+}
+
+li > ol:first-child,
+li > ul:first-child {
+	margin-block-start: 0.6em;
+}
+
+ul > li {
+	list-style: disc;
+}
+
+ul.to-do-list {
+	padding-inline-start: 0;
+}
+
+ul.to-do-list > li {
+	list-style: none;
+}
+
+.to-do-children-checked {
+	text-decoration: line-through;
+	opacity: 0.375;
+}
+
+ul.toggle > li {
+	list-style: none;
+}
+
+ul {
+	padding-inline-start: 1.7em;
+}
+
+ul > li {
+	padding-left: 0.1em;
+}
+
+ol {
+	padding-inline-start: 1.6em;
+}
+
+ol.numbered-list.numbered-list-digits-2 {
+	padding-inline-start: 2em;
+}
+
+ol.numbered-list.numbered-list-digits-3plus {
+	padding-inline-start: 2.4em;
+}
+
+ol > li {
+	padding-left: 0.2em;
+}
+
+.mono ol {
+	padding-inline-start: 2em;
+}
+
+.mono ol > li {
+	text-indent: -0.4em;
+}
+
+.toggle {
+	padding-inline-start: 0em;
+	list-style-type: none;
+}
+
+/* Indent toggle children */
+.toggle > li > details {
+	padding-left: 1.7em;
+}
+
+.toggle > li > details > summary {
+	margin-left: -1.1em;
+}
+
+.selected-value {
+	display: inline-block;
+	padding: 0 0.5em;
+	background: rgba(206, 205, 202, 0.5);
+	border-radius: 3px;
+	margin-right: 0.5em;
+	margin-top: 0.3em;
+	margin-bottom: 0.3em;
+	white-space: nowrap;
+}
+
+.collection-title {
+	display: inline-block;
+	margin-right: 1em;
+}
+
+.page-description {
+	margin-bottom: 2em;
+}
+
+.simple-table {
+	margin-top: 1em;
+	font-size: 0.875rem;
+	empty-cells: show;
+}
+.simple-table td {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table th {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table-header-color {
+	background: rgb(247, 246, 243);
+	color: black;
+}
+.simple-table-header {
+	font-weight: 500;
+}
+
+time {
+	opacity: 0.5;
+}
+
+.icon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	max-width: 1.2em;
+	max-height: 1.2em;
+	text-decoration: none;
+	vertical-align: text-bottom;
+	margin-right: 0.5em;
+}
+
+img.icon {
+	border-radius: 3px;
+}
+
+.callout img.notion-static-icon {
+	width: 1em;
+	height: 1em;
+}
+
+.callout p {
+	margin: 0;
+}
+
+.callout h1,
+.callout h2,
+.callout h3 {
+	margin: 0 0 0.6rem;
+}
+
+.user-icon {
+	width: 1.5em;
+	height: 1.5em;
+	border-radius: 100%;
+	margin-right: 0.5rem;
+}
+
+.user-icon-inner {
+	font-size: 0.8em;
+}
+
+.text-icon {
+	border: 1px solid #000;
+	text-align: center;
+}
+
+.page-cover-image {
+	display: block;
+	object-fit: cover;
+	width: 100%;
+	max-height: 30vh;
+}
+
+.page-header-icon {
+	font-size: 3rem;
+	margin-bottom: 1rem;
+}
+
+.page-header-icon-with-cover {
+	margin-top: -0.72em;
+	margin-left: 0.07em;
+}
+
+.page-header-icon img {
+	border-radius: 3px;
+}
+
+.link-to-page {
+	margin: 1em 0;
+	padding: 0;
+	border: none;
+	font-weight: 500;
+}
+
+p > .user {
+	opacity: 0.5;
+}
+
+td > .user,
+td > time {
+	white-space: nowrap;
+}
+
+input[type="checkbox"] {
+	transform: scale(1.5);
+	margin-right: 0.6em;
+	vertical-align: middle;
+}
+
+p {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+.image {
+	border: none;
+	margin: 1.5em 0;
+	padding: 0;
+	border-radius: 0;
+	text-align: center;
+}
+
+.code,
+code {
+	background: rgba(135, 131, 120, 0.15);
+	border-radius: 3px;
+	padding: 0.2em 0.4em;
+	border-radius: 3px;
+	font-size: 85%;
+	tab-size: 2;
+}
+
+code {
+	color: #eb5757;
+}
+
+.code {
+	padding: 1.5em 1em;
+}
+
+.code-wrap {
+	white-space: pre-wrap;
+	word-break: break-all;
+}
+
+.code > code {
+	background: none;
+	padding: 0;
+	font-size: 100%;
+	color: inherit;
+}
+
+blockquote {
+	font-size: 1em;
+	margin: 1em 0;
+	padding-left: 1em;
+	border-left: 3px solid rgb(55, 53, 47);
+}
+
+blockquote.quote-large {
+	font-size: 1.25em;
+}
+
+.bookmark {
+	text-decoration: none;
+	max-height: 8em;
+	padding: 0;
+	display: flex;
+	width: 100%;
+	align-items: stretch;
+}
+
+.bookmark-title {
+	font-size: 0.85em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	height: 1.75em;
+	white-space: nowrap;
+}
+
+.bookmark-text {
+	display: flex;
+	flex-direction: column;
+}
+
+.bookmark-info {
+	flex: 4 1 180px;
+	padding: 12px 14px 14px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.bookmark-image {
+	width: 33%;
+	flex: 1 1 180px;
+	display: block;
+	position: relative;
+	object-fit: cover;
+	border-radius: 1px;
+}
+
+.bookmark-description {
+	color: rgba(55, 53, 47, 0.6);
+	font-size: 0.75em;
+	overflow: hidden;
+	max-height: 4.5em;
+	word-break: break-word;
+}
+
+.bookmark-href {
+	font-size: 0.75em;
+	margin-top: 0.25em;
+}
+
+.sans { font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol"; }
+.code { font-family: "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace; }
+.serif { font-family: Lyon-Text, Georgia, ui-serif, serif; }
+.mono { font-family: iawriter-mono, Nitti, Menlo, Courier, monospace; }
+.pdf .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK JP'; }
+.pdf:lang(zh-CN) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK SC'; }
+.pdf:lang(zh-TW) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK TC'; }
+.pdf:lang(ko-KR) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK KR'; }
+.pdf .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.pdf .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK JP'; }
+.pdf:lang(zh-CN) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK SC'; }
+.pdf:lang(zh-TW) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK TC'; }
+.pdf:lang(ko-KR) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK KR'; }
+.pdf .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.highlight-default {
+	color: rgba(44, 44, 43, 1);
+}
+.highlight-gray {
+	color: rgba(125, 122, 117, 1);
+	fill: rgba(125, 122, 117, 1);
+}
+.highlight-brown {
+	color: rgba(159, 118, 90, 1);
+	fill: rgba(159, 118, 90, 1);
+}
+.highlight-orange {
+	color: rgba(210, 123, 45, 1);
+	fill: rgba(210, 123, 45, 1);
+}
+.highlight-yellow {
+	color: rgba(203, 148, 52, 1);
+	fill: rgba(203, 148, 52, 1);
+}
+.highlight-teal {
+	color: rgba(80, 148, 110, 1);
+	fill: rgba(80, 148, 110, 1);
+}
+.highlight-blue {
+	color: rgba(56, 125, 201, 1);
+	fill: rgba(56, 125, 201, 1);
+}
+.highlight-purple {
+	color: rgba(154, 107, 180, 1);
+	fill: rgba(154, 107, 180, 1);
+}
+.highlight-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.highlight-red {
+	color: rgba(207, 81, 72, 1);
+	fill: rgba(207, 81, 72, 1);
+}
+.highlight-default_background {
+	color: rgba(44, 44, 43, 1);
+}
+.highlight-gray_background {
+	background: rgba(42, 28, 0, 0.07);
+}
+.highlight-brown_background {
+	background: rgba(139, 46, 0, 0.086);
+}
+.highlight-orange_background {
+	background: rgba(224, 101, 1, 0.129);
+}
+.highlight-yellow_background {
+	background: rgba(211, 168, 0, 0.137);
+}
+.highlight-teal_background {
+	background: rgba(0, 100, 45, 0.09);
+}
+.highlight-blue_background {
+	background: rgba(0, 124, 215, 0.094);
+}
+.highlight-purple_background {
+	background: rgba(102, 0, 178, 0.078);
+}
+.highlight-pink_background {
+	background: rgba(197, 0, 93, 0.086);
+}
+.highlight-red_background {
+	background: rgba(223, 22, 0, 0.094);
+}
+.block-color-default {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray {
+	color: rgba(125, 122, 117, 1);
+	fill: rgba(125, 122, 117, 1);
+}
+.block-color-brown {
+	color: rgba(159, 118, 90, 1);
+	fill: rgba(159, 118, 90, 1);
+}
+.block-color-orange {
+	color: rgba(210, 123, 45, 1);
+	fill: rgba(210, 123, 45, 1);
+}
+.block-color-yellow {
+	color: rgba(203, 148, 52, 1);
+	fill: rgba(203, 148, 52, 1);
+}
+.block-color-teal {
+	color: rgba(80, 148, 110, 1);
+	fill: rgba(80, 148, 110, 1);
+}
+.block-color-blue {
+	color: rgba(56, 125, 201, 1);
+	fill: rgba(56, 125, 201, 1);
+}
+.block-color-purple {
+	color: rgba(154, 107, 180, 1);
+	fill: rgba(154, 107, 180, 1);
+}
+.block-color-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.block-color-red {
+	color: rgba(207, 81, 72, 1);
+	fill: rgba(207, 81, 72, 1);
+}
+.block-color-default_background {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray_background {
+	background: rgba(240, 239, 237, 1);
+}
+.block-color-brown_background {
+	background: rgba(245, 237, 233, 1);
+}
+.block-color-orange_background {
+	background: rgba(251, 235, 222, 1);
+}
+.block-color-yellow_background {
+	background: rgba(249, 243, 220, 1);
+}
+.block-color-teal_background {
+	background: rgba(232, 241, 236, 1);
+}
+.block-color-blue_background {
+	background: rgba(229, 242, 252, 1);
+}
+.block-color-purple_background {
+	background: rgba(243, 235, 249, 1);
+}
+.block-color-pink_background {
+	background: rgba(250, 233, 241, 1);
+}
+.block-color-red_background {
+	background: rgba(252, 233, 231, 1);
+}
+.select-value-color-default { background-color: rgba(42, 28, 0, 0.07); }
+.select-value-color-gray { background-color: rgba(28, 19, 1, 0.11); }
+.select-value-color-brown { background-color: rgba(127, 51, 0, 0.156); }
+.select-value-color-orange { background-color: rgba(196, 88, 0, 0.203); }
+.select-value-color-yellow { background-color: rgba(209, 156, 0, 0.282); }
+.select-value-color-green { background-color: rgba(0, 96, 38, 0.156); }
+.select-value-color-blue { background-color: rgba(0, 118, 217, 0.203); }
+.select-value-color-purple { background-color: rgba(92, 0, 163, 0.141); }
+.select-value-color-pink { background-color: rgba(183, 0, 78, 0.152); }
+.select-value-color-red { background-color: rgba(206, 24, 0, 0.164); }
+
+.checkbox {
+	display: inline-flex;
+	vertical-align: text-bottom;
+	width: 16;
+	height: 16;
+	background-size: 16px;
+	margin-left: 2px;
+	margin-right: 5px;
+}
+
+.checkbox-on {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20width%3D%2216%22%20height%3D%2216%22%20fill%3D%22%2358A9D7%22%2F%3E%0A%3Cpath%20d%3D%22M6.71429%2012.2852L14%204.9995L12.7143%203.71436L6.71429%209.71378L3.28571%206.2831L2%207.57092L6.71429%2012.2852Z%22%20fill%3D%22white%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+
+.checkbox-off {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20x%3D%220.75%22%20y%3D%220.75%22%20width%3D%2214.5%22%20height%3D%2214.5%22%20fill%3D%22white%22%20stroke%3D%22%2336352F%22%20stroke-width%3D%221.5%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+	
+</style></head><body><article id="2e756320-92ca-802f-8fb6-f0bbf4c07718" class="page sans"><header><h1 class="page-title" dir="auto">sysAid to Jira Automation Discussion</h1><p class="page-description" dir="auto"></p><table class="properties"><tbody><tr class="property-row property-row-status"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/burst_gray.svg" style="width:14px;height:14px;display:block"/></span>Processing</th><td><span class="status-value select-value-color-green"><div class="status-dot status-dot-color-green"></div>Processed</span></td></tr><tr class="property-row property-row-text"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/description_gray.svg" style="width:14px;height:14px;display:block"/></span>Agenda</th><td>sysAid to Jira integration; Zapier evaluation; Microsoft Fabric data flow; Citrine meeting planning; Team dynamics and role observations</td></tr><tr class="property-row property-row-date"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/calendar_gray.svg" style="width:14px;height:14px;display:block"/></span>Date</th><td><time>January 13, 2026</time></td></tr><tr class="property-row property-row-multi_select"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/list_gray.svg" style="width:14px;height:14px;display:block"/></span>Attendees</th><td><span class="selected-value select-value-color-pink">Internal</span></td></tr><tr class="property-row property-row-select"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/arrow-circle-down_gray.svg" style="width:14px;height:14px;display:block"/></span>Meeting Type</th><td><span class="selected-value select-value-color-default">1:1</span></td></tr><tr class="property-row property-row-person"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/friends_gray.svg" style="width:14px;height:14px;display:block"/></span>Organizer</th><td><span class="user"><img src="https://lh3.googleusercontent.com/a/ACg8ocLHfVvdl28jS936w7CBB6TObsUa1P-X8cbdsUSKdeEn_MD7Bw=s96-c" class="icon user-icon"/>Steve </span></td></tr><tr class="property-row property-row-select"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/arrow-circle-down_gray.svg" style="width:14px;height:14px;display:block"/></span>Priority</th><td><span class="selected-value select-value-color-yellow">Medium</span></td></tr><tr class="property-row property-row-checkbox"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/checkmark-square_gray.svg" style="width:14px;height:14px;display:block"/></span>Has Cluely Transcript</th><td><div class="checkbox checkbox-on"></div></td></tr><tr class="property-row property-row-checkbox"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/checkmark-square_gray.svg" style="width:14px;height:14px;display:block"/></span>Has Final Transcript</th><td><div class="checkbox checkbox-on"></div></td></tr><tr class="property-row property-row-select"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/arrow-circle-down_gray.svg" style="width:14px;height:14px;display:block"/></span>Status</th><td><span class="selected-value select-value-color-brown">Completed</span></td></tr><tr class="property-row property-row-checkbox"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/checkmark-square_gray.svg" style="width:14px;height:14px;display:block"/></span>Has Notion Transcript</th><td><div class="checkbox checkbox-off"></div></td></tr><tr class="property-row property-row-checkbox"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/checkmark-square_gray.svg" style="width:14px;height:14px;display:block"/></span>Has Teams Transcript</th><td><div class="checkbox checkbox-off"></div></td></tr><tr class="property-row property-row-checkbox"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/checkmark-square_gray.svg" style="width:14px;height:14px;display:block"/></span>Merged to Feed</th><td><div class="checkbox checkbox-off"></div></td></tr></tbody></table></header><div class="page-body"><div style="display:contents" dir="ltr"><figure class="block-color-purple_background callout" style="white-space:pre-wrap;display:flex" id="739533da-70d0-4dde-b928-d50fd5194b24"><div style="font-size:1.5em"><span class="icon">🎯</span></div><div style="width:100%"><div style="display:contents" dir="auto"><p id="e739177a-f2e1-423c-9200-acaaa641b566" class=""><strong>sysAid to Jira Automation Discussion</strong></p></div><div style="display:contents" dir="auto"><p id="50178210-3c16-41c3-9160-b407be992007" class=""><strong>Date:</strong> January 13, 2026 | <strong>Participants:</strong> Steve Nahrup, Dominique Mathers</p></div><div style="display:contents" dir="auto"><p id="33ce6879-f7e4-4012-89e7-329776d00c01" class=""><strong>Key Topics:</strong> sysAid → Jira automation, Microsoft Fabric data flow, Citrine meeting prep, team dynamics</p></div></div></figure></div><div style="display:contents" dir="auto"><hr id="f8c3cf9e-d487-4156-9ea8-ee1a37fdd671"/></div><div style="display:contents" dir="auto"><h2 id="83476131-fa8c-4782-9fdb-df57df180a7b" class="">✅ Action Items</h2></div><div style="display:contents" dir="auto"><ul id="b26f3d08-3282-4e36-ba24-98d68a55a381" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Evaluate Zapier subscription feasibility and approval process</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="25d46794-4e7c-4651-9034-e2f54cd68b9d" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Draft a simple webhook prototype to sync sysAid → Jira feature tickets</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="0fd330b8-2fa0-4f41-8ec1-0856e0374a18" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Create an infographic showing the data flow from Citrine → Microsoft Fabric → Power BI</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="37d62006-0579-4817-88d8-a9033bc53084" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Prepare agenda and talking points for Tuesday&#x27;s Citrine &amp; data standardization meeting</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="c525ac28-6ac1-41e9-b175-ca003487b55d" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Set up a brief meeting with Patrick to present the data-standardization plan</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="20be5ef9-13c4-4c5c-9ea3-4664bf4d6136" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Pull version numbers and any relevant logs for the current integration issue</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><hr id="ea15bc3a-f864-45d4-9143-f8e4c56e3401"/></div><div style="display:contents" dir="auto"><h2 id="0d47bc95-78e0-4732-bc81-195dcdcd4c73" class="">🔗 Integration Discussion</h2></div><div style="display:contents" dir="auto"><ul id="aa2a4c6b-54b9-480b-9f43-42c2b1426913" class="bulleted-list"><li style="list-style-type:disc"><code>Fact:</code> Need a <strong>trigger-based, low-maintenance sync</strong> between sysAid and Jira</li></ul></div><div style="display:contents" dir="auto"><ul id="f895ac8c-7383-45ad-82aa-7898e299c442" class="bulleted-list"><li style="list-style-type:disc"><code>Fact:</code> Mapping only <strong>two key fields</strong> may be sufficient for the initial patch</li></ul></div><div style="display:contents" dir="auto"><ul id="c2edd562-9329-4f08-8126-34de5fdca902" class="bulleted-list"><li style="list-style-type:disc"><code>Decision:</code> <strong>Zapier</strong> suggested as a quick &quot;no-code&quot; bridge (webhooks, field mapping)</li></ul></div><div style="display:contents" dir="auto"><ul id="6e219ccc-8059-45fe-9c59-6460ef083196" class="bulleted-list"><li style="list-style-type:disc"><code>Risk:</code> Consider building a custom webhook if Zapier approval is too cumbersome</li></ul></div><div style="display:contents" dir="auto"><ul id="fb944935-b171-42e4-8d1b-59edf0a8cd33" class="bulleted-list"><li style="list-style-type:disc"><strong>Goal:</strong> eliminate manual copy-paste, enable one-click data transfer</li></ul></div><div style="display:contents" dir="auto"><hr id="7172a004-ca8a-4812-9361-cacac112fd3f"/></div><div style="display:contents" dir="auto"><h2 id="b7275180-4139-4e25-8326-af8c14ec09f5" class="">🛠️ Platform &amp; Tools</h2></div><div style="display:contents" dir="auto"><ul id="d44422f1-4bc4-4aa9-94ac-442c40834f98" class="bulleted-list"><li style="list-style-type:disc"><code>Fact:</code> <strong>Microsoft Fabric</strong> described as an all-in-one data lake, analytics, and reporting suite</li></ul></div><div style="display:contents" dir="auto"><ul id="ba13b7ec-97ad-49f6-8bb2-752b913bf281" class="bulleted-list"><li style="list-style-type:disc"><code>Fact:</code> <strong>Desired flow:</strong> Citrine data → Fabric → Power BI with a single button export</li></ul></div><div style="display:contents" dir="auto"><ul id="c550da41-ee3c-44c4-b472-12a4270f8380" class="bulleted-list"><li style="list-style-type:disc"><code>Risk:</code> Current challenge: avoiding a heavy-layer process to move data into Fabric</li></ul></div><div style="display:contents" dir="auto"><ul id="bb567017-f04d-4cf1-ba24-b4d3ecf78fb9" class="bulleted-list"><li style="list-style-type:disc"><code>Fact:</code> Fabric offers pre-built connectors, but needs proper setup for seamless ingestion</li></ul></div><div style="display:contents" dir="auto"><hr id="48b14b3e-6fa9-4fda-b6db-71689c04c3bf"/></div><div style="display:contents" dir="auto"><h2 id="155c3f3b-953f-46d7-bd8a-9025f9edb5d9" class="">📅 Meeting Planning</h2></div><div style="display:contents" dir="auto"><ul id="c0a17e6c-6be6-4582-b045-15220390504f" class="bulleted-list"><li style="list-style-type:disc"><code>Next step:</code> <strong>Tuesday meeting:</strong> focus on Citrine data discussion and AI project training needs</li></ul></div><div style="display:contents" dir="auto"><ul id="86df1d0d-cf38-4071-a3ff-0f2b0b9d337a" class="bulleted-list"><li style="list-style-type:disc"><code>Next step:</code> Ensure right stakeholders are invited; provide a clear, tangible game plan</li></ul></div><div style="display:contents" dir="auto"><ul id="a12da652-786f-4d74-aa1d-7d4236a9c94a" class="bulleted-list"><li style="list-style-type:disc"><code>Fact:</code> Keep the meeting concise (2-3 min demo) to showcase trigger and field mapping</li></ul></div><div style="display:contents" dir="auto"><ul id="d3827061-48f5-4f66-a6a2-08b3c7ec6da1" class="bulleted-list"><li style="list-style-type:disc"><code>Next step:</code> Follow-up meeting with Patrick to align on data standardization across teams</li></ul></div><div style="display:contents" dir="auto"><hr id="a095223d-2b6f-4824-b769-8c586e1fb981"/></div><div style="display:contents" dir="auto"><h2 id="e2439fa0-9e66-48fa-a07a-5a3e1fb73c1e" class="">👥 Team &amp; Role Observations</h2></div><div style="display:contents" dir="auto"><ul id="bc6b691a-da93-45bb-a893-38825aced67d" class="bulleted-list"><li style="list-style-type:disc"><code>Fact:</code> Patrick&#x27;s team handling software management; concerns about role security</li></ul></div><div style="display:contents" dir="auto"><ul id="80e8a49f-849c-405a-ac6f-ee32bb4f9e74" class="bulleted-list"><li style="list-style-type:disc"><code>Fact:</code> <strong>Michael Kenny</strong> noted as a perfectionist, introverted, conflict-averse</li></ul></div><div style="display:contents" dir="auto"><ul id="70007d57-e947-4eeb-a5d4-09146db6b65f" class="bulleted-list"><li style="list-style-type:disc"><code>Fact:</code> Some team members perceived as micromanaged; dynamics shifting recently</li></ul></div><div style="display:contents" dir="auto"><ul id="3778c887-f238-4073-8878-5a78806bd81e" class="bulleted-list"><li style="list-style-type:disc"><code>Fact:</code> Identify who can champion data initiatives (e.g., <strong>Robin</strong>) and leverage their influence</li></ul></div><div style="display:contents" dir="auto"><ul id="679b4ada-f3a2-45e2-a979-b717a3b47081" class="bulleted-list"><li style="list-style-type:disc"><code>Fact:</code> Patrick may be insecure about his own role, holding tight to things in his comfort zone</li></ul></div><div style="display:contents" dir="auto"><ul id="db9e6778-b137-4fad-b44a-34761db2aa58" class="bulleted-list"><li style="list-style-type:disc"><code>Fact:</code> Data might work better under Robin long-term</li></ul></div><div style="display:contents" dir="auto"><hr id="2b888c29-d269-49cd-9202-1115f09ddb16"/></div><div style="display:contents" dir="auto"><h2 id="6c4031e6-6845-4d35-a80b-923f079261fc" class="">📝 Miscellaneous Points</h2></div><div style="display:contents" dir="auto"><ul id="deb3e697-8f88-493a-85c9-da9643e4b340" class="bulleted-list"><li style="list-style-type:disc">Users prefer automated solutions over manual &quot;click-this-that&quot; steps</li></ul></div><div style="display:contents" dir="auto"><ul id="aa0d4175-4a78-45bf-bd97-06e3b27bb700" class="bulleted-list"><li style="list-style-type:disc">Cost of Zapier (~$20/month) considered low compared to integration benefits</li></ul></div><div style="display:contents" dir="auto"><ul id="1e01e2f9-c67e-45b8-8f83-50548456fa63" class="bulleted-list"><li style="list-style-type:disc">Personal note: Steve juggling multiple projects, needs brief breaks (tea, dog) to stay focused</li></ul></div><div style="display:contents" dir="auto"><hr id="10861127-6856-4585-aa6e-bd0106f2277f"/></div><div style="display:contents" dir="auto"><h2 id="ff2a7437-636f-4ab2-9fcb-8763ad74983d" class="">📜 Transcript</h2></div><div style="display:contents" dir="ltr"><figure class="block-color-gray_background callout" style="white-space:pre-wrap;display:flex" id="5716120f-0105-4e35-b0e1-10af3cd62b28"><div style="font-size:1.5em"><span class="icon">📋</span></div><div style="width:100%"><div style="display:contents" dir="auto"><p id="71cf4bc7-add4-42a2-8128-34081a04cfce" class=""><strong>Full transcript (36 min)</strong> — Discussion covered sysAid/Jira integration pain points, Zapier vs custom webhook trade-offs, Microsoft Fabric overview for Dominique, team dynamics observations (Patrick, Michael Kenny, Robin), and meeting planning for Tuesday&#x27;s Citrine session.</p></div></div></figure></div><div style="display:contents" dir="auto"><ul id="8bd2162b-11fc-4d65-a536-69fa8dfe9a6f" class="toggle"><li><details open=""><summary>Full Transcript</summary><div style="display:contents" dir="auto"><p id="5ab611ed-9c72-4bcb-b726-4a450da3ceb0" class="">Steve [0:10]: and i&#x27;m trying to stop that manual school action but i just don&#x27;t want to do it i need a few more i mean there&#x27;s definitely a solution for a super old just to get that stuff from cessate into jira math upgrade it has to be something where it has to be triggered by someone when he is taken that needs to go in here</p></div><div style="display:contents" dir="auto"><p id="22c17332-d095-409a-8daa-e642948638fd" class="">Steve [0:47]: i&#x27;m thinking i&#x27;m trying not to think of patches but this actually seems like an actual patch instance like something like you could build your own actually no it would make more sense to do something like zapier or something like that that could actually just trigger it and you could map easily map</p></div><div style="display:contents" dir="auto"><p id="2ae4daf9-ca2d-428a-8991-dbb27573215e" class="">Steve [1:18]: what am i thinking what properties map what properties and sysa map to what properties in jira is effectively just two fields alive and that&#x27;s something more for your alphabet</p></div><div style="display:contents" dir="auto"><p id="a97c4315-f580-409c-bc49-eb6cd31f2ce6" class="">Steve [1:54]: how long is this supposed to be are you looking to use this patch for or whatever probably at least six months so i wouldn&#x27;t want if it&#x27;s going to be ten way to other things then i don&#x27;t know working on it</p></div><div style="display:contents" dir="auto"><p id="f16d124a-2bf2-417d-9b4b-d36d1800638d" class="">Steve [2:16]: the problem that i&#x27;m having is that some of these guys aren&#x27;t doing this total care actions is because they don&#x27;t think about it it&#x27;s not easy whatever and that i lose visibility and how much workload</p></div><div style="display:contents" dir="auto"><p id="6b36711c-fe5a-461d-9209-775e9d7f2886" class="">Steve [2:54]: but not all everything that goes in assist a needs to go into jira right so what i guess parameters or variables or factors determine whether or not it goes into jira are those very clear or is it like depending on how somebody feels about something or is it like more black and white</p></div><div style="display:contents" dir="auto"><p id="59095a57-ecb7-4a84-b7de-630747c5ffdd" class="">Steve [3:10]: that would be more there&#x27;s some rules if it&#x27;s a feature request but it&#x27;s generally got if there was some field that you could figure out that you could populate that basically would establish it as i don&#x27;t know if you were to change a field in sysade on a ticket or whatever and say feature and then you set up a webhook that every time there&#x27;s a feature ticket created or updated in sysade it instantly syncs it to jira just using that value</p></div><div style="display:contents" dir="auto"><p id="ae113cae-d731-431c-9f52-2102f3596199" class="">Steve [4:20]: well that&#x27;s why i was saying i guess i was thinking about it more it wouldn&#x27;t be something that the users themselves would do it would be more so like instead of having to manually go in and i don&#x27;t know i guess i was thinking about it more as like what do you completely cut out the need for somebody to go in there and look at them but instead of having to manually port all that stuff over it would just be more of okay click that one that one that one that one and then it just shoots it all into jira</p></div><div style="display:contents" dir="auto"><p id="7eb7f0c5-27f9-4f89-99c3-d989a52eeee1" class="">Steve [5:32]: the only thing that i can build i can write kind of my own webhook or i don&#x27;t know what the how mike feels about purchasing a brief subscription for something like zapier i feel like that would be easy but i don&#x27;t know if the process to get something like that even approved is so labor intensive that it&#x27;s not worth it</p></div><div style="display:contents" dir="auto"><p id="e661a229-3676-4d67-8ddc-3040ebb006ea" class="">Steve [6:25]: it&#x27;s a bit limp it&#x27;s really not very expensive and i can show that you can see lots of sources a week benefiting yeah it&#x27;s really not expensive that&#x27;s literally all you&#x27;re literally paying for their integration functionality they integrate with every app imaginable and you literally just pick your apps that you want to connect and then you basically say when xyz happens trigger this and then move whatever from sisate into jira</p></div><div style="display:contents" dir="auto"><p id="c5510046-f2a2-4cf4-b6a4-2f25a45a49d3" class="">Steve [7:42]: that&#x27;s what i&#x27;m saying this is like an actual it&#x27;s not meant to be like a massive integration or whatever it&#x27;s meant as an actual stopgap kind of thing</p></div><div style="display:contents" dir="auto"><p id="a337b951-5b58-4681-9dad-0b538f9ca0e8" class="">Steve [8:16]: so part of me wants to go to mike with this just because he&#x27;s who i refer to so why not go there but i know that if i did that patrick would get really all flustered and how should things like weeks and weeks maybe i&#x27;m going to think of a strategy on how to get this in front of patrick about getting his back right up</p></div><div style="display:contents" dir="auto"><p id="1c05ba96-61cf-4864-b942-889fef3b036c" class="">Steve [9:06]: i think he&#x27;s trying to get out of the way on a lot of things like he was asking and he was like well see you guys so many years like an answer on azure ai foundry or copilot studio because they were asking about with all of these ai things that are coming up we really don&#x27;t even have a plan for a platform that we&#x27;re going to build using the microsoft stack</p></div><div style="display:contents" dir="auto"><p id="68236687-ed6f-4d24-863b-fb123dd5f5d3" class="">Steve [10:10]: keep in it at the end this is this morning he was like you know what i&#x27;m just going to take a step out of this how about you don&#x27;t just do it directly i was like does that make sense man that actually makes sense</p></div><div style="display:contents" dir="auto"><p id="591c74cd-0912-419a-aa76-3c7a6b8dee63" class="">Steve [10:23]: i think people are we had a couple of people that have been accused of being micromanaged i don&#x27;t know how true that is but i think it&#x27;s like some days around now where you change today he told me off the bed that he&#x27;s like the opposite of a micromanager</p></div><div style="display:contents" dir="auto"><p id="feb1aff5-88ad-476d-af7c-d9445c275666" class="">Steve [23:23]: patrick&#x27;s team is interesting because i feel like patrick decided a lot in terms of software management and all that stuff that you typically see on the team are there doing their usual things but you also got patrick with this weird ass team developers matt francis and jason christensen</p></div><div style="display:contents" dir="auto"><p id="f71d0609-b563-4e09-b7a6-b90e1ee1299a" class="">Steve [25:58]: but i think it comes down to package myself is a little bit insecure about his own role so he&#x27;s holding on tight to things that are in his comfort zone and michael kenny is very much a deliberate perfectionist and is very much an introvert so he will come out and grab things that he thinks should be his because he&#x27;s very conflict averse</p></div><div style="display:contents" dir="auto"><p id="03d39067-42ba-4b3a-b10d-7069f6595fac" class="">Steve [26:41]: so i think when patrick feels more secure in his role it&#x27;ll go better but will he get there i don&#x27;t know personally i would rather see data fall under robin</p></div><div style="display:contents" dir="auto"><p id="6daa55fa-7c97-4737-bb7d-3ccfb1e46555" class="">Steve [30:23]: am i supposed to be taking on the meeting for next week to my delivery to patrick in terms of talking about the data standardization stuff that we discussed today you&#x27;ve been pulled in he has a problem with it he comes talk to me or talk to myself</p></div><div style="display:contents" dir="auto"><p id="40474dce-a81a-4261-8d65-7efe921c5894" class="">Steve [31:26]: so i&#x27;ve got the tuesday meeting the tuesday meeting for citrine and data discussion so just put that in there tell them it&#x27;s my meeting that you are an attendee of to make sure that data standardization is across the board you have nothing to deliver to that that&#x27;s my meeting to set up which i did</p></div><div style="display:contents" dir="auto"><p id="bf68df63-f25f-49be-8c7c-de26ac7dec5c" class="">Steve [34:42]: i don&#x27;t know if you&#x27;re familiar with fabric at all it&#x27;s just like it&#x27;s meant to be able to do that stuff and then immediately one click a button and it say okay dump all this into this database and then be able to instantly be able to access that database from power bi and just it all is right there but we just need to figure out a way to set it up so that they&#x27;re able to do similar things like that so that it doesn&#x27;t seem like such a layer intensive process to get the data and whatever from citrine into fabric</p></div><div style="display:contents" dir="auto"><p id="4fe53416-57e6-44ae-985b-0f94c70d46bd" class="">Steve [35:28]: i can whip up a very easy i&#x27;ll whip up an infographic for you how about that do that and if i of i need to grab a tea for yeah part of my dog don&#x27;t forget is to jump in for like seven different projects a day by the time we talk next i might be like i got to pull up that infographic i have forgotten</p></div><div style="display:contents" dir="auto"><p id="4c790b54-965d-46fd-aec6-6e05cc35418d" class="">Steve [35:53]: i will write up a note about gira is going to say what my problem is and i&#x27;ll try and find the version number to say that we have to i&#x27;m sure that will be helpful and then we can maybe figure out a way to attack this one sounds good thanks bye</p></div></details></li></ul></div></div></article><span class="sans" style="font-size:14px;padding-top:2em"></span></body></html>

@@ -1,0 +1,744 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>Untitled</title><style>
+/* cspell:disable-file */
+/* webkit printing magic: print all background colors */
+html {
+	-webkit-print-color-adjust: exact;
+}
+* {
+	box-sizing: border-box;
+	-webkit-print-color-adjust: exact;
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+}
+@media only screen {
+	body {
+		margin: 2em auto;
+		max-width: 900px;
+		color: rgb(55, 53, 47);
+	}
+}
+
+body {
+	line-height: 1.5;
+	white-space: pre-wrap;
+}
+
+a,
+a.visited {
+	color: inherit;
+	text-decoration: underline;
+}
+
+.pdf-relative-link-path {
+	font-size: 80%;
+	color: #444;
+}
+
+h1,
+h2,
+h3 {
+	letter-spacing: -0.01em;
+	line-height: 1.2;
+	font-weight: 600;
+	margin-bottom: 0;
+}
+
+/* Override strong tags inside headings to maintain consistent weight */
+h1 strong,
+h2 strong,
+h3 strong {
+	font-weight: 600;
+}
+
+.page-title {
+	font-size: 2.5rem;
+	font-weight: 700;
+	margin-top: 0;
+	margin-bottom: 0.75em;
+}
+
+h1 {
+	font-size: 1.875rem;
+	margin-top: 1.875rem;
+}
+
+h2 {
+	font-size: 1.5rem;
+	margin-top: 1.5rem;
+}
+
+h3 {
+	font-size: 1.25rem;
+	margin-top: 1.25rem;
+}
+
+.source {
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	padding: 1.5em;
+	word-break: break-all;
+}
+
+.callout {
+	border-radius: 10px;
+	padding: 1rem;
+}
+
+figure {
+	margin: 1.25em 0;
+	page-break-inside: avoid;
+}
+
+figcaption {
+	opacity: 0.5;
+	font-size: 85%;
+	margin-top: 0.5em;
+}
+
+mark {
+	background-color: transparent;
+}
+
+.indented {
+	padding-left: 1.5em;
+}
+
+hr {
+	background: transparent;
+	display: block;
+	width: 100%;
+	height: 1px;
+	visibility: visible;
+	border: none;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+img {
+	max-width: 100%;
+}
+
+@media only print {
+	img {
+		max-height: 100vh;
+		object-fit: contain;
+	}
+
+	table.collection-content {
+		width: 100%;
+		table-layout: fixed;
+	}
+
+	table.collection-content th,
+	table.collection-content td {
+		overflow-wrap: anywhere;
+	}
+
+	table.collection-content td > .user,
+	table.collection-content td > time {
+		white-space: pre-wrap;
+	}
+}
+
+@page {
+	margin: 1in;
+}
+
+.collection-content-wrapper {
+	overflow-x: auto;
+}
+
+@media only print {
+	.collection-content-wrapper {
+		overflow-x: visible;
+	}
+}
+
+.collection-content {
+	font-size: 0.875rem;
+}
+
+.collection-content td {
+	white-space: pre-wrap;
+	word-break: break-word;
+}
+
+.column-list {
+	display: flex;
+	gap: 46px;
+}
+
+.column {
+	min-width: 0;
+	overflow: hidden;
+}
+
+.column > *:first-child {
+	margin-top: 0;
+}
+
+.table_of_contents-item {
+	display: block;
+	font-size: 0.875rem;
+	line-height: 1.3;
+	padding: 0.125rem;
+}
+
+.table_of_contents-indent-1 {
+	margin-left: 1.5rem;
+}
+
+.table_of_contents-indent-2 {
+	margin-left: 3rem;
+}
+
+.table_of_contents-indent-3 {
+	margin-left: 4.5rem;
+}
+
+.table_of_contents-link {
+	text-decoration: none;
+	opacity: 0.7;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.18);
+}
+
+table,
+th,
+td {
+	border: 1px solid rgba(55, 53, 47, 0.09);
+	border-collapse: collapse;
+}
+
+table {
+	border-left: none;
+	border-right: none;
+}
+
+th,
+td {
+	font-weight: normal;
+	padding: 0.25em 0.5em;
+	line-height: 1.5;
+	min-height: 1.5em;
+	text-align: left;
+}
+
+th {
+	color: rgba(55, 53, 47, 0.6);
+}
+
+ol,
+ul {
+	margin: 0;
+	margin-block-start: 0.6em;
+	margin-block-end: 0.6em;
+}
+
+li > ol:first-child,
+li > ul:first-child {
+	margin-block-start: 0.6em;
+}
+
+ul > li {
+	list-style: disc;
+}
+
+ul.to-do-list {
+	padding-inline-start: 0;
+}
+
+ul.to-do-list > li {
+	list-style: none;
+}
+
+.to-do-children-checked {
+	text-decoration: line-through;
+	opacity: 0.375;
+}
+
+ul.toggle > li {
+	list-style: none;
+}
+
+ul {
+	padding-inline-start: 1.7em;
+}
+
+ul > li {
+	padding-left: 0.1em;
+}
+
+ol {
+	padding-inline-start: 1.6em;
+}
+
+ol.numbered-list.numbered-list-digits-2 {
+	padding-inline-start: 2em;
+}
+
+ol.numbered-list.numbered-list-digits-3plus {
+	padding-inline-start: 2.4em;
+}
+
+ol > li {
+	padding-left: 0.2em;
+}
+
+.mono ol {
+	padding-inline-start: 2em;
+}
+
+.mono ol > li {
+	text-indent: -0.4em;
+}
+
+.toggle {
+	padding-inline-start: 0em;
+	list-style-type: none;
+}
+
+/* Indent toggle children */
+.toggle > li > details {
+	padding-left: 1.7em;
+}
+
+.toggle > li > details > summary {
+	margin-left: -1.1em;
+}
+
+.selected-value {
+	display: inline-block;
+	padding: 0 0.5em;
+	background: rgba(206, 205, 202, 0.5);
+	border-radius: 3px;
+	margin-right: 0.5em;
+	margin-top: 0.3em;
+	margin-bottom: 0.3em;
+	white-space: nowrap;
+}
+
+.collection-title {
+	display: inline-block;
+	margin-right: 1em;
+}
+
+.page-description {
+	margin-bottom: 2em;
+}
+
+.simple-table {
+	margin-top: 1em;
+	font-size: 0.875rem;
+	empty-cells: show;
+}
+.simple-table td {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table th {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table-header-color {
+	background: rgb(247, 246, 243);
+	color: black;
+}
+.simple-table-header {
+	font-weight: 500;
+}
+
+time {
+	opacity: 0.5;
+}
+
+.icon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	max-width: 1.2em;
+	max-height: 1.2em;
+	text-decoration: none;
+	vertical-align: text-bottom;
+	margin-right: 0.5em;
+}
+
+img.icon {
+	border-radius: 3px;
+}
+
+.callout img.notion-static-icon {
+	width: 1em;
+	height: 1em;
+}
+
+.callout p {
+	margin: 0;
+}
+
+.callout h1,
+.callout h2,
+.callout h3 {
+	margin: 0 0 0.6rem;
+}
+
+.user-icon {
+	width: 1.5em;
+	height: 1.5em;
+	border-radius: 100%;
+	margin-right: 0.5rem;
+}
+
+.user-icon-inner {
+	font-size: 0.8em;
+}
+
+.text-icon {
+	border: 1px solid #000;
+	text-align: center;
+}
+
+.page-cover-image {
+	display: block;
+	object-fit: cover;
+	width: 100%;
+	max-height: 30vh;
+}
+
+.page-header-icon {
+	font-size: 3rem;
+	margin-bottom: 1rem;
+}
+
+.page-header-icon-with-cover {
+	margin-top: -0.72em;
+	margin-left: 0.07em;
+}
+
+.page-header-icon img {
+	border-radius: 3px;
+}
+
+.link-to-page {
+	margin: 1em 0;
+	padding: 0;
+	border: none;
+	font-weight: 500;
+}
+
+p > .user {
+	opacity: 0.5;
+}
+
+td > .user,
+td > time {
+	white-space: nowrap;
+}
+
+input[type="checkbox"] {
+	transform: scale(1.5);
+	margin-right: 0.6em;
+	vertical-align: middle;
+}
+
+p {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+.image {
+	border: none;
+	margin: 1.5em 0;
+	padding: 0;
+	border-radius: 0;
+	text-align: center;
+}
+
+.code,
+code {
+	background: rgba(135, 131, 120, 0.15);
+	border-radius: 3px;
+	padding: 0.2em 0.4em;
+	border-radius: 3px;
+	font-size: 85%;
+	tab-size: 2;
+}
+
+code {
+	color: #eb5757;
+}
+
+.code {
+	padding: 1.5em 1em;
+}
+
+.code-wrap {
+	white-space: pre-wrap;
+	word-break: break-all;
+}
+
+.code > code {
+	background: none;
+	padding: 0;
+	font-size: 100%;
+	color: inherit;
+}
+
+blockquote {
+	font-size: 1em;
+	margin: 1em 0;
+	padding-left: 1em;
+	border-left: 3px solid rgb(55, 53, 47);
+}
+
+blockquote.quote-large {
+	font-size: 1.25em;
+}
+
+.bookmark {
+	text-decoration: none;
+	max-height: 8em;
+	padding: 0;
+	display: flex;
+	width: 100%;
+	align-items: stretch;
+}
+
+.bookmark-title {
+	font-size: 0.85em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	height: 1.75em;
+	white-space: nowrap;
+}
+
+.bookmark-text {
+	display: flex;
+	flex-direction: column;
+}
+
+.bookmark-info {
+	flex: 4 1 180px;
+	padding: 12px 14px 14px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.bookmark-image {
+	width: 33%;
+	flex: 1 1 180px;
+	display: block;
+	position: relative;
+	object-fit: cover;
+	border-radius: 1px;
+}
+
+.bookmark-description {
+	color: rgba(55, 53, 47, 0.6);
+	font-size: 0.75em;
+	overflow: hidden;
+	max-height: 4.5em;
+	word-break: break-word;
+}
+
+.bookmark-href {
+	font-size: 0.75em;
+	margin-top: 0.25em;
+}
+
+.sans { font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol"; }
+.code { font-family: "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace; }
+.serif { font-family: Lyon-Text, Georgia, ui-serif, serif; }
+.mono { font-family: iawriter-mono, Nitti, Menlo, Courier, monospace; }
+.pdf .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK JP'; }
+.pdf:lang(zh-CN) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK SC'; }
+.pdf:lang(zh-TW) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK TC'; }
+.pdf:lang(ko-KR) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK KR'; }
+.pdf .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.pdf .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK JP'; }
+.pdf:lang(zh-CN) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK SC'; }
+.pdf:lang(zh-TW) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK TC'; }
+.pdf:lang(ko-KR) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK KR'; }
+.pdf .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.highlight-default {
+	color: rgba(44, 44, 43, 1);
+}
+.highlight-gray {
+	color: rgba(125, 122, 117, 1);
+	fill: rgba(125, 122, 117, 1);
+}
+.highlight-brown {
+	color: rgba(159, 118, 90, 1);
+	fill: rgba(159, 118, 90, 1);
+}
+.highlight-orange {
+	color: rgba(210, 123, 45, 1);
+	fill: rgba(210, 123, 45, 1);
+}
+.highlight-yellow {
+	color: rgba(203, 148, 52, 1);
+	fill: rgba(203, 148, 52, 1);
+}
+.highlight-teal {
+	color: rgba(80, 148, 110, 1);
+	fill: rgba(80, 148, 110, 1);
+}
+.highlight-blue {
+	color: rgba(56, 125, 201, 1);
+	fill: rgba(56, 125, 201, 1);
+}
+.highlight-purple {
+	color: rgba(154, 107, 180, 1);
+	fill: rgba(154, 107, 180, 1);
+}
+.highlight-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.highlight-red {
+	color: rgba(207, 81, 72, 1);
+	fill: rgba(207, 81, 72, 1);
+}
+.highlight-default_background {
+	color: rgba(44, 44, 43, 1);
+}
+.highlight-gray_background {
+	background: rgba(42, 28, 0, 0.07);
+}
+.highlight-brown_background {
+	background: rgba(139, 46, 0, 0.086);
+}
+.highlight-orange_background {
+	background: rgba(224, 101, 1, 0.129);
+}
+.highlight-yellow_background {
+	background: rgba(211, 168, 0, 0.137);
+}
+.highlight-teal_background {
+	background: rgba(0, 100, 45, 0.09);
+}
+.highlight-blue_background {
+	background: rgba(0, 124, 215, 0.094);
+}
+.highlight-purple_background {
+	background: rgba(102, 0, 178, 0.078);
+}
+.highlight-pink_background {
+	background: rgba(197, 0, 93, 0.086);
+}
+.highlight-red_background {
+	background: rgba(223, 22, 0, 0.094);
+}
+.block-color-default {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray {
+	color: rgba(125, 122, 117, 1);
+	fill: rgba(125, 122, 117, 1);
+}
+.block-color-brown {
+	color: rgba(159, 118, 90, 1);
+	fill: rgba(159, 118, 90, 1);
+}
+.block-color-orange {
+	color: rgba(210, 123, 45, 1);
+	fill: rgba(210, 123, 45, 1);
+}
+.block-color-yellow {
+	color: rgba(203, 148, 52, 1);
+	fill: rgba(203, 148, 52, 1);
+}
+.block-color-teal {
+	color: rgba(80, 148, 110, 1);
+	fill: rgba(80, 148, 110, 1);
+}
+.block-color-blue {
+	color: rgba(56, 125, 201, 1);
+	fill: rgba(56, 125, 201, 1);
+}
+.block-color-purple {
+	color: rgba(154, 107, 180, 1);
+	fill: rgba(154, 107, 180, 1);
+}
+.block-color-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.block-color-red {
+	color: rgba(207, 81, 72, 1);
+	fill: rgba(207, 81, 72, 1);
+}
+.block-color-default_background {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray_background {
+	background: rgba(240, 239, 237, 1);
+}
+.block-color-brown_background {
+	background: rgba(245, 237, 233, 1);
+}
+.block-color-orange_background {
+	background: rgba(251, 235, 222, 1);
+}
+.block-color-yellow_background {
+	background: rgba(249, 243, 220, 1);
+}
+.block-color-teal_background {
+	background: rgba(232, 241, 236, 1);
+}
+.block-color-blue_background {
+	background: rgba(229, 242, 252, 1);
+}
+.block-color-purple_background {
+	background: rgba(243, 235, 249, 1);
+}
+.block-color-pink_background {
+	background: rgba(250, 233, 241, 1);
+}
+.block-color-red_background {
+	background: rgba(252, 233, 231, 1);
+}
+.select-value-color-default { background-color: rgba(42, 28, 0, 0.07); }
+.select-value-color-gray { background-color: rgba(28, 19, 1, 0.11); }
+.select-value-color-brown { background-color: rgba(127, 51, 0, 0.156); }
+.select-value-color-orange { background-color: rgba(196, 88, 0, 0.203); }
+.select-value-color-yellow { background-color: rgba(209, 156, 0, 0.282); }
+.select-value-color-green { background-color: rgba(0, 96, 38, 0.156); }
+.select-value-color-blue { background-color: rgba(0, 118, 217, 0.203); }
+.select-value-color-purple { background-color: rgba(92, 0, 163, 0.141); }
+.select-value-color-pink { background-color: rgba(183, 0, 78, 0.152); }
+.select-value-color-red { background-color: rgba(206, 24, 0, 0.164); }
+
+.checkbox {
+	display: inline-flex;
+	vertical-align: text-bottom;
+	width: 16;
+	height: 16;
+	background-size: 16px;
+	margin-left: 2px;
+	margin-right: 5px;
+}
+
+.checkbox-on {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20width%3D%2216%22%20height%3D%2216%22%20fill%3D%22%2358A9D7%22%2F%3E%0A%3Cpath%20d%3D%22M6.71429%2012.2852L14%204.9995L12.7143%203.71436L6.71429%209.71378L3.28571%206.2831L2%207.57092L6.71429%2012.2852Z%22%20fill%3D%22white%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+
+.checkbox-off {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20x%3D%220.75%22%20y%3D%220.75%22%20width%3D%2214.5%22%20height%3D%2214.5%22%20fill%3D%22white%22%20stroke%3D%22%2336352F%22%20stroke-width%3D%221.5%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+	
+</style></head><body><article id="33356320-92ca-809b-aefc-c0f985828930" class="page sans"><header><h1 class="page-title" dir="auto"></h1><p class="page-description" dir="auto"></p><table class="properties"><tbody><tr class="property-row property-row-multi_select"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/list_gray.svg" style="width:14px;height:14px;display:block"/></span>Attendees</th><td></td></tr><tr class="property-row property-row-checkbox"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/checkmark-square_gray.svg" style="width:14px;height:14px;display:block"/></span>Has Cluely Transcript</th><td><div class="checkbox checkbox-off"></div></td></tr><tr class="property-row property-row-checkbox"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/checkmark-square_gray.svg" style="width:14px;height:14px;display:block"/></span>Has Final Transcript</th><td><div class="checkbox checkbox-off"></div></td></tr><tr class="property-row property-row-checkbox"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/checkmark-square_gray.svg" style="width:14px;height:14px;display:block"/></span>Has Notion Transcript</th><td><div class="checkbox checkbox-off"></div></td></tr><tr class="property-row property-row-checkbox"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/checkmark-square_gray.svg" style="width:14px;height:14px;display:block"/></span>Has Teams Transcript</th><td><div class="checkbox checkbox-off"></div></td></tr><tr class="property-row property-row-checkbox"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/checkmark-square_gray.svg" style="width:14px;height:14px;display:block"/></span>Merged to Feed</th><td><div class="checkbox checkbox-off"></div></td></tr></tbody></table></header><div class="page-body"><div style="display:contents" dir="ltr"><div id="33356320-92ca-8089-856b-c66aa26b6d02" class="transcription"><div style="border-bottom:0.05em solid;border-bottom-color:rgba(42, 28, 0, 0.07)">Summary<br/></div><div style="display:contents" dir="auto"><h3 id="33356320-92ca-811d-b96e-c60c695ab595" class="">Action Items</h3></div><div style="display:contents" dir="auto"><ul id="33356320-92ca-8173-b35b-cd5f6bb2b575" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Limit Nellie&#x27;s milk to 16 ounces per day and switch to 2% milk ‣‣</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="33356320-92ca-81b1-87db-e6238fe867ea" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Transition from bottles to straw cup or sipping cup ‣‣</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="33356320-92ca-8128-a7f0-e89576290f57" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Schedule dentist appointment ‣‣</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="33356320-92ca-8160-b265-d07a4dc1ae4c" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Pick up eye drops prescription (10ml bottle) from CVS off Longpoint ‣‣</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="33356320-92ca-812d-a8d3-d8f1e0a300cd" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Follow up in 3 months to recheck hemoglobin levels ‣‣</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="33356320-92ca-8194-8629-dcc31ae33833" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Schedule next checkup at 2.5 years ‣</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><h3 id="33356320-92ca-8125-9b04-fbb92308d22e" class="">Developmental Milestones</h3></div><div style="display:contents" dir="auto"><ul id="33356320-92ca-81bc-bf93-f2d756f4d6cd" class="bulleted-list"><li style="list-style-type:disc">Vocabulary of at least 50 words, likely more ‣‣</li></ul></div><div style="display:contents" dir="auto"><ul id="33356320-92ca-815c-822a-fa816a942d79" class="bulleted-list"><li style="list-style-type:disc">Can identify most body parts when asked ‣‣</li></ul></div><div style="display:contents" dir="auto"><ul id="33356320-92ca-8109-9969-e69f16951512" class="bulleted-list"><li style="list-style-type:disc">Choosing outfits from 2-3 options laid out ‣‣</li></ul></div><div style="display:contents" dir="auto"><ul id="33356320-92ca-813f-8ebd-f57d9cda9cc3" class="bulleted-list"><li style="list-style-type:disc">Telling parents when diaper needs changing ‣‣</li></ul></div><div style="display:contents" dir="auto"><h3 id="33356320-92ca-813c-83d8-c5870e53feb9" class="">Sleep and Routine</h3></div><div style="display:contents" dir="auto"><ul id="33356320-92ca-81ca-8daa-db77cc56a5a3" class="bulleted-list"><li style="list-style-type:disc">Sleep schedule: 6:30-7pm to 7am (12 hours), no crying, talks to stuffed animals when awake ‣‣</li></ul></div><div style="display:contents" dir="auto"><ul id="33356320-92ca-81fb-8fdc-d26434ca8e1b" class="bulleted-list"><li style="list-style-type:disc">Currently in green room at daycare, transitioning to yellow room soon ‣‣</li></ul></div><div style="display:contents" dir="auto"><ul id="33356320-92ca-81e3-b7b4-dbc2b4bb2fb0" class="bulleted-list"><li style="list-style-type:disc">Favorite stuffed animal is bunny, favorite color is pink ‣‣</li></ul></div><div style="display:contents" dir="auto"><h3 id="33356320-92ca-8117-acd2-fe0af056c016" class="">Medical Findings and Recommendations</h3></div><div style="display:contents" dir="auto"><ul id="33356320-92ca-8164-adbb-c9ca5069ac6c" class="bulleted-list"><li style="list-style-type:disc"><strong>Vision</strong>: Anisotropia detected (one eye stronger than the other), just barely past threshold. Plan to monitor and repeat at 2.5 years. Vision overall impressive. ‣‣</li></ul></div><div style="display:contents" dir="auto"><ul id="33356320-92ca-8111-b55b-ccbedfbf3d0e" class="bulleted-list"><li style="list-style-type:disc"><strong>Hemoglobin</strong>: Slightly low at 10.5 (normal is 11.13), likely due to excessive milk consumption inhibiting iron absorption. Will recheck in 3 months. ‣‣‣</li></ul></div><div style="display:contents" dir="auto"><ul id="33356320-92ca-81db-ab36-ca9beedac213" class="bulleted-list"><li style="list-style-type:disc"><strong>Milk intake</strong>: Currently drinking three 8oz bottles per day (24oz total), which is too much ‣‣</li></ul></div><div style="display:contents" dir="auto"><ul id="33356320-92ca-8198-a6bb-fa8f9a365bf3" class="bulleted-list"><li style="list-style-type:disc"><strong>Dental care</strong>: Has not been to dentist yet. Use fluoride toothpaste and schedule appointment soon. ‣‣‣</li></ul></div><div style="display:contents" dir="auto"><ul id="33356320-92ca-81c2-a414-f5aadd233a74" class="bulleted-list"><li style="list-style-type:disc"><strong>Eye drops</strong>: Prescribed larger 10ml bottle for eye crusting prevention ‣‣</li></ul></div><div style="display:contents" dir="auto"><ul id="33356320-92ca-81ba-aeb9-eab9642c53c1" class="bulleted-list"><li style="list-style-type:disc"><strong>Growth</strong>: Height at 70th percentile ‣‣</li></ul></div><div style="display:contents" dir="auto"><ul id="33356320-92ca-8145-895a-d988a998c333" class="bulleted-list"><li style="list-style-type:disc"><strong>Minor finding</strong>: Slight prolapse noted during exam ‣‣</li></ul></div><div style="display:contents" dir="auto"><h3 id="33356320-92ca-8149-9127-e2902b0315d3" class="">Potty Training Discussion</h3></div><div style="display:contents" dir="auto"><ul id="33356320-92ca-8184-8e7e-c54f40983ea8" class="bulleted-list"><li style="list-style-type:disc">Signs of readiness: consistently tells when pooped, can go 2 hours with dry diaper ‣‣</li></ul></div><div style="display:contents" dir="auto"><ul id="33356320-92ca-8135-a12c-d856506a86d5" class="bulleted-list"><li style="list-style-type:disc">Recommendation: potty seat with step that fits on regular toilet ‣‣‣</li></ul></div><div style="display:contents" dir="auto"><h3 id="33356320-92ca-8143-b43d-c0fce444e342" class="">Car Seat Safety</h3></div><div style="display:contents" dir="auto"><ul id="33356320-92ca-8136-8993-ebecc8bb595a" class="bulleted-list"><li style="list-style-type:disc">Keep car seat rear-facing as long as possible ‣‣</li></ul></div><div style="display:contents" dir="auto"><h3 id="33356320-92ca-8150-bc21-cda9c6cd199d" class="">School Discussion</h3></div><div style="display:contents" dir="auto"><ul id="33356320-92ca-81c6-89fa-d91d123cb0e1" class="bulleted-list"><li style="list-style-type:disc">Son Tim attends Sullivan&#x27;s ‣‣</li></ul></div><div style="display:contents" dir="auto"><ul id="33356320-92ca-817c-bdca-cfe027fb3009" class="bulleted-list"><li style="list-style-type:disc">Considering keeping Nellie in current daycare through kindergarten rather than child development program due to logistics (half-day schedule, different schools) ‣‣</li></ul></div><div style="border-bottom:0.05em solid;border-bottom-color:rgba(42, 28, 0, 0.07)">Notes<br/></div><div style="display:contents" dir="auto"><p id="33356320-92ca-80eb-b2ab-daabb53df829" class="">
+</p></div><div style="border-bottom:0.05em solid;border-bottom-color:rgba(42, 28, 0, 0.07)">Transcript<br/></div><div style="display:contents" dir="auto"><p id="33356320-92ca-81b8-8b7d-c0049bac46bc" class="">And at least 50 words you think?</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-8119-932f-f01923e138f2" class="">Yeah. Yeah. Probably more. I mean she&#x27;s really good at like we don&#x27;t really read books anymore because like she likes to play like basically we&#x27;ll be reading a book and I&#x27;ll be like point out the dog or the caterpillar or whatever. So that&#x27;s helped.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-8125-aade-c6bde07fc679" class="">Very cool. Yeah. Body parts she&#x27;ll be able to identify most body parts when you ask her.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-81fd-9680-dd897dbaa423" class="">No, like nose. Nose. Nose. Nose. Eyes. What is it?</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-819b-9189-e28ecac3aaf0" class="">Did you drop your sky? I want to check you. How does that sound? I like your outfit. So cute.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-81c7-b86b-ddc20ba49481" class="">Say thank you.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-8139-970e-c1f7a900b473" class="">I&#x27;m surprised you were able to get her in a jean jacket. My mother refuses to wear most things I want her to wear.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-8133-8378-fefabdedba34" class="">I mean, she doesn&#x27;t leave the house and anything less than like a full outfit.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-819e-9d3b-e713da951414" class="">It&#x27;s my wife is like, does she have a, um, does she sort of have opinions about what she wears yet?</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-8101-8dd5-c407f76d2c43" class="">My wife doesn&#x27;t let her, I mean, she wants to wear her galoshes and like her rain boots all the time, which are pretty cute by themselves. But, um, she likes, I mean, she, she enjoys actually the stuff that she goes in. like so late my wife will lay out like two or three outfits and she&#x27;ll pick yeah so so we&#x27;re not like forcing</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-8165-9a6a-c66565f62930" class="">It&#x27;s time to go and that way it feels all better. We just want to make sure it&#x27;s done bleeding.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-8107-ab1f-dd0706d3b674" class="">Your feet are so goofy.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-81b4-a0dc-e5e230ebfdf4" class="">Does she sleep well? Yeah.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-8194-8b47-c009cca38219" class="">She goes to sleep at like 6.30 or so. So 6.30 or 7 to 7. Okay. So 12 hours. She doesn&#x27;t really cry. She doesn&#x27;t cry at all anymore. She just kind of sits in her bed if she wakes up and talks to her animals.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-816b-a073-d2cde96f3f02" class="">What&#x27;s your favorite stuffy? Bunny. Which is perfect because it&#x27;s almost Easter.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-8151-a922-dbd8158ed7e3" class="">Yeah. We found Easter eggs yesterday. It was our birthday.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-81d5-bdaa-db6c4bb6158a" class="">I saw that. Yes. Happy birthday. So.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-814c-a5ef-e92643dbbb41" class="">What is she in? The green room.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-81e4-bbbd-d45e916db315" class="">Green, okay. When did they go to yellow?</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-81d1-b861-f80aa5ec692e" class="">Probably now.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-8122-a29f-dac14339c029" class="">Oh, that&#x27;s close.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-8132-8e76-e30b764259a9" class="">Soon? Yeah, I think so. I like when she was in the blue room.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-814a-9f14-d9b708a8f7a7" class="">I like that room. Yeah, yeah. They&#x27;re all different. I&#x27;m pleasantly surprised that right now the orange room is only like five of them, which is really cool. Yeah. Yeah, I mean, and they&#x27;re starting to learn, like she can write her name, she&#x27;s four. So they&#x27;re actually like learning stuff at school.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-81eb-9cbf-e0e2c3b1f6e0" class="">That&#x27;s what we were kind of concerned about was like, are the educators there at all or is it more just like college?</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-8142-a432-eef7181a338b" class="">I mean, they, I think you have to take some sort of course. But</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-8157-9c61-fe7d83695012" class="">We were just wondering when it was like time to start. We didn&#x27;t want to be neurotic about it.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-81cc-af7c-facebf349ce1" class="">Yeah. And we&#x27;re going to keep her in there next year, too, until she goes to kindergarten. So my son&#x27;s at Sullivan&#x27;s, and we&#x27;re zoned for Jenny Moore. So if we did the CD program, the child development program for a four-year-old, then she would be at a different school than Tim. It&#x27;s only a half day, and it would be a mess.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-8106-9d69-f622c28999f1" class="">Yeah, and the fact that only having them get out at, like, 2 or something is, like, it&#x27;s not realistic. Yeah. Logistically, it makes no sense.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-8172-964e-c46d9edd5929" class="">Yeah. I said, does the colitis go back to school? Yeah, you tell him. And he&#x27;s there. He can be there until 6 o&#x27;clock. But. The school that was on Forge anymore didn&#x27;t have any kaleidoscopes.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-81bb-b5c8-f9f63ccf5bab" class="">No, no, no.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-81eb-b5ab-cc46943578ef" class="">Very good! But Sullivan&#x27;s didn&#x27;t have a wait list for their kaleidoscope at all. What&#x27;s your favorite color, Nellie? Do you like red? Or pink?</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-815a-9887-dfc0d54653ec" class="">Or blue?</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-8123-9010-c8542cc7ca12" class="">Pink&#x27;s her favorite. Or yellow?</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-81ab-9e08-e4e5fe826257" class="">I think.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-81d6-b88f-d2e57ef41228" class="">Pink is my favorite, too. A doggy or a kitty cat?</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-8169-8c4e-c3e8e1477685" class="">We&#x27;re thinking about a cat and a dog. Do you like dogs, Millie? - You see this?</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-8194-bdb1-eca495ba0d37" class="">Yeah, that&#x27;s what I use to check your ears. Yeah. Can you open your mouth and say ah?</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-81dd-8f09-f76174c63bbc" class="">- Nellie, open your mouth. - Ah? - Go ah. Nellie, open your mouth. - Ah. - Go ah. - Really big. - Come on, Nell. - Let&#x27;s see those blue lights. - Open it up. - Very good. - Ah. - Nellie, open your mouth, please. - Real big. - It&#x27;s okay.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-8175-9766-d3378229bcab" class="">- Just like this.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-81ad-a1ca-d1d86b3409dd" class="">- Go ah. Like when you brush your teeth, Nell, go ah. - Can you try it? Can you open your mouth? Can you open your mouth?</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-8132-8591-d47a47fc147c" class="">Very good. Has she been to a dentist yet?</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-8164-b918-fcc9f6adecef" class="">No, she hasn&#x27;t.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-81da-99a8-c63afc8fed35" class="">You know, brush your teeth with some fluoride toothpaste. Yep.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-8175-a748-f3c49dc50b50" class="">Trying to do twice a day. But, I mean, if you recommend fluoride, then sure. I&#x27;m not opposed to it. I just don&#x27;t know if.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-8147-bfd7-dcf2810dda8c" class="">- You mean like the treatment or the fluoride toothpaste?</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-8184-8626-d7159fbb8995" class="">- I don&#x27;t know.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-8172-9455-fd21ab94ba76" class="">- As long as you have fluoride in your toothpaste and you have plans for her to see a dentist soon, then it&#x27;s not a huge deal.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-81c0-a61e-dfe57fbb608d" class="">Yeah. Our part should be over.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-8105-9ac4-dd25a180a0da" class="">Not trying to rock the boat too much. Yeah. But yeah, the floor I can face is what&#x27;s supposed to be. Can I check your belly? Can we have you lay down? No. Any constipation issues for her? Nope. She has poop every day.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-81f0-a81c-e71b24edf118" class="">Can you lay down? Can you lay down, please?</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-81f2-89f7-f5c519ec81dd" class="">I&#x27;m just going to listen to your heart. Has she started to tell you when she&#x27;s pooped in her diaper?</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-811b-a2a3-d65bddcbf7e1" class="">Yeah, actually. I&#x27;ll be like, do you need me to change your diaper? She&#x27;ll shake her head yes, and then she&#x27;ll walk into the room. Just wait for me to pick her up on the... No, is that fit together?</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-81ea-afd0-e7d7dc67b6ef" class="">She had some irritation down there.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-8181-b20c-d29de4435f75" class="">You&#x27;re okay, Noah. Noah, you&#x27;re okay. I didn&#x27;t, I haven&#x27;t even really noticed it.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-811f-88cd-fc83f7f49c8a" class="">A little bit of prolapse. Which...</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-816f-9523-cb7c30897c3c" class="">I don&#x27;t know what the name of those eye drops are, but those really help when she starts getting crusts in her eyes, so she doesn&#x27;t get full-blown pink eye. But the bottles are so small.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-8141-bde9-f6759800a181" class="">I gave you a 10 in my bottle. Yeah, that would be good. I think that was really kind of your price on the five.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-814e-b4a5-e5f6388ae688" class="">Yeah, that would be great. We ask every time we come in, and they&#x27;re like, what, do you guys use it every day? No, it&#x27;s a really small bottle. Good job, Mel. Good job, man. I mean when she&#x27;s when her nose starts running a lot and she&#x27;s wiping it all in her eyes and the next morning she&#x27;ll just have those crusty things yeah so I&#x27;m just like okay we gotta cut this off yeah so if she has so kids they can get sinus infections yeah so and that&#x27;s having that you have the</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-8171-90d2-da62932d8127" class="">That needs to fill out the paperwork though.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-8106-8aed-de65cc0345b7" class="">Got it. Yes. Oh her vision, it showed anisotropic, which is a weird word. It just basically means that one eye is stronger than the other. Usually ophthalmology doesn&#x27;t care, doesn&#x27;t do anything about that. And it was just barely past the threshold. So I&#x27;d probably just monitor for now. We can repeat at two and a half. Or I was actually really impressed with her vision.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-8154-b3c6-d11f7c27fc4a" class="">She&#x27;ll point out airplanes like really far away.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-8138-9dbc-c58bca3a45d8" class="">Yeah, usually the... I get you. I get you. I get you. Hey. 11:13, so hers was 10.5, so slightly below. Does she drink a lot of milk?</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-81ec-b63b-e2a28425474d" class="">She drinks a lot of milk.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-818f-afdd-ee4dd7307184" class="">How much milk a day?</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-819b-9b60-f52c7c1ff048" class="">I don&#x27;t know, maybe like three bottles.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-8177-ae15-d5a77ba5b0eb" class="">And how much a bottle? Eight bottles. So, too much milk can, that&#x27;s a dog, a big red dog. Too much milk can inhibit absorption of iron when we consume it in our diet. So usually, slightly low hemoglobin is myelomamia. Also, like, insufficient dietary intake, but usually it&#x27;s the milk that...</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-81e6-89ff-ce69f7739297" class="">Her diet is good.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-81ca-8f67-f1fe9d211723" class="">Yeah. So try and limit the milk to 16 ounces a day. Okay. And now that she&#x27;s two, switch it to 2% milk. Okay. And try and get all those bottles.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-81c8-9f3c-fa1794623b34" class="">Are they actual bottles? No, they&#x27;re actual bottles. No, it&#x27;s an actual bottle. It&#x27;s just she doesn&#x27;t drink it at school or anything. We just need to get her onto a straw.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-8112-825c-c633bfb00c37" class="">Yeah, a straw cup or a sipping cup. Or, honestly, if she really loves the bottle and she takes it really quickly, you can just cut a big old hole in the top.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-8188-8936-ced5161a5a98" class="">Didn&#x27;t you say your son did that?</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-81c2-a2e9-f20a7d25020e" class="">Yeah, yeah. They can do that if it&#x27;s difficult. Oh. Looks great. It&#x27;s like 70, 70% down for her height, so that long doubt.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-817f-b5b8-e0d593a79068" class="">What was she?</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-819d-bb51-c1eba8403459" class="">She was like 15. Do you remember her standing today? No.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-8108-951a-c61018993ad7" class="">Laying down? Laying down.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-8126-9032-febbe139a6a2" class="">I was just wondering if that was the change. Sometimes when we go from measuring laying down to measuring standing, we can see a slight difference in the curve, but those are both laying down.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-81d0-b254-ca7f283694d2" class="">I mean, we can measure standing up. No. Okay. No, no.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-81d5-ba7a-fb1807a76780" class="">No, I can&#x27;t feel it. She&#x27;s lying down. We&#x27;ll recheck the little bit.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-81ec-8274-c87b142b262f" class="">Wait, wait, wait.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-814d-86d0-e4641b82c319" class="">I don&#x27;t want to do it. Wait, wait, wait.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-81fd-b413-d9c67a39e03f" class="">Probably in three months. Okay. No. No. No, you cannot draw on the front. Daddy.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-818b-ada9-e526af7e9dcf" class="">And then if it&#x27;s still below. Yeah. Thank you. Sorry, what was the last thing you said? We check in three months. Sometimes it can be a little bit of a process, but when they&#x27;re able to go two hours with a dry diaper, so like not peeing constantly all day long, but like going between wet diapers. And when she consistently tells you when she&#x27;s pooped in her diaper, she&#x27;s not going to tell you what she pees because it&#x27;s not bothersome, then that</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-81ea-8ec2-cbcaf60a245f" class="">She&#x27;ll be a baby. That is a baby.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-81ad-8520-e47204442cf7" class="">Yeah. Do you recommend like getting like a small toilet thing or like one that retrofits onto like an actual...</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-815f-a72f-e76fd6bb427c" class="">I mean, there&#x27;s some that have like a little step that then goes on top. I think that&#x27;s better practice for her. Because they&#x27;re still getting up on the potty. They can get little trout on it. *Gasps* Yeah Getting the step Today we&#x27;ll see her back at two and a half or her next checkup and then three months to be back together</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-8146-9dcd-dd2cf6a15c74" class="">Good job. Good job. All done. We&#x27;re all done.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-813f-ae2b-fd9d507847b8" class="">All done. You guys can go to school now and say.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-8100-8742-e475140b2f15" class="">Say yay. Okay. Is this thing, can it come off or is it like?</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-81de-8421-fd29ce44a183" class="">It&#x27;s probably good. Yeah, I think. Do you have shoes?</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-810d-8a98-e9d28de49c99" class="">She has sandals.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-8186-b5db-ea93820b0b70" class="">Sandals. Here. Well, they&#x27;re red, so that&#x27;s perfect.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-812c-98d6-e5a14fcfd5d9" class="">Yeah.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-818e-b0e7-cbddeed3dc11" class="">Hey, it&#x27;s okay. It&#x27;s probably the Wonder Blitz. What&#x27;s your I like taking them you know and because Take to get in the car seat and stuff. Yeah, they will sometimes grab them and then try to eat them When are we supposed to turn the car seat around or that like we are facing? Yeah, keep her facing as long as possible. Okay, until she Yeah, and if Take this with you and just upload it to my chart later.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-81b3-af10-f91c4f1d8b89" class="">That&#x27;s fine. That would be fantastic.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-8129-bd2c-e9837e722915" class="">Thank you. Appreciate it.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-8115-b8d3-f3717df238f9" class="">Oh, thank you.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-8176-86af-de97d87ccc57" class="">Thanks for letting me check you. Okay. Oh, but sinus infections are where they have like purulent drainage from their nose and or eyes for more than 10 days plus, you know, a root fever or a worsening kind of course. So it doesn&#x27;t seem like she&#x27;s had them. Okay.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-8197-ba5a-e7954a8b81ca" class="">Thank you.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-81e1-ac32-f15a874c0612" class="">I&#x27;ll send that. What pharmacy?</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-81d3-a388-c9a712cd0ab8" class="">CVS off of Longpoint.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-8137-9973-c2f58797edca" class="">Okay.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-81e7-8708-fa2428284fd9" class="">Thank you. Say thanks, Nellie. Hey, come on. Thanks. Here. Wait, wait, wait, wait.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-81af-81c5-d6ec2eb44998" class="">Here.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-8155-be6c-f0bb0deb12bd" class="">No, wait, wait, wait, wait, wait, wait. Eric, come on. Eric, no. No. Come on. We got to go. Come on. Time to go to school. - I&#x27;m going to school. Move that.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-81d4-8c5f-c0b6e68e773d" class="">Move that. Pen.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-8175-b11d-d9ee7ef8d7df" class="">Pen. No, come on. We gotta, no, that&#x27;s not our pen. We gotta go. Gotta go. Good job, Millie. Yeah, she said I could upload it to like my chart or something. NAH. N-A-H. No. Alright, thank you. Bye. Bye. Good job, baby. You did so well. You did so well.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-8180-8c46-ca81e19559ae" class="">Go.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-81ef-acd4-c31b09f617a0" class="">You did so well. Good job. Good job. High five. Good job. -</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-81f0-96ec-fe16880645db" class="">Oh, funnily. Thank you.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-8126-9aac-e5d721235210" class="">And at least 50 words you think?</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-812f-8c4f-f8ea54ab99c1" class="">Yeah. Yeah. Probably more. I mean she&#x27;s really good at, like we don&#x27;t really read books anymore because like she likes to play like basically we&#x27;ll be reading a book and I&#x27;ll be like point out the dog or the caterpillar or whatever. So that&#x27;s helped.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-8181-9346-eb67c4081e51" class="">Very cool. Yeah. Body parts, she&#x27;ll be able to identify most body parts when you ask her.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-811e-ae31-f14bc03654f9" class="">No, like nose. Nose. Nose. Nose. Eyes. What is it?</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-81ca-be5a-ebb860cf1d9f" class="">Did you drop your sky? I want to check you. How does that sound? I like your outfit. So cute.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-8175-90f0-f815d0657358" class="">Say thank you.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-8127-8a46-ce3dfc1f23f3" class="">I&#x27;m surprised you were able to get her in a jean jacket. My mother refuses to wear most things I want her to wear.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-81bf-aa82-d5af1f213448" class="">I mean, she doesn&#x27;t leave the house and anything less than like a full outfit.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-810e-9579-d30937ac4a50" class="">It&#x27;s my wife is like, does she have a, um, does she sort of have opinions about what she wears yet?</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-8175-8d9a-e21276299e1e" class="">My wife doesn&#x27;t let her, I mean, she wants to wear her galoshes and like her rain boots all the time, which are pretty cute by themselves. But, um, she likes, I mean, she, she enjoys actually the stuff that she goes in. like so late my wife will lay out like two or three outfits and she&#x27;ll pick yeah so so we&#x27;re not like forcing</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-81fc-a222-daf953e04399" class="">It&#x27;s time to go and that way it feels all better. We just want to make sure it&#x27;s done bleeding.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-8167-a073-df5c44f434ee" class="">Your feet are so goofy.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-8128-8a22-fe854f201cbc" class="">Does she sleep well? Yeah.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-8184-acdf-d365e028c643" class="">She goes to sleep at like 6.30 or so. So 6.30 or 7 to 7. Okay. So 12 hours. She doesn&#x27;t really cry. She doesn&#x27;t cry at all anymore. She just kind of sits in her bed if she wakes up and talks to her animals.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-81ab-8081-de117bcad8c8" class="">What&#x27;s your favorite stuffy? Bunny. Which is perfect because it&#x27;s almost Easter.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-8139-88fe-fdef45bdc557" class="">Yeah. We found Easter eggs yesterday. It was our birthday.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-814f-a0fb-ff6552ea99e2" class="">I saw that. Yes. Happy birthday. So.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-812e-9e69-fefcef40771a" class="">What is she in? The green room.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-819d-a61a-da073dfbef1f" class="">Green, okay. When did they go to yellow?</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-8133-bcac-d9aa32bfe40c" class="">Probably now.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-8120-89e5-d9eb32518429" class="">Oh, that&#x27;s close.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-815e-abdb-fe65a00ff990" class="">Soon? Yeah, I think so. I like when she was in the blue room.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-818b-bcdd-dc93aecc4c5a" class="">I like that room. Yeah, yeah. They&#x27;re all different. I&#x27;m pleasantly surprised that right now the orange room is only like five of them, which is really cool. Yeah. Yeah, I mean, and they&#x27;re starting to learn, like, she can write her name, she&#x27;s four. So they&#x27;re actually, like, learning stuff at school.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-81e7-b472-df8f4f14789a" class="">Yeah. That&#x27;s what we were kind of concerned about, was, like, are there educators there at all, or is it more just, like, college?</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-8121-ac7b-c801b1f1ea9e" class="">I mean, they, I think you have to take some sort of course. But</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-817e-8174-c28cdf19e475" class="">We were just wondering when it was like time to start. We didn&#x27;t want to be neurotic about it.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-81f8-9706-ea0ec86fcd1b" class="">Yeah. And we&#x27;re going to keep her in there next year, too, until she was a kindergarten. So my son&#x27;s at Sullivan&#x27;s, and we&#x27;re zoned for Jenny Moore. So if we did the CD program, the child development program for a four-year-old, then she would be at a different school than Tim. And then It&#x27;s only a half day and it would be a mess.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-818e-a4ac-da69d2a169ed" class="">Yeah, and the fact that only having them get out at like 2 or something is like, it&#x27;s not realistic. Yeah. Logistically, it makes no sense.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-8197-8668-dd0a80b4ba5d" class="">Yeah, I said, does the colitis go back to school? Yeah, you tell him. And he&#x27;s there, he can be there until 6 o&#x27;clock. But. The school that was on Forge anymore didn&#x27;t have any kaleidoscopes.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-8198-9d1b-e2c81a07156a" class="">No, no, no.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-81a0-8a42-cca5e86cec8a" class="">Very good! But Sullivan&#x27;s didn&#x27;t have a wait list for their kaleidoscope at all. What&#x27;s your favorite color, Nellie? Do you like red? Or pink?</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-812c-b7c0-eebc7773f62f" class="">Or blue?</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-8165-ba56-d055ccee69fb" class="">Pink&#x27;s her favorite. Or yellow?</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-819a-b877-da5183889110" class="">I think.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-81d7-a1ec-c96e6eccc096" class="">Pink is my favorite, too. A doggy or a kitty cat?</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-81d2-9237-eb1c7fdab100" class="">We&#x27;re thinking about a cat and a dog. Do you like dogs, Millie? - You see this?</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-81e2-9311-f876094ce054" class="">Yeah, that&#x27;s what I use to check your ears. Yeah. Can you open your mouth and say ah?</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-81df-844e-f23131b4fed8" class="">- Nellie, open your mouth. - Ah? - Go ah. Nellie, open your mouth. - Ah. - Go ah. - Really big. - Come on, Nell. - Let&#x27;s see those blue lights. - Open it up. - Very good. - Ah. - Nellie, open your mouth, please. - Real big. - It&#x27;s okay.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-812f-8a71-c11dda547e00" class="">- Just like this.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-81a3-a500-c388eb845f40" class="">- Go ah. Like when you brush your teeth, Nell, go ah. Can you open your mouth? Can you open your mouth?</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-816b-8aa8-ca32be1e731c" class="">Very good. Yeah. Has she been to a dentist yet?</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-815c-b024-f7e66481adc9" class="">No, she hasn&#x27;t.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-81f9-b194-d247634b8e9c" class="">You know, brush your teeth with some fluoride toothpaste. Yep.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-818c-bb54-c09770e681a2" class="">Trying to do twice a day. But I mean, if you recommend fluoride, then sure. I&#x27;m not opposed to it. I just don&#x27;t know if.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-81ec-995d-f334deb53b34" class="">- You mean like the treatment or the fluoride toothpaste?</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-81b6-b5dd-ca6d2d9d311d" class="">- I don&#x27;t know.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-81c3-924b-d63d4941fda6" class="">- As long as you have fluoride in your toothpaste and you have plans for her to see a dentist soon, then it&#x27;s not a huge deal.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-816e-9264-ce693ab2f6c2" class="">Yeah. Our part should be over.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-8173-8515-cc95d939d6f7" class="">Not trying to rock the boat too much. Yeah. But yeah, the floor I can face is what&#x27;s supposed to be. Can I check your belly? Can we have you lay down? No. Any constipation issues for her? Nope. She has poop every day.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-81da-a28c-d34744fa37d5" class="">Can you lay down? Can you lay down?</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-81f4-adf6-d0a7f17cb483" class="">Please. I&#x27;m just going to listen to your heart. Has she started to tell you when she&#x27;s pooped in her diaper?</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-811f-a115-c632dc3cb53d" class="">Yeah, actually. I&#x27;ll be like, do you need me to change your diaper? She&#x27;ll shake her head yes, and then she&#x27;ll walk into the room. Just wait for me to pick her up on the... No, is that fit together?</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-8186-8582-d542e196f223" class="">She had some irritation down there.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-81c7-9c3a-e41cf4860dd3" class="">You&#x27;re okay, Noah. Noah, you&#x27;re okay. I didn&#x27;t I haven&#x27;t even really noticed it.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-81d4-8d98-f33ff3a79e49" class="">A little bit of prolapse. Which...</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-8116-802e-d2c925a8b230" class="">I don&#x27;t know what the name of those eye drops are, but those really help when she starts getting crusts in her eyes, so she doesn&#x27;t get full-blown pink eye. But the bottles are so small.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-811e-b222-efc9edfe5454" class="">I gave you a 10 in my bottle. Yeah, that would be good. I think that was really kind of your price on the five.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-81c1-be8c-ce17842d1fd4" class="">Yeah, that would be great. We ask every time we come in, and they&#x27;re like, what, do you guys use it every day? No, it&#x27;s a really small bottle. Good job, Mel. Good job, man. I mean when she&#x27;s when her nose starts running a lot and she&#x27;s wiping it all in her eyes and the next morning she&#x27;ll just have those crusty things yeah so I&#x27;m just like okay we gotta cut this off yeah so if she has so kids they can get sinus infections yeah so and that&#x27;s having that you have the</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-8179-b0b4-c11286bee1a5" class="">That needs to fill out the paperwork though.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-81ef-89c5-dee44729553e" class="">Yes. Oh her vision, it showed anisotropia, which is a weird word. It just basically means that one eye is stronger than the other. Usually ophthalmology doesn&#x27;t care, doesn&#x27;t do anything about that. And it was just barely past the threshold. So I&#x27;d probably just monitor for now. We can repeat at two and a half. Or I was actually really impressed with her vision.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-8154-9e5c-c4708d151cb4" class="">She&#x27;ll point out airplanes like really far away.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-819a-b415-cc95e360f3f4" class="">Yeah, usually the... I get you. I get you. I get you. Hey. 11:13, so hers was 10.5, so slightly below. Does she drink a lot of milk?</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-81fa-a915-ec3584572960" class="">She drinks a lot of milk.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-8179-b122-d4ad25744212" class="">How much milk a day?</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-8129-9ab3-c7b8d0148385" class="">I don&#x27;t know, maybe like three bottles.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-81a5-a890-eb6359f5a291" class="">And how much a bottle? Eight bottles. So, too much milk can, that&#x27;s a dog, a big red dog. Too much milk can inhibit absorption of iron when we consume it in our diet. So usually, slightly low hemoglobin is myelomamia. Also, like, insufficient dietary intake, but usually it&#x27;s the milk that...</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-81f3-8ddf-c2414b14f05c" class="">Her diet is good.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-81cb-9be9-de603f596587" class="">Yeah. So try and limit the milk to 16 ounces a day. Okay. And now that she&#x27;s two, switch it to 2% milk. Okay. And try and get all those bottles.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-8192-9b61-e4246a2e2108" class="">Are they actual bottles? No, they&#x27;re actual bottles. No, it&#x27;s an actual bottle. It&#x27;s just she doesn&#x27;t drink it at school or anything. We just need to get her onto a straw.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-81c8-8c84-d643eca07da3" class="">Yeah, a straw cup or a sipping cup. Or, honestly, if she really loves the bottle and she takes it really quickly, you can just cut a big old hole in the top.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-8190-9026-e157013a7436" class="">Didn&#x27;t you say your son did that?</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-81ff-88cc-df236866be4c" class="">Yeah, yeah. They can do that if it&#x27;s difficult. Oh. Looks great. It&#x27;s like 70, 70% down for her height, so that long doubt.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-81e4-8cf2-d15ead885c80" class="">What was she?</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-812a-8879-d79805164d06" class="">She was like 15. Do you remember her standing today? No.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-818a-bcbb-d3254972c9ac" class="">Laying down? Laying down.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-81bb-bf86-c56af7672951" class="">I was just wondering if that was the change. Sometimes when we go from measuring laying down to measuring standing, we can see a slight difference in the curve, but those are both laying down.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-8128-99f1-ffc21dc63415" class="">I mean, we can measure standing up. No. Okay. No, no.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-8197-996c-c3b61a218e03" class="">No, I can&#x27;t feel it. She&#x27;s lying down. We&#x27;ll recheck the little bit.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-8144-b199-f29e844c8793" class="">Wait, wait, wait.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-8176-8846-f2a52e2ab1b1" class="">I don&#x27;t want to do it. Wait, wait, wait.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-814c-b78e-c162bb8d8ee7" class="">Probably in three months. Okay. No. No. No, you cannot draw on the front. Daddy.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-81af-bdcd-c2f11054e7e5" class="">And then if it&#x27;s still below. Yeah. Thank you. Sorry, what was the last thing you said? We check in three months. Sometimes it can be a little bit of a process, but when they&#x27;re able to go two hours with a dry diaper, so like not peeing constantly all day long, but like going between wet diapers. And when she consistently tells you when she&#x27;s pooped in her diaper, she&#x27;s not going to tell you what she pees because it&#x27;s not bothersome, then that</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-8116-b81f-efe029650059" class="">She&#x27;ll be a baby. That is a baby.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-81e9-af61-fbab6e82f236" class="">Yeah. Do you recommend like getting like a small toilet thing or like one that retrofits onto like an actual...</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-814d-881f-d569ba378529" class="">I mean, there&#x27;s some that have like a little step that then goes on top. I think that&#x27;s better practice for her. Because they&#x27;re still getting up on the potty. They can get little trout on it. *Growl* Yeah Getting the step Today we&#x27;ll see her back at two and a half or her next checkup and then three months to be back together</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-81eb-82c0-f3e6b2f7b49f" class="">Good job. Good job. All done. We&#x27;re all done.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-81cb-b053-fc03b365e336" class="">All done. You guys can go to school now and say.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-81ca-ac19-eee2944cb8f4" class="">Say yay. Okay. Is this thing, can it come off or is it like?</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-81e2-9a0f-cfb3d75127b0" class="">It&#x27;s probably good. Yeah, I think. Do you have shoes?</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-814c-8023-ec1107044b7d" class="">She has sandals.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-81eb-805b-e0a761787cd8" class="">Sandals. Here. Well, they&#x27;re red, so that&#x27;s perfect.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-8114-9f73-d33a8e48a2cb" class="">Yeah.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-816d-8545-e4ff86417f34" class="">Hey, it&#x27;s okay. It&#x27;s probably the Wonder Blitz. What&#x27;s your I like taking them you know and because Take to get in the car seat and stuff. Yeah, they will sometimes grab them and then try to eat them When are we supposed to turn the car seat around or that like we are facing? Yeah, keep her facing as long as possible. Okay, until she Yeah, and if Take this with you and just upload it to my chart later.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-81b2-a1e0-e6663c1cf421" class="">That&#x27;s fine. That would be fantastic.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-81fa-8a0b-f5fda5e2df2b" class="">Thank you. Appreciate it.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-8185-a809-e7e8b72852f5" class="">Oh, thank you.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-8169-b9eb-f037f8eca483" class="">Thanks for letting me check you. Okay. Oh, but sinus infections are where they have like purulent drainage from their nose and or eyes for more than 10 days plus, you know, a root fever or a worsening kind of course. So it doesn&#x27;t seem like she&#x27;s had them. Okay.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-8181-8321-f4b09db424a9" class="">Thank you.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-8188-b44e-c986e6b5b260" class="">I&#x27;ll send that. What pharmacy?</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-8194-bc67-f4aed19fbfd8" class="">CVS off of Longpoint.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-8189-86e6-ff9200e096d6" class="">Okay.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-81a3-8b65-f1a3b9a1ded0" class="">Thank you. Say thanks, Nellie. Hey, come on. Thanks. Here. Wait, wait, wait, wait.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-8136-90e5-ce3e5387e6cd" class="">Here.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-817a-82ea-f5df168f1b9b" class="">No, wait, wait, wait, wait, wait, wait. Eric, come on. Eric, no. No. Come on. We got to go. Come on. Time to go to school. - I&#x27;m going to school. Move that.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-817e-9f89-eb444fd1cabf" class="">Move that. Pen.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-812d-a980-c3cc26fa738e" class="">Pen. No, come on. We gotta, no, that&#x27;s not our pen. We gotta go. Gotta go. Good job, Millie. Yeah, she said I could upload it to like my chart or something. NAH. N-A-H. No. Alright, thank you. Bye. Bye. Good job, baby. You did so well. You did so well.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-8109-ab1e-e1026ac4689c" class="">Go.</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-8128-848f-e79468705ace" class="">You did so well. Good job. Good job. High five. Good job. -</p></div><div style="display:contents" dir="auto"><p id="33356320-92ca-81db-b234-c0222efe59ce" class="">Oh, funnily. Thank you.</p></div></div></div></div></article><span class="sans" style="font-size:14px;padding-top:2em"></span></body></html>

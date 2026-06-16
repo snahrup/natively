@@ -1,0 +1,744 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>MDM Meeting Planning Discussion — Patrick Stiller — 2026-01-15</title><style>
+/* cspell:disable-file */
+/* webkit printing magic: print all background colors */
+html {
+	-webkit-print-color-adjust: exact;
+}
+* {
+	box-sizing: border-box;
+	-webkit-print-color-adjust: exact;
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+}
+@media only screen {
+	body {
+		margin: 2em auto;
+		max-width: 900px;
+		color: rgb(55, 53, 47);
+	}
+}
+
+body {
+	line-height: 1.5;
+	white-space: pre-wrap;
+}
+
+a,
+a.visited {
+	color: inherit;
+	text-decoration: underline;
+}
+
+.pdf-relative-link-path {
+	font-size: 80%;
+	color: #444;
+}
+
+h1,
+h2,
+h3 {
+	letter-spacing: -0.01em;
+	line-height: 1.2;
+	font-weight: 600;
+	margin-bottom: 0;
+}
+
+/* Override strong tags inside headings to maintain consistent weight */
+h1 strong,
+h2 strong,
+h3 strong {
+	font-weight: 600;
+}
+
+.page-title {
+	font-size: 2.5rem;
+	font-weight: 700;
+	margin-top: 0;
+	margin-bottom: 0.75em;
+}
+
+h1 {
+	font-size: 1.875rem;
+	margin-top: 1.875rem;
+}
+
+h2 {
+	font-size: 1.5rem;
+	margin-top: 1.5rem;
+}
+
+h3 {
+	font-size: 1.25rem;
+	margin-top: 1.25rem;
+}
+
+.source {
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	padding: 1.5em;
+	word-break: break-all;
+}
+
+.callout {
+	border-radius: 10px;
+	padding: 1rem;
+}
+
+figure {
+	margin: 1.25em 0;
+	page-break-inside: avoid;
+}
+
+figcaption {
+	opacity: 0.5;
+	font-size: 85%;
+	margin-top: 0.5em;
+}
+
+mark {
+	background-color: transparent;
+}
+
+.indented {
+	padding-left: 1.5em;
+}
+
+hr {
+	background: transparent;
+	display: block;
+	width: 100%;
+	height: 1px;
+	visibility: visible;
+	border: none;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+img {
+	max-width: 100%;
+}
+
+@media only print {
+	img {
+		max-height: 100vh;
+		object-fit: contain;
+	}
+
+	table.collection-content {
+		width: 100%;
+		table-layout: fixed;
+	}
+
+	table.collection-content th,
+	table.collection-content td {
+		overflow-wrap: anywhere;
+	}
+
+	table.collection-content td > .user,
+	table.collection-content td > time {
+		white-space: pre-wrap;
+	}
+}
+
+@page {
+	margin: 1in;
+}
+
+.collection-content-wrapper {
+	overflow-x: auto;
+}
+
+@media only print {
+	.collection-content-wrapper {
+		overflow-x: visible;
+	}
+}
+
+.collection-content {
+	font-size: 0.875rem;
+}
+
+.collection-content td {
+	white-space: pre-wrap;
+	word-break: break-word;
+}
+
+.column-list {
+	display: flex;
+	gap: 46px;
+}
+
+.column {
+	min-width: 0;
+	overflow: hidden;
+}
+
+.column > *:first-child {
+	margin-top: 0;
+}
+
+.table_of_contents-item {
+	display: block;
+	font-size: 0.875rem;
+	line-height: 1.3;
+	padding: 0.125rem;
+}
+
+.table_of_contents-indent-1 {
+	margin-left: 1.5rem;
+}
+
+.table_of_contents-indent-2 {
+	margin-left: 3rem;
+}
+
+.table_of_contents-indent-3 {
+	margin-left: 4.5rem;
+}
+
+.table_of_contents-link {
+	text-decoration: none;
+	opacity: 0.7;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.18);
+}
+
+table,
+th,
+td {
+	border: 1px solid rgba(55, 53, 47, 0.09);
+	border-collapse: collapse;
+}
+
+table {
+	border-left: none;
+	border-right: none;
+}
+
+th,
+td {
+	font-weight: normal;
+	padding: 0.25em 0.5em;
+	line-height: 1.5;
+	min-height: 1.5em;
+	text-align: left;
+}
+
+th {
+	color: rgba(55, 53, 47, 0.6);
+}
+
+ol,
+ul {
+	margin: 0;
+	margin-block-start: 0.6em;
+	margin-block-end: 0.6em;
+}
+
+li > ol:first-child,
+li > ul:first-child {
+	margin-block-start: 0.6em;
+}
+
+ul > li {
+	list-style: disc;
+}
+
+ul.to-do-list {
+	padding-inline-start: 0;
+}
+
+ul.to-do-list > li {
+	list-style: none;
+}
+
+.to-do-children-checked {
+	text-decoration: line-through;
+	opacity: 0.375;
+}
+
+ul.toggle > li {
+	list-style: none;
+}
+
+ul {
+	padding-inline-start: 1.7em;
+}
+
+ul > li {
+	padding-left: 0.1em;
+}
+
+ol {
+	padding-inline-start: 1.6em;
+}
+
+ol.numbered-list.numbered-list-digits-2 {
+	padding-inline-start: 2em;
+}
+
+ol.numbered-list.numbered-list-digits-3plus {
+	padding-inline-start: 2.4em;
+}
+
+ol > li {
+	padding-left: 0.2em;
+}
+
+.mono ol {
+	padding-inline-start: 2em;
+}
+
+.mono ol > li {
+	text-indent: -0.4em;
+}
+
+.toggle {
+	padding-inline-start: 0em;
+	list-style-type: none;
+}
+
+/* Indent toggle children */
+.toggle > li > details {
+	padding-left: 1.7em;
+}
+
+.toggle > li > details > summary {
+	margin-left: -1.1em;
+}
+
+.selected-value {
+	display: inline-block;
+	padding: 0 0.5em;
+	background: rgba(206, 205, 202, 0.5);
+	border-radius: 3px;
+	margin-right: 0.5em;
+	margin-top: 0.3em;
+	margin-bottom: 0.3em;
+	white-space: nowrap;
+}
+
+.collection-title {
+	display: inline-block;
+	margin-right: 1em;
+}
+
+.page-description {
+	margin-bottom: 2em;
+}
+
+.simple-table {
+	margin-top: 1em;
+	font-size: 0.875rem;
+	empty-cells: show;
+}
+.simple-table td {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table th {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table-header-color {
+	background: rgb(247, 246, 243);
+	color: black;
+}
+.simple-table-header {
+	font-weight: 500;
+}
+
+time {
+	opacity: 0.5;
+}
+
+.icon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	max-width: 1.2em;
+	max-height: 1.2em;
+	text-decoration: none;
+	vertical-align: text-bottom;
+	margin-right: 0.5em;
+}
+
+img.icon {
+	border-radius: 3px;
+}
+
+.callout img.notion-static-icon {
+	width: 1em;
+	height: 1em;
+}
+
+.callout p {
+	margin: 0;
+}
+
+.callout h1,
+.callout h2,
+.callout h3 {
+	margin: 0 0 0.6rem;
+}
+
+.user-icon {
+	width: 1.5em;
+	height: 1.5em;
+	border-radius: 100%;
+	margin-right: 0.5rem;
+}
+
+.user-icon-inner {
+	font-size: 0.8em;
+}
+
+.text-icon {
+	border: 1px solid #000;
+	text-align: center;
+}
+
+.page-cover-image {
+	display: block;
+	object-fit: cover;
+	width: 100%;
+	max-height: 30vh;
+}
+
+.page-header-icon {
+	font-size: 3rem;
+	margin-bottom: 1rem;
+}
+
+.page-header-icon-with-cover {
+	margin-top: -0.72em;
+	margin-left: 0.07em;
+}
+
+.page-header-icon img {
+	border-radius: 3px;
+}
+
+.link-to-page {
+	margin: 1em 0;
+	padding: 0;
+	border: none;
+	font-weight: 500;
+}
+
+p > .user {
+	opacity: 0.5;
+}
+
+td > .user,
+td > time {
+	white-space: nowrap;
+}
+
+input[type="checkbox"] {
+	transform: scale(1.5);
+	margin-right: 0.6em;
+	vertical-align: middle;
+}
+
+p {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+.image {
+	border: none;
+	margin: 1.5em 0;
+	padding: 0;
+	border-radius: 0;
+	text-align: center;
+}
+
+.code,
+code {
+	background: rgba(135, 131, 120, 0.15);
+	border-radius: 3px;
+	padding: 0.2em 0.4em;
+	border-radius: 3px;
+	font-size: 85%;
+	tab-size: 2;
+}
+
+code {
+	color: #eb5757;
+}
+
+.code {
+	padding: 1.5em 1em;
+}
+
+.code-wrap {
+	white-space: pre-wrap;
+	word-break: break-all;
+}
+
+.code > code {
+	background: none;
+	padding: 0;
+	font-size: 100%;
+	color: inherit;
+}
+
+blockquote {
+	font-size: 1em;
+	margin: 1em 0;
+	padding-left: 1em;
+	border-left: 3px solid rgb(55, 53, 47);
+}
+
+blockquote.quote-large {
+	font-size: 1.25em;
+}
+
+.bookmark {
+	text-decoration: none;
+	max-height: 8em;
+	padding: 0;
+	display: flex;
+	width: 100%;
+	align-items: stretch;
+}
+
+.bookmark-title {
+	font-size: 0.85em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	height: 1.75em;
+	white-space: nowrap;
+}
+
+.bookmark-text {
+	display: flex;
+	flex-direction: column;
+}
+
+.bookmark-info {
+	flex: 4 1 180px;
+	padding: 12px 14px 14px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.bookmark-image {
+	width: 33%;
+	flex: 1 1 180px;
+	display: block;
+	position: relative;
+	object-fit: cover;
+	border-radius: 1px;
+}
+
+.bookmark-description {
+	color: rgba(55, 53, 47, 0.6);
+	font-size: 0.75em;
+	overflow: hidden;
+	max-height: 4.5em;
+	word-break: break-word;
+}
+
+.bookmark-href {
+	font-size: 0.75em;
+	margin-top: 0.25em;
+}
+
+.sans { font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol"; }
+.code { font-family: "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace; }
+.serif { font-family: Lyon-Text, Georgia, ui-serif, serif; }
+.mono { font-family: iawriter-mono, Nitti, Menlo, Courier, monospace; }
+.pdf .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK JP'; }
+.pdf:lang(zh-CN) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK SC'; }
+.pdf:lang(zh-TW) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK TC'; }
+.pdf:lang(ko-KR) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK KR'; }
+.pdf .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.pdf .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK JP'; }
+.pdf:lang(zh-CN) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK SC'; }
+.pdf:lang(zh-TW) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK TC'; }
+.pdf:lang(ko-KR) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK KR'; }
+.pdf .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.highlight-default {
+	color: rgba(44, 44, 43, 1);
+}
+.highlight-gray {
+	color: rgba(125, 122, 117, 1);
+	fill: rgba(125, 122, 117, 1);
+}
+.highlight-brown {
+	color: rgba(159, 118, 90, 1);
+	fill: rgba(159, 118, 90, 1);
+}
+.highlight-orange {
+	color: rgba(210, 123, 45, 1);
+	fill: rgba(210, 123, 45, 1);
+}
+.highlight-yellow {
+	color: rgba(203, 148, 52, 1);
+	fill: rgba(203, 148, 52, 1);
+}
+.highlight-teal {
+	color: rgba(80, 148, 110, 1);
+	fill: rgba(80, 148, 110, 1);
+}
+.highlight-blue {
+	color: rgba(56, 125, 201, 1);
+	fill: rgba(56, 125, 201, 1);
+}
+.highlight-purple {
+	color: rgba(154, 107, 180, 1);
+	fill: rgba(154, 107, 180, 1);
+}
+.highlight-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.highlight-red {
+	color: rgba(207, 81, 72, 1);
+	fill: rgba(207, 81, 72, 1);
+}
+.highlight-default_background {
+	color: rgba(44, 44, 43, 1);
+}
+.highlight-gray_background {
+	background: rgba(42, 28, 0, 0.07);
+}
+.highlight-brown_background {
+	background: rgba(139, 46, 0, 0.086);
+}
+.highlight-orange_background {
+	background: rgba(224, 101, 1, 0.129);
+}
+.highlight-yellow_background {
+	background: rgba(211, 168, 0, 0.137);
+}
+.highlight-teal_background {
+	background: rgba(0, 100, 45, 0.09);
+}
+.highlight-blue_background {
+	background: rgba(0, 124, 215, 0.094);
+}
+.highlight-purple_background {
+	background: rgba(102, 0, 178, 0.078);
+}
+.highlight-pink_background {
+	background: rgba(197, 0, 93, 0.086);
+}
+.highlight-red_background {
+	background: rgba(223, 22, 0, 0.094);
+}
+.block-color-default {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray {
+	color: rgba(125, 122, 117, 1);
+	fill: rgba(125, 122, 117, 1);
+}
+.block-color-brown {
+	color: rgba(159, 118, 90, 1);
+	fill: rgba(159, 118, 90, 1);
+}
+.block-color-orange {
+	color: rgba(210, 123, 45, 1);
+	fill: rgba(210, 123, 45, 1);
+}
+.block-color-yellow {
+	color: rgba(203, 148, 52, 1);
+	fill: rgba(203, 148, 52, 1);
+}
+.block-color-teal {
+	color: rgba(80, 148, 110, 1);
+	fill: rgba(80, 148, 110, 1);
+}
+.block-color-blue {
+	color: rgba(56, 125, 201, 1);
+	fill: rgba(56, 125, 201, 1);
+}
+.block-color-purple {
+	color: rgba(154, 107, 180, 1);
+	fill: rgba(154, 107, 180, 1);
+}
+.block-color-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.block-color-red {
+	color: rgba(207, 81, 72, 1);
+	fill: rgba(207, 81, 72, 1);
+}
+.block-color-default_background {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray_background {
+	background: rgba(240, 239, 237, 1);
+}
+.block-color-brown_background {
+	background: rgba(245, 237, 233, 1);
+}
+.block-color-orange_background {
+	background: rgba(251, 235, 222, 1);
+}
+.block-color-yellow_background {
+	background: rgba(249, 243, 220, 1);
+}
+.block-color-teal_background {
+	background: rgba(232, 241, 236, 1);
+}
+.block-color-blue_background {
+	background: rgba(229, 242, 252, 1);
+}
+.block-color-purple_background {
+	background: rgba(243, 235, 249, 1);
+}
+.block-color-pink_background {
+	background: rgba(250, 233, 241, 1);
+}
+.block-color-red_background {
+	background: rgba(252, 233, 231, 1);
+}
+.select-value-color-default { background-color: rgba(42, 28, 0, 0.07); }
+.select-value-color-gray { background-color: rgba(28, 19, 1, 0.11); }
+.select-value-color-brown { background-color: rgba(127, 51, 0, 0.156); }
+.select-value-color-orange { background-color: rgba(196, 88, 0, 0.203); }
+.select-value-color-yellow { background-color: rgba(209, 156, 0, 0.282); }
+.select-value-color-green { background-color: rgba(0, 96, 38, 0.156); }
+.select-value-color-blue { background-color: rgba(0, 118, 217, 0.203); }
+.select-value-color-purple { background-color: rgba(92, 0, 163, 0.141); }
+.select-value-color-pink { background-color: rgba(183, 0, 78, 0.152); }
+.select-value-color-red { background-color: rgba(206, 24, 0, 0.164); }
+
+.checkbox {
+	display: inline-flex;
+	vertical-align: text-bottom;
+	width: 16;
+	height: 16;
+	background-size: 16px;
+	margin-left: 2px;
+	margin-right: 5px;
+}
+
+.checkbox-on {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20width%3D%2216%22%20height%3D%2216%22%20fill%3D%22%2358A9D7%22%2F%3E%0A%3Cpath%20d%3D%22M6.71429%2012.2852L14%204.9995L12.7143%203.71436L6.71429%209.71378L3.28571%206.2831L2%207.57092L6.71429%2012.2852Z%22%20fill%3D%22white%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+
+.checkbox-off {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20x%3D%220.75%22%20y%3D%220.75%22%20width%3D%2214.5%22%20height%3D%2214.5%22%20fill%3D%22white%22%20stroke%3D%22%2336352F%22%20stroke-width%3D%221.5%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+	
+</style></head><body><article id="2e956320-92ca-8034-a56d-f8c86e65334e" class="page sans"><header><h1 class="page-title" dir="auto">MDM Meeting Planning Discussion — Patrick Stiller — 2026-01-15</h1><p class="page-description" dir="auto"></p><table class="properties"><tbody><tr class="property-row property-row-status"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/burst_gray.svg" style="width:14px;height:14px;display:block"/></span>Processing</th><td><span class="status-value select-value-color-green"><div class="status-dot status-dot-color-green"></div>Processed</span></td></tr><tr class="property-row property-row-text"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/description_gray.svg" style="width:14px;height:14px;display:block"/></span>Agenda</th><td>Planning MDM kickoff meeting: scheduling (Wed Dec 21, 10am-1pm with lunch break), attendee list (Matt Tallarico, Brenda Lins, Robin Virginia, Dominique, Mike Kenny, Carrie Browse + optional UDS, Tallarico Stewart, Mike Spencer), logistics (Training Center room, lunch arrangements), Steve travel arrangements (Holiday Inn Express, Uber from airport)</td></tr><tr class="property-row property-row-date"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/calendar_gray.svg" style="width:14px;height:14px;display:block"/></span>Date</th><td><time>January 15, 2026</time></td></tr><tr class="property-row property-row-multi_select"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/list_gray.svg" style="width:14px;height:14px;display:block"/></span>Attendees</th><td><span class="selected-value select-value-color-pink">Internal</span></td></tr><tr class="property-row property-row-select"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/arrow-circle-down_gray.svg" style="width:14px;height:14px;display:block"/></span>Meeting Type</th><td><span class="selected-value select-value-color-yellow">Planning</span></td></tr><tr class="property-row property-row-person"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/friends_gray.svg" style="width:14px;height:14px;display:block"/></span>Organizer</th><td><span class="user"><span class="icon text-icon user-icon"><span class="user-icon-inner">P</span></span>Patrick Stiller</span></td></tr><tr class="property-row property-row-select"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/arrow-circle-down_gray.svg" style="width:14px;height:14px;display:block"/></span>Priority</th><td><span class="selected-value select-value-color-yellow">Medium</span></td></tr><tr class="property-row property-row-checkbox"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/checkmark-square_gray.svg" style="width:14px;height:14px;display:block"/></span>Has Cluely Transcript</th><td><div class="checkbox checkbox-off"></div></td></tr><tr class="property-row property-row-checkbox"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/checkmark-square_gray.svg" style="width:14px;height:14px;display:block"/></span>Has Final Transcript</th><td><div class="checkbox checkbox-on"></div></td></tr><tr class="property-row property-row-select"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/arrow-circle-down_gray.svg" style="width:14px;height:14px;display:block"/></span>Status</th><td><span class="selected-value select-value-color-brown">Completed</span></td></tr><tr class="property-row property-row-checkbox"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/checkmark-square_gray.svg" style="width:14px;height:14px;display:block"/></span>Has Notion Transcript</th><td><div class="checkbox checkbox-on"></div></td></tr><tr class="property-row property-row-checkbox"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/checkmark-square_gray.svg" style="width:14px;height:14px;display:block"/></span>Has Teams Transcript</th><td><div class="checkbox checkbox-off"></div></td></tr><tr class="property-row property-row-checkbox"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/checkmark-square_gray.svg" style="width:14px;height:14px;display:block"/></span>Merged to Feed</th><td><div class="checkbox checkbox-on"></div></td></tr></tbody></table></header><div class="page-body"><div style="display:contents" dir="ltr"><div id="2e956320-92ca-8061-aee5-fae550c3d518" class="transcription"><div style="border-bottom:0.05em solid;border-bottom-color:rgba(42, 28, 0, 0.07)">Summary<br/></div><div style="display:contents" dir="auto"><h3 id="2e956320-92ca-8102-ae45-ffa4170cd443" class="">Meeting Purpose</h3></div><div style="display:contents" dir="auto"><ul id="2e956320-92ca-8192-8b76-f9a2079ce6e5" class="bulleted-list"><li style="list-style-type:disc">Planning an initial MDM (Master Data Management) kickoff meeting to discuss IT topics and game plans ‣ ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e956320-92ca-8186-a326-e7d8695caf26" class="bulleted-list"><li style="list-style-type:disc">Goal is to bring together key stakeholders and set up discussions before the holidays ‣</li></ul></div><div style="display:contents" dir="auto"><h3 id="2e956320-92ca-81b0-88ac-d6380e3c9390" class="">Scheduling Decisions</h3></div><div style="display:contents" dir="auto"><ul id="2e956320-92ca-81a5-a5d3-e1693732b9f1" class="bulleted-list"><li style="list-style-type:disc"><strong>Date selected</strong>: Wednesday, December 21st ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e956320-92ca-81c6-bd66-dafc1250614d" class="bulleted-list"><li style="list-style-type:disc"><strong>Time slots</strong>: 10-11am and noon-1pm, with consideration to combine into one 10am-1pm session with a lunch break ‣ ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e956320-92ca-813c-9c8b-c3f871883904" class="bulleted-list"><li style="list-style-type:disc">Rationale for splitting: After extended periods, meeting participants tend to fade, but keeping everyone in the room during lunch may encourage organic conversations ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e956320-92ca-81a5-b137-fc1ade480872" class="bulleted-list"><li style="list-style-type:disc"><strong>Urgency noted</strong>: Booking meetings closer to the date makes it harder to lock in time with executives whose schedules fill quickly ‣ ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e956320-92ca-813f-b0fb-e9493de9d69d" class="bulleted-list"><li style="list-style-type:disc"><strong>Potential conflict</strong>: Staff meeting at 11am includes half the attendees - decision pending on whether to move it ‣ ‣</li></ul></div><div style="display:contents" dir="auto"><h3 id="2e956320-92ca-81d8-8c85-eea7f14b89f8" class="">Meeting Attendees</h3></div><div style="display:contents" dir="auto"><p id="2e956320-92ca-81f2-a54a-f373556e9915" class=""><strong>Required attendees</strong>: ‣ ‣</p></div><div style="display:contents" dir="auto"><ul id="2e956320-92ca-81e8-858a-d044279956e5" class="bulleted-list"><li style="list-style-type:disc">Matt Tallarico</li></ul></div><div style="display:contents" dir="auto"><ul id="2e956320-92ca-816e-935d-d8f466c7b51e" class="bulleted-list"><li style="list-style-type:disc">Brenda Lins</li></ul></div><div style="display:contents" dir="auto"><ul id="2e956320-92ca-8126-82f5-d2f8444b4a12" class="bulleted-list"><li style="list-style-type:disc">Robin Virginia</li></ul></div><div style="display:contents" dir="auto"><ul id="2e956320-92ca-81cb-bcbc-fe657fe943e3" class="bulleted-list"><li style="list-style-type:disc">Dominique</li></ul></div><div style="display:contents" dir="auto"><ul id="2e956320-92ca-81f9-8402-ce8547f24734" class="bulleted-list"><li style="list-style-type:disc">Mike Kenny/Michael Kenny</li></ul></div><div style="display:contents" dir="auto"><ul id="2e956320-92ca-818d-a39b-e0375943870e" class="bulleted-list"><li style="list-style-type:disc">Carrie Browse</li></ul></div><div style="display:contents" dir="auto"><p id="2e956320-92ca-81b8-8f22-daf2919abc19" class=""><strong>Optional attendees</strong>: ‣ ‣</p></div><div style="display:contents" dir="auto"><ul id="2e956320-92ca-8182-a277-d9d8d7c234a2" class="bulleted-list"><li style="list-style-type:disc">UDS</li></ul></div><div style="display:contents" dir="auto"><ul id="2e956320-92ca-818b-aee9-fbe25f2df9a1" class="bulleted-list"><li style="list-style-type:disc">Tallarico Stewart</li></ul></div><div style="display:contents" dir="auto"><ul id="2e956320-92ca-81f4-8e15-ef6195ee5745" class="bulleted-list"><li style="list-style-type:disc">Mike Spencer</li></ul></div><div style="display:contents" dir="auto"><p id="2e956320-92ca-8128-a05c-df7a0063f88e" class=""><strong>Remote attendance</strong>: Daudi will attend remotely via Teams ‣</p></div><div style="display:contents" dir="auto"><ul id="2e956320-92ca-8139-8070-cdd5add8ee11" class="bulleted-list"><li style="list-style-type:disc">Total of approximately 9-10 people ‣ ‣</li></ul></div><div style="display:contents" dir="auto"><h3 id="2e956320-92ca-813c-a410-da062ec3a3e2" class="">Logistics</h3></div><div style="display:contents" dir="auto"><p id="2e956320-92ca-8167-b324-faa59c4e59aa" class=""><strong>Location</strong>: Training Center (larger of two training rooms available) ‣ ‣</p></div><div style="display:contents" dir="auto"><p id="2e956320-92ca-81fd-aa72-d27f65cfe5c7" class=""><strong>Meeting invite strategy</strong>: </p></div><div style="display:contents" dir="auto"><ul id="2e956320-92ca-817d-8b64-c676f9cf2e1c" class="bulleted-list"><li style="list-style-type:disc">Send initial &quot;Meeting Holder&quot; invite now to lock in the time ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e956320-92ca-8185-8c89-ebbbe17311ad" class="bulleted-list"><li style="list-style-type:disc">Include teaser image but note that full agenda will be attached later ‣ ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e956320-92ca-81f9-98fd-c3bbc6e662d8" class="bulleted-list"><li style="list-style-type:disc">Format as Teams meeting for remote participants ‣</li></ul></div><div style="display:contents" dir="auto"><p id="2e956320-92ca-81a5-a546-dbdf03835f02" class=""><strong>Lunch arrangements</strong>: ‣ ‣</p></div><div style="display:contents" dir="auto"><ul id="2e956320-92ca-8167-8d34-d5aad54ba702" class="bulleted-list"><li style="list-style-type:disc">Lunch will be provided during the break</li></ul></div><div style="display:contents" dir="auto"><ul id="2e956320-92ca-8129-85f8-f00f69fd8351" class="bulleted-list"><li style="list-style-type:disc">Considering Jersey Mike&#x27;s or Jimmy John&#x27;s group order rather than Easy Cater due to 10-person minimum concerns ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e956320-92ca-815e-9eae-f9502cbda3de" class="bulleted-list"><li style="list-style-type:disc">Need to check dietary restrictions with Stuart ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e956320-92ca-81f5-ace6-efa81027c727" class="bulleted-list"><li style="list-style-type:disc">Final food plans pending decision on staff meeting conflict ‣</li></ul></div><div style="display:contents" dir="auto"><p id="2e956320-92ca-8153-961d-f117fa15a8b3" class=""><strong>Technical issues</strong>: Encountered problems sending meeting invites through Outlook web interface, with attachment loading errors ‣ ‣ ‣</p></div><div style="display:contents" dir="auto"><h3 id="2e956320-92ca-8153-9939-fee73a9b31ec" class="">Travel Arrangements</h3></div><div style="display:contents" dir="auto"><ul id="2e956320-92ca-8110-966b-e54eb6e3f4b8" class="bulleted-list"><li style="list-style-type:disc"><span class="user">@Steve </span> will travel from airport to hotel via Uber or cab ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e956320-92ca-8127-94ed-e21444ae52e4" class="bulleted-list"><li style="list-style-type:disc">Hotel: Holiday Inn Express, 1100 County Road E East ‣ ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e956320-92ca-815f-bc3f-eb32da75830b" class="bulleted-list"><li style="list-style-type:disc">Keys will be available at hotel ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e956320-92ca-8154-93d2-f21a3ca754aa" class="bulleted-list"><li style="list-style-type:disc"><strong>Weather warning</strong>: Monday arrival may be &quot;brutal&quot; with cold temperatures ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2e956320-92ca-81d9-b489-fadb7f12d9b2" class="bulleted-list"><li style="list-style-type:disc"><span class="user">@Steve </span> has winter clothing available in attic ‣</li></ul></div><div style="display:contents" dir="auto"><h3 id="2e956320-92ca-818f-9b15-e6c8209ec267" class="">Action Items</h3></div><div style="display:contents" dir="auto"><ul id="2e956320-92ca-815a-908e-d41409e9178b" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Send meeting holder invites for Wednesday, December 21st (10-11am and noon-1pm slots) ‣</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="2e956320-92ca-81cb-8c65-f396ff9d398d" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked"><span class="user">@Steve </span> to create meeting agenda before the weekend ‣</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="2e956320-92ca-8180-9520-e29e04e0b193" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Check with Mike about moving 11am staff meeting ‣ ‣</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="2e956320-92ca-8132-ac37-e510d37e1a08" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Carrie to coordinate lunch order once staff meeting decision is made ‣ ‣</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="2e956320-92ca-8151-a49c-f4942fecaf28" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Check with Stuart about dietary restrictions ‣</span><div class="indented"></div></li></ul></div><div style="border-bottom:0.05em solid;border-bottom-color:rgba(42, 28, 0, 0.07)">Notes<br/></div><div style="display:contents" dir="auto"><p id="2e956320-92ca-806c-a7a3-fdd19969fa5d" class="">
+</p></div><div style="border-bottom:0.05em solid;border-bottom-color:rgba(42, 28, 0, 0.07)">Transcript<br/></div><div style="display:contents" dir="auto"><p id="2e956320-92ca-8059-8b98-ffaec7bd0a80" class="">Pretty good. I mean, it&#x27;s colder than usual here, but I feel like that&#x27;s not really fair when it comes to...</p></div><div style="display:contents" dir="auto"><p id="2e956320-92ca-80f9-b15e-db90b7041b2a" class="">Uh, yeah. Let&#x27;s see.</p></div><div style="display:contents" dir="auto"><p id="2e956320-92ca-800e-a15c-ea69bd7104de" class="">Sorry, I&#x27;m not super presentable yet. I just sat down and my computer will... I&#x27;m still in street.</p></div><div style="display:contents" dir="auto"><p id="2e956320-92ca-80e5-8002-c31f8906b62c" class="">That&#x27;s what I&#x27;m all about, is getting to work at home. Yeah.</p></div><div style="display:contents" dir="auto"><p id="2e956320-92ca-8018-bd8d-e8ec9e4acea4" class="">But it&#x27;s still... I feel like it&#x27;s not very... I don&#x27;t know. Uncute.</p></div><div style="display:contents" dir="auto"><p id="2e956320-92ca-8066-bc48-d2da5a302a65" class="">So The goal for this one here was just to, again, meet IT and start setting up a game plan. So we&#x27;re 13 degrees right now.</p></div><div style="display:contents" dir="auto"><p id="2e956320-92ca-80fb-b612-f3e1b3a10076" class="">And that&#x27;s going to be our high. Oh, we&#x27;re 44. So never mind.</p></div><div style="display:contents" dir="auto"><p id="2e956320-92ca-803d-b56d-ee0e7eeadc50" class="">I&#x27;ll take that one. I should take a look what does next week look like? Since you&#x27;re gonna be here, Well, that&#x27;s not so bad. Molly is going to be a little, little That&#x27;s unfortunate. So I don&#x27;t know what you have for heavy jackets.</p></div><div style="display:contents" dir="auto"><p id="2e956320-92ca-804d-beba-d17569c5f7e0" class="">No, I have, I still have plenty of... I have to go up in the attic and get it, but...</p></div><div style="display:contents" dir="auto"><p id="2e956320-92ca-80fc-ad67-d9a34eb02be5" class="">Okay, just to warn you, Monday could be a little brutal. Yeah. The rest of the week doesn&#x27;t look...</p></div><div style="display:contents" dir="auto"><p id="2e956320-92ca-8070-884f-ecf3df9ee69a" class="">Hopefully my flights Not delayed or anything. Yeah.</p></div><div style="display:contents" dir="auto"><p id="2e956320-92ca-802a-a8fe-faac6a65892d" class="">Um... So I just want to get to a meeting together and that this could even be as one meeting where we talk about Um, I&#x27;m sorry, Mike. cameras over there, but whatever you get the idea. Where we talk about Who we need to bring to that meeting. Talk about some of the game plans. The stuff that you&#x27;ve got lined up there, I want to get through some of it. We won&#x27;t answer all of it, but that&#x27;s where we set up.</p></div><div style="display:contents" dir="auto"><p id="2e956320-92ca-8088-8637-cfaa29f9be76" class="">And have the kickoff meeting, which would be probably in mid-December, because Anytime that we try to set up a meeting, the closer you get to the meeting time, the harder it is to lock in the time. Yeah. If we start looking at it now, As soon as you know after we have our meeting next week and we start to listing out those people. I mean you&#x27;re talking about some of these are. Executives. Their meetings can be booked.</p></div><div style="display:contents" dir="auto"><p id="2e956320-92ca-806e-9ec5-f1489574ec8e" class="">I mean, so do you think we should we should just send out the meeting invite like now and then I can like follow up with like the agenda and stuff later?</p></div><div style="display:contents" dir="auto"><p id="2e956320-92ca-8019-8ea9-e89b2dd8bda9" class="">Yeah, that&#x27;s an okay start. So you&#x27;re talking about for this meeting here?</p></div><div style="display:contents" dir="auto"><p id="2e956320-92ca-801e-9920-fd741d304a1f" class="">Yeah, I just feel like we need to get it out, honestly.</p></div><div style="display:contents" dir="auto"><p id="2e956320-92ca-80c8-917b-ea80192ac927" class="">100%. You could even say hold meeting holder for MDM discussions, for initial IT MDM discussions. Something to lock in the time. That&#x27;s what I&#x27;m... Yeah, I&#x27;m starting to push a little bit because I know the closer we get to next week, if you come in Monday and try to set up a meeting on Monday, good luck finding a time. Whereas as we get now, we might get a slot or I can even get conversations opened up to say, &quot;Hey, can this meeting move?&quot;Back, I can take a look real quick.</p></div><div style="display:contents" dir="auto"><p id="2e956320-92ca-80e4-a2ef-cd84332e2cb4" class="">Let&#x27;s just look together for the heck of it. And you could even still send that slide and And Just say, here&#x27;s a... Here&#x27;s a teaser or something like that. I don&#x27;t know.</p></div><div style="display:contents" dir="auto"><p id="2e956320-92ca-8034-9b5a-fb5998371b9a" class="">Yeah, I think that&#x27;s good. I mean it&#x27;s a lot. I feel like getting one meeting in like one long meetings Probably a little bit easier than getting like three or five.</p></div><div style="display:contents" dir="auto"><p id="2e956320-92ca-80ed-88be-ce62b8452da4" class="">Right. I think one longer meeting, maybe two short meetings, but... But I&#x27;m thinking it&#x27;s going to be Wednesday. Yeah. And just because now, as from my last note from last night, he told me that, Steve told me he&#x27;s gonna be, Mike told me he&#x27;s gonna be out. Tuesday? Oh. Just a yeah, so let&#x27;s see, let&#x27;s get you, that won&#x27;t be a problem. Let&#x27;s get Carrie. Matt. Delrico. Um,Brenda. Robin. Mike.</p></div><div style="display:contents" dir="auto"><p id="2e956320-92ca-8049-8896-ea993a9f30dd" class="">Hang on one second.</p></div><div style="display:contents" dir="auto"><p id="2e956320-92ca-803c-9726-e88387fe85f5" class="">Okay.</p></div><div style="display:contents" dir="auto"><p id="2e956320-92ca-80a1-a2ca-f96cf25a7564" class="">Robin, Virginia.</p></div><div style="display:contents" dir="auto"><p id="2e956320-92ca-80ed-8ef6-fe8a1a8e1f2f" class="">Alright, sorry about that. That&#x27;s one of the downsides about being at work, people do just drop in. Yeah. You have that list I had, gave you in front of you by chance? Yeah.</p></div><div style="display:contents" dir="auto"><p id="2e956320-92ca-809c-a153-c615302fb498" class="">So, Robin, Virginia, Dominique. You So Dominique, Dominique.</p></div><div style="display:contents" dir="auto"><p id="2e956320-92ca-8032-adcb-d1db98bee65a" class="">Did we say UDS? Yeah. UDS. Yep.</p></div><div style="display:contents" dir="auto"><p id="2e956320-92ca-80f0-b3fd-fda0ff3b78e5" class="">So, Mike Kenny, Michael Kenny? Yeah.</p></div><div style="display:contents" dir="auto"><p id="2e956320-92ca-8059-bff5-df6ef8856aa5" class="">Nah... Brenda Lins Yeah, got her.</p></div><div style="display:contents" dir="auto"><p id="2e956320-92ca-800a-9011-f9419c37593e" class="">I saw for optional I have Kerry, Udius, Tallarico, Stewart. And Mike Spencer.</p></div><div style="display:contents" dir="auto"><p id="2e956320-92ca-80ff-bacc-f47669e3cee9" class="">Okay, so my name is Stuart. To Arsenal, although... -That&#x27;s stupid, right?</p></div><div style="display:contents" dir="auto"><p id="2e956320-92ca-8084-b17a-e58dd511149f" class="">Okay. Let&#x27;s see, so let&#x27;s take him. And okay. Carry Browse. Yep, yep. UDS, let&#x27;s put UDS as optional.</p></div><div style="display:contents" dir="auto"><p id="2e956320-92ca-8032-badd-d5b170090b25" class="">Natalrico Stewart.</p></div><div style="display:contents" dir="auto"><p id="2e956320-92ca-8000-b827-d83294246aa0" class="">I think Kerry should probably be required. Yeah. Okay, there we go. All right, so right now, I&#x27;m looking at Wednesday the 21st. And uh... Right there, that&#x27;s the spot I want. That or you. and maybe and noon. Because it looks like these slots. Oh, you know what? What? That&#x27;s a staff meeting, so all of us will be available at that time. I will ask to see if we can repurpose that time. So I should...</p></div><div style="display:contents" dir="auto"><p id="2e956320-92ca-80ea-b55c-fae0fbe2ce87" class="">Send it for... So what&#x27;s the start and end time you&#x27;re thinking?</p></div><div style="display:contents" dir="auto"><p id="2e956320-92ca-805a-a2e4-dad99c926d27" class="">So I&#x27;m thinking... Do you want to do a 10 to 11 and then a noon to 1 and then I&#x27;ll have... Good. Uh, Kyle. Yeah, that worked.</p></div><div style="display:contents" dir="auto"><p id="2e956320-92ca-8003-a8f9-d193203b1ee8" class="">And then, okay.</p></div><div style="display:contents" dir="auto"><p id="2e956320-92ca-80c2-be2d-f3aba033586f" class="">Will that give you a good break? Yep. MDM.</p></div><div style="display:contents" dir="auto"><p id="2e956320-92ca-803a-b520-c04fdf3cd1b1" class="">On. Have we given this an official title yet or anything? MDM on Sigh.</p></div><div style="display:contents" dir="auto"><p id="2e956320-92ca-8079-958f-e37a7475eb55" class="">On site initial discussions. And it put like folder on it. So set up two meetings for that and then I will see what I can do about getting them. Lunch. What&#x27;s up?</p></div><div style="display:contents" dir="auto"><p id="2e956320-92ca-806e-a5c4-e22577ebe328" class="">So I actually, you want me to actually name it Meeting Holder?</p></div><div style="display:contents" dir="auto"><p id="2e956320-92ca-8009-8ecf-d7936783e0f7" class="">Something like that. Because you haven&#x27;t put your discussion points into it yet, right? Correct. So I&#x27;d rather have you, you can throw that. Image is a teaser. and say, you can put in the agenda to be attached later. Something along those lines. If you give me... half hour, Mike should be here. We might be able to take up this time here, but I think that I kind of like the idea of just breaking it up.</p></div><div style="display:contents" dir="auto"><p id="2e956320-92ca-8040-8a67-f415993b0c64" class="">Yep. Let me see. Yeah, let&#x27;s leave it that way. We&#x27;ll do that. All right, so here. All right. OK.</p></div><div style="display:contents" dir="auto"><p id="2e956320-92ca-8012-9715-d65297ddb061" class="">Alright, so I think I might putting a room or anything. Oh, ThinkPad. ThinkPad conference room?</p></div><div style="display:contents" dir="auto"><p id="2e956320-92ca-8031-9b9b-c58c908b6242" class="">No, sorry, not ThinkPad. I think it is.</p></div><div style="display:contents" dir="auto"><p id="2e956320-92ca-8074-8445-e71739416df0" class="">Green Center.</p></div><div style="display:contents" dir="auto"><p id="2e956320-92ca-8027-8545-e0493214e952" class="">Training, okay training center, got it.</p></div><div style="display:contents" dir="auto"><p id="2e956320-92ca-8073-92f9-fa1e46daf959" class="">Okay, here we go. And I think there might be two of them, so take the larger of the two, but it&#x27;s really long room.</p></div><div style="display:contents" dir="auto"><p id="2e956320-92ca-808b-bb16-dd9777881d65" class="">Yeah, so there&#x27;s training center and then training room Hawthorne, okay Yeah, if you want to share your screen, I&#x27;ll make sure I get it.</p></div><div style="display:contents" dir="auto"><p id="2e956320-92ca-805d-9018-e7688fed2673" class="">Yep.</p></div><div style="display:contents" dir="auto"><p id="2e956320-92ca-80e2-a994-f3eb4cec7b9c" class="">Sorry, I should have done that.</p></div><div style="display:contents" dir="auto"><p id="2e956320-92ca-80bc-8f65-d5e4f1326505" class="">Good morning. Okay. So...</p></div><div style="display:contents" dir="auto"><p id="2e956320-92ca-80af-b152-c43713886d23" class="">I have everybody in there according to the list that we put together.</p></div><div style="display:contents" dir="auto"><p id="2e956320-92ca-803f-945b-e5d287484e39" class="">Yeah, yeah You&#x27;ll have to make it a team meeting for Daudi to attend. So... Might as well. Flip that switch now. Yeah, it&#x27;s on. Oh, that&#x27;s on? Okay, I thought that was off.</p></div><div style="display:contents" dir="auto"><p id="2e956320-92ca-808d-aaf1-fb8622b0c176" class="">Oh yeah, it&#x27;s gray. *BEEP* Okay. Okay.</p></div><div style="display:contents" dir="auto"><p id="2e956320-92ca-80c4-9d28-c9721dbd79dd" class="">All right. And then the other one is part two, and I&#x27;m working on-oh, here, I&#x27;m getting a response.</p></div><div style="display:contents" dir="auto"><p id="2e956320-92ca-80c8-91bb-c27d8bc4b032" class="">It says it&#x27;s still being loaded?</p></div><div style="display:contents" dir="auto"><p id="2e956320-92ca-809c-96e2-c691d364661c" class="">Go ahead and see what the free busy time is. For you, because I don&#x27;t know what the training says. It looks like a T-Doc training set is available. Never mind.</p></div><div style="display:contents" dir="auto"><p id="2e956320-92ca-802c-a3c5-d40377662ef9" class="">What the heck? Why isn&#x27;t it letting me send this thing?</p></div><div style="display:contents" dir="auto"><p id="2e956320-92ca-807b-b082-d8c73cb829bc" class="">I can book it and then you can go send me a gender later too. Oh, attachment&#x27;s still loading. Remove your attachment. Downloading reality, I don&#x27;t know. Well, at least one of the attendees is in a different time zone.</p></div><div style="display:contents" dir="auto"><p id="2e956320-92ca-80ee-8d2f-da6428ab9bce" class="">Oh, that&#x27;s just me. Yeah, no big world at UNW.</p></div><div style="display:contents" dir="auto"><p id="2e956320-92ca-8011-8384-c4efb5504207" class="">I don&#x27;t use the other web.</p></div><div style="display:contents" dir="auto"><p id="2e956320-92ca-80dc-bd47-ec40e61256ba" class="">Yeah, well I was having trouble with it when I first started like I wasn&#x27;t like it wouldn&#x27;t let me Use it like use the normal one so I had to use this and I just haven&#x27;t switched back andWhat the heck?</p></div><div style="display:contents" dir="auto"><p id="2e956320-92ca-809b-9ae4-c4a83eef5011" class="">Take the image out there, I guess, and see if that... I don&#x27;t know. You want to try sending just me an invite? I don&#x27;t know.</p></div><div style="display:contents" dir="auto"><p id="2e956320-92ca-8036-953f-f00192ba9fdc" class="">That&#x27;s so... What the heck?</p></div><div style="display:contents" dir="auto"><p id="2e956320-92ca-80da-8989-d325cd1e1e61" class="">Maybe I should tell infrastructure that, yeah, let&#x27;s go ahead and let them set up meetings. Okay. What the heck?</p></div><div style="display:contents" dir="auto"><p id="2e956320-92ca-806c-acb3-cc1f701f5eaa" class="">Oh my god. Okay, well that&#x27;s... Am I at least able to cop? Save this stuff?</p></div><div style="display:contents" dir="auto"><p id="2e956320-92ca-8017-9d71-c16743e4caab" class="">Hit the X and it should save. Maybe you want a screenshot of you out there first, but... Yeah. Great. Something&#x27;s busy. Are you do you use the window snipping tool?</p></div><div style="display:contents" dir="auto"><p id="2e956320-92ca-8069-9169-dc3a75627aee" class="">I actually use this like Snagit. I have like shortcuts set up on my mouse. But that&#x27;s a good one too. That&#x27;s what forced that error dialogue to pop up. So I don&#x27;t know what&#x27;s going on with that.</p></div><div style="display:contents" dir="auto"><p id="2e956320-92ca-809d-a673-c5782d4e5428" class="">I used ShareX, which is another one.</p></div><div style="display:contents" dir="auto"><p id="2e956320-92ca-8058-b009-c330ff1520a8" class="">Okay, so hopefully it saves it as a draft. Okay, so now where the heck am I? I should have done that. Okay. Whatever. It sent. Great. Wish I would have been able to... Great.</p></div><div style="display:contents" dir="auto"><p id="2e956320-92ca-80da-9df3-d155763c5e5d" class="">I&#x27;m gonna pull carry on for just a second. Pull carry off? I&#x27;m going to pull Kerry in to the call.</p></div><div style="display:contents" dir="auto"><p id="2e956320-92ca-80fc-ac53-c3d7b6c58397" class="">Wait, where&#x27;s Carrie and the...</p></div><div style="display:contents" dir="auto"><p id="2e956320-92ca-8008-b9f3-d95d7f98d332" class="">Oh, got it. Are you missing one?</p></div><div style="display:contents" dir="auto"><p id="2e956320-92ca-8044-885d-c9694fc51ede" class="">Yeah, that&#x27;s fair. This is gonna be more questionable. Who are you?</p></div><div style="display:contents" dir="auto"><p id="2e956320-92ca-80d1-97be-c84c75583f0d" class="">Good morning. Morning.</p></div><div style="display:contents" dir="auto"><p id="2e956320-92ca-805d-adb4-c93df066959e" class="">So we&#x27;re trying to get some time slots set up. The closer we get, the less there are available. And so we&#x27;re looking at Wednesday, From, what was it Steve, it was 10 to 11 and then noon to what? for two different meetings. the best chances we&#x27;ve got. Correct. The alternative is I can try to talk toWho is the meeting?</p></div><div style="display:contents" dir="auto"><p id="2e956320-92ca-804b-8e94-f307e5bfaecf" class="">Like how many people are we talking?</p></div><div style="display:contents" dir="auto"><p id="2e956320-92ca-80de-b9e6-de0a2c46da92" class="">Back up, Steve. Yeah.</p></div><div style="display:contents" dir="auto"><p id="2e956320-92ca-80cf-9c8d-ff4030ad933a" class="">We&#x27;re talking... Oh, there.</p></div><div style="display:contents" dir="auto"><p id="2e956320-92ca-805b-b3ac-f2a2aef3b81b" class="">Both the hands, you saw? Yes ma&#x27;am. Good man here. So, 1, 2, 3, 4, plus it&#x27;s 10.</p></div><div style="display:contents" dir="auto"><p id="2e956320-92ca-800c-88d5-d46c7c3d7802" class="">10. So we&#x27;re thinking like doing like a lunch meeting kind of thing? And one of them&#x27;s remote, so nine.</p></div><div style="display:contents" dir="auto"><p id="2e956320-92ca-80aa-9863-ce8878d60a8c" class="">I&#x27;m thinking we do a lunch meeting. This also gives a break.</p></div><div style="display:contents" dir="auto"><p id="2e956320-92ca-80c4-9f5d-c164c76d46e0" class="">between this meeting and the other meetingIs the same people in the 10 to 11 is 12 to 1. Yes.</p></div><div style="display:contents" dir="auto"><p id="2e956320-92ca-80b1-ae99-f3e44e3f7807" class="">Right? Yeah. I mean... There are going to be some that they kind of shift from like mandatory or required to optional but yeah Same general.</p></div><div style="display:contents" dir="auto"><p id="2e956320-92ca-8022-85c5-c42ccbfd8409" class="">They&#x27;re all starting the same.</p></div><div style="display:contents" dir="auto"><p id="2e956320-92ca-8091-9fd3-ce9f75b1dae4" class="">Okay, so I just... I could talk to Mike about moving the staff meeting and then it could be one meeting, but do you think there&#x27;s a lot of benefit to having all one straight through meeting, Steve?</p></div><div style="display:contents" dir="auto"><p id="2e956320-92ca-80f3-bc8e-e4f36fcbfdba" class="">I mean, I... I think so, but...</p></div><div style="display:contents" dir="auto"><p id="2e956320-92ca-8010-b463-d68ea259b393" class="">I think it would be nice to... Here&#x27;s my opinion. You block them. You take the meeting and make it from a part one, part two, make it from 10 to one, but. make sure that on the agenda there is a lunch break and we&#x27;re bringing in lunch that way. &#x27;Cause there&#x27;s that, From our LinkedIn learning about meetings, after so many minutes, people kind of fade. But that way, you know, people, if you keep them in the room, they might have organic little conversations about things.</p></div><div style="display:contents" dir="auto"><p id="2e956320-92ca-802b-b78b-f6263bf99540" class="">you know, still about this, but not feel like they have, you know, they got to go take care of something. They don&#x27;t feel like they. have to sit there the whole time.</p></div><div style="display:contents" dir="auto"><p id="2e956320-92ca-80f1-8e63-d932cbec806b" class="">Part one and part two and then we&#x27;ll figure out what to do with the staff meeting and see if we put that at the end of it. or That would be part of the breakup.</p></div><div style="display:contents" dir="auto"><p id="2e956320-92ca-8047-9ca9-c8bed0374b40" class="">So send that Yeah.</p></div><div style="display:contents" dir="auto"><p id="2e956320-92ca-8040-876d-d772b6fd450e" class="">If you can figure it out, is it the Lexi&#x27;s on it? Yeah.</p></div><div style="display:contents" dir="auto"><p id="2e956320-92ca-8038-87c3-ce0efebf561f" class="">I just need to Resend it with the The teaser image and the agenda. Yeah.</p></div><div style="display:contents" dir="auto"><p id="2e956320-92ca-80f9-898c-ea759196a15f" class="">Okay, let&#x27;s start with that. I&#x27;ll talk with Mike about moving the staff meeting or not.</p></div><div style="display:contents" dir="auto"><p id="2e956320-92ca-80f1-808c-e3aa3c73fca0" class="">What? Oh, your staff meeting?</p></div><div style="display:contents" dir="auto"><p id="2e956320-92ca-8098-a3e3-d67c6a698d0c" class="">Yeah, our staff meeting is right at 11:00. The manager meeting? Right, which is half of the attendees.</p></div><div style="display:contents" dir="auto"><p id="2e956320-92ca-80e1-b493-c1e87d1cbe6a" class="">So if we move that, we&#x27;re not going to be able to move it anymore.</p></div><div style="display:contents" dir="auto"><p id="2e956320-92ca-8039-bee6-c93f8ef046fc" class="">I&#x27;m going to double check with Stuart because he&#x27;s the only person on the list dietary wise. that I just need to be careful with.</p></div><div style="display:contents" dir="auto"><p id="2e956320-92ca-8010-a52f-c967034fe3b9" class="">And then, um, Don&#x27;t order anything yet until after I talk to Mike about the staff meeting.</p></div><div style="display:contents" dir="auto"><p id="2e956320-92ca-8025-b818-e5490d10794e" class="">No, I&#x27;m not. But but it just then I can start processing because it might I might I mean, it might be I just do Jersey Mike&#x27;s or Jimmy John&#x27;s as a group order. and send out a link instead of doing an easy cater because Sometimes Easy Cater has minimums and at 10 people it&#x27;s on the edge. Perfect. So let me know what Mike says, because then and then. I obviously you just invited me so I know who&#x27;s all on the list.</p></div><div style="display:contents" dir="auto"><p id="2e956320-92ca-8013-94cb-d085bedc84ef" class="">Um. and then we can Figure out the best Plan of attack.</p></div><div style="display:contents" dir="auto"><p id="2e956320-92ca-8055-9458-f181d380d3c9" class="">Thanks, Kate. Thank you. Bye, guys.</p></div><div style="display:contents" dir="auto"><p id="2e956320-92ca-80e7-a47a-dd0ec6131e87" class="">So, we got that locked in, that&#x27;s good. You&#x27;re gonna come up with the agenda between now and maybe even the weekend? Yeah. Not Monday morning. Yeah. As far as your travels, did they, having you just getting a cab or a Uber from-So, uh...</p></div><div style="display:contents" dir="auto"><p id="2e956320-92ca-80f5-b1e1-dd96c2538e61" class="">They have, she said that there are going to be keys at the hotel.</p></div><div style="display:contents" dir="auto"><p id="2e956320-92ca-8072-b37e-d073a97e7425" class="">Right, but how do you get from the airport to the hotel?</p></div><div style="display:contents" dir="auto"><p id="2e956320-92ca-8063-b874-d2d6385b71c5" class="">Just an Uber or a cab or something. So that&#x27;s already ironed out, good deal. I don&#x27;t see where the hotel, like which hotel, I didn&#x27;t see anything about a reservation at the hotel. Like, I have no idea which one I&#x27;m staying at.</p></div><div style="display:contents" dir="auto"><p id="2e956320-92ca-806c-8417-e5a835cacf34" class="">I&#x27;m pretty sure it&#x27;s going to be Holiday Inn. Okay. It doesn&#x27;t say anything in the different documents that came your way from either Not that I saw all I...</p></div><div style="display:contents" dir="auto"><p id="2e956320-92ca-80df-a645-d33726a4772a" class="">I was looking at him last night just to make sure and... I only saw information about my flight, like both flights, that&#x27;s it.</p></div><div style="display:contents" dir="auto"><p id="2e956320-92ca-8071-b919-cb66f2cf046d" class="">You know, I&#x27;m going to send a note to theSo, the manager&#x27;s saying that he just let you know that It&#x27;s gonna be there&#x27;s gonna be a break in the middle of itYeah.</p></div><div style="display:contents" dir="auto"><p id="2e956320-92ca-8020-bbb6-dfbbfd88e4cf" class="">Yep, yep, yep.</p></div><div style="display:contents" dir="auto"><p id="2e956320-92ca-8055-a416-e136e371ef0c" class="">*Squish* I&#x27;ll get that out there.</p></div><div style="display:contents" dir="auto"><p id="2e956320-92ca-80f6-98e5-e779b0fe21db" class="">So, and then I was going to go check one other thing.</p></div><div style="display:contents" dir="auto"><p id="2e956320-92ca-8092-9b1e-e0e13b2f12ca" class="">So I think Pamela copied me on some of that stuff, but actually she didn&#x27;t copy me on anything in the hotel. Um... Holiday Inn Express. 1100 County Road E East. Affirmation number? I&#x27;ll just say, uh, Here, I&#x27;ll just share a screen and you can share the...</p></div><div style="display:contents" dir="auto"><p id="2e956320-92ca-80d4-bf17-c9c9179557c4" class="">Holiday Inn Right there. Got it. Oh, there we go. Okay. Yep. I got it.</p></div><div style="display:contents" dir="auto"><p id="2e956320-92ca-80a8-8d1a-fd1b828c8d1b" class="">And a little background, I think. I think Jim owns that. or at least one part of it, at Halloween, so. Not bad.</p></div><div style="display:contents" dir="auto"><p id="2e956320-92ca-8072-8268-fedb6839049d" class="">What about game?</p></div><div style="display:contents" dir="auto"><p id="2e956320-92ca-80ea-b932-c1ed89009829" class="">he&#x27;s got his mitts in a few places I know that Get around. Yeah, exactly. That&#x27;s what I say. No.</p></div><div style="display:contents" dir="auto"><p id="2e956320-92ca-8022-81e7-d546db9b2329" class="">If you can do it, why not? I know.</p></div><div style="display:contents" dir="auto"><p id="2e956320-92ca-808e-9265-da8c5514dd9c" class="">Not a bad racket.</p></div><div style="display:contents" dir="auto"><p id="2e956320-92ca-8091-9058-c25990869d03" class="">I wish IWhat&#x27;s the word?</p></div><div style="display:contents" dir="auto"><p id="2e956320-92ca-807e-9fc8-f6aa62e36f37" class="">Regular entrepreneur.</p></div><div style="display:contents" dir="auto"><p id="2e956320-92ca-80d2-b027-ff4feb82326c" class="">Is he like? He is, absolutely is. Like I said, he&#x27;s had the company in the block since &#x27;59, so he&#x27;s gotta be doing something right. Yeah. So. All right. I will let you, I just wanted to get that locked in because we&#x27;re getting closer and closer. I appreciate it. So I will let you get back to working that together. I will talk to Mike about whether we move a staff meeting or not. I can go either way.</p></div><div style="display:contents" dir="auto"><p id="2e956320-92ca-80fd-82a9-faab6ec3d065" class="">I like the possibility of having that break. But if not, we can still take a 10, 15 minute break and come back at it and then have a staff meeting and Then I&#x27;ll discuss the food stuff too. All right. Perfect. All right.</p></div></div></div></div></article><span class="sans" style="font-size:14px;padding-top:2em"></span></body></html>

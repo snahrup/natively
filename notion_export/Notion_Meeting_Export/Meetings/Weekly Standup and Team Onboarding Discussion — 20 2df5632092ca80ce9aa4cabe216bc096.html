@@ -1,0 +1,746 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>Weekly Standup and Team Onboarding Discussion — 2026-01-05</title><style>
+/* cspell:disable-file */
+/* webkit printing magic: print all background colors */
+html {
+	-webkit-print-color-adjust: exact;
+}
+* {
+	box-sizing: border-box;
+	-webkit-print-color-adjust: exact;
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+}
+@media only screen {
+	body {
+		margin: 2em auto;
+		max-width: 900px;
+		color: rgb(55, 53, 47);
+	}
+}
+
+body {
+	line-height: 1.5;
+	white-space: pre-wrap;
+}
+
+a,
+a.visited {
+	color: inherit;
+	text-decoration: underline;
+}
+
+.pdf-relative-link-path {
+	font-size: 80%;
+	color: #444;
+}
+
+h1,
+h2,
+h3 {
+	letter-spacing: -0.01em;
+	line-height: 1.2;
+	font-weight: 600;
+	margin-bottom: 0;
+}
+
+/* Override strong tags inside headings to maintain consistent weight */
+h1 strong,
+h2 strong,
+h3 strong {
+	font-weight: 600;
+}
+
+.page-title {
+	font-size: 2.5rem;
+	font-weight: 700;
+	margin-top: 0;
+	margin-bottom: 0.75em;
+}
+
+h1 {
+	font-size: 1.875rem;
+	margin-top: 1.875rem;
+}
+
+h2 {
+	font-size: 1.5rem;
+	margin-top: 1.5rem;
+}
+
+h3 {
+	font-size: 1.25rem;
+	margin-top: 1.25rem;
+}
+
+.source {
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	padding: 1.5em;
+	word-break: break-all;
+}
+
+.callout {
+	border-radius: 10px;
+	padding: 1rem;
+}
+
+figure {
+	margin: 1.25em 0;
+	page-break-inside: avoid;
+}
+
+figcaption {
+	opacity: 0.5;
+	font-size: 85%;
+	margin-top: 0.5em;
+}
+
+mark {
+	background-color: transparent;
+}
+
+.indented {
+	padding-left: 1.5em;
+}
+
+hr {
+	background: transparent;
+	display: block;
+	width: 100%;
+	height: 1px;
+	visibility: visible;
+	border: none;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+img {
+	max-width: 100%;
+}
+
+@media only print {
+	img {
+		max-height: 100vh;
+		object-fit: contain;
+	}
+
+	table.collection-content {
+		width: 100%;
+		table-layout: fixed;
+	}
+
+	table.collection-content th,
+	table.collection-content td {
+		overflow-wrap: anywhere;
+	}
+
+	table.collection-content td > .user,
+	table.collection-content td > time {
+		white-space: pre-wrap;
+	}
+}
+
+@page {
+	margin: 1in;
+}
+
+.collection-content-wrapper {
+	overflow-x: auto;
+}
+
+@media only print {
+	.collection-content-wrapper {
+		overflow-x: visible;
+	}
+}
+
+.collection-content {
+	font-size: 0.875rem;
+}
+
+.collection-content td {
+	white-space: pre-wrap;
+	word-break: break-word;
+}
+
+.column-list {
+	display: flex;
+	gap: 46px;
+}
+
+.column {
+	min-width: 0;
+	overflow: hidden;
+}
+
+.column > *:first-child {
+	margin-top: 0;
+}
+
+.table_of_contents-item {
+	display: block;
+	font-size: 0.875rem;
+	line-height: 1.3;
+	padding: 0.125rem;
+}
+
+.table_of_contents-indent-1 {
+	margin-left: 1.5rem;
+}
+
+.table_of_contents-indent-2 {
+	margin-left: 3rem;
+}
+
+.table_of_contents-indent-3 {
+	margin-left: 4.5rem;
+}
+
+.table_of_contents-link {
+	text-decoration: none;
+	opacity: 0.7;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.18);
+}
+
+table,
+th,
+td {
+	border: 1px solid rgba(55, 53, 47, 0.09);
+	border-collapse: collapse;
+}
+
+table {
+	border-left: none;
+	border-right: none;
+}
+
+th,
+td {
+	font-weight: normal;
+	padding: 0.25em 0.5em;
+	line-height: 1.5;
+	min-height: 1.5em;
+	text-align: left;
+}
+
+th {
+	color: rgba(55, 53, 47, 0.6);
+}
+
+ol,
+ul {
+	margin: 0;
+	margin-block-start: 0.6em;
+	margin-block-end: 0.6em;
+}
+
+li > ol:first-child,
+li > ul:first-child {
+	margin-block-start: 0.6em;
+}
+
+ul > li {
+	list-style: disc;
+}
+
+ul.to-do-list {
+	padding-inline-start: 0;
+}
+
+ul.to-do-list > li {
+	list-style: none;
+}
+
+.to-do-children-checked {
+	text-decoration: line-through;
+	opacity: 0.375;
+}
+
+ul.toggle > li {
+	list-style: none;
+}
+
+ul {
+	padding-inline-start: 1.7em;
+}
+
+ul > li {
+	padding-left: 0.1em;
+}
+
+ol {
+	padding-inline-start: 1.6em;
+}
+
+ol.numbered-list.numbered-list-digits-2 {
+	padding-inline-start: 2em;
+}
+
+ol.numbered-list.numbered-list-digits-3plus {
+	padding-inline-start: 2.4em;
+}
+
+ol > li {
+	padding-left: 0.2em;
+}
+
+.mono ol {
+	padding-inline-start: 2em;
+}
+
+.mono ol > li {
+	text-indent: -0.4em;
+}
+
+.toggle {
+	padding-inline-start: 0em;
+	list-style-type: none;
+}
+
+/* Indent toggle children */
+.toggle > li > details {
+	padding-left: 1.7em;
+}
+
+.toggle > li > details > summary {
+	margin-left: -1.1em;
+}
+
+.selected-value {
+	display: inline-block;
+	padding: 0 0.5em;
+	background: rgba(206, 205, 202, 0.5);
+	border-radius: 3px;
+	margin-right: 0.5em;
+	margin-top: 0.3em;
+	margin-bottom: 0.3em;
+	white-space: nowrap;
+}
+
+.collection-title {
+	display: inline-block;
+	margin-right: 1em;
+}
+
+.page-description {
+	margin-bottom: 2em;
+}
+
+.simple-table {
+	margin-top: 1em;
+	font-size: 0.875rem;
+	empty-cells: show;
+}
+.simple-table td {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table th {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table-header-color {
+	background: rgb(247, 246, 243);
+	color: black;
+}
+.simple-table-header {
+	font-weight: 500;
+}
+
+time {
+	opacity: 0.5;
+}
+
+.icon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	max-width: 1.2em;
+	max-height: 1.2em;
+	text-decoration: none;
+	vertical-align: text-bottom;
+	margin-right: 0.5em;
+}
+
+img.icon {
+	border-radius: 3px;
+}
+
+.callout img.notion-static-icon {
+	width: 1em;
+	height: 1em;
+}
+
+.callout p {
+	margin: 0;
+}
+
+.callout h1,
+.callout h2,
+.callout h3 {
+	margin: 0 0 0.6rem;
+}
+
+.user-icon {
+	width: 1.5em;
+	height: 1.5em;
+	border-radius: 100%;
+	margin-right: 0.5rem;
+}
+
+.user-icon-inner {
+	font-size: 0.8em;
+}
+
+.text-icon {
+	border: 1px solid #000;
+	text-align: center;
+}
+
+.page-cover-image {
+	display: block;
+	object-fit: cover;
+	width: 100%;
+	max-height: 30vh;
+}
+
+.page-header-icon {
+	font-size: 3rem;
+	margin-bottom: 1rem;
+}
+
+.page-header-icon-with-cover {
+	margin-top: -0.72em;
+	margin-left: 0.07em;
+}
+
+.page-header-icon img {
+	border-radius: 3px;
+}
+
+.link-to-page {
+	margin: 1em 0;
+	padding: 0;
+	border: none;
+	font-weight: 500;
+}
+
+p > .user {
+	opacity: 0.5;
+}
+
+td > .user,
+td > time {
+	white-space: nowrap;
+}
+
+input[type="checkbox"] {
+	transform: scale(1.5);
+	margin-right: 0.6em;
+	vertical-align: middle;
+}
+
+p {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+.image {
+	border: none;
+	margin: 1.5em 0;
+	padding: 0;
+	border-radius: 0;
+	text-align: center;
+}
+
+.code,
+code {
+	background: rgba(135, 131, 120, 0.15);
+	border-radius: 3px;
+	padding: 0.2em 0.4em;
+	border-radius: 3px;
+	font-size: 85%;
+	tab-size: 2;
+}
+
+code {
+	color: #eb5757;
+}
+
+.code {
+	padding: 1.5em 1em;
+}
+
+.code-wrap {
+	white-space: pre-wrap;
+	word-break: break-all;
+}
+
+.code > code {
+	background: none;
+	padding: 0;
+	font-size: 100%;
+	color: inherit;
+}
+
+blockquote {
+	font-size: 1em;
+	margin: 1em 0;
+	padding-left: 1em;
+	border-left: 3px solid rgb(55, 53, 47);
+}
+
+blockquote.quote-large {
+	font-size: 1.25em;
+}
+
+.bookmark {
+	text-decoration: none;
+	max-height: 8em;
+	padding: 0;
+	display: flex;
+	width: 100%;
+	align-items: stretch;
+}
+
+.bookmark-title {
+	font-size: 0.85em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	height: 1.75em;
+	white-space: nowrap;
+}
+
+.bookmark-text {
+	display: flex;
+	flex-direction: column;
+}
+
+.bookmark-info {
+	flex: 4 1 180px;
+	padding: 12px 14px 14px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.bookmark-image {
+	width: 33%;
+	flex: 1 1 180px;
+	display: block;
+	position: relative;
+	object-fit: cover;
+	border-radius: 1px;
+}
+
+.bookmark-description {
+	color: rgba(55, 53, 47, 0.6);
+	font-size: 0.75em;
+	overflow: hidden;
+	max-height: 4.5em;
+	word-break: break-word;
+}
+
+.bookmark-href {
+	font-size: 0.75em;
+	margin-top: 0.25em;
+}
+
+.sans { font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol"; }
+.code { font-family: "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace; }
+.serif { font-family: Lyon-Text, Georgia, ui-serif, serif; }
+.mono { font-family: iawriter-mono, Nitti, Menlo, Courier, monospace; }
+.pdf .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK JP'; }
+.pdf:lang(zh-CN) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK SC'; }
+.pdf:lang(zh-TW) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK TC'; }
+.pdf:lang(ko-KR) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK KR'; }
+.pdf .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.pdf .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK JP'; }
+.pdf:lang(zh-CN) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK SC'; }
+.pdf:lang(zh-TW) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK TC'; }
+.pdf:lang(ko-KR) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK KR'; }
+.pdf .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.highlight-default {
+	color: rgba(44, 44, 43, 1);
+}
+.highlight-gray {
+	color: rgba(125, 122, 117, 1);
+	fill: rgba(125, 122, 117, 1);
+}
+.highlight-brown {
+	color: rgba(159, 118, 90, 1);
+	fill: rgba(159, 118, 90, 1);
+}
+.highlight-orange {
+	color: rgba(210, 123, 45, 1);
+	fill: rgba(210, 123, 45, 1);
+}
+.highlight-yellow {
+	color: rgba(203, 148, 52, 1);
+	fill: rgba(203, 148, 52, 1);
+}
+.highlight-teal {
+	color: rgba(80, 148, 110, 1);
+	fill: rgba(80, 148, 110, 1);
+}
+.highlight-blue {
+	color: rgba(56, 125, 201, 1);
+	fill: rgba(56, 125, 201, 1);
+}
+.highlight-purple {
+	color: rgba(154, 107, 180, 1);
+	fill: rgba(154, 107, 180, 1);
+}
+.highlight-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.highlight-red {
+	color: rgba(207, 81, 72, 1);
+	fill: rgba(207, 81, 72, 1);
+}
+.highlight-default_background {
+	color: rgba(44, 44, 43, 1);
+}
+.highlight-gray_background {
+	background: rgba(42, 28, 0, 0.07);
+}
+.highlight-brown_background {
+	background: rgba(139, 46, 0, 0.086);
+}
+.highlight-orange_background {
+	background: rgba(224, 101, 1, 0.129);
+}
+.highlight-yellow_background {
+	background: rgba(211, 168, 0, 0.137);
+}
+.highlight-teal_background {
+	background: rgba(0, 100, 45, 0.09);
+}
+.highlight-blue_background {
+	background: rgba(0, 124, 215, 0.094);
+}
+.highlight-purple_background {
+	background: rgba(102, 0, 178, 0.078);
+}
+.highlight-pink_background {
+	background: rgba(197, 0, 93, 0.086);
+}
+.highlight-red_background {
+	background: rgba(223, 22, 0, 0.094);
+}
+.block-color-default {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray {
+	color: rgba(125, 122, 117, 1);
+	fill: rgba(125, 122, 117, 1);
+}
+.block-color-brown {
+	color: rgba(159, 118, 90, 1);
+	fill: rgba(159, 118, 90, 1);
+}
+.block-color-orange {
+	color: rgba(210, 123, 45, 1);
+	fill: rgba(210, 123, 45, 1);
+}
+.block-color-yellow {
+	color: rgba(203, 148, 52, 1);
+	fill: rgba(203, 148, 52, 1);
+}
+.block-color-teal {
+	color: rgba(80, 148, 110, 1);
+	fill: rgba(80, 148, 110, 1);
+}
+.block-color-blue {
+	color: rgba(56, 125, 201, 1);
+	fill: rgba(56, 125, 201, 1);
+}
+.block-color-purple {
+	color: rgba(154, 107, 180, 1);
+	fill: rgba(154, 107, 180, 1);
+}
+.block-color-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.block-color-red {
+	color: rgba(207, 81, 72, 1);
+	fill: rgba(207, 81, 72, 1);
+}
+.block-color-default_background {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray_background {
+	background: rgba(240, 239, 237, 1);
+}
+.block-color-brown_background {
+	background: rgba(245, 237, 233, 1);
+}
+.block-color-orange_background {
+	background: rgba(251, 235, 222, 1);
+}
+.block-color-yellow_background {
+	background: rgba(249, 243, 220, 1);
+}
+.block-color-teal_background {
+	background: rgba(232, 241, 236, 1);
+}
+.block-color-blue_background {
+	background: rgba(229, 242, 252, 1);
+}
+.block-color-purple_background {
+	background: rgba(243, 235, 249, 1);
+}
+.block-color-pink_background {
+	background: rgba(250, 233, 241, 1);
+}
+.block-color-red_background {
+	background: rgba(252, 233, 231, 1);
+}
+.select-value-color-default { background-color: rgba(42, 28, 0, 0.07); }
+.select-value-color-gray { background-color: rgba(28, 19, 1, 0.11); }
+.select-value-color-brown { background-color: rgba(127, 51, 0, 0.156); }
+.select-value-color-orange { background-color: rgba(196, 88, 0, 0.203); }
+.select-value-color-yellow { background-color: rgba(209, 156, 0, 0.282); }
+.select-value-color-green { background-color: rgba(0, 96, 38, 0.156); }
+.select-value-color-blue { background-color: rgba(0, 118, 217, 0.203); }
+.select-value-color-purple { background-color: rgba(92, 0, 163, 0.141); }
+.select-value-color-pink { background-color: rgba(183, 0, 78, 0.152); }
+.select-value-color-red { background-color: rgba(206, 24, 0, 0.164); }
+
+.checkbox {
+	display: inline-flex;
+	vertical-align: text-bottom;
+	width: 16;
+	height: 16;
+	background-size: 16px;
+	margin-left: 2px;
+	margin-right: 5px;
+}
+
+.checkbox-on {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20width%3D%2216%22%20height%3D%2216%22%20fill%3D%22%2358A9D7%22%2F%3E%0A%3Cpath%20d%3D%22M6.71429%2012.2852L14%204.9995L12.7143%203.71436L6.71429%209.71378L3.28571%206.2831L2%207.57092L6.71429%2012.2852Z%22%20fill%3D%22white%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+
+.checkbox-off {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20x%3D%220.75%22%20y%3D%220.75%22%20width%3D%2214.5%22%20height%3D%2214.5%22%20fill%3D%22white%22%20stroke%3D%22%2336352F%22%20stroke-width%3D%221.5%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+	
+</style></head><body><article id="2df56320-92ca-80ce-9aa4-cabe216bc096" class="page sans"><header><h1 class="page-title" dir="auto">Weekly Standup and Team Onboarding Discussion — 2026-01-05</h1><p class="page-description" dir="auto"></p><table class="properties"><tbody><tr class="property-row property-row-status"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/burst_gray.svg" style="width:14px;height:14px;display:block"/></span>Processing</th><td><span class="status-value select-value-color-green"><div class="status-dot status-dot-color-green"></div>Processed</span></td></tr><tr class="property-row property-row-text"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/description_gray.svg" style="width:14px;height:14px;display:block"/></span>Agenda</th><td>Weekly standup cadence, Matt Tallarico BI onboarding, Yudia Fabric training, ETQ dashboard project, Cybertrol contract review, access requests</td></tr><tr class="property-row property-row-date"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/calendar_gray.svg" style="width:14px;height:14px;display:block"/></span>Date</th><td><time>January 5, 2026</time></td></tr><tr class="property-row property-row-multi_select"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/list_gray.svg" style="width:14px;height:14px;display:block"/></span>Attendees</th><td><span class="selected-value select-value-color-pink">Internal</span></td></tr><tr class="property-row property-row-select"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/arrow-circle-down_gray.svg" style="width:14px;height:14px;display:block"/></span>Meeting Type</th><td><span class="selected-value select-value-color-red">Standup</span></td></tr><tr class="property-row property-row-person"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/friends_gray.svg" style="width:14px;height:14px;display:block"/></span>Organizer</th><td><span class="user"><img src="https://lh3.googleusercontent.com/a/ACg8ocLHfVvdl28jS936w7CBB6TObsUa1P-X8cbdsUSKdeEn_MD7Bw=s96-c" class="icon user-icon"/>Steve </span></td></tr><tr class="property-row property-row-select"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/arrow-circle-down_gray.svg" style="width:14px;height:14px;display:block"/></span>Priority</th><td><span class="selected-value select-value-color-yellow">Medium</span></td></tr><tr class="property-row property-row-checkbox"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/checkmark-square_gray.svg" style="width:14px;height:14px;display:block"/></span>Has Cluely Transcript</th><td><div class="checkbox checkbox-off"></div></td></tr><tr class="property-row property-row-checkbox"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/checkmark-square_gray.svg" style="width:14px;height:14px;display:block"/></span>Has Final Transcript</th><td><div class="checkbox checkbox-on"></div></td></tr><tr class="property-row property-row-select"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/arrow-circle-down_gray.svg" style="width:14px;height:14px;display:block"/></span>Status</th><td><span class="selected-value select-value-color-brown">Completed</span></td></tr><tr class="property-row property-row-checkbox"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/checkmark-square_gray.svg" style="width:14px;height:14px;display:block"/></span>Has Notion Transcript</th><td><div class="checkbox checkbox-on"></div></td></tr><tr class="property-row property-row-checkbox"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/checkmark-square_gray.svg" style="width:14px;height:14px;display:block"/></span>Has Teams Transcript</th><td><div class="checkbox checkbox-off"></div></td></tr><tr class="property-row property-row-checkbox"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/checkmark-square_gray.svg" style="width:14px;height:14px;display:block"/></span>Merged to Feed</th><td><div class="checkbox checkbox-off"></div></td></tr></tbody></table></header><div class="page-body"><div style="display:contents" dir="ltr"><div id="26ea1507-f1cb-4183-a041-7f7e00f3be48" class="transcription"><div style="border-bottom:0.05em solid;border-bottom-color:rgba(42, 28, 0, 0.07)">Summary<br/></div><div style="display:contents" dir="auto"><h3 id="c4703c6b-6d66-4be5-9a38-e064bad0714a" class="">Meeting Logistics</h3></div><div style="display:contents" dir="auto"><ul id="ffb81f7c-d066-4b01-8d5c-a110b60ac570" class="bulleted-list"><li style="list-style-type:disc">Agreed to establish weekly standup meetings at this time slot going forward <a href="Weekly%20Standup%20and%20Team%20Onboarding%20Discussion%20%E2%80%94%2020%202df5632092ca80ce9aa4cabe216bc096.html">[1]</a> <a href="Weekly%20Standup%20and%20Team%20Onboarding%20Discussion%20%E2%80%94%2020%202df5632092ca80ce9aa4cabe216bc096.html">[2]</a></li></ul></div><div style="display:contents" dir="auto"><ul id="aaf2645b-0f3a-4bcf-b10b-f2d49ccc8a6f" class="bulleted-list"><li style="list-style-type:disc"><span class="user">@Steve </span> will include the other participant in twice-weekly dev and data team standups, attending remotely <a href="Weekly%20Standup%20and%20Team%20Onboarding%20Discussion%20%E2%80%94%2020%202df5632092ca80ce9aa4cabe216bc096.html">[3]</a> <a href="Weekly%20Standup%20and%20Team%20Onboarding%20Discussion%20%E2%80%94%2020%202df5632092ca80ce9aa4cabe216bc096.html">[4]</a> <a href="Weekly%20Standup%20and%20Team%20Onboarding%20Discussion%20%E2%80%94%2020%202df5632092ca80ce9aa4cabe216bc096.html">[5]</a></li></ul></div><div style="display:contents" dir="auto"><h3 id="9cd73392-7f12-46fb-bbfe-77bee091fb77" class="">Team Additions and Training</h3></div><div style="display:contents" dir="auto"><p id="af2f7801-d4f7-4dab-abad-0c64f21e7de8" class=""><strong>Matt Tallarico Joining Team</strong></p></div><div style="display:contents" dir="auto"><ul id="a23c4cdc-f21b-4b23-b1d0-4552f2043e2b" class="bulleted-list"><li style="list-style-type:disc">Matt Tallarico will be spending time on the team to help build BI dashboards <a href="Weekly%20Standup%20and%20Team%20Onboarding%20Discussion%20%E2%80%94%2020%202df5632092ca80ce9aa4cabe216bc096.html">[6]</a> <a href="Weekly%20Standup%20and%20Team%20Onboarding%20Discussion%20%E2%80%94%2020%202df5632092ca80ce9aa4cabe216bc096.html">[7]</a></li></ul></div><div style="display:contents" dir="auto"><ul id="af35556b-734c-4138-85a0-223a45c5a5c7" class="bulleted-list"><li style="list-style-type:disc">Policies and guidance will be established for BI development that the team should follow <a href="Weekly%20Standup%20and%20Team%20Onboarding%20Discussion%20%E2%80%94%2020%202df5632092ca80ce9aa4cabe216bc096.html">[7]</a></li></ul></div><div style="display:contents" dir="auto"><p id="643d8465-4659-425d-b433-de06727246cb" class=""><strong>Yudia Learning Microsoft Data Fabric</strong></p></div><div style="display:contents" dir="auto"><ul id="0093094c-ec42-468b-8728-008cf20b21b9" class="bulleted-list"><li style="list-style-type:disc">Yudia is self-training on Microsoft Data Fabric in her own time <a href="Weekly%20Standup%20and%20Team%20Onboarding%20Discussion%20%E2%80%94%2020%202df5632092ca80ce9aa4cabe216bc096.html">[8]</a> <a href="Weekly%20Standup%20and%20Team%20Onboarding%20Discussion%20%E2%80%94%2020%202df5632092ca80ce9aa4cabe216bc096.html">[9]</a></li></ul></div><div style="display:contents" dir="auto"><ul id="8254131c-d34b-4d82-bfc7-a5ab7f3fa27c" class="bulleted-list"><li style="list-style-type:disc">Recommendation to use Microsoft&#x27;s free learning portal with hands-on examples and badges <a href="Weekly%20Standup%20and%20Team%20Onboarding%20Discussion%20%E2%80%94%2020%202df5632092ca80ce9aa4cabe216bc096.html">[10]</a> <a href="Weekly%20Standup%20and%20Team%20Onboarding%20Discussion%20%E2%80%94%2020%202df5632092ca80ce9aa4cabe216bc096.html">[11]</a></li></ul></div><div style="display:contents" dir="auto"><ul id="a26dbb0d-654f-4a2c-b226-d2c6909132d3" class="bulleted-list"><li style="list-style-type:disc">Portal has beginner to advanced levels and tags for business vs. technical users <a href="Weekly%20Standup%20and%20Team%20Onboarding%20Discussion%20%E2%80%94%2020%202df5632092ca80ce9aa4cabe216bc096.html">[12]</a> <a href="Weekly%20Standup%20and%20Team%20Onboarding%20Discussion%20%E2%80%94%2020%202df5632092ca80ce9aa4cabe216bc096.html">[13]</a></li></ul></div><div style="display:contents" dir="auto"><p id="bd0165f2-e914-4c2c-a737-0de5964de258" class=""><strong>Learning Resources</strong></p></div><div style="display:contents" dir="auto"><ul id="48cf918e-4c39-4961-8cc0-4fe510ad11eb" class="bulleted-list"><li style="list-style-type:disc">Team should create a SharePoint site with curated learning resources for technologies the team will work with <a href="Weekly%20Standup%20and%20Team%20Onboarding%20Discussion%20%E2%80%94%2020%202df5632092ca80ce9aa4cabe216bc096.html">[14]</a> <a href="Weekly%20Standup%20and%20Team%20Onboarding%20Discussion%20%E2%80%94%2020%202df5632092ca80ce9aa4cabe216bc096.html">[15]</a></li></ul></div><div style="display:contents" dir="auto"><ul id="7d95bb65-767c-4fc8-9a53-f5cab9a351c6" class="bulleted-list"><li style="list-style-type:disc">This will be part of a &quot;training wheels portal&quot; to help team members get up to speed <a href="Weekly%20Standup%20and%20Team%20Onboarding%20Discussion%20%E2%80%94%2020%202df5632092ca80ce9aa4cabe216bc096.html">[16]</a></li></ul></div><div style="display:contents" dir="auto"><h3 id="b6af4ab9-b2af-406c-b3af-c8b9594d1b6f" class="">ETQ Dashboard Project</h3></div><div style="display:contents" dir="auto"><p id="317c4041-e2e2-4074-bad1-61a48d3283a8" class=""><strong>Project Overview</strong></p></div><div style="display:contents" dir="auto"><ul id="6e1e9156-00c5-4cb3-be34-6adf2d75b932" class="bulleted-list"><li style="list-style-type:disc">Matt Tallarico created project requirements document and Visio diagram without prior coordination <a href="Weekly%20Standup%20and%20Team%20Onboarding%20Discussion%20%E2%80%94%2020%202df5632092ca80ce9aa4cabe216bc096.html">[17]</a> <a href="Weekly%20Standup%20and%20Team%20Onboarding%20Discussion%20%E2%80%94%2020%202df5632092ca80ce9aa4cabe216bc096.html">[18]</a></li></ul></div><div style="display:contents" dir="auto"><ul id="6c0e94d4-d981-4f28-ab15-e513583ef2e1" class="bulleted-list"><li style="list-style-type:disc">Dashboard would centralize ETQ tasks (incident reports, CAPA, customer complaints) and make performance monitoring easier <a href="Weekly%20Standup%20and%20Team%20Onboarding%20Discussion%20%E2%80%94%2020%202df5632092ca80ce9aa4cabe216bc096.html">[19]</a> <a href="Weekly%20Standup%20and%20Team%20Onboarding%20Discussion%20%E2%80%94%2020%202df5632092ca80ce9aa4cabe216bc096.html">[20]</a> <a href="Weekly%20Standup%20and%20Team%20Onboarding%20Discussion%20%E2%80%94%2020%202df5632092ca80ce9aa4cabe216bc096.html">[21]</a></li></ul></div><div style="display:contents" dir="auto"><ul id="d456bc46-bff6-4606-bcb3-6ae7f06487b0" class="bulleted-list"><li style="list-style-type:disc">ETQ (Excellence Through Quality) system handles environmental health and safety, customer complaints, and related modules <a href="Weekly%20Standup%20and%20Team%20Onboarding%20Discussion%20%E2%80%94%2020%202df5632092ca80ce9aa4cabe216bc096.html">[22]</a></li></ul></div><div style="display:contents" dir="auto"><p id="0c6f510c-bda8-4fa0-8ab9-bf4fce735962" class=""><strong>Technical Details</strong></p></div><div style="display:contents" dir="auto"><ul id="664f4284-69a8-481e-adc4-482581e6e939" class="bulleted-list"><li style="list-style-type:disc">ETQ data accessed through linked server via VPN to offsite SQL database <a href="Weekly%20Standup%20and%20Team%20Onboarding%20Discussion%20%E2%80%94%2020%202df5632092ca80ce9aa4cabe216bc096.html">[23]</a></li></ul></div><div style="display:contents" dir="auto"><ul id="ab9b743a-441a-48c2-9e36-842091e564aa" class="bulleted-list"><li style="list-style-type:disc">Currently connected to dev server but should move to production server <a href="Weekly%20Standup%20and%20Team%20Onboarding%20Discussion%20%E2%80%94%2020%202df5632092ca80ce9aa4cabe216bc096.html">[24]</a></li></ul></div><div style="display:contents" dir="auto"><ul id="7561b94a-dcbe-4b97-91e8-29b0025d8ef3" class="bulleted-list"><li style="list-style-type:disc">System synchronization issues exist between M3 and ETQ that need to be addressed <a href="Weekly%20Standup%20and%20Team%20Onboarding%20Discussion%20%E2%80%94%2020%202df5632092ca80ce9aa4cabe216bc096.html">[23]</a></li></ul></div><div style="display:contents" dir="auto"><p id="a01f7d21-f779-489d-b784-730a25f58041" class=""><strong>Priority Discussion</strong></p></div><div style="display:contents" dir="auto"><ul id="9864894e-2c7b-45de-b8ba-ec84746a0dc0" class="bulleted-list"><li style="list-style-type:disc">ETQ project is not primary focus - finance and products should be the priority <a href="Weekly%20Standup%20and%20Team%20Onboarding%20Discussion%20%E2%80%94%2020%202df5632092ca80ce9aa4cabe216bc096.html">[25]</a> <a href="Weekly%20Standup%20and%20Team%20Onboarding%20Discussion%20%E2%80%94%2020%202df5632092ca80ce9aa4cabe216bc096.html">[26]</a></li></ul></div><div style="display:contents" dir="auto"><h3 id="48095852-b66e-409f-a7d4-da97365f9bea" class="">Technical Access and Infrastructure</h3></div><div style="display:contents" dir="auto"><p id="29c5b921-890a-4d26-aed6-d4da7cd64de5" class=""><strong>Access Requests</strong></p></div><div style="display:contents" dir="auto"><ul id="ba4b9df6-7bef-4a12-8e02-d4fbd6032aa2" class="bulleted-list"><li style="list-style-type:disc">Need to grant SharePoint access for embedding resources <a href="Weekly%20Standup%20and%20Team%20Onboarding%20Discussion%20%E2%80%94%2020%202df5632092ca80ce9aa4cabe216bc096.html">[27]</a> <a href="Weekly%20Standup%20and%20Team%20Onboarding%20Discussion%20%E2%80%94%2020%202df5632092ca80ce9aa4cabe216bc096.html">[28]</a></li></ul></div><div style="display:contents" dir="auto"><ul id="40d5c06f-56ce-4574-ae43-eeb2ba3c17c1" class="bulleted-list"><li style="list-style-type:disc">Need Copilot Studio and Azure Foundry access for AI integration capabilities <a href="Weekly%20Standup%20and%20Team%20Onboarding%20Discussion%20%E2%80%94%2020%202df5632092ca80ce9aa4cabe216bc096.html">[29]</a> <a href="Weekly%20Standup%20and%20Team%20Onboarding%20Discussion%20%E2%80%94%2020%202df5632092ca80ce9aa4cabe216bc096.html">[30]</a> <a href="Weekly%20Standup%20and%20Team%20Onboarding%20Discussion%20%E2%80%94%2020%202df5632092ca80ce9aa4cabe216bc096.html">[31]</a></li></ul></div><div style="display:contents" dir="auto"><ul id="632e4cd8-6f6e-4735-98ce-a853ed31068d" class="bulleted-list"><li style="list-style-type:disc">Need to set up team site for testing before production deployment <a href="Weekly%20Standup%20and%20Team%20Onboarding%20Discussion%20%E2%80%94%2020%202df5632092ca80ce9aa4cabe216bc096.html">[31]</a></li></ul></div><div style="display:contents" dir="auto"><ul id="2813beff-aa2a-4a9d-a47c-896906aa414e" class="bulleted-list"><li style="list-style-type:disc">Jira board setup needed (no tasks assigned yet) <a href="Weekly%20Standup%20and%20Team%20Onboarding%20Discussion%20%E2%80%94%2020%202df5632092ca80ce9aa4cabe216bc096.html">[32]</a> <a href="Weekly%20Standup%20and%20Team%20Onboarding%20Discussion%20%E2%80%94%2020%202df5632092ca80ce9aa4cabe216bc096.html">[33]</a></li></ul></div><div style="display:contents" dir="auto"><p id="26e54663-0a39-4268-a306-abde528e9f6f" class=""><strong>Environment Discussion</strong></p></div><div style="display:contents" dir="auto"><ul id="36b17c9d-bc0d-47f7-81f5-6acd0127d07e" class="bulleted-list"><li style="list-style-type:disc">Discussion about simplifying from three environments (dev/test/prod) to two, as dev environments often don&#x27;t get used properly <a href="Weekly%20Standup%20and%20Team%20Onboarding%20Discussion%20%E2%80%94%2020%202df5632092ca80ce9aa4cabe216bc096.html">[34]</a> <a href="Weekly%20Standup%20and%20Team%20Onboarding%20Discussion%20%E2%80%94%2020%202df5632092ca80ce9aa4cabe216bc096.html">[35]</a></li></ul></div><div style="display:contents" dir="auto"><h3 id="de706c38-7ef6-40ff-b089-32b143a8400c" class="">Cybertroll Contract Review</h3></div><div style="display:contents" dir="auto"><ul id="c4f94f67-ad76-4611-9568-fda7d555f37f" class="bulleted-list"><li style="list-style-type:disc">Large contract needs review before meeting on the 12th <a href="Weekly%20Standup%20and%20Team%20Onboarding%20Discussion%20%E2%80%94%2020%202df5632092ca80ce9aa4cabe216bc096.html">[36]</a> <a href="Weekly%20Standup%20and%20Team%20Onboarding%20Discussion%20%E2%80%94%2020%202df5632092ca80ce9aa4cabe216bc096.html">[37]</a> <a href="Weekly%20Standup%20and%20Team%20Onboarding%20Discussion%20%E2%80%94%2020%202df5632092ca80ce9aa4cabe216bc096.html">[38]</a></li></ul></div><div style="display:contents" dir="auto"><ul id="c2a8870e-a591-4780-bd84-6a7b1b40cafa" class="bulleted-list"><li style="list-style-type:disc">Initial feedback noted lack of clearly outlined deliverables <a href="Weekly%20Standup%20and%20Team%20Onboarding%20Discussion%20%E2%80%94%2020%202df5632092ca80ce9aa4cabe216bc096.html">[39]</a></li></ul></div><div style="display:contents" dir="auto"><ul id="20c224bf-db96-49eb-900a-947b514ae7e4" class="bulleted-list"><li style="list-style-type:disc">Concerns about scope creep and inadequate change order processes <a href="Weekly%20Standup%20and%20Team%20Onboarding%20Discussion%20%E2%80%94%2020%202df5632092ca80ce9aa4cabe216bc096.html">[40]</a></li></ul></div><div style="display:contents" dir="auto"><h3 id="769dda56-c173-46eb-9e0b-ff0b3ffa772d" class="">Action Items</h3></div><div style="display:contents" dir="auto"><ul id="103ef83e-a0d5-4969-a048-4639339c1952" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked"><span class="user">@Steve </span> to make weekly standup at this time a recurring meeting <a href="Weekly%20Standup%20and%20Team%20Onboarding%20Discussion%20%E2%80%94%2020%202df5632092ca80ce9aa4cabe216bc096.html">[1]</a> <a href="Weekly%20Standup%20and%20Team%20Onboarding%20Discussion%20%E2%80%94%2020%202df5632092ca80ce9aa4cabe216bc096.html">[6]</a></span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="b2ca34b0-f313-416f-8e17-224910991165" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Set up half-hour meeting between Yudia and team member to discuss Microsoft Fabric learning path <a href="Weekly%20Standup%20and%20Team%20Onboarding%20Discussion%20%E2%80%94%2020%202df5632092ca80ce9aa4cabe216bc096.html">[11]</a> <a href="Weekly%20Standup%20and%20Team%20Onboarding%20Discussion%20%E2%80%94%2020%202df5632092ca80ce9aa4cabe216bc096.html">[41]</a></span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="add42310-916b-494f-8b1a-a3d52d6a25f3" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Create document/compilation of Microsoft Fabric learning resources <a href="Weekly%20Standup%20and%20Team%20Onboarding%20Discussion%20%E2%80%94%2020%202df5632092ca80ce9aa4cabe216bc096.html">[12]</a> <a href="Weekly%20Standup%20and%20Team%20Onboarding%20Discussion%20%E2%80%94%2020%202df5632092ca80ce9aa4cabe216bc096.html">[13]</a></span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="7a022a63-74d3-44cf-8680-28a9711e9275" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Create SharePoint site with learning resources for team technologies <a href="Weekly%20Standup%20and%20Team%20Onboarding%20Discussion%20%E2%80%94%2020%202df5632092ca80ce9aa4cabe216bc096.html">[14]</a> <a href="Weekly%20Standup%20and%20Team%20Onboarding%20Discussion%20%E2%80%94%2020%202df5632092ca80ce9aa4cabe216bc096.html">[16]</a></span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="5cb43d4d-943d-486a-a0b7-b02d591183d6" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Add team member to twice-weekly dev and data team standups <a href="Weekly%20Standup%20and%20Team%20Onboarding%20Discussion%20%E2%80%94%2020%202df5632092ca80ce9aa4cabe216bc096.html">[3]</a> <a href="Weekly%20Standup%20and%20Team%20Onboarding%20Discussion%20%E2%80%94%2020%202df5632092ca80ce9aa4cabe216bc096.html">[4]</a></span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="53dc4248-10ad-40a3-935b-bf5919f5830d" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Set up Jira board <a href="Weekly%20Standup%20and%20Team%20Onboarding%20Discussion%20%E2%80%94%2020%202df5632092ca80ce9aa4cabe216bc096.html">[33]</a></span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="021c4a22-6e99-4579-a41b-e73b84c6ebab" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Schedule meeting with Matt Tallarico about ETQ project with appropriate oversight <a href="Weekly%20Standup%20and%20Team%20Onboarding%20Discussion%20%E2%80%94%2020%202df5632092ca80ce9aa4cabe216bc096.html">[18]</a></span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="52707c39-a74b-4e7b-b512-6b8829fe6673" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Provide ETQ database access information <a href="Weekly%20Standup%20and%20Team%20Onboarding%20Discussion%20%E2%80%94%2020%202df5632092ca80ce9aa4cabe216bc096.html">[42]</a> <a href="Weekly%20Standup%20and%20Team%20Onboarding%20Discussion%20%E2%80%94%2020%202df5632092ca80ce9aa4cabe216bc096.html">[43]</a></span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="a0edc296-6109-40f6-a18f-8ead6ba1543e" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Grant SharePoint access for resource embedding <a href="Weekly%20Standup%20and%20Team%20Onboarding%20Discussion%20%E2%80%94%2020%202df5632092ca80ce9aa4cabe216bc096.html">[28]</a> <a href="Weekly%20Standup%20and%20Team%20Onboarding%20Discussion%20%E2%80%94%2020%202df5632092ca80ce9aa4cabe216bc096.html">[31]</a></span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="c4b0ea05-2bbf-441a-af6d-20b9076ad2ef" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Get Copilot Studio and Azure Foundry access <a href="Weekly%20Standup%20and%20Team%20Onboarding%20Discussion%20%E2%80%94%2020%202df5632092ca80ce9aa4cabe216bc096.html">[31]</a></span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="5e1c9559-b2dd-4d55-ba2e-84cea326ee14" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Set up team site for testing <a href="Weekly%20Standup%20and%20Team%20Onboarding%20Discussion%20%E2%80%94%2020%202df5632092ca80ce9aa4cabe216bc096.html">[31]</a></span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="911cdf0c-6d55-4c6e-b046-4f316e13d4c1" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked"><span class="user">@Steve </span> to review Cybertroll contract more closely before meeting on the 12th <a href="Weekly%20Standup%20and%20Team%20Onboarding%20Discussion%20%E2%80%94%2020%202df5632092ca80ce9aa4cabe216bc096.html">[44]</a> <a href="Weekly%20Standup%20and%20Team%20Onboarding%20Discussion%20%E2%80%94%2020%202df5632092ca80ce9aa4cabe216bc096.html">[38]</a></span><div class="indented"></div></li></ul></div><div style="border-bottom:0.05em solid;border-bottom-color:rgba(42, 28, 0, 0.07)">Notes<br/></div><div style="display:contents" dir="auto"><p id="9dbfdc33-7ab7-492e-b466-73faa97c45c1" class="">
+</p></div><div style="border-bottom:0.05em solid;border-bottom-color:rgba(42, 28, 0, 0.07)">Transcript<br/></div><div style="display:contents" dir="auto"><p id="74cad148-ab71-4aff-aba1-6d89edea2b40" class="">Steve, how are you doing?</p></div><div style="display:contents" dir="auto"><p id="2625d471-0051-4647-9b9f-dc3a4fc00a62" class="">Good. How are you? Can you hear me? I&#x27;m sorry. Can you hear me? Okay. Yep, I can hear you. You hear me, right? Yep.</p></div><div style="display:contents" dir="auto"><p id="6b5e1c3b-b7cc-494c-90e2-f998ef957017" class="">So now that we&#x27;re into the new year, I wanna, before I lock this in, I&#x27;m gonna check with you what&#x27;s a good time to have regular stand-up meetings like this. Yeah. Touch base. I would think a weekly cadence would be fine. I assume that would work for you. Yeah. Is there a specific time that works better than others?</p></div><div style="display:contents" dir="auto"><p id="d7217a33-467f-4fc7-9f04-7c036ece1a1b" class="">Um, No, I mean, if this works for you, this works for me.</p></div><div style="display:contents" dir="auto"><p id="92ddd4be-cbff-423c-87e8-ccb8fc078807" class="">Okay, so I might make this a more standard time slot than if that works for you. Yep. So. I didn&#x27;t mean to catch you off guard by sending you that email that Matt Tellerico put together. Oh, that&#x27;s fine. I&#x27;m hoping that the, so, and that&#x27;s what I mentioned to the rest of the staff today too, is that he&#x27;s gonna be spending some time on our team. He&#x27;s the one that I showed you the resume. He&#x27;s got some background there.</p></div><div style="display:contents" dir="auto"><p id="c6e6b197-df7d-46cf-91e0-56cd1a5f7f97" class="">I think he&#x27;s gonna be a good fit to help out. And then Yudia has dropped a bomb on me too. So she&#x27;s starting to get into more on her own time, but has been starting to get into Microsoft Data Fabric. So she&#x27;s definitely got a hankering to learn more. So I said that might mean maybe spending some time with you once in a while to, to, I think closer to when there&#x27;s a handoff, she needs to get the speed, but how do we, how do we get up to speed at that point too?</p></div><div style="display:contents" dir="auto"><p id="a565136d-ea4f-4969-9e64-29816894cbbc" class="">Yeah. So. So I hope I&#x27;m not jumping the gun or stealing any of your thunder or anything like that, but I think this would be good pieces to start putting working on at some point. I just don&#x27;t know what that looks like.</p></div><div style="display:contents" dir="auto"><p id="0f9fed57-6433-45e7-a873-9c8898548598" class="">There&#x27;s a Are you talking about the... The PDF that, or the Microsoft, whatever, Word file and the tasks data model thing you sent over? Or are you talking about UDS specifically? Yes.</p></div><div style="display:contents" dir="auto"><p id="c1d4256a-bbb7-4d63-bb10-da432abea4a4" class="">Yeah. I&#x27;m talking about all of it. Yeah. Yeah. Yeah. I know we don&#x27;t want to joke around. We&#x27;ll just talk about it all. So let&#x27;s, let&#x27;s, let&#x27;s take it out, take it a part at a time. I talked with Tallarico last week and he&#x27;s going to be taking some time on our team and assisting to build some of the BIs that are needed. And that&#x27;s where I was talking with you, you know, previous to that too, saying, Hey, let, as we do this, let&#x27;s start making sure that we start putting policies in place, The stuff that you mentioned already, I would like for you to kind of guide some of those policies and and.</p></div><div style="display:contents" dir="auto"><p id="77eab9b8-ab3c-42d5-9666-061d6c00b69b" class="">Make sure that the team follows them. So that&#x27;s, That part. Yep. And if I&#x27;m missing anything else there, what&#x27;s. Talk that out a little bit, but... The UDS part, like I said, she just had a one-on-one with me today and she mentioned that she&#x27;s starting to play around with not in our tenant, but setting up a, data fabric and starting to do some more self-training on that too. So it might not be bad at some point to get some guidance from you as to what she should be focusing on versus focusing on stuff that&#x27;s not going to be necessary too.</p></div><div style="display:contents" dir="auto"><p id="a7ee4b01-e30c-45f1-a301-842fd66ebefb" class="">I mean, so If...</p></div><div style="display:contents" dir="auto"><p id="3293ec6d-eea5-496e-bf64-e894e0e0b2ac" class="">I would recommend just like Microsoft has a really good learning like portal That&#x27;s free You can earn badges and stuff. And you can just type in categories. They have a Microsoft Fabric category. That&#x27;s just... dedicated obviously to all things fabric and they have different levels like beginner, moderate, expert, advanced, things like that. And so that would be my recommendation just because they give you.</p></div><div style="display:contents" dir="auto"><p id="4d2af23d-1349-4052-949a-b2f94cfae1b6" class="">Um...</p></div><div style="display:contents" dir="auto"><p id="2fb73eb6-62a9-4813-8c77-ea07dc96e5b2" class="">demo, like example files to work with and give you like things to learn with hands on so that you&#x27;re not just like trying to memorize stuff and then try to regurgitate it just to pass a quiz or something like that it&#x27;s sure sure it&#x27;s just it&#x27;s really good tangible learning and it&#x27;s free do you do you have uh links to any of that stuff or are you otherwise the other thing too is what i was going to suggest doing is that maybe later on this week i set up a or you set up a half hour meeting with her and kind of you know share some of that stuff uh point her in the right direction and that way it can kind of Like I said, the...</p></div><div style="display:contents" dir="auto"><p id="43b64bfb-da4d-48fb-9425-a8082350d375" class="">relevant relative and be pointed from someone who&#x27;s been there and then also to get her in the mindset of where we&#x27;re going so that she&#x27;s not. trying to study something that we&#x27;re not going to deal with, for example. I don&#x27;t think that&#x27;s the case, but.</p></div><div style="display:contents" dir="auto"><p id="06203451-212f-462c-8a31-7f6e767dbd2a" class="">Yeah, I can put something together because I would assume that there might be more people that would ask you just like, hey, where can I learn what this is about or whatever? So because the beginner stuff is really good for like at least understanding what it&#x27;s for, why it&#x27;s different from other platforms, what makes it unique, all the components that kind of fit together and how they interact with each other from like a business user standpoint.</p></div><div style="display:contents" dir="auto"><p id="6f975aab-e4cd-4314-9a08-b9a10f5ab7f7" class="">So they have like They also have like tags on like different courses. They&#x27;re like, you know, business users or, you know, technical users. So if you don&#x27;t want to like get into code or anything like that, and you just want to understand the conceptual aspects of it. So I&#x27;ll put something together.</p></div><div style="display:contents" dir="auto"><p id="02faa857-460b-4e6e-a90f-373987416da7" class="">Is this something that we should put together now? You&#x27;re saying that, like you mentioned, that maybe there&#x27;s going to be other people that are going to want to, hey, where do I go to learn more about this? Should we start putting some stuff into a SharePoint or something like that to say, or LinkedIn Learning or something like that to say, hey, here&#x27;s where you can go to learn on stuff that we are going to work with.</p></div><div style="display:contents" dir="auto"><p id="d6d0e20f-1d05-42d8-84a6-d182a72b7483" class="">100%.</p></div><div style="display:contents" dir="auto"><p id="63b9a646-cae2-4651-b15c-503904ca1144" class="">I mean, I was going to make that part of like the... training wheels portal kind of thing. But yes, I think we should start that now. Actually, now that you bring it up, I think it. There&#x27;s no reason to believe it.</p></div><div style="display:contents" dir="auto"><p id="b4ca4318-c1d2-43ab-a902-1217ef22ff1b" class="">I am in no way trying to steal your thunder. I mean, these are starting to questions coming out of the woodwork and now is the good time to start get ahead of them.</p></div><div style="display:contents" dir="auto"><p id="b2154c02-c755-4e10-acbb-ccb8c520dfca" class="">So yeah, I know. I appreciate you passing along and yeah, so there&#x27;s no thunder to steal.</p></div><div style="display:contents" dir="auto"><p id="17762d5a-8387-4704-aa79-e4d906290a18" class="">Hey, I respect people&#x27;s work and I don&#x27;t want to, some people can get very offended. It&#x27;s like, no, I&#x27;m not trying to steal work from anyone. I&#x27;m trying to make sure that people are coming up to speed at the right speed.</p></div><div style="display:contents" dir="auto"><p id="161ed4e6-6bb5-4ef6-9603-d4dbda3dda2e" class="">It&#x27;s not like I&#x27;m trying to like move up the ranks of the company and like it&#x27;s a huge deal.</p></div><div style="display:contents" dir="auto"><p id="26de2983-68d9-4e0e-97b0-d2f4e6489cb1" class="">That&#x27;s fair to be said. I mean, at some point you need to have a good proper handoff. This is going to make things a little better for transition. So I think this will be good. Yeah. I was just happy to see that there&#x27;s some initiative from different people on my side without me pushing it. It&#x27;s like, well, that made my job easier. What am I doing here?</p></div><div style="display:contents" dir="auto"><p id="8c4d2c2d-3490-48ab-b5ea-9c9010e9820c" class="">They&#x27;ve been coming out with a lot of stuff recently in terms of marketing and whatnot, especially in terms of co-pilot. Yeah. Maybe that&#x27;s... What? triggered it or something, but oh well.</p></div><div style="display:contents" dir="auto"><p id="141c7740-02ca-43ba-9cb8-64d090d4c6a6" class="">So then the other thing too, on the chat real quick is that, you know, I have a weekly standup twice a week with part of our dev and data team. At some point, would you think it would be useful to have you sit in on some of those conversations as well? 100%. Yeah. Perfect. Well, and I haven&#x27;t been doing so because one, I wanted to let you just focus on what you&#x27;re focusing on. Two, we&#x27;ve had, you know, Chris, basically Thanksgiving until New Year&#x27;s is really just kind of People burning up their vacation and not everyone here and...</p></div><div style="display:contents" dir="auto"><p id="7b4d6ea0-5219-42ef-92fd-a8e19281f2e5" class="">A lot of different things getting wrapped up and Now is a good time. Now we can start getting back into the focus. So I&#x27;d like to start to have you involved in that as well. You&#x27;ll come in remote if possible. I don&#x27;t think I&#x27;m going to fly you out here every week just for that twice a week. So, yeah. No? Okay.</p></div><div style="display:contents" dir="auto"><p id="d7e2a243-3317-4b67-9deb-ed3b64db8c63" class="">But yeah, I mean, ideally, I would like to be involved in as many things like that as you can. have like, yeah.</p></div><div style="display:contents" dir="auto"><p id="8eecd110-6729-437e-b78b-1ba14f0292c1" class="">And did you get logged into Jira at all yet?</p></div><div style="display:contents" dir="auto"><p id="d2a8074a-8b29-4b41-8c5b-cd36428b8e13" class="">I didn&#x27;t. I mean, I can log in. I just.</p></div><div style="display:contents" dir="auto"><p id="c35b316d-51bc-4086-a451-32c6bcf7bd47" class="">I don&#x27;t think I&#x27;ve got anything assigned to you. I don&#x27;t have a board set up or any of that stuff. So that&#x27;s stuff I&#x27;m going to get going on too. Okay. All right. So I will put a note on that.</p></div><div style="display:contents" dir="auto"><p id="50398b61-b774-459d-a1ab-598373e157f0" class="">Did Matt Tallarico put all of this together, like the project requirements doc and the Visio?</p></div><div style="display:contents" dir="auto"><p id="e3db8297-a96c-4127-b062-ebc2f8a664e1" class="">Yeah, he did this without me knowing this was coming. So this is new to me too. I&#x27;m not saying this. This is completely new to me too. So I would like to,How we have you sit down with him andMy question is, should this be something that has some oversight and some guidance from your standpoint first?</p></div><div style="display:contents" dir="auto"><p id="62610841-c7b4-4371-9837-47b453579323" class="">All the table containing all ties.</p></div><div style="display:contents" dir="auto"><p id="01b84e23-fa82-4098-b4b8-4cb1c74b1af6" class="">And that&#x27;s kind of a question to you.</p></div><div style="display:contents" dir="auto"><p id="0a3089c1-2402-4325-a938-83871a65611b" class="">Yeah, I mean, I just, I think... Looking at the doc. Um, Just a sec. Let&#x27;s see. The ear. EHS is what?</p></div><div style="display:contents" dir="auto"><p id="1f3cf420-48e6-48f1-82fc-cf6c45444f32" class="">Environmental health and safety. So being a chemical company, we&#x27;ll have... And EHS department. that handles all of those.</p></div><div style="display:contents" dir="auto"><p id="e7dfde57-4369-48ed-b0b4-7c4beb064311" class="">And this is So all these questions. So dashboard would basically centralize all the ETQ tasks and make performance easier to monitor, like in a nutshell, right? Mm-hmm.</p></div><div style="display:contents" dir="auto"><p id="67fe0196-b87d-46b2-b31f-c2b703670171" class="">Okay. And ETQ is one that I think I was starting to show you a little bit of some of the different modules that they have. They started out as a excellence through quality. That&#x27;s what ETQ stands for. They have their application called, I think it&#x27;s called Reliance. Um, and they do a number of different things of which we have some of their modules. Uh, one of them being, um, SDSs, for example. Um, customer complaints, CAPA, stuff like that.</p></div><div style="display:contents" dir="auto"><p id="5eb0f447-f3c9-4909-b1fd-4f69253fe536" class="">I don&#x27;t know if I&#x27;m fully answering your question here, but.</p></div><div style="display:contents" dir="auto"><p id="14f9d337-a7da-4fcf-a62a-1c9c4f6ca61a" class="">So SDS is one of the, modules you actively use today, right?</p></div><div style="display:contents" dir="auto"><p id="a8a9b957-2c28-4e07-8f27-61482e9c4f0a" class="">We do not use SDSs through them. I&#x27;m just saying ETQ has those available. I just kind of give you an idea of what ETQ is a little bit. It&#x27;s kind of a conglomerate of a number of different things for both. Um, customer Complaints, so customer service. EHS, so would be environmental health. So incident reports, say someone gets injured out in the plant, they&#x27;ll put in a incident in there and that gets tracked, stuff like that.</p></div><div style="display:contents" dir="auto"><p id="001be7e1-77f9-4cc9-814b-cbc527d019cc" class="">customer complaints as well. So let me see if I can find.</p></div><div style="display:contents" dir="auto"><p id="a727f087-4a7f-4c2a-a025-c2b532ac89d4" class="">I&#x27;m not the best one for this, so what I can probably do--So those incident and Capco records are what we, We&#x27;d basically be surfacing in the dashboard to track open versus closed actions and overall response time, stuff like that.</p></div><div style="display:contents" dir="auto"><p id="909be938-ca86-45e6-973e-d805c4392799" class="">Stuff like that, yeah. Yep. And it&#x27;s definitely as I told Matt Tallarico, this is a. not the primary. because like I talked to you and with Mike, our primary focus should be finance and products.</p></div><div style="display:contents" dir="auto"><p id="ea498459-81a9-41d6-8551-6a703cf78f99" class="">Yeah, that&#x27;s kind of what I was thinking. I mean, I talked to, I talked to Mike on Friday for like, I don&#x27;t know, He was like, you got two minutes? And then we ended up staying on a video call for like 50 minutes. Oh, yeah? How&#x27;d that go? Good. We were just kind of shooting the shit for the most part, but... he was walking me through some like some of like some additional tech modernization stuff he was talking the industry 4.0 stuff and yeah and he was talking about um What was he talking about?</p></div><div style="display:contents" dir="auto"><p id="a533e810-d379-4d66-b78c-859738a70939" class="">Oh, God. We went on a tangent. He went on a tangent about the travel Like... How old the process is to like fill out. Oh, yeah, because I told you. Yeah, he went on a... He went on a rant about it. He&#x27;s like, have you ever used Conquer before? I was like, yes, that&#x27;s exactly what I was thinking of when he was filling that out. Yes.</p></div><div style="display:contents" dir="auto"><p id="23b4a3b1-c3a0-4271-894f-c458ffedd615" class="">And so that&#x27;s why it was... So, yeah. I said, well, I can ask Jason and get some feedback from him. And then I found out that he went and asked Jason. It&#x27;s like, dude.</p></div><div style="display:contents" dir="auto"><p id="d3bc0598-cb39-4579-9ad6-d8d33fbad5bd" class="">Yeah. He&#x27;s up. So the main source for this ETQ data is... Is this in? These already come from databases that we have access, I have access to right now, right?</p></div><div style="display:contents" dir="auto"><p id="52e71254-e8c4-4a54-93cf-d0c94458d843" class="">ATQ. Probably not actually. So I can get you that as well.</p></div><div style="display:contents" dir="auto"><p id="843313a0-5763-4552-b3de-b9146ab4d707" class="">Okay. That&#x27;d be awesome.</p></div><div style="display:contents" dir="auto"><p id="7a4beed9-aebb-4cee-af3a-8eb490d8c508" class="">Um, That&#x27;s one that&#x27;s actually kind of a bit of an odd duck.</p></div><div style="display:contents" dir="auto"><p id="b6b503c3-4ae9-412b-be19-dcb9a2ae3f94" class="">Is it a SQL database?</p></div><div style="display:contents" dir="auto"><p id="48b9a2f8-ba78-472a-83ea-7d7a0d2f42fd" class="">Yes.</p></div><div style="display:contents" dir="auto"><p id="16f06f0a-056e-44e2-98af-d2e53efbd47c" class="">What was the hesitation on that one? Yeah.</p></div><div style="display:contents" dir="auto"><p id="29b63c3f-a00b-4646-80a3-2566e23682fd" class="">So it&#x27;s a link server. is how we access it. They go through a VPN to another SQL server in, um, ATQ and data lake. Offsite. And on top of that, another person that he&#x27;s still out of the office until tomorrow on my team, Matt Francis. I think you&#x27;ve met with him once already. Yep. Um, Matt Francis keeps those systems in check or synchronized between M3 and ETQ. And he brought up the fact that, hey, these are out of sync.</p></div><div style="display:contents" dir="auto"><p id="7a44f1af-4c35-4da2-ad26-c68d857ee97e" class="">So we should probably sit down and have a meeting about what it&#x27;s going to take to get this real synchronized again. So, yeah. I&#x27;m loading up my SSMS. And I will show you how we access it. It&#x27;ll make a little bit more sense. Come on. There we go. And it&#x27;s on our, the connection is currently, I think, connected to our dev server, and there is a goal to connect it to our production server, because our dev server has Dev licensing should not be used for production.</p></div><div style="display:contents" dir="auto"><p id="ffb4181a-3255-4f41-a93a-1fd5beb61298" class="">But in the meantime, let me just check to see. Breathe. Let&#x27;s see my screen real quick here. You know what?</p></div><div style="display:contents" dir="auto"><p id="8754db9d-781b-4dbe-be25-5f2678fd9d33" class="">Thing of like. you know, fabric resources and whatnot. Have you been able to grant me access or talk to whoever can in terms of like getting me access to SharePoint to, be able to like either embed my own Bye.</p></div><div style="display:contents" dir="auto"><p id="16b474d1-4a1d-4681-b66e-38ca9afeedbb" class="">react app that I could create and embed it in there for you guys orOkay, so I mean, I can grant access to SharePoint, but now when you&#x27;re talking about how to embed stuff like that, that I don&#x27;t know how to do. So I might have to do some research on that. I&#x27;ll get you one. In terms of...</p></div><div style="display:contents" dir="auto"><p id="b24b8a93-f5ed-4e92-84ec-a1507a1b52bd" class="">And Like, do you guys use, like, Copilot&#x27;s studio or Foundry or anything like that? Okay. Whatever. Because it&#x27;s not like, Nice.</p></div><div style="display:contents" dir="auto"><p id="9abcbe97-acb0-456e-b667-5fb2c6ab42bd" class="">
+</p></div><div style="display:contents" dir="auto"><p id="9e29a71a-242a-4470-aefa-bef57bc6b23d" class="">like Azure foundry Azure Foundry. Okay. Let me go talk to actually his supervisor here and see if he&#x27;s the right person to talk to before I send something his way.</p></div><div style="display:contents" dir="auto"><p id="3de6119e-8890-49a3-aa67-921b6d2fda43" class="">And when I know he&#x27;s, busy on some other projects so maybe I&#x27;ll get redirected and it&#x27;s also it&#x27;s not like top priority so Please don&#x27;t make anybody go out of their way to do that. I just... I just want to make sure that like, cause we&#x27;re obviously going to enter like, come to a point No matter what, like, With all the stuff that we&#x27;re going to be doing that we&#x27;re going to want some type of like AI assistance or integration or whatever and I just want to make sure that we&#x27;re able to.</p></div><div style="display:contents" dir="auto"><p id="1cf2a3c2-40c4-42ad-b24a-32dfeb305f15" class="">do it like quickly. It&#x27;s not like a whole nother, you know, PI planning session or something just for that.</p></div><div style="display:contents" dir="auto"><p id="a401bb7b-cd97-4b3f-b404-a854fd7a8023" class="">Okay. Understood, understood. Got it so I will get you a. I&#x27;ll get you a team site set up here so that I can make sure I have one you can play around with before we put it into that one that actually looks fairly nicely done, just needs to be refreshed a little bit. Yeah. Then I&#x27;ll get you those Copilot Studio and Azure Foundry. Access. Yep, perfect. Okay, what else we got?</p></div><div style="display:contents" dir="auto"><p id="f49787b3-ea19-4c3e-850f-cb10cdae30fc" class="">So the– oh, last week Mike mentioned the– We have that meeting coming up. When is that meeting? What&#x27;s what was the name of that company? That huge contract?</p></div><div style="display:contents" dir="auto"><p id="fcce5b80-8554-4d8a-b88f-89d5c97a23d6" class="">Cyber Patrol.</p></div><div style="display:contents" dir="auto"><p id="f0dc6e6d-b598-4027-ad7e-0499f6e6ff9a" class="">Yeah. Did you have a chance to look that over? Did I get a chance to look at what over? That massive contract in... Oh. Yeah.</p></div><div style="display:contents" dir="auto"><p id="acc465c5-f8ea-4be1-ac18-7a6ce8f1f66e" class="">I got a chance to look at it a little bit. I saw your notes on it. I will look at that today. I&#x27;ll actually book myself some time to take a closer look.</p></div><div style="display:contents" dir="auto"><p id="892b99f3-e4cc-45ab-8538-12bb15383d08" class="">He thanks me for being... What was it? He&#x27;s like, thanks for not being too harsh. He was like, I completely agree that They literally do not outline deliverables in any way. And he&#x27;s like, we&#x27;re working on doing a better job of that. He&#x27;s like... It&#x27;s like we&#x27;ve had some problems with that in the past where companies will be like, okay. Yeah So for this migration, we&#x27;re gonna move stuff from here to here sign here.</p></div><div style="display:contents" dir="auto"><p id="132c9cf4-e5bd-4562-b162-60acc478a01a" class="">Yeah Right. Yeah. He was like, that&#x27;s not okay. Right. I mean, that&#x27;s kind of the feeling that I got. I was like, this is a really long contract, but at the same time, Like...</p></div><div style="display:contents" dir="auto"><p id="09173384-1014-45f3-9da5-7c12d0301ea1" class="">Yeah, it&#x27;s kind of a catch-all but catch-nothing.</p></div><div style="display:contents" dir="auto"><p id="44a4bcc2-ceff-45ce-a70c-4df413d0faba" class="">Yeah, that&#x27;s what it seemed like. And I was like, ooh, you don&#x27;t want to get screwed. I&#x27;ve just seen instances where people have gotten shafted because... Just They either shortchange them and then they&#x27;ll be like, &quot;Read the contract.&quot; Or it&#x27;s just, yeah.</p></div><div style="display:contents" dir="auto"><p id="9b958579-ff79-4d7d-9be4-b5c16212a9b6" class="">Yep, and it&#x27;s not the first time it&#x27;s happened. We just got done with a project with an outside vendor and it just kept on turning into the scope creep, scope creep, but yet no change orders or anything. It&#x27;s like, man, if we do that, we&#x27;re screwing our own vendors and they&#x27;re not gonna wanna continue to work with us either. Yeah. There&#x27;s multiple sides to that one. Bye. Okay, I will get it. I put a spot on my...</p></div><div style="display:contents" dir="auto"><p id="aa4a914a-e5b7-4c98-84e7-a0680492cf75" class="">I took my clock to take a look at that closer and see if I can take a look. We have, when do we have that meeting coming up on that? Do you remember? I think it&#x27;s the 12th week from the day at like. Okay. Yep. He&#x27;s traveling that day. So, okay. Okay. Perfect.</p></div><div style="display:contents" dir="auto"><p id="fa7ae2d1-119e-41c1-b065-40406ffef4ae" class="">
+</p></div><div style="display:contents" dir="auto"><p id="5b12fc6f-0951-4aef-80a7-17c34379ce1c" class="">So you got time. Just, I just wanted to make sure you, just cause it&#x27;s a pretty long contract.</p></div><div style="display:contents" dir="auto"><p id="e036ea1b-c41c-47e9-9921-f1f168920d84" class="">necessarily need all three I think I would agree with that.</p></div><div style="display:contents" dir="auto"><p id="7e882b87-a1a2-4821-b5b8-31797d081025" class="">Right. Just basically, you know, like some of the data reporting layers are kind of built out.</p></div><div style="display:contents" dir="auto"><p id="13d60e50-3b80-4c16-823b-2e64ba008c53" class="">I feel like it would be... That I unnecessarily know unnecessary reference. I think location being I think and like and more to me to construct the biggest anything pain I just want to go away that right now is just report your at most a test production is what I&#x27;m thinking.</p></div><div style="display:contents" dir="auto"><p id="1bc5f032-f7bf-4fef-af41-4bd203a1b4bf" class="">I...</p></div><div style="display:contents" dir="auto"><p id="029c3539-4817-4132-9b2c-643acdd3fcb1" class="">Just two layers. Oh, I meant to, here&#x27;s just kind of what I was leaning towards. I just want to get your thoughts on that.</p></div><div style="display:contents" dir="auto"><p id="6bca3113-db87-49cc-a99c-f082cd10a2f1" class="">Yep, I&#x27;m all for it because I mean, we do have a dev test and prod in some environments, but in most of the time, those dev environments don&#x27;t get used like they should. So it&#x27;s usually technically</p></div><div style="display:contents" dir="auto"><p id="5c021e52-9ed6-496d-ad8a-9f60298a3ed2" class="">And then the Cybertroll, I&#x27;ll read that later today too. Awesome. All right, anything else you got</p></div></div></div><div style="display:contents" dir="auto"><hr id="0a262b7c-eb84-4fab-8818-30e5bdb5411c"/></div><div style="display:contents" dir="auto"><h2 id="4c589b23-c6e6-4fc8-a6a8-f77382cb6d10" class="">✅ Action Items</h2></div><div style="display:contents" dir="ltr"><figure class="block-color-blue_background callout" style="white-space:pre-wrap;display:flex" id="187fbf93-1d85-4399-b8ff-e0c7d8dad7eb"><div style="font-size:1.5em"><span class="icon">📋</span></div><div style="width:100%"><div style="display:contents" dir="auto"><p id="219588c2-9fc3-42fb-bd82-6ec4f93d4443" class=""><strong>Consolidated from meeting — Owner assigned to each item</strong></p></div></div></figure></div><div style="display:contents" dir="auto"><h3 id="d5c4d27a-716e-4201-a6a5-e17c2bef1635" class="">Steve (Nahrup)</h3></div><div style="display:contents" dir="auto"><ul id="60f0261c-d60b-4b7f-abc2-aa2be510fa71" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Make weekly standup at this time a recurring meeting</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="63d42d33-66de-423b-9f65-58dda03bcbbc" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Review Cybertrol contract more closely before meeting on Jan 12</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="6acd7c27-555e-45c9-913e-d6306180b8b2" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Add Patrick to twice-weekly dev and data team standups (remote)</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><h3 id="80fa04d7-a825-42b9-b166-07c0a0d70ce5" class="">Steve (Nahrup) + Patrick</h3></div><div style="display:contents" dir="auto"><ul id="1ea35595-02f2-4406-b821-d5e4bddd1495" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Create SharePoint site with curated learning resources for team technologies (&quot;training wheels portal&quot;)</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="0316f221-f672-41bb-8de5-212531b2b42b" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Create document/compilation of Microsoft Fabric learning resources</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><h3 id="26876309-19cd-444e-9f7f-372b085dfcb8" class="">Patrick</h3></div><div style="display:contents" dir="auto"><ul id="d54e3df2-61f0-4050-91e5-9b3920c5f497" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Set up Jira board</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="8b5a4003-4702-43d3-a116-6811837670c6" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Grant SharePoint access for resource embedding</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="2ba05d78-ecf0-4922-a3fa-cd28f53f34a5" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Get Copilot Studio and Azure Foundry access for Steve</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="73af2247-a3d7-4222-ba1f-4dea5351b0ea" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Set up team site for testing before production deployment</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="5fa7ec4d-0f77-4d98-9eb8-84fffc604417" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Provide ETQ database access information (linked server via VPN)</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="db4fc9f5-277f-4aff-9251-691d835c5571" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Schedule meeting with Matt Tallarico about ETQ project with appropriate oversight</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><h3 id="a63226aa-ff11-4418-848d-9cbe4626824c" class="">Yudia / Steve</h3></div><div style="display:contents" dir="auto"><ul id="bd339d9e-7212-4d07-80ee-4e38cd08ed1c" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Set up half-hour meeting between Yudia and Steve to discuss Microsoft Fabric learning path</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><hr id="0e3f1c96-10d2-46dd-928c-c577c4a3fd16"/></div><div style="display:contents" dir="auto"><h2 id="439beca6-5940-46a8-932b-66c8e28738f5" class="">🧾 Evidence Matrix</h2></div><div style="display:contents" dir="ltr"><figure class="block-color-purple_background callout" style="white-space:pre-wrap;display:flex" id="84649d02-8bb2-4ba9-8045-64c788251330"><div style="font-size:1.5em"><span class="icon">🔒</span></div><div style="width:100%"><div style="display:contents" dir="auto"><p id="a918a9ef-8e1b-456c-8dc1-91c51601dda2" class=""><strong>Traceable quotes from transcript for all Decisions, Facts, Risks, and Next Steps</strong></p></div></div></figure></div><div style="display:contents" dir="ltr"><table id="7d2f86cb-38ea-40eb-ad22-5a9b010846ff" class="simple-table"><thead class="simple-table-header"><div style="display:contents" dir="ltr"><tr id="279b283b-97f0-4b0d-9a9b-927a8ab1d434"><th id="rk@a" class="simple-table-header-color simple-table-header">Item ID</th><th id="@sJN" class="simple-table-header-color simple-table-header">Type</th><th id="p|[=" class="simple-table-header-color simple-table-header">Speaker</th><th id="=RMC" class="simple-table-header-color simple-table-header">Evidence Snippet</th><th id="?B:^" class="simple-table-header-color simple-table-header">Context</th><th id="SA[c" class="simple-table-header-color simple-table-header">Confidence</th></tr></div></thead><tbody><div style="display:contents" dir="ltr"><tr id="d1f96fb7-398e-45cb-97bc-9ce4cdf70abb"><td id="rk@a" class="">WS-DEC-1</td><td id="@sJN" class="">Decision</td><td id="p|[=" class="">Patrick</td><td id="=RMC" class="">&quot;So I might make this a more standard time slot than if that works for you.&quot;</td><td id="?B:^" class="">Weekly standup cadence confirmed</td><td id="SA[c" class="">High</td></tr></div><div style="display:contents" dir="ltr"><tr id="3908229f-cda4-4698-82ba-2fcb05922d36"><td id="rk@a" class="">WS-FACT-1</td><td id="@sJN" class="">Fact</td><td id="p|[=" class="">Patrick</td><td id="=RMC" class="">&quot;Matt Tallarico... he&#x27;s gonna be spending some time on our team. He&#x27;s the one that I showed you the resume. He&#x27;s got some background there.&quot;</td><td id="?B:^" class="">Team addition confirmed</td><td id="SA[c" class="">High</td></tr></div><div style="display:contents" dir="ltr"><tr id="f757aaed-ad67-4e12-9fa1-af684bf2f39f"><td id="rk@a" class="">WS-FACT-2</td><td id="@sJN" class="">Fact</td><td id="p|[=" class="">Patrick</td><td id="=RMC" class="">&quot;Yudia has dropped a bomb on me too. So she&#x27;s starting to get into more on her own time, but has been starting to get into Microsoft Data Fabric.&quot;</td><td id="?B:^" class="">Self-initiated training</td><td id="SA[c" class="">High</td></tr></div><div style="display:contents" dir="ltr"><tr id="59df4880-384c-41a6-8eb4-0ccac253b7be"><td id="rk@a" class="">WS-DEC-2</td><td id="@sJN" class="">Decision</td><td id="p|[=" class="">Steve</td><td id="=RMC" class="">&quot;I would recommend just like Microsoft has a really good learning like portal that&#x27;s free. You can earn badges and stuff.&quot;</td><td id="?B:^" class="">Learning path recommendation</td><td id="SA[c" class="">High</td></tr></div><div style="display:contents" dir="ltr"><tr id="456e5214-e85f-4408-9a9a-1034427549b7"><td id="rk@a" class="">WS-DEC-3</td><td id="@sJN" class="">Decision</td><td id="p|[=" class="">Patrick/Steve</td><td id="=RMC" class="">&quot;Should we start putting some stuff into a SharePoint or something like that... 100%.&quot;</td><td id="?B:^" class="">Training portal decision</td><td id="SA[c" class="">High</td></tr></div><div style="display:contents" dir="ltr"><tr id="8f5f4643-b2f7-4b4b-b98b-ec0bb25bc881"><td id="rk@a" class="">WS-FACT-3</td><td id="@sJN" class="">Fact</td><td id="p|[=" class="">Patrick</td><td id="=RMC" class="">&quot;Yeah, he did this without me knowing this was coming. So this is new to me too.&quot;</td><td id="?B:^" class="">ETQ doc created without coordination</td><td id="SA[c" class="">High</td></tr></div><div style="display:contents" dir="ltr"><tr id="8e357467-6b05-47fc-a43c-7b06bae73919"><td id="rk@a" class="">WS-FACT-4</td><td id="@sJN" class="">Fact</td><td id="p|[=" class="">Patrick</td><td id="=RMC" class="">&quot;ETQ... started out as a excellence through quality. That&#x27;s what ETQ stands for.&quot;</td><td id="?B:^" class="">System definition</td><td id="SA[c" class="">High</td></tr></div><div style="display:contents" dir="ltr"><tr id="33b9183a-da5c-4155-8ed1-ba772da5d1c7"><td id="rk@a" class="">WS-FACT-5</td><td id="@sJN" class="">Fact</td><td id="p|[=" class="">Patrick</td><td id="=RMC" class="">&quot;It&#x27;s a link server is how we access it. They go through a VPN to another SQL server in, um, ATQ and data lake. Offsite.&quot;</td><td id="?B:^" class="">ETQ access architecture</td><td id="SA[c" class="">High</td></tr></div><div style="display:contents" dir="ltr"><tr id="afd75114-5c8f-4124-9d03-f448f34f39bc"><td id="rk@a" class="">WS-DEC-4</td><td id="@sJN" class="">Decision</td><td id="p|[=" class="">Patrick</td><td id="=RMC" class="">&quot;It&#x27;s definitely as I told Matt Tallarico, this is a not the primary because like I talked to you and with Mike, our primary focus should be finance and products.&quot;</td><td id="?B:^" class="">Priority clarification</td><td id="SA[c" class="">High</td></tr></div><div style="display:contents" dir="ltr"><tr id="0f5651d8-ebc6-4b1d-a574-63fe23ab5ea7"><td id="rk@a" class="">WS-FACT-6</td><td id="@sJN" class="">Fact</td><td id="p|[=" class="">Patrick</td><td id="=RMC" class="">&quot;Matt Francis keeps those systems in check or synchronized between M3 and ETQ. And he brought up the fact that, hey, these are out of sync.&quot;</td><td id="?B:^" class="">M3-ETQ sync issue</td><td id="SA[c" class="">High</td></tr></div><div style="display:contents" dir="ltr"><tr id="741792b1-967c-4f0d-8424-f17aca1216c8"><td id="rk@a" class="">WS-RISK-1</td><td id="@sJN" class="">Risk</td><td id="p|[=" class="">Steve</td><td id="=RMC" class="">&quot;I saw your notes on it... They literally do not outline deliverables in any way.&quot;</td><td id="?B:^" class="">Cybertrol contract concern</td><td id="SA[c" class="">High</td></tr></div><div style="display:contents" dir="ltr"><tr id="64151e12-0dc5-4887-aece-2a804fbfb695"><td id="rk@a" class="">WS-RISK-2</td><td id="@sJN" class="">Risk</td><td id="p|[=" class="">Patrick</td><td id="=RMC" class="">&quot;We just got done with a project with an outside vendor and it just kept on turning into the scope creep, scope creep, but yet no change orders or anything.&quot;</td><td id="?B:^" class="">Vendor management risk</td><td id="SA[c" class="">High</td></tr></div><div style="display:contents" dir="ltr"><tr id="a20d1aa8-e644-4678-bbf3-3fa80325e451"><td id="rk@a" class="">WS-DEC-5</td><td id="@sJN" class="">Decision</td><td id="p|[=" class="">Patrick</td><td id="=RMC" class="">&quot;I have a weekly standup twice a week with part of our dev and data team. At some point, would you think it would be useful to have you sit in on some of those conversations as well? 100%.&quot;</td><td id="?B:^" class="">Steve joining standups</td><td id="SA[c" class="">High</td></tr></div><div style="display:contents" dir="ltr"><tr id="e44dc3f7-68f4-4fb7-b8ac-b00ce85f0515"><td id="rk@a" class="">WS-DEC-6</td><td id="@sJN" class="">Decision</td><td id="p|[=" class="">Patrick/Steve</td><td id="=RMC" class="">&quot;We do have a dev test and prod in some environments, but in most of the time, those dev environments don&#x27;t get used like they should. So it&#x27;s usually technically... Just two layers.&quot;</td><td id="?B:^" class="">Dev/Test/Prod simplification discussion</td><td id="SA[c" class="">Medium</td></tr></div></tbody></table></div></div></article><span class="sans" style="font-size:14px;padding-top:2em"></span></body></html>

@@ -1,0 +1,744 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>Microsoft Fabric MVP Planning Discussion — Mike Spencer — 2026-01-28</title><style>
+/* cspell:disable-file */
+/* webkit printing magic: print all background colors */
+html {
+	-webkit-print-color-adjust: exact;
+}
+* {
+	box-sizing: border-box;
+	-webkit-print-color-adjust: exact;
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+}
+@media only screen {
+	body {
+		margin: 2em auto;
+		max-width: 900px;
+		color: rgb(55, 53, 47);
+	}
+}
+
+body {
+	line-height: 1.5;
+	white-space: pre-wrap;
+}
+
+a,
+a.visited {
+	color: inherit;
+	text-decoration: underline;
+}
+
+.pdf-relative-link-path {
+	font-size: 80%;
+	color: #444;
+}
+
+h1,
+h2,
+h3 {
+	letter-spacing: -0.01em;
+	line-height: 1.2;
+	font-weight: 600;
+	margin-bottom: 0;
+}
+
+/* Override strong tags inside headings to maintain consistent weight */
+h1 strong,
+h2 strong,
+h3 strong {
+	font-weight: 600;
+}
+
+.page-title {
+	font-size: 2.5rem;
+	font-weight: 700;
+	margin-top: 0;
+	margin-bottom: 0.75em;
+}
+
+h1 {
+	font-size: 1.875rem;
+	margin-top: 1.875rem;
+}
+
+h2 {
+	font-size: 1.5rem;
+	margin-top: 1.5rem;
+}
+
+h3 {
+	font-size: 1.25rem;
+	margin-top: 1.25rem;
+}
+
+.source {
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	padding: 1.5em;
+	word-break: break-all;
+}
+
+.callout {
+	border-radius: 10px;
+	padding: 1rem;
+}
+
+figure {
+	margin: 1.25em 0;
+	page-break-inside: avoid;
+}
+
+figcaption {
+	opacity: 0.5;
+	font-size: 85%;
+	margin-top: 0.5em;
+}
+
+mark {
+	background-color: transparent;
+}
+
+.indented {
+	padding-left: 1.5em;
+}
+
+hr {
+	background: transparent;
+	display: block;
+	width: 100%;
+	height: 1px;
+	visibility: visible;
+	border: none;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+img {
+	max-width: 100%;
+}
+
+@media only print {
+	img {
+		max-height: 100vh;
+		object-fit: contain;
+	}
+
+	table.collection-content {
+		width: 100%;
+		table-layout: fixed;
+	}
+
+	table.collection-content th,
+	table.collection-content td {
+		overflow-wrap: anywhere;
+	}
+
+	table.collection-content td > .user,
+	table.collection-content td > time {
+		white-space: pre-wrap;
+	}
+}
+
+@page {
+	margin: 1in;
+}
+
+.collection-content-wrapper {
+	overflow-x: auto;
+}
+
+@media only print {
+	.collection-content-wrapper {
+		overflow-x: visible;
+	}
+}
+
+.collection-content {
+	font-size: 0.875rem;
+}
+
+.collection-content td {
+	white-space: pre-wrap;
+	word-break: break-word;
+}
+
+.column-list {
+	display: flex;
+	gap: 46px;
+}
+
+.column {
+	min-width: 0;
+	overflow: hidden;
+}
+
+.column > *:first-child {
+	margin-top: 0;
+}
+
+.table_of_contents-item {
+	display: block;
+	font-size: 0.875rem;
+	line-height: 1.3;
+	padding: 0.125rem;
+}
+
+.table_of_contents-indent-1 {
+	margin-left: 1.5rem;
+}
+
+.table_of_contents-indent-2 {
+	margin-left: 3rem;
+}
+
+.table_of_contents-indent-3 {
+	margin-left: 4.5rem;
+}
+
+.table_of_contents-link {
+	text-decoration: none;
+	opacity: 0.7;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.18);
+}
+
+table,
+th,
+td {
+	border: 1px solid rgba(55, 53, 47, 0.09);
+	border-collapse: collapse;
+}
+
+table {
+	border-left: none;
+	border-right: none;
+}
+
+th,
+td {
+	font-weight: normal;
+	padding: 0.25em 0.5em;
+	line-height: 1.5;
+	min-height: 1.5em;
+	text-align: left;
+}
+
+th {
+	color: rgba(55, 53, 47, 0.6);
+}
+
+ol,
+ul {
+	margin: 0;
+	margin-block-start: 0.6em;
+	margin-block-end: 0.6em;
+}
+
+li > ol:first-child,
+li > ul:first-child {
+	margin-block-start: 0.6em;
+}
+
+ul > li {
+	list-style: disc;
+}
+
+ul.to-do-list {
+	padding-inline-start: 0;
+}
+
+ul.to-do-list > li {
+	list-style: none;
+}
+
+.to-do-children-checked {
+	text-decoration: line-through;
+	opacity: 0.375;
+}
+
+ul.toggle > li {
+	list-style: none;
+}
+
+ul {
+	padding-inline-start: 1.7em;
+}
+
+ul > li {
+	padding-left: 0.1em;
+}
+
+ol {
+	padding-inline-start: 1.6em;
+}
+
+ol.numbered-list.numbered-list-digits-2 {
+	padding-inline-start: 2em;
+}
+
+ol.numbered-list.numbered-list-digits-3plus {
+	padding-inline-start: 2.4em;
+}
+
+ol > li {
+	padding-left: 0.2em;
+}
+
+.mono ol {
+	padding-inline-start: 2em;
+}
+
+.mono ol > li {
+	text-indent: -0.4em;
+}
+
+.toggle {
+	padding-inline-start: 0em;
+	list-style-type: none;
+}
+
+/* Indent toggle children */
+.toggle > li > details {
+	padding-left: 1.7em;
+}
+
+.toggle > li > details > summary {
+	margin-left: -1.1em;
+}
+
+.selected-value {
+	display: inline-block;
+	padding: 0 0.5em;
+	background: rgba(206, 205, 202, 0.5);
+	border-radius: 3px;
+	margin-right: 0.5em;
+	margin-top: 0.3em;
+	margin-bottom: 0.3em;
+	white-space: nowrap;
+}
+
+.collection-title {
+	display: inline-block;
+	margin-right: 1em;
+}
+
+.page-description {
+	margin-bottom: 2em;
+}
+
+.simple-table {
+	margin-top: 1em;
+	font-size: 0.875rem;
+	empty-cells: show;
+}
+.simple-table td {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table th {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table-header-color {
+	background: rgb(247, 246, 243);
+	color: black;
+}
+.simple-table-header {
+	font-weight: 500;
+}
+
+time {
+	opacity: 0.5;
+}
+
+.icon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	max-width: 1.2em;
+	max-height: 1.2em;
+	text-decoration: none;
+	vertical-align: text-bottom;
+	margin-right: 0.5em;
+}
+
+img.icon {
+	border-radius: 3px;
+}
+
+.callout img.notion-static-icon {
+	width: 1em;
+	height: 1em;
+}
+
+.callout p {
+	margin: 0;
+}
+
+.callout h1,
+.callout h2,
+.callout h3 {
+	margin: 0 0 0.6rem;
+}
+
+.user-icon {
+	width: 1.5em;
+	height: 1.5em;
+	border-radius: 100%;
+	margin-right: 0.5rem;
+}
+
+.user-icon-inner {
+	font-size: 0.8em;
+}
+
+.text-icon {
+	border: 1px solid #000;
+	text-align: center;
+}
+
+.page-cover-image {
+	display: block;
+	object-fit: cover;
+	width: 100%;
+	max-height: 30vh;
+}
+
+.page-header-icon {
+	font-size: 3rem;
+	margin-bottom: 1rem;
+}
+
+.page-header-icon-with-cover {
+	margin-top: -0.72em;
+	margin-left: 0.07em;
+}
+
+.page-header-icon img {
+	border-radius: 3px;
+}
+
+.link-to-page {
+	margin: 1em 0;
+	padding: 0;
+	border: none;
+	font-weight: 500;
+}
+
+p > .user {
+	opacity: 0.5;
+}
+
+td > .user,
+td > time {
+	white-space: nowrap;
+}
+
+input[type="checkbox"] {
+	transform: scale(1.5);
+	margin-right: 0.6em;
+	vertical-align: middle;
+}
+
+p {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+.image {
+	border: none;
+	margin: 1.5em 0;
+	padding: 0;
+	border-radius: 0;
+	text-align: center;
+}
+
+.code,
+code {
+	background: rgba(135, 131, 120, 0.15);
+	border-radius: 3px;
+	padding: 0.2em 0.4em;
+	border-radius: 3px;
+	font-size: 85%;
+	tab-size: 2;
+}
+
+code {
+	color: #eb5757;
+}
+
+.code {
+	padding: 1.5em 1em;
+}
+
+.code-wrap {
+	white-space: pre-wrap;
+	word-break: break-all;
+}
+
+.code > code {
+	background: none;
+	padding: 0;
+	font-size: 100%;
+	color: inherit;
+}
+
+blockquote {
+	font-size: 1em;
+	margin: 1em 0;
+	padding-left: 1em;
+	border-left: 3px solid rgb(55, 53, 47);
+}
+
+blockquote.quote-large {
+	font-size: 1.25em;
+}
+
+.bookmark {
+	text-decoration: none;
+	max-height: 8em;
+	padding: 0;
+	display: flex;
+	width: 100%;
+	align-items: stretch;
+}
+
+.bookmark-title {
+	font-size: 0.85em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	height: 1.75em;
+	white-space: nowrap;
+}
+
+.bookmark-text {
+	display: flex;
+	flex-direction: column;
+}
+
+.bookmark-info {
+	flex: 4 1 180px;
+	padding: 12px 14px 14px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.bookmark-image {
+	width: 33%;
+	flex: 1 1 180px;
+	display: block;
+	position: relative;
+	object-fit: cover;
+	border-radius: 1px;
+}
+
+.bookmark-description {
+	color: rgba(55, 53, 47, 0.6);
+	font-size: 0.75em;
+	overflow: hidden;
+	max-height: 4.5em;
+	word-break: break-word;
+}
+
+.bookmark-href {
+	font-size: 0.75em;
+	margin-top: 0.25em;
+}
+
+.sans { font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol"; }
+.code { font-family: "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace; }
+.serif { font-family: Lyon-Text, Georgia, ui-serif, serif; }
+.mono { font-family: iawriter-mono, Nitti, Menlo, Courier, monospace; }
+.pdf .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK JP'; }
+.pdf:lang(zh-CN) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK SC'; }
+.pdf:lang(zh-TW) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK TC'; }
+.pdf:lang(ko-KR) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK KR'; }
+.pdf .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.pdf .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK JP'; }
+.pdf:lang(zh-CN) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK SC'; }
+.pdf:lang(zh-TW) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK TC'; }
+.pdf:lang(ko-KR) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK KR'; }
+.pdf .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.highlight-default {
+	color: rgba(44, 44, 43, 1);
+}
+.highlight-gray {
+	color: rgba(125, 122, 117, 1);
+	fill: rgba(125, 122, 117, 1);
+}
+.highlight-brown {
+	color: rgba(159, 118, 90, 1);
+	fill: rgba(159, 118, 90, 1);
+}
+.highlight-orange {
+	color: rgba(210, 123, 45, 1);
+	fill: rgba(210, 123, 45, 1);
+}
+.highlight-yellow {
+	color: rgba(203, 148, 52, 1);
+	fill: rgba(203, 148, 52, 1);
+}
+.highlight-teal {
+	color: rgba(80, 148, 110, 1);
+	fill: rgba(80, 148, 110, 1);
+}
+.highlight-blue {
+	color: rgba(56, 125, 201, 1);
+	fill: rgba(56, 125, 201, 1);
+}
+.highlight-purple {
+	color: rgba(154, 107, 180, 1);
+	fill: rgba(154, 107, 180, 1);
+}
+.highlight-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.highlight-red {
+	color: rgba(207, 81, 72, 1);
+	fill: rgba(207, 81, 72, 1);
+}
+.highlight-default_background {
+	color: rgba(44, 44, 43, 1);
+}
+.highlight-gray_background {
+	background: rgba(42, 28, 0, 0.07);
+}
+.highlight-brown_background {
+	background: rgba(139, 46, 0, 0.086);
+}
+.highlight-orange_background {
+	background: rgba(224, 101, 1, 0.129);
+}
+.highlight-yellow_background {
+	background: rgba(211, 168, 0, 0.137);
+}
+.highlight-teal_background {
+	background: rgba(0, 100, 45, 0.09);
+}
+.highlight-blue_background {
+	background: rgba(0, 124, 215, 0.094);
+}
+.highlight-purple_background {
+	background: rgba(102, 0, 178, 0.078);
+}
+.highlight-pink_background {
+	background: rgba(197, 0, 93, 0.086);
+}
+.highlight-red_background {
+	background: rgba(223, 22, 0, 0.094);
+}
+.block-color-default {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray {
+	color: rgba(125, 122, 117, 1);
+	fill: rgba(125, 122, 117, 1);
+}
+.block-color-brown {
+	color: rgba(159, 118, 90, 1);
+	fill: rgba(159, 118, 90, 1);
+}
+.block-color-orange {
+	color: rgba(210, 123, 45, 1);
+	fill: rgba(210, 123, 45, 1);
+}
+.block-color-yellow {
+	color: rgba(203, 148, 52, 1);
+	fill: rgba(203, 148, 52, 1);
+}
+.block-color-teal {
+	color: rgba(80, 148, 110, 1);
+	fill: rgba(80, 148, 110, 1);
+}
+.block-color-blue {
+	color: rgba(56, 125, 201, 1);
+	fill: rgba(56, 125, 201, 1);
+}
+.block-color-purple {
+	color: rgba(154, 107, 180, 1);
+	fill: rgba(154, 107, 180, 1);
+}
+.block-color-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.block-color-red {
+	color: rgba(207, 81, 72, 1);
+	fill: rgba(207, 81, 72, 1);
+}
+.block-color-default_background {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray_background {
+	background: rgba(240, 239, 237, 1);
+}
+.block-color-brown_background {
+	background: rgba(245, 237, 233, 1);
+}
+.block-color-orange_background {
+	background: rgba(251, 235, 222, 1);
+}
+.block-color-yellow_background {
+	background: rgba(249, 243, 220, 1);
+}
+.block-color-teal_background {
+	background: rgba(232, 241, 236, 1);
+}
+.block-color-blue_background {
+	background: rgba(229, 242, 252, 1);
+}
+.block-color-purple_background {
+	background: rgba(243, 235, 249, 1);
+}
+.block-color-pink_background {
+	background: rgba(250, 233, 241, 1);
+}
+.block-color-red_background {
+	background: rgba(252, 233, 231, 1);
+}
+.select-value-color-default { background-color: rgba(42, 28, 0, 0.07); }
+.select-value-color-gray { background-color: rgba(28, 19, 1, 0.11); }
+.select-value-color-brown { background-color: rgba(127, 51, 0, 0.156); }
+.select-value-color-orange { background-color: rgba(196, 88, 0, 0.203); }
+.select-value-color-yellow { background-color: rgba(209, 156, 0, 0.282); }
+.select-value-color-green { background-color: rgba(0, 96, 38, 0.156); }
+.select-value-color-blue { background-color: rgba(0, 118, 217, 0.203); }
+.select-value-color-purple { background-color: rgba(92, 0, 163, 0.141); }
+.select-value-color-pink { background-color: rgba(183, 0, 78, 0.152); }
+.select-value-color-red { background-color: rgba(206, 24, 0, 0.164); }
+
+.checkbox {
+	display: inline-flex;
+	vertical-align: text-bottom;
+	width: 16;
+	height: 16;
+	background-size: 16px;
+	margin-left: 2px;
+	margin-right: 5px;
+}
+
+.checkbox-on {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20width%3D%2216%22%20height%3D%2216%22%20fill%3D%22%2358A9D7%22%2F%3E%0A%3Cpath%20d%3D%22M6.71429%2012.2852L14%204.9995L12.7143%203.71436L6.71429%209.71378L3.28571%206.2831L2%207.57092L6.71429%2012.2852Z%22%20fill%3D%22white%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+
+.checkbox-off {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20x%3D%220.75%22%20y%3D%220.75%22%20width%3D%2214.5%22%20height%3D%2214.5%22%20fill%3D%22white%22%20stroke%3D%22%2336352F%22%20stroke-width%3D%221.5%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+	
+</style></head><body><article id="2f656320-92ca-806d-be6c-f8c45000806d" class="page sans"><header><h1 class="page-title" dir="auto">Microsoft Fabric MVP Planning Discussion — Mike Spencer — 2026-01-28</h1><p class="page-description" dir="auto"></p><table class="properties"><tbody><tr class="property-row property-row-status"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/burst_gray.svg" style="width:14px;height:14px;display:block"/></span>Processing</th><td><span class="status-value select-value-color-green"><div class="status-dot status-dot-color-green"></div>Processed</span></td></tr><tr class="property-row property-row-text"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/description_gray.svg" style="width:14px;height:14px;display:block"/></span>Agenda</th><td>POC-to-MVP rebranding, Fabric capabilities overview, data governance &amp; stewardship model, bronze/silver/gold architecture, data domain strategy, MES/M3 starting point decision, Purview parallel implementation, MVP objectives</td></tr><tr class="property-row property-row-date"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/calendar_gray.svg" style="width:14px;height:14px;display:block"/></span>Date</th><td><time>January 28, 2026</time></td></tr><tr class="property-row property-row-multi_select"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/list_gray.svg" style="width:14px;height:14px;display:block"/></span>Attendees</th><td><span class="selected-value select-value-color-pink">Internal</span></td></tr><tr class="property-row property-row-select"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/arrow-circle-down_gray.svg" style="width:14px;height:14px;display:block"/></span>Meeting Type</th><td><span class="selected-value select-value-color-yellow">Planning</span></td></tr><tr class="property-row property-row-person"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/friends_gray.svg" style="width:14px;height:14px;display:block"/></span>Organizer</th><td><span class="user"><img src="https://lh3.googleusercontent.com/a/ACg8ocLHfVvdl28jS936w7CBB6TObsUa1P-X8cbdsUSKdeEn_MD7Bw=s96-c" class="icon user-icon"/>Steve </span></td></tr><tr class="property-row property-row-select"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/arrow-circle-down_gray.svg" style="width:14px;height:14px;display:block"/></span>Priority</th><td><span class="selected-value select-value-color-red">High</span></td></tr><tr class="property-row property-row-checkbox"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/checkmark-square_gray.svg" style="width:14px;height:14px;display:block"/></span>Has Cluely Transcript</th><td><div class="checkbox checkbox-off"></div></td></tr><tr class="property-row property-row-checkbox"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/checkmark-square_gray.svg" style="width:14px;height:14px;display:block"/></span>Has Final Transcript</th><td><div class="checkbox checkbox-off"></div></td></tr><tr class="property-row property-row-select"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/arrow-circle-down_gray.svg" style="width:14px;height:14px;display:block"/></span>Status</th><td><span class="selected-value select-value-color-brown">Completed</span></td></tr><tr class="property-row property-row-checkbox"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/checkmark-square_gray.svg" style="width:14px;height:14px;display:block"/></span>Has Notion Transcript</th><td><div class="checkbox checkbox-on"></div></td></tr><tr class="property-row property-row-checkbox"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/checkmark-square_gray.svg" style="width:14px;height:14px;display:block"/></span>Has Teams Transcript</th><td><div class="checkbox checkbox-off"></div></td></tr><tr class="property-row property-row-number"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/hashtag_gray.svg" style="width:14px;height:14px;display:block"/></span>Mtg #</th><td>18</td></tr><tr class="property-row property-row-checkbox"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/checkmark-square_gray.svg" style="width:14px;height:14px;display:block"/></span>Merged to Feed</th><td><div class="checkbox checkbox-off"></div></td></tr></tbody></table></header><div class="page-body"><div style="display:contents" dir="ltr"><div id="2f656320-92ca-8017-965e-cf3f6e136849" class="transcription"><div style="border-bottom:0.05em solid;border-bottom-color:rgba(42, 28, 0, 0.07)">Summary<br/></div><div style="display:contents" dir="auto"><h3 id="2f656320-92ca-81d3-9140-f8020278f033" class="">Project Scope and Rebranding</h3></div><div style="display:contents" dir="auto"><ul id="2f656320-92ca-810f-810e-eca6ce83bad1" class="bulleted-list"><li style="list-style-type:disc">The team discussed rebranding the initiative from &quot;Proof of Concept&quot; to &quot;MVP&quot; (Minimum Viable Product), recognizing that the decision to move forward with Microsoft Fabric has already been made ‣ ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2f656320-92ca-814c-ad72-f37ee7a807ec" class="bulleted-list"><li style="list-style-type:disc">Microsoft Fabric will serve as a comprehensive solution encompassing data warehousing, ETL pipelines, data transformation, cleansing, and reporting capabilities ‣ ‣ ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2f656320-92ca-816a-84a6-e80241bcc1d0" class="bulleted-list"><li style="list-style-type:disc">The solution is designed to consolidate data from disparate databases into a single lakehouse/warehouse location ‣</li></ul></div><div style="display:contents" dir="auto"><h3 id="2f656320-92ca-81c5-a5ee-dd7ac9262aea" class="">Microsoft Fabric Capabilities</h3></div><div style="display:contents" dir="auto"><ul id="2f656320-92ca-81ae-a2e9-fe70104dd393" class="bulleted-list"><li style="list-style-type:disc">Fabric handles the full data lifecycle including data curation, preparation, and master data management ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2f656320-92ca-81c3-a39d-f886ee25d196" class="bulleted-list"><li style="list-style-type:disc">The platform supports creating measures, establishing naming conventions, and preparing data for reporting through various methods including Fabric notebooks and data flows ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2f656320-92ca-81a2-a351-de77f72fffcd" class="bulleted-list"><li style="list-style-type:disc">Microsoft Purview will be implemented in parallel to provide documentation, cataloging, and data dictionaries ‣ ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2f656320-92ca-8131-b37e-e9e01eed1c0b" class="bulleted-list"><li style="list-style-type:disc">Purview offers a searchable interface for finding data, definitions, and metadata at a granular level ‣ ‣</li></ul></div><div style="display:contents" dir="auto"><h3 id="2f656320-92ca-81e1-bed8-e328eca1f4cf" class="">Data Governance and Stewardship</h3></div><div style="display:contents" dir="auto"><ul id="2f656320-92ca-81ba-a17c-f35bbabb3cf1" class="bulleted-list"><li style="list-style-type:disc">The initiative includes identifying and documenting data stewards across the organization who will have autonomy over data decisions within their domains ‣ ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2f656320-92ca-81bc-b189-fbc6e8bf817b" class="bulleted-list"><li style="list-style-type:disc">Data stewards will serve as points of contact for questions about specific data types and will be responsible for key decisions ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2f656320-92ca-8197-957a-d913ef5f5bac" class="bulleted-list"><li style="list-style-type:disc">Documentation must be fluid and maintained through a centralized hub ‣</li></ul></div><div style="display:contents" dir="auto"><h3 id="2f656320-92ca-810c-a346-cb72ee199233" class="">Data Architecture Approach</h3></div><div style="display:contents" dir="auto"><ul id="2f656320-92ca-8133-89f9-cf014a3b9c62" class="bulleted-list"><li style="list-style-type:disc">The team will implement a bronze/silver/gold layer architecture ‣ ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2f656320-92ca-8102-8ed6-c26f48f53b5b" class="bulleted-list"><li style="list-style-type:disc"><strong>Bronze layer</strong>: Raw data dumped as-is from source systems without alteration, providing a perfect reflection of source data ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2f656320-92ca-81f7-9d95-dbbb8e3e11a4" class="bulleted-list"><li style="list-style-type:disc"><strong>Silver layer</strong>: Transformed data with contextual joins (e.g., combining MES with M3 ERP data) ‣ ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2f656320-92ca-8152-86de-cf512038d458" class="bulleted-list"><li style="list-style-type:disc"><strong>Gold layer</strong>: Final reporting-ready data (structure still being determined) ‣</li></ul></div><div style="display:contents" dir="auto"><h3 id="2f656320-92ca-8139-a06d-c892fd3620d2" class="">Data Domain Strategy</h3></div><div style="display:contents" dir="auto"><ul id="2f656320-92ca-81fd-b54b-e964e511285f" class="bulleted-list"><li style="list-style-type:disc">Mike emphasized designing around data domains rather than business structure, as organizational structure may change ‣ ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2f656320-92ca-810f-b0ae-d5cbc470fb3b" class="bulleted-list"><li style="list-style-type:disc">The distinction between manufacturing and distribution is expected to remain stable long-term ‣ ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2f656320-92ca-814d-8445-c0ad83f03b5c" class="bulleted-list"><li style="list-style-type:disc">Product data standardization across multiple systems (pre-cloud, in-plastic, NAC) was identified as a challenge ‣ ‣</li></ul></div><div style="display:contents" dir="auto"><h3 id="2f656320-92ca-8121-8c79-f0df7b1d2520" class="">Starting Point Decision</h3></div><div style="display:contents" dir="auto"><ul id="2f656320-92ca-8164-a248-e9d28abda1e6" class="bulleted-list"><li style="list-style-type:disc">Steve proposed starting with MES (Manufacturing Execution System) data as it serves as the foundation for other systems ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2f656320-92ca-81ac-a1fb-d123bcbbbd81" class="bulleted-list"><li style="list-style-type:disc">The initial implementation will focus on MES and M3 ERP integration ‣ ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2f656320-92ca-8137-a4ee-f17e8154ca43" class="bulleted-list"><li style="list-style-type:disc">Mike noted that MES will undergo future replacement, but agreed to proceed with it as the starting point ‣ ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2f656320-92ca-818e-8fb8-f69da05b507c" class="bulleted-list"><li style="list-style-type:disc">The team acknowledged that starting with any foundational source will inevitably touch multiple areas ‣</li></ul></div><div style="display:contents" dir="auto"><h3 id="2f656320-92ca-81d7-bd11-e0958fa9f069" class="">MVP Objectives</h3></div><div style="display:contents" dir="auto"><ul id="2f656320-92ca-8159-8500-f307135085d2" class="bulleted-list"><li style="list-style-type:disc">Primary goal is to demonstrate the ability to standardize and classify data into domains, bring it into a central location, and show value ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2f656320-92ca-81c8-9c4e-f492120685e8" class="bulleted-list"><li style="list-style-type:disc">The initiative aims to establish data cleansing practices and governance to prevent &quot;garbage in, garbage out&quot; scenarios ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2f656320-92ca-81c6-957b-edf06aca9212" class="bulleted-list"><li style="list-style-type:disc">Quick wins are expected from OT data correlation and integration ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2f656320-92ca-81d8-b67e-e190b93ab90e" class="bulleted-list"><li style="list-style-type:disc">Bronze and silver layers will clearly reveal data quality issues and inconsistencies across source systems ‣ ‣</li></ul></div><div style="display:contents" dir="auto"><h3 id="2f656320-92ca-81b5-899b-c6be1d477869" class="">Implementation Philosophy</h3></div><div style="display:contents" dir="auto"><ul id="2f656320-92ca-81e5-8cdb-e8813115084b" class="bulleted-list"><li style="list-style-type:disc">The team agreed to start implementation understanding they may only know 70% of requirements, with the remaining 30% becoming clear during execution ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2f656320-92ca-816d-957b-c26db17fc7c2" class="bulleted-list"><li style="list-style-type:disc">Launching the system will reveal necessary adjustments and refinements ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2f656320-92ca-8133-bdd9-fb0ee5b034aa" class="bulleted-list"><li style="list-style-type:disc">Domain definition may be more appropriate at the reporting layer rather than in the bronze/silver data layers ‣</li></ul></div><div style="display:contents" dir="auto"><h3 id="2f656320-92ca-81ff-992c-f602322750f8" class="">Key Considerations</h3></div><div style="display:contents" dir="auto"><ul id="2f656320-92ca-814a-a294-c31ee6e1f7c5" class="bulleted-list"><li style="list-style-type:disc">Master source systems need to be defined for each data type ‣ ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2f656320-92ca-81bf-9abd-d437a52d1d99" class="bulleted-list"><li style="list-style-type:disc">Product classes and naming standardization will need to be addressed in source systems, not just in the data fabric ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2f656320-92ca-8184-b191-fc91bc9e0410" class="bulleted-list"><li style="list-style-type:disc">Future MES replacement and inventory management changes (moving to Factory Track) will impact the data structure ‣ ‣</li></ul></div><div style="display:contents" dir="auto"><ul id="2f656320-92ca-817f-9299-e300fca7c364" class="bulleted-list"><li style="list-style-type:disc">Microsoft Purview must be implemented alongside Fabric to avoid retroactive documentation challenges ‣</li></ul></div><div style="display:contents" dir="auto"><h3 id="2f656320-92ca-810b-84f8-f0e5f23fe4fb" class="">Action Items</h3></div><div style="display:contents" dir="auto"><ul id="2f656320-92ca-81b8-a648-d4b2a31934dc" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Steve to send follow-up agenda ‣</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="2f656320-92ca-8105-af67-da53e38c0245" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Team to officially rebrand from POC to MVP terminology ‣</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="2f656320-92ca-8190-b9da-fe29983f6b85" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Define and document data domains ‣ ‣</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="2f656320-92ca-8118-ac7a-f8cc4ec94615" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Identify and assign data stewards for each domain ‣ ‣</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="2f656320-92ca-81f9-baf8-c22072e8aae9" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Stand up Microsoft Purview in parallel with Fabric implementation ‣</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="2f656320-92ca-81df-81dc-da3b1014a423" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Begin with MES and M3 data integration as the starting point ‣ ‣</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="2f656320-92ca-814a-bd03-f8922e361976" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Create visualization of the bronze/silver/gold layer approach ‣</span><div class="indented"></div></li></ul></div><div style="border-bottom:0.05em solid;border-bottom-color:rgba(42, 28, 0, 0.07)">Notes<br/></div><div style="display:contents" dir="auto"><p id="2f656320-92ca-8025-9e30-d6d27658dd10" class="">
+</p></div><div style="border-bottom:0.05em solid;border-bottom-color:rgba(42, 28, 0, 0.07)">Transcript<br/></div><div style="display:contents" dir="auto"><p id="2f656320-92ca-805c-86f2-c4f82736027c" class="">Sorry, to get my... There we go. Okay. We&#x27;ve... I feel like we&#x27;re a few short.</p></div><div style="display:contents" dir="auto"><p id="2f656320-92ca-80c5-abb6-d35d69bfeaa2" class="">Hi, how are you?</p></div><div style="display:contents" dir="auto"><p id="2f656320-92ca-80cf-b1d0-fa1257375a7c" class="">Hey guys, let&#x27;s see... Okay...</p></div><div style="display:contents" dir="auto"><p id="2f656320-92ca-80c8-9858-f0b6dc343fdc" class="">Hey guys, so sorry, I was held up here for this issue.</p></div><div style="display:contents" dir="auto"><p id="2f656320-92ca-804a-93d9-f6b8a605c621" class="">You waiting on Mike? Or is he going to be able to make it? I know he was... He was tentative. Oh man. It just said &quot;Tentative.&quot; Like I mean that&#x27;s why it ended we ended up going with 30 minutes rather than an hour I&#x27;m not sure if he did he accepted it?</p></div><div style="display:contents" dir="auto"><p id="2f656320-92ca-808a-8730-e624edb3f388" class="">Okay.</p></div><div style="display:contents" dir="auto"><p id="2f656320-92ca-80ad-a499-e48a4c3a5a06" class="">I think we start with what you were Well, you&#x27;re looking to...</p></div><div style="display:contents" dir="auto"><p id="2f656320-92ca-8097-a978-fb2219e62c45" class="">answer like what can I what can I do for for you.</p></div><div style="display:contents" dir="auto"><p id="2f656320-92ca-8006-9469-d20fb9caaabe" class="">Whoa.</p></div><div style="display:contents" dir="auto"><p id="2f656320-92ca-8029-b017-d704f90a73d0" class="">you Well, so So fabric Yeah, sorry.</p></div><div style="display:contents" dir="auto"><p id="2f656320-92ca-800a-af3e-cb52ce9a2e51" class="">I just want to encapsulate my question and then see if I&#x27;m on the topic, okay? But my question surrounds around this proof of concept that we&#x27;re doing for the fabric. Is it really a proof of concept of just standing that up in our environment and making sure that that can do what we think it can do? Or is it a proof of concept of actually planting and injecting that data and taking that down the path of taking a slice of that?</p></div><div style="display:contents" dir="auto"><p id="2f656320-92ca-8046-8671-fecefa9b70bc" class="">So what are the objectives of the proof of concept?</p></div><div style="display:contents" dir="auto"><p id="2f656320-92ca-802c-b523-dd15a169e04f" class="">So the proof of concept, I think technically, Proof of concept is usually reserved for something that You&#x27;re unsure if you&#x27;re actually going to move forward with you know, the product or what have you, that we&#x27;re past that, like this is what we&#x27;re moving forward with in terms of like, The solution? And so I guess But you need to start with, in terms of standing up all of the different domains or departments, like going section by section or team by team.</p></div><div style="display:contents" dir="auto"><p id="2f656320-92ca-8049-8dcb-d4eef6e0b01b" class="">This is more so, I guess it makes sense naming-wise. It&#x27;s not a proof of concept. It&#x27;s more of just what do you want to start with? We want to start with Mike believes we should start with finance, but Directly to your question in terms of the master data management aspect, Fabric covers all of that. It&#x27;s not just the reporting. It&#x27;s not just... getting it into different reports and All of that, that&#x27;s like...</p></div><div style="display:contents" dir="auto"><p id="2f656320-92ca-80b8-9030-d6d98fe2a94a" class="">That&#x27;s the second part of it. That&#x27;s like once we get the data into a single source, so lake house, warehouses, of basically getting it from all of these disparate databases, what have you. into a single location and then transformed and cleansed with ETL pipelines Fabric notebooks However, you know data flows there are different methods that we can use to consolidate, combine, clean, create measures, naming conventions, all of that so that it&#x27;s ready for reporting.</p></div><div style="display:contents" dir="auto"><p id="2f656320-92ca-809f-b965-f40703b967b7" class="">That&#x27;s all done within Fabric as well. So the curation and preparation of the data is like all part of fabric as well. That&#x27;s kind of Fabric as a product or solution is intended to encapsulate all of that, like the ETLing, the All the work on the front end or the back end that&#x27;s needed to be done prior to anybody even thinking about using it for reporting. That&#x27;s That&#x27;s kind of where the master data management comes in.</p></div><div style="display:contents" dir="auto"><p id="2f656320-92ca-8064-a137-da67135b15fb" class="">In addition, not in addition, but in parallel to that, something that is really, it&#x27;s never the most It&#x27;s never the most attracting or appealing aspect of this when you&#x27;re doing this type of initiative is the documentation and the cataloging and creating like the data dictionaries, identifying who the point people are for specifics like groups of types of data. Yeah, so we&#x27;re actually Like, who? grading and labeling and identifying the data stewards across the organization, saying these are the people that are responsible and in charge of The key decisions, if you have questions about the data, these are the people you contact.</p></div><div style="display:contents" dir="auto"><p id="2f656320-92ca-80ca-9301-d29db0322ed8" class="">They have a certain level of autonomy in terms of the decisions that they can make about that data. barring any you know any crazy impact that it would have directly or indirectly on other people&#x27;s data. So that&#x27;s kind of a different thing. But in general, they should be able to make those decisions about the data by themselves, but just having that in Not only documenting it, but it needs to be a fluid way of documenting it as well as a single user interface type of hub where people can just search for data that they&#x27;re looking for.</p></div><div style="display:contents" dir="auto"><p id="2f656320-92ca-801e-8989-e1dc7c74af15" class="">They&#x27;re looking for types of data, specific columns, like as granular as you can imagine, that&#x27;s what they should be able to do. And then also in terms of like the definition of things, like all the metadata, they should be able to search it all right within a single UI. And that is The name of it is Microsoft Purview. I don&#x27;t know if you&#x27;re familiar with that, but that is kind of, that&#x27;s part of Microsoft Fabric.</p></div><div style="display:contents" dir="auto"><p id="2f656320-92ca-8066-8427-feda00df8d0b" class="">That&#x27;s another one of the sub applications that rolled in with it. So I know I threw a lot at you, but... I love this.</p></div><div style="display:contents" dir="auto"><p id="2f656320-92ca-80bb-8168-e67e4b67df31" class="">This is really helpful for me because I think it&#x27;s even the context, and that&#x27;s what I was after, of how big is the enchilada and what are we going after? I think I have one question for you related to that. For this specific and I will be rebranding it from PLC because that was something thatKind of beating at me too, I&#x27;m like, you&#x27;re not really gonna put this in and then take it all back out if you decideIt&#x27;s wrong.</p></div><div style="display:contents" dir="auto"><p id="2f656320-92ca-8033-a5ab-e5d3b81c8dd2" class="">If I think of it more like an MVP product and when I think about it that way, I asked myself, what is the objective for Like what are we looking to get out of it when we implement it? Yep. Hey Mike.</p></div><div style="display:contents" dir="auto"><p id="2f656320-92ca-803f-b355-fde3bcedad09" class="">Hey Mike. That&#x27;s a... That&#x27;s exactly right. I think, I&#x27;d say we just make that decision now. So instead of POC, we&#x27;ll just move forward calling it the MVP for it. Microsoft Fabric, so I... Thank you for the feedback on that. Because that&#x27;s what it is. It&#x27;s not a proof of concept. We&#x27;re not... trying to confirm that it&#x27;s what we&#x27;re looking to do that&#x27;s what we&#x27;re doing Technology is something that others aren&#x27;t using.</p></div><div style="display:contents" dir="auto"><p id="2f656320-92ca-80c4-8c03-c03bde36ab8c" class="">It&#x27;s more like, how do we want to navigate and what&#x27;s the right time for us. Yep.</p></div><div style="display:contents" dir="auto"><p id="2f656320-92ca-8095-9e08-d6009b561282" class="">Wait, and I, And when we show it off, try to get people excited about it too. Right.</p></div><div style="display:contents" dir="auto"><p id="2f656320-92ca-80cd-b48f-e1195502aa0f" class="">And that actually brings us to what we kind of were looking to get Nailed down today in terms of what we wanted to start with and part of that is just I think there was some discussions when I was in town whether it should be something like finance or Um... NES was also tossed around but they&#x27;re two valid I guess arguments are requests for two different reasons and I think just giving us on the phone to discuss what those reasons are and then Yeah.</p></div><div style="display:contents" dir="auto"><p id="2f656320-92ca-8057-a67f-c77ebe8bae2b" class="">Yeah.</p></div><div style="display:contents" dir="auto"><p id="2f656320-92ca-8065-a81d-f5906bee0116" class="">You have dug into the data because if anybody knew it, all they would have been to you. Yep.</p></div><div style="display:contents" dir="auto"><p id="2f656320-92ca-804e-b2a1-da7e88654650" class="">Data quality, where we&#x27;re at, When you look at how data is used across all of our structures, Right, and we could probably define obviously our data domain.</p></div><div style="display:contents" dir="auto"><p id="2f656320-92ca-80a4-a20b-d7308eb3641b" class="">What area of focus do you think We have a couple things. Provides the most value. I think there&#x27;s some visibility stuff that we want to be able to provide, right? And what does the ELT care about? They kind of live in a little bit of a vacuum and tend to not care a ton about What I was saying is operational information. They do, but they do it in the context of dollars, right? Not in the context of efficiency, quality, things like that.</p></div><div style="display:contents" dir="auto"><p id="2f656320-92ca-8056-a80c-f26dcc980dcd" class="">Now, I think that&#x27;s changing. But, so as you look at that, right, I would, you know, what I would love is for you to say, here&#x27;s what I think our data domains are, right? Because this is not something like, we&#x27;re not reinventing anything, right? Um. Here&#x27;s what our data domains are. Here&#x27;s where I think We should prioritize those from going after data quality, data standardization, stuff like that.</p></div><div style="display:contents" dir="auto"><p id="2f656320-92ca-801d-a6f9-d8c6e64e1f82" class="">Understanding that one of them will lead you to all of them, right? especially if you&#x27;re dealing with product. Oh. And Um... But... Yeah, that&#x27;s what I think. Again, where do you think the greatest value is? Where do you think that, you know, we&#x27;ll gain some level of visibility where people will be like, yeah, you know what, I&#x27;m on board with this. The ELT can go, okay, I can feel and touch the value of this.</p></div><div style="display:contents" dir="auto"><p id="2f656320-92ca-8068-a289-f4bd0015b3ac" class="">Um... AndThen let&#x27;s just go, right? I mean, I&#x27;m okay with a, I would rather start and decide later that, hey, we&#x27;re probably not in the right data domain, we probably need to shift. Because these things are all so interconnected, I would rather start and get moving And understanding that maybe we only know 70% at this point, but we&#x27;ll pick up the other 30% of jobs that are needed.</p></div><div style="display:contents" dir="auto"><p id="2f656320-92ca-8047-9408-d56edd6ccc54" class="">then You know spiral of I mean that&#x27;s what we were talking about yesterday, Udius and I, in terms of Because we were like, &quot;Oh, well,You know, we gotta make sure this, this and this is in place. And I was like, you know what, honestly, in the past, that when I do this, When we launch it, we don&#x27;t end up having everything exactly how we expect it to upon launch ever. That&#x27;s why we&#x27;re launching it, right?</p></div><div style="display:contents" dir="auto"><p id="2f656320-92ca-8048-b084-e452f4a10a5b" class="">We launch it to see, you know what, this domain doesn&#x27;t necessarily work or we actually wanna structure it this way. But what I was hoping to get out of last week, we almost got there but, Identifying how people consider what the domains are internally at IP Corp, like what those departments are, teams are. how things are grouped. That&#x27;s kind of what I was looking for because once we have that, I didn&#x27;t know if product was too broad, but like...</p></div><div style="display:contents" dir="auto"><p id="2f656320-92ca-80a7-80e2-e8167ac2922d" class="">So here&#x27;s the, here&#x27;s the, Here&#x27;s the thing that I, so as I think about this architecturally, right? Designing to business structure It&#x27;s dangerous. BecauseThe changes, ready, stop. I think designing two data domains and understanding that there may be components where a data domain has multiple ownership, not over the whole thing, over different parts, right? Like, you know, it could be, again product product domain one product domain two right like whatever it is you know um they both fit the product domain because the data is all um relational but There&#x27;s pieces of this that are owned by R&amp;D and there&#x27;s pieces of this that are owned by...</p></div><div style="display:contents" dir="auto"><p id="2f656320-92ca-807c-b0cd-d2b8bda78073" class="">Right?</p></div><div style="display:contents" dir="auto"><p id="2f656320-92ca-80f3-857b-da3d5366e85e" class="">Or something like that.</p></div><div style="display:contents" dir="auto"><p id="2f656320-92ca-802e-9de8-d23162718f4e" class="">So I don&#x27;t want to go too granular with that. I do want to keep it as high level as possible, but I think Really going after days of names based on kind of the what the data is not necessarily the structure of the business is probably advisable because we are seeing this kind of still move and tweak right we&#x27;re going to eliminate HK at some point that name molding products is trending in longer term we&#x27;ll probably have the only thing I see staying in place for a while is we&#x27;ll have manufacturing And we&#x27;ll have distribution like though.</p></div><div style="display:contents" dir="auto"><p id="2f656320-92ca-80d1-a222-f67a2b9bccf9" class="">That&#x27;s the big one right and When you think about security and contextually and everything else like that, that&#x27;s the line that I think It was gonna go away anytime soon. No.</p></div><div style="display:contents" dir="auto"><p id="2f656320-92ca-8082-bed3-c16bab3e2d9c" class="">If it might, and I wanna ask you this question in front of everybody, right? &#x27;Cause I was just asking the question on the objective for the MVP, right? And I think the objective is to be able to cleanse the data and understand the data domain and the practices and governance around that so that we can keep it clean so that we&#x27;re able to start building and not have garbage in, garbage out kind of scenarios going on within our data fabric.</p></div><div style="display:contents" dir="auto"><p id="2f656320-92ca-8009-9cb0-c6e8d9685e5a" class="">Do you agree with that?</p></div><div style="display:contents" dir="auto"><p id="2f656320-92ca-80fe-af2c-f0610fb84ab2" class="">Okay, we need to back up and pull in from the north. Okay. So we have phased out Another day of the job. So, can you tell me It&#x27;s been found that There are fourOf not political management. In the first two phases, so this is an RFE Patrick, right? There&#x27;s the four phases total. What I&#x27;m after is, I think,Mm. Potentially what in,Day one, day two. I think how we structure that is up for discussion. I think the whole thing&#x27;s up for discussion with Steve being here and being the smart guy.</p></div><div style="display:contents" dir="auto"><p id="2f656320-92ca-8035-a815-e9d53da36739" class="">But yeah, I mean, essentially what we want to prove out is that we can standardize, we can classify our data into a data domain, we can structure it and standardize it, and we can bring it into a central location. and starts showing some value of that data being pulled together. So if I gave it to you in layman&#x27;s terms, that would be it, right? And that&#x27;s essentially what phase one and phase two are.</p></div><div style="display:contents" dir="auto"><p id="2f656320-92ca-80b7-856b-f855b3858de4" class="">Right, is that full set up, that whole, right, having our tools with like, knowing what tool we&#x27;re gonna use, knowing all this stuff. Um. and being in the practice of bringing data in. Now, what we have You&#x27;ll have to tell me, is it better to bring in dirty data and fix it?</p></div><div style="display:contents" dir="auto"><p id="2f656320-92ca-80fb-a9cf-c71493727f59" class="">Or is it better to fix data and then bring it? No. No. So that&#x27;s the immediate goal of... this initial launch is we&#x27;re getting data in from the source so that that&#x27;s part of the value of it. So that bronze layer, we dump it in there as it is. Like it should not be altered in any way. It should be a perfect reflection of what&#x27;s in the source. And then we add that silver layer, which is, you know, we start combining it with things like, you know, MES would join with like M3, you know, that kind of Yeah.</p></div><div style="display:contents" dir="auto"><p id="2f656320-92ca-808f-bc45-c9302c3c9895" class="">adding the contextual stuff that you would naturally want to do and join to for reporting purposes. And then, Once that&#x27;s done, we set up the final gold layer, which is... We still don&#x27;t know exactly how that&#x27;s going to look in... from the perspective of Is there going to be just one gold layer for many? Like many departments because it&#x27;s going to have a lot of different joint end states, we don&#x27;t really know how that&#x27;s gonna look, but at the very least that bronze and silver layer kind of structure.</p></div><div style="display:contents" dir="auto"><p id="2f656320-92ca-807f-9e34-f4418a871425" class="">data in the fabric, right? And the reporting side of transformation is in there too somewhere, right? Transforming some of the data. Is there any way I do think that we have to go after things like product classes and product naming and standardized that stuff not in MDM in source systems, right? So as I look at it, you have kind of a couple different pieces here. And I don&#x27;t know how far you&#x27;ve gone on this.</p></div><div style="display:contents" dir="auto"><p id="2f656320-92ca-801f-9a10-c6eea55c38c3" class="">Like defining what is our master source for things? Yeah. Right? Um... Here&#x27;s all the systems that provide us data. These are what the master sources are, right? Doesn&#x27;t mean to consume from there, just means that&#x27;s where the master source is, right? And then we&#x27;re going to start bringing that data in. Like ADP data, I&#x27;d probably bring into the fabric. I would probably bring that in via an active directory or something else, right?</p></div><div style="display:contents" dir="auto"><p id="2f656320-92ca-805b-9511-f6955940fcf5" class="">Just because I think that&#x27;s a whole other can of worms. I&#x27;d rather actually bring it into ERP before I brought it in there. Are you saying Bye. In the source system, I think the 3-D armor gets a really good, right?</p></div><div style="display:contents" dir="auto"><p id="2f656320-92ca-806a-ae5a-e0260ff535d5" class="">So you&#x27;re saying instead of... Simply doing the transformations as a layer in order to like cosmetically change change the data and structure you want to update it at the source before we even I was about to say, I was like, wow. I was like, that&#x27;s a lot. No, so I think, no, I understand.</p></div><div style="display:contents" dir="auto"><p id="2f656320-92ca-803d-ba1d-cec9d21d3040" class="">I understand the initial, hey, we want to bring it all into the fabric the way it is. Yeah. Right? I think that&#x27;s what&#x27;s gonna help us draw the picture of why we have to go after things like fraud. Right. Yeah. data coming from different sources that should technically mean the same thing, right, or could. Is it going to help tell that story about why corruption is silver, right? We&#x27;re really going to have to go with Russ.</p></div><div style="display:contents" dir="auto"><p id="2f656320-92ca-801a-9b42-c7de874785a0" class="">It&#x27;ll be very, it&#x27;ll be glaringly obvious. Like why certain things don&#x27;t make sense. I a lot of the times you you will find people that just You show them that and they have no response to it. It&#x27;s like, please give me a reason why this It doesn&#x27;t match this, or like, you know what I mean? Other than just, we haven&#x27;t, we need to fix it.</p></div><div style="display:contents" dir="auto"><p id="2f656320-92ca-80cb-9379-f4d68b60c671" class="">So I think bringing all the data in the right way is because that&#x27;s going to be maybe that&#x27;s going to show that our baby loves me. And then we&#x27;ll go do some work in other areas. Hmm.</p></div><div style="display:contents" dir="auto"><p id="2f656320-92ca-8032-8cb2-db1e3b50375a" class="">But Udius was thatOkay, Mike, I have a question about the legacy we&#x27;re talking about products. So if I am trying to capture what you&#x27;re saying, so like we have I would say currently we have like a massive product data in pre-cloud which I don&#x27;t know if it has in a plastic in it does it plastic I&#x27;m not sure.</p></div><div style="display:contents" dir="auto"><p id="2f656320-92ca-80f9-ace2-fe290fc5a084" class="">Pre-cloud has the in plastic data out there just so that it doesn&#x27;t. Yeah, it does.</p></div><div style="display:contents" dir="auto"><p id="2f656320-92ca-802d-9dc7-e49b9eb3286a" class="">So it has been a positive product?</p></div><div style="display:contents" dir="auto"><p id="2f656320-92ca-80b2-9757-cb94de8e86d4" class="">What I guarantee you is that it doesn&#x27;t have a standardization in the way that we&#x27;re using stuff between multi-products, NAC, right? There&#x27;s no structure, there&#x27;s no product class. This is going to be a problem in other places too that I&#x27;m already starting to see outside of just data and some of our systems and the way they operate. Um... Yeah, I mean so I think product and I&#x27;m from long time with the processing department and how it&#x27;s going to go.</p></div><div style="display:contents" dir="auto"><p id="2f656320-92ca-8057-bbdd-df910beb0803" class="">I didn&#x27;t bring that in to be able to show that. So I think it&#x27;s defining our map for Right? Understanding where we&#x27;re pulling data from and what we consider master, right? And thenYou know, defining our organic domain and I would say who are our owners of those things, right?</p></div><div style="display:contents" dir="auto"><p id="2f656320-92ca-8092-9731-fae3eef84334" class="">There&#x27;s data stewards essentially, yeah. Stewards, whatever.</p></div><div style="display:contents" dir="auto"><p id="2f656320-92ca-8018-948f-da483c6c8ebc" class="">Yeah. I got you. Yeah. Yeah, defining that, or who it is that-And I guess, are we still custodians? -What&#x27;s up? No. Prioritation wise, which area do we want to go out with?</p></div><div style="display:contents" dir="auto"><p id="2f656320-92ca-804b-a6d5-f7acc3b683d0" class="">I mean, I... Based on everything I&#x27;ve seen and the discussions that I had last week, I basically proposed MES as the first Approach. Not because it&#x27;s, I mean, because everything else is built on top of that, essentially. Like pretty much everything, that we built After that, it&#x27;s built on top of that, essentially.</p></div><div style="display:contents" dir="auto"><p id="2f656320-92ca-80c3-8079-e56b50a73350" class="">It&#x27;s like the foundation fromSo you think it&#x27;s there and not ERP data? I mean, I think thatSo I think--&#x27;Cause I look at them as one being the brain and the other one being the heart. That&#x27;s the way I look at ERP and MES. So just be aware, I&#x27;m fine with MES. If you think that&#x27;s the right way to go, let&#x27;s go, right? I am planning on shooting that thing in the head and bringing in a brand new MES at some point.</p></div><div style="display:contents" dir="auto"><p id="2f656320-92ca-80df-b29d-d09a7ac16230" class="">Now, how does that impact the work that you&#x27;re doing? I don&#x27;t know. I think that there would be some quick wins there, especially with the OT data that they&#x27;re bringing in and being able to do correlation between things in those two areas. I think there would definitely be some quick wins doing the MES side of the house. Um... So you think-I don&#x27;t know that the information necessarily changes. I mean, there&#x27;s not a lot that originates totally in NES.</p></div><div style="display:contents" dir="auto"><p id="2f656320-92ca-80eb-94b2-fea22265ac11" class="">It&#x27;s just-Is the center Piece of everything, right?</p></div><div style="display:contents" dir="auto"><p id="2f656320-92ca-8089-8109-ed553f6a19d2" class="">So I was... Well, I mean... Saying ERP like ERP as in like m3 and stuff like the okay, so I was Mean that was gonna be the first I guess step, the first silver layer Like basically, the join that I was gonna do was basically bring in M3. into that as like the joining.</p></div><div style="display:contents" dir="auto"><p id="2f656320-92ca-803b-91e7-c9c0453009c6" class="">So NES and M3 together.</p></div><div style="display:contents" dir="auto"><p id="2f656320-92ca-800b-8c04-e2c8d45e706b" class="">Yeah, basically.</p></div><div style="display:contents" dir="auto"><p id="2f656320-92ca-80f5-a6f5-cdd7de43e856" class="">Yeah, yeah, I mean, if you wanna go up to the NES side first, if that&#x27;s fine, it doesn&#x27;t bother me. And that--Be aware thatThe data will change. There&#x27;s a couple things that are happening that are gonna change The data that we can get and the data, you know, but some data we just don&#x27;t have. Yeah. Right? Inventory will be a big impact. It will be an impact on what MES is doing. So today, MES does perform some of these.</p></div><div style="display:contents" dir="auto"><p id="2f656320-92ca-80f5-bc39-de88702ed692" class="">The refunction, that&#x27;s going to change longer term. Purely that&#x27;ll be coming out of a factory track. Which is tied into M3 filter, right? Which is where inventory is actually held. So, I mean, understanding the relationship between those and different, you know, all the different data pieces coming in. I mean, what we know, what MES knows is Basically how a cook happened, right? That&#x27;s what it knows.</p></div><div style="display:contents" dir="auto"><p id="2f656320-92ca-8031-a796-f4b12421768b" class="">So, there are, I mean... historically As much as you want to try to keep it very contained, like we&#x27;re just going to focus on this subdomain. No, no, it&#x27;s going to be everywhere. Yeah, you just... Once we start pulling in those main foundational sources, it&#x27;s going to feel like we&#x27;re just starting with everything. I think it&#x27;s... I think... I think if we actually wanted to say, you know what, we&#x27;re doing this domain first, it&#x27;ll probably be easier to do it In the reporting part of it, like, We do the back end, like bronze, silver layers, like we don&#x27;t really Define exactly what domains we&#x27;re doing in that respect, but actually do it when we&#x27;re like, okay, we&#x27;re going to start creating the reports stemming from the new like bronze silver gold layers and then I feel like that&#x27;s how it should actually roll out now that I&#x27;m Thinking about is that you guys get what I&#x27;m saying there like I&#x27;ll put something together to visualize it for you guys but I think It&#x27;ll it just makes more sense because inevitably There&#x27;s no way you can bring in just this you know Yeah, okay I do think that one of our objectives, I know we&#x27;re out of time here, but I want to just plant the seed that I think it&#x27;s one of our main objectives is to get to the cleansing part and to understand how our data is structured so that we can do that.</p></div><div style="display:contents" dir="auto"><p id="2f656320-92ca-8070-8213-c6c298e0c2aa" class="">My brain, maybe it&#x27;s stuck in the ERP space because I think it just is sometimes. Goose. The products that we create by product line drive the accounts that we have, drives the customers that we have, and then drives basically how we sell and report on that. And so I think to me that&#x27;s the hierarchy that flows through the ERP system and it&#x27;s those basic components. that are going to require mastering and cleansing.</p></div><div style="display:contents" dir="auto"><p id="2f656320-92ca-806d-b49d-c7e50b1268c6" class="">And maybe I&#x27;m looking at it too narrowly, I don&#x27;t know. But that&#x27;s how my brain wants to organize that hierarchy and the areas that we&#x27;re going to have to go after to start to make sense out of the data and cleanse it and really make sure that it&#x27;s clean across.</p></div><div style="display:contents" dir="auto"><p id="2f656320-92ca-802a-a4dc-f3befcd75476" class="">That&#x27;s actually what we&#x27;re starting with, exactly. We&#x27;re bringing in that source, like foundational data, and we&#x27;ll actually start having meetings about... You know, getting it Getting it transformed into the way that you&#x27;re talking about and how it needs to be pulled through into the final goal layers and ready for reports to be pulled from it. I think we&#x27;re on the same page. I think we&#x27;re just using different.</p></div><div style="display:contents" dir="auto"><p id="2f656320-92ca-80ab-a940-ebee86b8707c" class="">terminology but I think this is very helpful thank you for the MVP point that was very helpful yeahYou guys go to find them? Like, you know, maybe we&#x27;ll transform it for a while or do something or do nothing. Who knows? Spin this off and say, hey, this is the pedicle. Once this thing is fixed and we have a new structure in place, we&#x27;ll deal with the data coming in and then you&#x27;ll see the actual benefit of that, right?</p></div><div style="display:contents" dir="auto"><p id="2f656320-92ca-80f0-9871-de97ef079648" class="">Making sure we have Microsoft Purview stood up and we&#x27;re doing it in parallel with Fabric is essential for everyone to be able to actually See the documentation and like look at it as it&#x27;s growing because doing it retroactively is a disaster. Okay. Awesome. Thank you guys. This was great, thank you guys, I appreciate it. I&#x27;ll send a follow up of the agenda, so. I&#x27;ll send a follow up of the agenda, so. Appreciate it, guys. Thanks. Bye.</p></div></div></div></div></article><span class="sans" style="font-size:14px;padding-top:2em"></span></body></html>

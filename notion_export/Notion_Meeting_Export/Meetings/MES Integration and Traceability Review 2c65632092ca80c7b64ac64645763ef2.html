@@ -1,0 +1,743 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>MES Integration and Traceability Review</title><style>
+/* cspell:disable-file */
+/* webkit printing magic: print all background colors */
+html {
+	-webkit-print-color-adjust: exact;
+}
+* {
+	box-sizing: border-box;
+	-webkit-print-color-adjust: exact;
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+}
+@media only screen {
+	body {
+		margin: 2em auto;
+		max-width: 900px;
+		color: rgb(55, 53, 47);
+	}
+}
+
+body {
+	line-height: 1.5;
+	white-space: pre-wrap;
+}
+
+a,
+a.visited {
+	color: inherit;
+	text-decoration: underline;
+}
+
+.pdf-relative-link-path {
+	font-size: 80%;
+	color: #444;
+}
+
+h1,
+h2,
+h3 {
+	letter-spacing: -0.01em;
+	line-height: 1.2;
+	font-weight: 600;
+	margin-bottom: 0;
+}
+
+/* Override strong tags inside headings to maintain consistent weight */
+h1 strong,
+h2 strong,
+h3 strong {
+	font-weight: 600;
+}
+
+.page-title {
+	font-size: 2.5rem;
+	font-weight: 700;
+	margin-top: 0;
+	margin-bottom: 0.75em;
+}
+
+h1 {
+	font-size: 1.875rem;
+	margin-top: 1.875rem;
+}
+
+h2 {
+	font-size: 1.5rem;
+	margin-top: 1.5rem;
+}
+
+h3 {
+	font-size: 1.25rem;
+	margin-top: 1.25rem;
+}
+
+.source {
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	padding: 1.5em;
+	word-break: break-all;
+}
+
+.callout {
+	border-radius: 10px;
+	padding: 1rem;
+}
+
+figure {
+	margin: 1.25em 0;
+	page-break-inside: avoid;
+}
+
+figcaption {
+	opacity: 0.5;
+	font-size: 85%;
+	margin-top: 0.5em;
+}
+
+mark {
+	background-color: transparent;
+}
+
+.indented {
+	padding-left: 1.5em;
+}
+
+hr {
+	background: transparent;
+	display: block;
+	width: 100%;
+	height: 1px;
+	visibility: visible;
+	border: none;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+img {
+	max-width: 100%;
+}
+
+@media only print {
+	img {
+		max-height: 100vh;
+		object-fit: contain;
+	}
+
+	table.collection-content {
+		width: 100%;
+		table-layout: fixed;
+	}
+
+	table.collection-content th,
+	table.collection-content td {
+		overflow-wrap: anywhere;
+	}
+
+	table.collection-content td > .user,
+	table.collection-content td > time {
+		white-space: pre-wrap;
+	}
+}
+
+@page {
+	margin: 1in;
+}
+
+.collection-content-wrapper {
+	overflow-x: auto;
+}
+
+@media only print {
+	.collection-content-wrapper {
+		overflow-x: visible;
+	}
+}
+
+.collection-content {
+	font-size: 0.875rem;
+}
+
+.collection-content td {
+	white-space: pre-wrap;
+	word-break: break-word;
+}
+
+.column-list {
+	display: flex;
+	gap: 46px;
+}
+
+.column {
+	min-width: 0;
+	overflow: hidden;
+}
+
+.column > *:first-child {
+	margin-top: 0;
+}
+
+.table_of_contents-item {
+	display: block;
+	font-size: 0.875rem;
+	line-height: 1.3;
+	padding: 0.125rem;
+}
+
+.table_of_contents-indent-1 {
+	margin-left: 1.5rem;
+}
+
+.table_of_contents-indent-2 {
+	margin-left: 3rem;
+}
+
+.table_of_contents-indent-3 {
+	margin-left: 4.5rem;
+}
+
+.table_of_contents-link {
+	text-decoration: none;
+	opacity: 0.7;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.18);
+}
+
+table,
+th,
+td {
+	border: 1px solid rgba(55, 53, 47, 0.09);
+	border-collapse: collapse;
+}
+
+table {
+	border-left: none;
+	border-right: none;
+}
+
+th,
+td {
+	font-weight: normal;
+	padding: 0.25em 0.5em;
+	line-height: 1.5;
+	min-height: 1.5em;
+	text-align: left;
+}
+
+th {
+	color: rgba(55, 53, 47, 0.6);
+}
+
+ol,
+ul {
+	margin: 0;
+	margin-block-start: 0.6em;
+	margin-block-end: 0.6em;
+}
+
+li > ol:first-child,
+li > ul:first-child {
+	margin-block-start: 0.6em;
+}
+
+ul > li {
+	list-style: disc;
+}
+
+ul.to-do-list {
+	padding-inline-start: 0;
+}
+
+ul.to-do-list > li {
+	list-style: none;
+}
+
+.to-do-children-checked {
+	text-decoration: line-through;
+	opacity: 0.375;
+}
+
+ul.toggle > li {
+	list-style: none;
+}
+
+ul {
+	padding-inline-start: 1.7em;
+}
+
+ul > li {
+	padding-left: 0.1em;
+}
+
+ol {
+	padding-inline-start: 1.6em;
+}
+
+ol.numbered-list.numbered-list-digits-2 {
+	padding-inline-start: 2em;
+}
+
+ol.numbered-list.numbered-list-digits-3plus {
+	padding-inline-start: 2.4em;
+}
+
+ol > li {
+	padding-left: 0.2em;
+}
+
+.mono ol {
+	padding-inline-start: 2em;
+}
+
+.mono ol > li {
+	text-indent: -0.4em;
+}
+
+.toggle {
+	padding-inline-start: 0em;
+	list-style-type: none;
+}
+
+/* Indent toggle children */
+.toggle > li > details {
+	padding-left: 1.7em;
+}
+
+.toggle > li > details > summary {
+	margin-left: -1.1em;
+}
+
+.selected-value {
+	display: inline-block;
+	padding: 0 0.5em;
+	background: rgba(206, 205, 202, 0.5);
+	border-radius: 3px;
+	margin-right: 0.5em;
+	margin-top: 0.3em;
+	margin-bottom: 0.3em;
+	white-space: nowrap;
+}
+
+.collection-title {
+	display: inline-block;
+	margin-right: 1em;
+}
+
+.page-description {
+	margin-bottom: 2em;
+}
+
+.simple-table {
+	margin-top: 1em;
+	font-size: 0.875rem;
+	empty-cells: show;
+}
+.simple-table td {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table th {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table-header-color {
+	background: rgb(247, 246, 243);
+	color: black;
+}
+.simple-table-header {
+	font-weight: 500;
+}
+
+time {
+	opacity: 0.5;
+}
+
+.icon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	max-width: 1.2em;
+	max-height: 1.2em;
+	text-decoration: none;
+	vertical-align: text-bottom;
+	margin-right: 0.5em;
+}
+
+img.icon {
+	border-radius: 3px;
+}
+
+.callout img.notion-static-icon {
+	width: 1em;
+	height: 1em;
+}
+
+.callout p {
+	margin: 0;
+}
+
+.callout h1,
+.callout h2,
+.callout h3 {
+	margin: 0 0 0.6rem;
+}
+
+.user-icon {
+	width: 1.5em;
+	height: 1.5em;
+	border-radius: 100%;
+	margin-right: 0.5rem;
+}
+
+.user-icon-inner {
+	font-size: 0.8em;
+}
+
+.text-icon {
+	border: 1px solid #000;
+	text-align: center;
+}
+
+.page-cover-image {
+	display: block;
+	object-fit: cover;
+	width: 100%;
+	max-height: 30vh;
+}
+
+.page-header-icon {
+	font-size: 3rem;
+	margin-bottom: 1rem;
+}
+
+.page-header-icon-with-cover {
+	margin-top: -0.72em;
+	margin-left: 0.07em;
+}
+
+.page-header-icon img {
+	border-radius: 3px;
+}
+
+.link-to-page {
+	margin: 1em 0;
+	padding: 0;
+	border: none;
+	font-weight: 500;
+}
+
+p > .user {
+	opacity: 0.5;
+}
+
+td > .user,
+td > time {
+	white-space: nowrap;
+}
+
+input[type="checkbox"] {
+	transform: scale(1.5);
+	margin-right: 0.6em;
+	vertical-align: middle;
+}
+
+p {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+.image {
+	border: none;
+	margin: 1.5em 0;
+	padding: 0;
+	border-radius: 0;
+	text-align: center;
+}
+
+.code,
+code {
+	background: rgba(135, 131, 120, 0.15);
+	border-radius: 3px;
+	padding: 0.2em 0.4em;
+	border-radius: 3px;
+	font-size: 85%;
+	tab-size: 2;
+}
+
+code {
+	color: #eb5757;
+}
+
+.code {
+	padding: 1.5em 1em;
+}
+
+.code-wrap {
+	white-space: pre-wrap;
+	word-break: break-all;
+}
+
+.code > code {
+	background: none;
+	padding: 0;
+	font-size: 100%;
+	color: inherit;
+}
+
+blockquote {
+	font-size: 1em;
+	margin: 1em 0;
+	padding-left: 1em;
+	border-left: 3px solid rgb(55, 53, 47);
+}
+
+blockquote.quote-large {
+	font-size: 1.25em;
+}
+
+.bookmark {
+	text-decoration: none;
+	max-height: 8em;
+	padding: 0;
+	display: flex;
+	width: 100%;
+	align-items: stretch;
+}
+
+.bookmark-title {
+	font-size: 0.85em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	height: 1.75em;
+	white-space: nowrap;
+}
+
+.bookmark-text {
+	display: flex;
+	flex-direction: column;
+}
+
+.bookmark-info {
+	flex: 4 1 180px;
+	padding: 12px 14px 14px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.bookmark-image {
+	width: 33%;
+	flex: 1 1 180px;
+	display: block;
+	position: relative;
+	object-fit: cover;
+	border-radius: 1px;
+}
+
+.bookmark-description {
+	color: rgba(55, 53, 47, 0.6);
+	font-size: 0.75em;
+	overflow: hidden;
+	max-height: 4.5em;
+	word-break: break-word;
+}
+
+.bookmark-href {
+	font-size: 0.75em;
+	margin-top: 0.25em;
+}
+
+.sans { font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol"; }
+.code { font-family: "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace; }
+.serif { font-family: Lyon-Text, Georgia, ui-serif, serif; }
+.mono { font-family: iawriter-mono, Nitti, Menlo, Courier, monospace; }
+.pdf .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK JP'; }
+.pdf:lang(zh-CN) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK SC'; }
+.pdf:lang(zh-TW) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK TC'; }
+.pdf:lang(ko-KR) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK KR'; }
+.pdf .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.pdf .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK JP'; }
+.pdf:lang(zh-CN) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK SC'; }
+.pdf:lang(zh-TW) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK TC'; }
+.pdf:lang(ko-KR) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK KR'; }
+.pdf .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.highlight-default {
+	color: rgba(44, 44, 43, 1);
+}
+.highlight-gray {
+	color: rgba(125, 122, 117, 1);
+	fill: rgba(125, 122, 117, 1);
+}
+.highlight-brown {
+	color: rgba(159, 118, 90, 1);
+	fill: rgba(159, 118, 90, 1);
+}
+.highlight-orange {
+	color: rgba(210, 123, 45, 1);
+	fill: rgba(210, 123, 45, 1);
+}
+.highlight-yellow {
+	color: rgba(203, 148, 52, 1);
+	fill: rgba(203, 148, 52, 1);
+}
+.highlight-teal {
+	color: rgba(80, 148, 110, 1);
+	fill: rgba(80, 148, 110, 1);
+}
+.highlight-blue {
+	color: rgba(56, 125, 201, 1);
+	fill: rgba(56, 125, 201, 1);
+}
+.highlight-purple {
+	color: rgba(154, 107, 180, 1);
+	fill: rgba(154, 107, 180, 1);
+}
+.highlight-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.highlight-red {
+	color: rgba(207, 81, 72, 1);
+	fill: rgba(207, 81, 72, 1);
+}
+.highlight-default_background {
+	color: rgba(44, 44, 43, 1);
+}
+.highlight-gray_background {
+	background: rgba(42, 28, 0, 0.07);
+}
+.highlight-brown_background {
+	background: rgba(139, 46, 0, 0.086);
+}
+.highlight-orange_background {
+	background: rgba(224, 101, 1, 0.129);
+}
+.highlight-yellow_background {
+	background: rgba(211, 168, 0, 0.137);
+}
+.highlight-teal_background {
+	background: rgba(0, 100, 45, 0.09);
+}
+.highlight-blue_background {
+	background: rgba(0, 124, 215, 0.094);
+}
+.highlight-purple_background {
+	background: rgba(102, 0, 178, 0.078);
+}
+.highlight-pink_background {
+	background: rgba(197, 0, 93, 0.086);
+}
+.highlight-red_background {
+	background: rgba(223, 22, 0, 0.094);
+}
+.block-color-default {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray {
+	color: rgba(125, 122, 117, 1);
+	fill: rgba(125, 122, 117, 1);
+}
+.block-color-brown {
+	color: rgba(159, 118, 90, 1);
+	fill: rgba(159, 118, 90, 1);
+}
+.block-color-orange {
+	color: rgba(210, 123, 45, 1);
+	fill: rgba(210, 123, 45, 1);
+}
+.block-color-yellow {
+	color: rgba(203, 148, 52, 1);
+	fill: rgba(203, 148, 52, 1);
+}
+.block-color-teal {
+	color: rgba(80, 148, 110, 1);
+	fill: rgba(80, 148, 110, 1);
+}
+.block-color-blue {
+	color: rgba(56, 125, 201, 1);
+	fill: rgba(56, 125, 201, 1);
+}
+.block-color-purple {
+	color: rgba(154, 107, 180, 1);
+	fill: rgba(154, 107, 180, 1);
+}
+.block-color-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.block-color-red {
+	color: rgba(207, 81, 72, 1);
+	fill: rgba(207, 81, 72, 1);
+}
+.block-color-default_background {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray_background {
+	background: rgba(240, 239, 237, 1);
+}
+.block-color-brown_background {
+	background: rgba(245, 237, 233, 1);
+}
+.block-color-orange_background {
+	background: rgba(251, 235, 222, 1);
+}
+.block-color-yellow_background {
+	background: rgba(249, 243, 220, 1);
+}
+.block-color-teal_background {
+	background: rgba(232, 241, 236, 1);
+}
+.block-color-blue_background {
+	background: rgba(229, 242, 252, 1);
+}
+.block-color-purple_background {
+	background: rgba(243, 235, 249, 1);
+}
+.block-color-pink_background {
+	background: rgba(250, 233, 241, 1);
+}
+.block-color-red_background {
+	background: rgba(252, 233, 231, 1);
+}
+.select-value-color-default { background-color: rgba(42, 28, 0, 0.07); }
+.select-value-color-gray { background-color: rgba(28, 19, 1, 0.11); }
+.select-value-color-brown { background-color: rgba(127, 51, 0, 0.156); }
+.select-value-color-orange { background-color: rgba(196, 88, 0, 0.203); }
+.select-value-color-yellow { background-color: rgba(209, 156, 0, 0.282); }
+.select-value-color-green { background-color: rgba(0, 96, 38, 0.156); }
+.select-value-color-blue { background-color: rgba(0, 118, 217, 0.203); }
+.select-value-color-purple { background-color: rgba(92, 0, 163, 0.141); }
+.select-value-color-pink { background-color: rgba(183, 0, 78, 0.152); }
+.select-value-color-red { background-color: rgba(206, 24, 0, 0.164); }
+
+.checkbox {
+	display: inline-flex;
+	vertical-align: text-bottom;
+	width: 16;
+	height: 16;
+	background-size: 16px;
+	margin-left: 2px;
+	margin-right: 5px;
+}
+
+.checkbox-on {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20width%3D%2216%22%20height%3D%2216%22%20fill%3D%22%2358A9D7%22%2F%3E%0A%3Cpath%20d%3D%22M6.71429%2012.2852L14%204.9995L12.7143%203.71436L6.71429%209.71378L3.28571%206.2831L2%207.57092L6.71429%2012.2852Z%22%20fill%3D%22white%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+
+.checkbox-off {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20x%3D%220.75%22%20y%3D%220.75%22%20width%3D%2214.5%22%20height%3D%2214.5%22%20fill%3D%22white%22%20stroke%3D%22%2336352F%22%20stroke-width%3D%221.5%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+	
+</style></head><body><article id="2c656320-92ca-80c7-b64a-c64645763ef2" class="page sans"><header><h1 class="page-title" dir="auto">MES Integration and Traceability Review</h1><p class="page-description" dir="auto"></p><table class="properties"><tbody><tr class="property-row property-row-status"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/burst_gray.svg" style="width:14px;height:14px;display:block"/></span>Processing</th><td><span class="status-value select-value-color-green"><div class="status-dot status-dot-color-green"></div>Processed</span></td></tr><tr class="property-row property-row-text"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/description_gray.svg" style="width:14px;height:14px;display:block"/></span>Agenda</th><td>End-to-end MES flow walkthrough (Optiva → MES → M3 → QC), Batch ID traceability, plant vs corporate formulas, MES-M3 integration rates (98-99%), disposition codes, S3/S4 yield accounting, ANV recommendations</td></tr><tr class="property-row property-row-date"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/calendar_gray.svg" style="width:14px;height:14px;display:block"/></span>Date</th><td><time>December 11, 2025</time></td></tr><tr class="property-row property-row-multi_select"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/list_gray.svg" style="width:14px;height:14px;display:block"/></span>Attendees</th><td><span class="selected-value select-value-color-pink">Internal</span></td></tr><tr class="property-row property-row-select"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/arrow-circle-down_gray.svg" style="width:14px;height:14px;display:block"/></span>Meeting Type</th><td><span class="selected-value select-value-color-orange">Team Meeting</span></td></tr><tr class="property-row property-row-person"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/friends_gray.svg" style="width:14px;height:14px;display:block"/></span>Organizer</th><td><span class="user"><img src="https://lh3.googleusercontent.com/a/ACg8ocLHfVvdl28jS936w7CBB6TObsUa1P-X8cbdsUSKdeEn_MD7Bw=s96-c" class="icon user-icon"/>Steve </span></td></tr><tr class="property-row property-row-select"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/arrow-circle-down_gray.svg" style="width:14px;height:14px;display:block"/></span>Priority</th><td><span class="selected-value select-value-color-red">High</span></td></tr><tr class="property-row property-row-checkbox"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/checkmark-square_gray.svg" style="width:14px;height:14px;display:block"/></span>Has Cluely Transcript</th><td><div class="checkbox checkbox-on"></div></td></tr><tr class="property-row property-row-checkbox"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/checkmark-square_gray.svg" style="width:14px;height:14px;display:block"/></span>Has Final Transcript</th><td><div class="checkbox checkbox-on"></div></td></tr><tr class="property-row property-row-select"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/arrow-circle-down_gray.svg" style="width:14px;height:14px;display:block"/></span>Status</th><td><span class="selected-value select-value-color-brown">Completed</span></td></tr><tr class="property-row property-row-checkbox"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/checkmark-square_gray.svg" style="width:14px;height:14px;display:block"/></span>Has Notion Transcript</th><td><div class="checkbox checkbox-off"></div></td></tr><tr class="property-row property-row-checkbox"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/checkmark-square_gray.svg" style="width:14px;height:14px;display:block"/></span>Has Teams Transcript</th><td><div class="checkbox checkbox-off"></div></td></tr><tr class="property-row property-row-number"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/hashtag_gray.svg" style="width:14px;height:14px;display:block"/></span>Mtg #</th><td>12</td></tr><tr class="property-row property-row-checkbox"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/checkmark-square_gray.svg" style="width:14px;height:14px;display:block"/></span>Merged to Feed</th><td><div class="checkbox checkbox-off"></div></td></tr></tbody></table></header><div class="page-body"><div style="display:contents" dir="auto"><h2 id="f7bd046e-f616-4fc8-9d4d-bd8dd572a581" class="">🎯 Cluely Summary</h2></div><div style="display:contents" dir="auto"><h3 id="488d4336-36ac-474b-824f-cbe943260416" class="">Action Items</h3></div><div style="display:contents" dir="auto"><ul id="52b61347-da5e-4c24-aae8-96ea3c49f45f" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked"><strong>Schedule call with Matt Francis</strong> – get example of a successful finished‑goods posting and a failed raw‑material consumption message (BOD type, batch‑ID field, timestamps)</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="528e2756-2e8e-468b-a29f-fb1d1c182774" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked"><strong>Add Steve to MES test environment</strong> – grant Teams/VPN access, confirm login works</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="4f3cbcc2-00a6-4f07-8bcc-92127fd178d1" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked"><strong>Create glossary entry for &quot;S3/S4&quot;</strong> – map to &quot;Yield Accounting / Inventory Reconciliation&quot; and list related terms (X‑Lot, XL‑Mix, Stub Drum, Wash Styrene)</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="6784a61c-6bed-4a17-9915-84aaba36ac5e" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked"><strong>Request exception‑report schema</strong> – fields for failure reason, batch ID, message type, retry status</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="164e9dfc-e034-4655-8b25-bcfddc179e78" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked"><strong>Document batch‑ID join logic</strong> – confirm that step timestamps, PLC flags, and ANV session IDs use the same Batch ID key</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="0ff05a5a-2dd7-456e-aa32-1919fdbd1b80" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked"><strong>Define disposition code list</strong> – standardize codes for Salable, Rework, Scrap, Wash‑Styrene, XL‑Mix</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="d6fe35ff-ec6d-4386-b6db-3e343019a81c" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked"><strong>Set up follow‑up meeting</strong> – deep‑dive on ANV/OATS integration and on cycle‑time analytics</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><hr id="5fb764b8-2178-4a93-bcb7-54f86b1591dc"/></div><div style="display:contents" dir="auto"><h3 id="d5fc4ac0-5ca6-4185-9308-814230c2caf2" class="">Formulation Flow Overview</h3></div><div style="display:contents" dir="auto"><ul id="d1c7bc11-979b-4541-826a-df92f8b43cc4" class="bulleted-list"><li style="list-style-type:disc"><strong>Optiva</strong> holds corporate formulas &amp; specs (percent‑based, sum = 100%)</li></ul></div><div style="display:contents" dir="auto"><ul id="6d7cb21f-e1e9-43ab-b473-a1306bfa2e73" class="bulleted-list"><li style="list-style-type:disc">MES creates plant‑specific formula (<strong>Plant Formula ID</strong>) linked to corporate formula ID</li></ul></div><div style="display:contents" dir="auto"><ul id="b14ba1e9-cff8-41be-8ad0-18ec80d96c91" class="bulleted-list"><li style="list-style-type:disc">Batch cut snapshots corporate version, plant version, spec version – <strong>immutable</strong> thereafter</li></ul></div><div style="display:contents" dir="auto"><ul id="ba21c7ab-4cad-4b67-8237-b8de4aac7181" class="bulleted-list"><li style="list-style-type:disc"><strong>Batch ID</strong> travels through MES → ANV/OATS → M3; M3 appends lot suffix (‑A/‑B/‑C) for stock allocation</li></ul></div><div style="display:contents" dir="auto"><h3 id="e6da0cf9-930e-43cf-84ab-c0965729e595" class="">Plant Formula IDs &amp; Traceability</h3></div><div style="display:contents" dir="auto"><ul id="16fde5d7-899d-4028-a866-2080d7125cda" class="bulleted-list"><li style="list-style-type:disc">Two tables: <strong>CorporateFormula</strong> (global ID) and <strong>PlantFormula</strong> (own ID + foreign key to corporate)</li></ul></div><div style="display:contents" dir="auto"><ul id="cb0f7787-874c-4cb1-8e52-573d2c26c8ee" class="bulleted-list"><li style="list-style-type:disc">Batch record stores both PlantFormulaID and CorporateFormulaID (plus versions)</li></ul></div><div style="display:contents" dir="auto"><ul id="f482abee-c175-4f64-9b79-6bd615d2d360" class="bulleted-list"><li style="list-style-type:disc">Badge/Batch number is the <strong>system‑wide key</strong>; joins to tests, adjustments, cycle times, dispositions</li></ul></div><div style="display:contents" dir="auto"><ul id="1597895e-a1bc-49c9-aa0c-b900482e8616" class="bulleted-list"><li style="list-style-type:disc">When a batch is split, MES re‑evaluates eligible plant formulas based on vessel/group &amp; size range</li></ul></div><div style="display:contents" dir="auto"><h3 id="6b09e664-bb91-47e1-8816-04070e2686a4" class="">Vessel &amp; Batch‑Size Constraints</h3></div><div style="display:contents" dir="auto"><ul id="3508f613-2a61-421b-a1b6-2e506de2ce50" class="bulleted-list"><li style="list-style-type:disc">Plant formulas can restrict:<div style="display:contents" dir="auto"><ul id="dae3751a-e75b-41cc-9115-f683077a3a7a" class="bulleted-list"><li style="list-style-type:circle">Vessel group or specific kettle (e.g., B‑5)</li></ul></div><div style="display:contents" dir="auto"><ul id="0938947f-baec-4288-ac14-90f8fbaef5e4" class="bulleted-list"><li style="list-style-type:circle">Batch‑size bands (e.g., &lt;10k lb, 10‑40k lb)</li></ul></div></li></ul></div><div style="display:contents" dir="auto"><ul id="0963ee3b-7478-4a94-86bd-6a042fedd06e" class="bulleted-list"><li style="list-style-type:disc">Enforcement occurs at <strong>batch creation</strong>; if vessel becomes unavailable later, batch is cancelled or re‑cut</li></ul></div><div style="display:contents" dir="auto"><ul id="f63fd591-c181-4f53-9788-2787e69b8f23" class="bulleted-list"><li style="list-style-type:disc">Pending batches can be edited: change vessel, adjust size, add rework lines, tweak formula per‑batch</li></ul></div><div style="display:contents" dir="auto"><h3 id="dcd829a8-c7cf-4993-96ca-bef8fdf17e7c" class="">Scheduling &amp; Rescheduling</h3></div><div style="display:contents" dir="auto"><ul id="2666f800-31dd-4bec-a6e2-4423fabc83fd" class="bulleted-list"><li style="list-style-type:disc">Advanced Scheduler seeds batch card with formula, vessel, size, and default constraints</li></ul></div><div style="display:contents" dir="auto"><ul id="d8e71f5d-ed6b-4363-932d-2d72ed244280" class="bulleted-list"><li style="list-style-type:disc">On reschedule or vessel change, MES re‑validates constraints <strong>before issuing</strong> the new batch card</li></ul></div><div style="display:contents" dir="auto"><ul id="b1d79231-bd9a-4466-9d8b-976ff6b1afc8" class="bulleted-list"><li style="list-style-type:disc">If a kettle is down day‑of, operator must cancel and recut or select an alternate allowed vessel</li></ul></div><div style="display:contents" dir="auto"><h3 id="ea4f34f1-5ee9-44bf-a564-6f523683939b" class="">Cycle‑Time &amp; Analytics</h3></div><div style="display:contents" dir="auto"><ul id="fea8752f-4ddd-48a5-b00d-9da8e7664b26" class="bulleted-list"><li style="list-style-type:disc">Steps captured: <strong>Formulation → QC → Adjustments → Pump‑out</strong> (multiple passes possible)</li></ul></div><div style="display:contents" dir="auto"><ul id="c216e78a-8628-4a93-83ba-aec02660bfef" class="bulleted-list"><li style="list-style-type:disc">Duration recorded either automatically from PLC events or manually entered on batch card</li></ul></div><div style="display:contents" dir="auto"><ul id="1c6a8c55-d508-4699-b0c0-503959be1774" class="bulleted-list"><li style="list-style-type:disc">PLC entries flagged as &quot;<strong>authoritative</strong>&quot;; manual entries carry a flag for provenance</li></ul></div><div style="display:contents" dir="auto"><ul id="923db672-a805-4697-9ea5-65615eb845e3" class="bulleted-list"><li style="list-style-type:disc">Time‑to‑correct calculated by joining adjustment timestamp to next QC result timestamp</li></ul></div><div style="display:contents" dir="auto"><ul id="2f560da4-1620-4141-9574-2c96443df60a" class="bulleted-list"><li style="list-style-type:disc">Rework or multiple QC passes generate separate records (record #3, #4, …)</li></ul></div><div style="display:contents" dir="auto"><h3 id="0ae6cfea-65b8-4492-93da-070f096e25e8" class="">Data Capture: PLC vs Manual</h3></div><div style="display:contents" dir="auto"><ul id="6025d6ee-abd5-465f-b219-633735edf971" class="bulleted-list"><li style="list-style-type:disc">PLC badge data flows directly into MES tables (high‑precision timestamps, exact quantities)</li></ul></div><div style="display:contents" dir="auto"><ul id="d988e4f8-c835-4697-8a0c-d6133d82f1a5" class="bulleted-list"><li style="list-style-type:disc">Manual entry used when PLC not available; <strong>flagged</strong> in underlying tables</li></ul></div><div style="display:contents" dir="auto"><ul id="a756d862-0eb0-4e5e-b6c0-f2020988fc9c" class="bulleted-list"><li style="list-style-type:disc">Operators sometimes batch‑enter data from paper cards at day‑end – creates wide time windows</li></ul></div><div style="display:contents" dir="auto"><h3 id="3ee5fff2-6431-42a9-91f5-72d1e53f4e2e" class="">ANV &amp; OATS Recommendations</h3></div><div style="display:contents" dir="auto"><ul id="e2247090-ade4-48bc-b650-16eb32c138ef" class="bulleted-list"><li style="list-style-type:disc">ANV stores recommended adjustment (value, session ID) in MES tables (<strong>not shown in UI</strong>)</li></ul></div><div style="display:contents" dir="auto"><ul id="ed78ba97-2697-4e35-9e1b-71fa9d243057" class="bulleted-list"><li style="list-style-type:disc">Operators may apply a different amount; both recommended and actual values linked to same Batch ID</li></ul></div><div style="display:contents" dir="auto"><ul id="8f112020-1ac6-4723-9076-ef2c2f23bd26" class="bulleted-list"><li style="list-style-type:disc">Enables metrics: <strong>Recommended vs Actual</strong>, <strong>Operator compliance</strong>, <strong>Time‑to‑correct</strong> per plant &amp; vessel</li></ul></div><div style="display:contents" dir="auto"><h3 id="2b13f51f-660b-465d-894c-d1e6c4d06f4d" class="">Disposition &amp; Yield Accounting</h3></div><div style="display:contents" dir="auto"><ul id="c32146b3-6a6f-468e-a7a7-324302f0eb27" class="bulleted-list"><li style="list-style-type:disc">MES sends per‑line product condition and exact weight to M3 (salable, rework, scrap)</li></ul></div><div style="display:contents" dir="auto"><ul id="c5589853-0417-4e90-8c3b-b085f1f3b4bd" class="bulleted-list"><li style="list-style-type:disc">Yield variance computed from target fill vs total weight on M3 side</li></ul></div><div style="display:contents" dir="auto"><ul id="0a16a076-55df-4f22-8d1b-24e419b8303f" class="bulleted-list"><li style="list-style-type:disc">By‑product handling:<div style="display:contents" dir="auto"><ul id="3b1cc08a-5dc0-412f-b8a1-4b1a325c198d" class="bulleted-list"><li style="list-style-type:circle"><strong>XL‑Mix / X‑Lot</strong> – reworkable material routed back into eligible batches</li></ul></div><div style="display:contents" dir="auto"><ul id="14d3159c-9d53-4168-815c-f62fa0ba8cc0" class="bulleted-list"><li style="list-style-type:circle"><strong>Wash Styrene</strong> – recorded as distinct non‑salable consumption with its own lot and disposal method</li></ul></div></li></ul></div><div style="display:contents" dir="auto"><ul id="a6736a84-c93b-4be3-a258-2f45c1a77bbc" class="bulleted-list"><li style="list-style-type:disc">Stub drums and over‑production tracked as separate disposition lines</li></ul></div><div style="display:contents" dir="auto"><h3 id="6936d75e-479c-472a-bcdf-25b2149b9bda" class="">Integration Failures &amp; Exception Handling</h3></div><div style="display:contents" dir="auto"><ul id="49f2a078-6a2f-4995-aa88-10eae1d2968a" class="bulleted-list"><li style="list-style-type:disc">Approx. <strong>98‑99%</strong> of MES → M3 postings succeed; 1‑2% fail</li></ul></div><div style="display:contents" dir="auto"><ul id="aa68fe49-83fa-49f6-9206-3ecc4db87bc4" class="bulleted-list"><li style="list-style-type:disc">Common failure reasons:<div style="display:contents" dir="auto"><ul id="0c9d345e-0925-473b-aa87-d80c26bf2b67" class="bulleted-list"><li style="list-style-type:circle">Timing mismatch (batch close arrives before raw‑material consumption)</li></ul></div><div style="display:contents" dir="auto"><ul id="53664681-fb5a-4fe1-a2e8-f250e4a3e15c" class="bulleted-list"><li style="list-style-type:circle">Non‑sequential processing in MECH integration (raw‑material transactions sent after batch closed)</li></ul></div></li></ul></div><div style="display:contents" dir="auto"><ul id="ebce9a2d-6109-4472-ab64-c259da43bde6" class="bulleted-list"><li style="list-style-type:disc">No acknowledgment from MECH beyond &quot;received&quot;; need explicit success/failure response</li></ul></div><div style="display:contents" dir="auto"><ul id="e10cae34-7521-48b6-8c03-65237996f25a" class="bulleted-list"><li style="list-style-type:disc">Planned cloud migration expected to reduce timing issues and enable richer API calls</li></ul></div><div style="display:contents" dir="auto"><h3 id="5926ca60-da6f-4905-adb1-102fbda5076c" class="">Mass Balance &amp; S3/S4 Terminology</h3></div><div style="display:contents" dir="auto"><ul id="ef0a6444-e7c1-4a52-bbfb-cafa7c9dc19c" class="bulleted-list"><li style="list-style-type:disc">IP refers to <strong>mass‑balance accountability</strong> as &quot;<strong>S3/S4</strong>&quot; – umbrella for yield accounting &amp; inventory reconciliation</li></ul></div><div style="display:contents" dir="auto"><ul id="ceb94e0a-9ce2-48cb-9984-4f13bfafcfdc" class="bulleted-list"><li style="list-style-type:disc">Every pound tracked to one of three outcomes: <strong>Salable</strong>, <strong>Reworkable</strong>, <strong>Scrap/Waste</strong></li></ul></div><div style="display:contents" dir="auto"><ul id="af53bc09-bd4a-4038-afac-b68a52e04e9b" class="bulleted-list"><li style="list-style-type:disc">Glossary to align executive view (Yield Accounting) with operational terms (S3/S4, X‑Lot, XL‑Mix)</li></ul></div><div style="display:contents" dir="auto"><h3 id="1977ceff-f9d7-4e80-9363-b19f03e922a2" class="">Follow‑Up Discussion Points</h3></div><div style="display:contents" dir="auto"><ul id="cf44f9fd-3074-4629-a9fd-c0d5e356152b" class="bulleted-list"><li style="list-style-type:disc">Confirm whether M3 ever loses the original Batch ID when appending lot suffixes</li></ul></div><div style="display:contents" dir="auto"><ul id="73fd0029-913f-42d9-af37-0c3a28ee407d" class="bulleted-list"><li style="list-style-type:disc">Verify that ANV recommendation records include session ID and are stored consistently across plants</li></ul></div><div style="display:contents" dir="auto"><ul id="701a0fd0-29e6-4f5b-a157-611cb4608aa9" class="bulleted-list"><li style="list-style-type:disc">Clarify if disposition codes are standardized across all plants or vary by site</li></ul></div><div style="display:contents" dir="auto"><ul id="9bbbc177-2dbf-4a6c-97c6-5501b7ec7bad" class="bulleted-list"><li style="list-style-type:disc">Determine if PLC flag is present on both charge and adjustment records in the underlying tables</li></ul></div><div style="display:contents" dir="auto"><ul id="2af71673-c09e-4d6b-a222-e557d06733f0" class="bulleted-list"><li style="list-style-type:disc">Ask Matt Francis for the exact BOD names used for raw‑material consumption and finished‑goods posting</li></ul></div><div style="display:contents" dir="auto"><hr id="b5f6a556-d16f-47c8-a262-400445f34225"/></div><div style="display:contents" dir="auto"><h2 id="69e34af3-37ca-49e8-9470-f875f0cea474" class="">🎙️ Cluely Transcript</h2></div><div style="display:contents" dir="auto"><p id="0e581606-b218-413c-80aa-8f8449e9a0a6" class=""><strong>Duration:</strong> ~52 minutes | <strong>Attendees:</strong> Steve, Matt Pennaz, Patrick Stiller</p></div><div style="display:contents" dir="auto"><h3 id="9678fa62-1adc-4a38-bd18-f3a7a5eed353" class="">Key Segments</h3></div><div style="display:contents" dir="ltr"><table id="1e9d3db8-c2d9-4d9c-87f8-e30e9d7ba981" class="simple-table"><thead class="simple-table-header"><div style="display:contents" dir="ltr"><tr id="c37c4a21-bad5-4ffe-b16d-21b75788a084"><th id="VtAy" class="simple-table-header-color simple-table-header">Time</th><th id="MF&lt;?" class="simple-table-header-color simple-table-header">Topic</th><th id="&gt;G_P" class="simple-table-header-color simple-table-header">Notes</th></tr></div></thead><tbody><div style="display:contents" dir="ltr"><tr id="733d4de4-1b4f-4399-83a0-5cdba9493746"><td id="VtAy" class="">0:00–6:30</td><td id="MF&lt;?" class="">Optiva overview</td><td id="&gt;G_P" class="">Corporate formulas, specs (mfg vs sales min/max), percent-based ingredients</td></tr></div><div style="display:contents" dir="ltr"><tr id="71eaf0e4-b750-4590-892f-bc6cd5c80b9e"><td id="VtAy" class="">6:30–10:30</td><td id="MF&lt;?" class="">Plant formula creation</td><td id="&gt;G_P" class="">Plant tweaks, vessel/size constraints, can add but not remove corp lines</td></tr></div><div style="display:contents" dir="ltr"><tr id="ca91c1db-2922-44e1-b974-811320c11769"><td id="VtAy" class="">10:30–18:00</td><td id="MF&lt;?" class="">Batch card creation</td><td id="&gt;G_P" class="">Sales order attach, rework/retest types, yield scaling, vessel selection</td></tr></div><div style="display:contents" dir="ltr"><tr id="835b6724-9e56-4d5d-a496-22b457245913"><td id="VtAy" class="">18:00–26:30</td><td id="MF&lt;?" class="">Batch ID &amp; traceability</td><td id="&gt;G_P" class="">System-wide key, snapshot versioning, M3 lot suffix handling</td></tr></div><div style="display:contents" dir="ltr"><tr id="d166b4b3-85e7-4d1c-96bc-959aeb6eaff5"><td id="VtAy" class="">26:30–30:30</td><td id="MF&lt;?" class="">Cycle times &amp; PLC</td><td id="&gt;G_P" class="">Formulation→QC→Pumpout steps, PLC vs manual flag, corporate KPI</td></tr></div><div style="display:contents" dir="ltr"><tr id="e84ed10c-4062-442a-aa9d-8078c10f2214"><td id="VtAy" class="">30:00–34:00</td><td id="MF&lt;?" class="">ANV recommendations</td><td id="&gt;G_P" class="">Stored in MES tables, not in UI; enables compliance metrics</td></tr></div><div style="display:contents" dir="ltr"><tr id="126a569c-83ad-490e-91c5-e6d8e46e65d2"><td id="VtAy" class="">34:00–39:00</td><td id="MF&lt;?" class="">Dispositions &amp; S3/S4</td><td id="&gt;G_P" class="">XL-Mix, X-Lot, Wash Styrene, mass-balance terminology</td></tr></div><div style="display:contents" dir="ltr"><tr id="c4ad47b2-2f36-4c40-9703-d4aea0f54733"><td id="VtAy" class="">39:00–48:00</td><td id="MF&lt;?" class="">Integration failures</td><td id="&gt;G_P" class="">98-99% success, MECH timing issues, no ack beyond &quot;received&quot;</td></tr></div><div style="display:contents" dir="ltr"><tr id="972d7d1a-9f23-4c93-bf5c-b5a62f3b9d20"><td id="VtAy" class="">48:00–52:00</td><td id="MF&lt;?" class="">Wrap-up &amp; next steps</td><td id="&gt;G_P" class="">Schedule Matt Francis call, set up MES test access</td></tr></div></tbody></table></div><div style="display:contents" dir="auto"><h3 id="40171e79-ca17-47a8-8e0f-b6f911b634d6" class="">Notable Quotes</h3></div><div style="display:contents" dir="auto"><blockquote id="3d49d562-aaac-4b32-96c7-dd41f3554a39" class="">&quot;This batch idea is on pretty much every single table and it&#x27;s kind of your key identifier... everything you could ever hope and long for is tied to this batch number&quot; — Matt Pennaz</blockquote></div><div style="display:contents" dir="auto"><blockquote id="34c2d0a7-14c2-4909-83ef-f67d4105fc02" class="">&quot;We&#x27;ve gotten it down to probably about 98–99% of them make it through... but there&#x27;s always something&quot; — Matt Pennaz</blockquote></div><div style="display:contents" dir="auto"><blockquote id="12a92e9a-bfde-4f44-a95b-8cc1713656c1" class="">&quot;S3/S4... that&#x27;s what you&#x27;re talking about when you say [mass balance]&quot; — Matt Pennaz (confirming IP internal terminology)</blockquote></div><div style="display:contents" dir="auto"><h3 id="ba6efaee-576b-4797-b8a2-de193f9410df" class="">Transcript Quality Notes</h3></div><div style="display:contents" dir="auto"><ul id="2ca0a497-2590-4efa-a232-bf588f3ca942" class="bulleted-list"><li style="list-style-type:disc">Auto-transcription has speaker attribution issues (all labeled &quot;Steve&quot;)</li></ul></div><div style="display:contents" dir="auto"><ul id="b72ca9dc-c21c-46fd-8278-ed8342231c76" class="bulleted-list"><li style="list-style-type:disc">Matt Pennaz is primary presenter for MES walkthrough</li></ul></div><div style="display:contents" dir="auto"><ul id="ef5bff15-5b02-4397-9710-c7f6ff923761" class="bulleted-list"><li style="list-style-type:disc">Clear audio throughout; minimal garbled segments</li></ul></div><div style="display:contents" dir="auto"><hr id="3b654152-5c03-4dfc-a6af-c9beab23ce7c"/></div><div style="display:contents" dir="auto"><h2 id="3867a4e8-a3eb-4f43-8388-a7c57dafd524" class="">💡 Cluely Usage Log</h2></div><div style="display:contents" dir="auto"><p id="3d18d7a2-2f6d-43f4-8d44-693659f323a5" class=""><strong>24 real-time assists during meeting:</strong></p></div><div style="display:contents" dir="ltr"><table id="e701a08f-99f0-45e9-9663-15836aaf2666" class="simple-table"><thead class="simple-table-header"><div style="display:contents" dir="ltr"><tr id="15598766-ce1f-4526-a539-4e48a272f942"><th id="^XAm" class="simple-table-header-color simple-table-header">Time</th><th id="nbza" class="simple-table-header-color simple-table-header">Assist Type</th><th id="tc|o" class="simple-table-header-color simple-table-header">Content</th></tr></div></thead><tbody><div style="display:contents" dir="ltr"><tr id="8fa91cf0-d993-496f-9608-48d78946f7c0"><td id="^XAm" class="">11:40 AM</td><td id="nbza" class="">Context framing</td><td id="tc|o" class="">Optiva → MES → M3 data flow overview</td></tr></div><div style="display:contents" dir="ltr"><tr id="7a06bdad-5b37-466c-b032-8911ee7ecaf2"><td id="^XAm" class="">11:41 AM</td><td id="nbza" class="">Quick chimes</td><td id="tc|o" class="">High-signal acknowledgments to show understanding</td></tr></div><div style="display:contents" dir="ltr"><tr id="b5522da5-8225-42a2-aca5-a56a8317bc6a"><td id="^XAm" class="">11:42 AM</td><td id="nbza" class="">Smart clarification</td><td id="tc|o" class="">Plant formula ID linkage to corporate formula</td></tr></div><div style="display:contents" dir="ltr"><tr id="23f716d9-9855-47ee-b445-47cd10495681"><td id="^XAm" class="">11:45 AM</td><td id="nbza" class="">Say this / Behind scenes</td><td id="tc|o" class="">Framed quotes vs. private notes format established</td></tr></div><div style="display:contents" dir="ltr"><tr id="bddd640f-5ee2-4306-a09b-6c886b7f11b8"><td id="^XAm" class="">11:46 AM</td><td id="nbza" class="">Low-frequency inserts</td><td id="tc|o" class="">Verbatim callouts with behind-the-scenes context</td></tr></div><div style="display:contents" dir="ltr"><tr id="379933f2-c852-4aa7-9bff-2fcc7b480336"><td id="^XAm" class="">11:48 AM</td><td id="nbza" class="">Smart follow-up</td><td id="tc|o" class="">Vessel/batch-size constraint enforcement timing</td></tr></div><div style="display:contents" dir="ltr"><tr id="9eca51f4-aabf-46eb-8e74-0df403f79224"><td id="^XAm" class="">11:51 AM</td><td id="nbza" class="">Zinger</td><td id="tc|o" class="">Reschedule revalidation + traceability across stage instructions</td></tr></div><div style="display:contents" dir="ltr"><tr id="5ac03b56-0615-425f-9741-09c13a047d8c"><td id="^XAm" class="">11:54 AM</td><td id="nbza" class="">Zinger backup</td><td id="tc|o" class="">Lot suffix handling + batch ID normalization</td></tr></div><div style="display:contents" dir="ltr"><tr id="b7480a2f-85d0-4b25-b36a-baf68d56277f"><td id="^XAm" class="">11:55 AM</td><td id="nbza" class="">Topic shift alert</td><td id="tc|o" class="">Moved to Cycle Time view</td></tr></div><div style="display:contents" dir="ltr"><tr id="06a2a788-9a4c-492c-ac4a-11fe86d1511b"><td id="^XAm" class="">11:59 AM</td><td id="nbza" class="">Zinger definition</td><td id="tc|o" class="">&quot;Zinger&quot; = smart, insightful clarification follow-up</td></tr></div><div style="display:contents" dir="ltr"><tr id="cce628b9-3b9b-46c9-bfa4-1e4cb2572bfa"><td id="^XAm" class="">12:03 PM</td><td id="nbza" class="">Zinger</td><td id="tc|o" class="">ANV recommendation storage + compliance metrics</td></tr></div><div style="display:contents" dir="ltr"><tr id="5fc514c8-fecb-4862-8205-dadd9893092c"><td id="^XAm" class="">12:05 PM</td><td id="nbza" class="">Zinger</td><td id="tc|o" class="">Disposition → M3 payload completeness + yield variance</td></tr></div><div style="display:contents" dir="ltr"><tr id="a00c666f-f16f-4204-9067-381acd41b4c5"><td id="^XAm" class="">12:08 PM</td><td id="nbza" class="">Concept explainer</td><td id="tc|o" class="">Mass balance / material reconciliation definition</td></tr></div><div style="display:contents" dir="ltr"><tr id="dd535fc6-3724-4ac2-af75-014f7aafa8e3"><td id="^XAm" class="">12:09 PM</td><td id="nbza" class="">IP-specific framing</td><td id="tc|o" class="">S3/S4, XL-Mix, Wash Styrene terminology</td></tr></div><div style="display:contents" dir="ltr"><tr id="4674d47b-f869-44f9-b25e-15a5922fec56"><td id="^XAm" class="">12:12 PM</td><td id="nbza" class="">Zinger</td><td id="tc|o" class="">Input flushes → non-salable consumption traceability</td></tr></div><div style="display:contents" dir="ltr"><tr id="73f016d8-bb6a-4f30-b7ac-e3911ac92b10"><td id="^XAm" class="">12:13 PM</td><td id="nbza" class="">Follow-up</td><td id="tc|o" class="">081W wash styrene → machine-readable reuse tracking</td></tr></div><div style="display:contents" dir="ltr"><tr id="1da7c2cd-8aa3-4da7-a3d4-d3560110795c"><td id="^XAm" class="">12:14 PM</td><td id="nbza" class="">Zinger</td><td id="tc|o" class="">Batch Detail view: charges grid + QC grid + timestamp joins</td></tr></div><div style="display:contents" dir="ltr"><tr id="03f95f0c-34b4-42e7-8b25-c47a8bebad47"><td id="^XAm" class="">12:16 PM</td><td id="nbza" class="">Momentum callouts</td><td id="tc|o" class="">Traceability, snapshots, ANV accuracy, disposition truth source</td></tr></div><div style="display:contents" dir="ltr"><tr id="093707b7-5f9f-4e59-9a14-c497eeee0ecd"><td id="^XAm" class="">12:18 PM</td><td id="nbza" class="">Queued prompts</td><td id="tc|o" class="">15-item &quot;Next&quot; cue system established</td></tr></div><div style="display:contents" dir="ltr"><tr id="fe492cd0-0f28-47fa-bab2-33aab111bd37"><td id="^XAm" class="">12:20 PM</td><td id="nbza" class="">Queue update</td><td id="tc|o" class="">Tightened list based on what was already answered</td></tr></div><div style="display:contents" dir="ltr"><tr id="a74485c4-cdf7-4a77-a9d5-fe5ec1438ab5"><td id="^XAm" class="">12:20 PM</td><td id="nbza" class="">Next #1</td><td id="tc|o" class="">MES→M3 failure reasons, exception report, replay mechanics</td></tr></div><div style="display:contents" dir="ltr"><tr id="85b73f46-4ead-49af-a4c3-1478d56beeca"><td id="^XAm" class="">12:23 PM</td><td id="nbza" class="">Next #2</td><td id="tc|o" class="">Request to open MEC message for BOD type capture</td></tr></div></tbody></table></div><div style="display:contents" dir="auto"><h3 id="ba1d2a05-7d65-42ea-ab21-d0dcab44ac22" class="">Key Cluely-Assisted Insights</h3></div><div style="display:contents" dir="auto"><h3 id="9d3aaa61-ed32-4d78-8551-4006ec6528d2" class="">🧾 Evidence — Meeting Items</h3></div><div style="display:contents" dir="ltr"><table id="dbce5fd9-f581-4666-b9fa-77e67bbc7956" class="simple-table"><thead class="simple-table-header"><div style="display:contents" dir="ltr"><tr id="4cc34f3a-ba8a-460b-9c12-83489778b17c"><th id="CFI&lt;" class="simple-table-header-color simple-table-header">Item ID</th><th id="pKB^" class="simple-table-header-color simple-table-header">Type</th><th id="dLt]" class="simple-table-header-color simple-table-header">Speaker</th><th id="w;qc" class="simple-table-header-color simple-table-header">Timestamp</th><th id="Wy@H" class="simple-table-header-color simple-table-header">Evidence snippet</th><th id="@&lt;Qf" class="simple-table-header-color simple-table-header">Context</th><th id="g}RD" class="simple-table-header-color simple-table-header">Confidence</th><th id="E|iX" class="simple-table-header-color simple-table-header">Transcript link</th></tr></div></thead><tbody><div style="display:contents" dir="ltr"><tr id="c3345e77-8540-4c5f-b45b-596ce590a9c7"><td id="CFI&lt;" class="">MES-FACT-1</td><td id="pKB^" class="">Fact</td><td id="dLt]" class="">Matt Pennaz</td><td id="w;qc" class="">39:15</td><td id="Wy@H" class="">&quot;We&#x27;ve gotten it down to probably about 98–99% of them make it through... but there&#x27;s always something.&quot;</td><td id="@&lt;Qf" class="">Concrete statement</td><td id="g}RD" class="">High</td><td id="E|iX" class=""><a href="MES%20Integration%20and%20Traceability%20Review%202c65632092ca80c7b64ac64645763ef2.html">MES Integration and Traceability Review</a></td></tr></div><div style="display:contents" dir="ltr"><tr id="69ccc2e3-d4b1-4806-9dad-964cb3518e6c"><td id="CFI&lt;" class="">MES-ASK-1</td><td id="pKB^" class="">Next step</td><td id="dLt]" class="">Steve</td><td id="w;qc" class="">48:10</td><td id="Wy@H" class="">&quot;Let&#x27;s schedule a call with Matt Francis and open a MEC message to capture BOD type and batch-ID fields.&quot;</td><td id="@&lt;Qf" class="">Concrete request</td><td id="g}RD" class="">Medium</td><td id="E|iX" class=""><a href="MES%20Integration%20and%20Traceability%20Review%202c65632092ca80c7b64ac64645763ef2.html">MES Integration and Traceability Review</a></td></tr></div></tbody></table></div><div style="display:contents" dir="auto"><ul id="1e94c7f0-153a-4f93-b83c-fbc46ca4cac4" class="bulleted-list"><li style="list-style-type:disc">Confirmed <strong>Batch ID</strong> as system-wide key across Optiva → MES → ANV/OATS → M3</li></ul></div><div style="display:contents" dir="auto"><ul id="3bd27ff3-813c-4d5e-98e1-5667c4c17ed8" class="bulleted-list"><li style="list-style-type:disc">Identified <strong>PLC vs manual entry flag</strong> exists on charges and adjustments</li></ul></div><div style="display:contents" dir="auto"><ul id="9fe75bb0-ccb5-49d6-b634-c91a84b981ad" class="bulleted-list"><li style="list-style-type:disc">Established <strong>ANV recommendations</strong> stored in MES tables (not UI) → enables compliance metrics</li></ul></div><div style="display:contents" dir="auto"><ul id="7e804123-1906-4de3-a9ff-409c01611d4f" class="bulleted-list"><li style="list-style-type:disc">Locked <strong>S3/S4</strong> = IP internal term for <strong>Yield Accounting / Inventory Reconciliation</strong></li></ul></div><div style="display:contents" dir="auto"><ul id="e19d3e4b-d557-4308-a382-1e5403f7907f" class="bulleted-list"><li style="list-style-type:disc">Captured <strong>98-99% MES→M3 success rate</strong>; failures due to MECH timing/non-sequential processing</li></ul></div><div style="display:contents" dir="auto"><hr id="cd2fcc8e-3410-47da-a163-99700d4663ee"/></div><div style="display:contents" dir="auto"><h2 id="0c08b322-bd5c-418a-aed2-da0746991911" class="">🆕 New Facts (Not Yet in Feed)</h2></div><div style="display:contents" dir="ltr"><table id="70b970d4-5f2a-4f71-aaca-00ba6952cbac" class="simple-table"><thead class="simple-table-header"><div style="display:contents" dir="ltr"><tr id="5f397991-7c57-4ce9-9b0f-ce65922a023e"><th id="HUz_" class="simple-table-header-color simple-table-header">Fact</th><th id="&lt;?kM" class="simple-table-header-color simple-table-header">Category</th><th id=";AAa" class="simple-table-header-color simple-table-header">Status</th></tr></div></thead><tbody><div style="display:contents" dir="ltr"><tr id="67db0975-ecf6-4124-94e5-3eb42ced022d"><td id="HUz_" class=""><strong>Matt Pennaz</strong> = MES senior developer, one year less tenure than Patrick</td><td id="&lt;?kM" class="">People</td><td id=";AAa" class="">✅ Confirmed (spelling verified)</td></tr></div><div style="display:contents" dir="ltr"><tr id="53ceb571-10fc-4839-96d2-1ef9997db010"><td id="HUz_" class=""><strong>S3/S4</strong> = IP internal term for yield accounting / inventory reconciliation</td><td id="&lt;?kM" class="">Glossary</td><td id=";AAa" class="">✅ Confirmed</td></tr></div><div style="display:contents" dir="ltr"><tr id="3a60d12e-1b6f-49dd-be6d-ee2df8819867"><td id="HUz_" class=""><strong>X-Lot / XL-Mix</strong> = reworkable by-product streams</td><td id="&lt;?kM" class="">Glossary</td><td id=";AAa" class="">✅ Confirmed</td></tr></div><div style="display:contents" dir="ltr"><tr id="be1eb90c-c7b7-4412-9f1b-d3f7ed991fbe"><td id="HUz_" class=""><strong>081W</strong> = wash styrene item code (contaminated but reusable)</td><td id="&lt;?kM" class="">Systems</td><td id=";AAa" class="">✅ Confirmed</td></tr></div><div style="display:contents" dir="ltr"><tr id="8f22d543-8651-453b-b976-2e91b1a88bd2"><td id="HUz_" class=""><strong>PLC vs Manual flag</strong> exists on MES charge/adjustment records</td><td id="&lt;?kM" class="">Systems</td><td id=";AAa" class="">✅ Confirmed</td></tr></div><div style="display:contents" dir="ltr"><tr id="34846f0e-fa93-45a1-a3f5-cc6439f7f744"><td id="HUz_" class=""><strong>ANV recommendations</strong> stored in MES tables but not shown in UI</td><td id="&lt;?kM" class="">Systems</td><td id=";AAa" class="">✅ Confirmed</td></tr></div><div style="display:contents" dir="ltr"><tr id="bcc5414d-67a7-4b8b-940b-b1b06e440301"><td id="HUz_" class=""><strong>98-99% MES→M3 success rate</strong>; MECH has no ack beyond &quot;received&quot;</td><td id="&lt;?kM" class="">Systems</td><td id=";AAa" class="">✅ Confirmed</td></tr></div><div style="display:contents" dir="ltr"><tr id="541e11a7-8d37-4d44-89e2-0da1239a86f9"><td id="HUz_" class=""><strong>CorporateFormula + PlantFormula</strong> = two-table structure with FK linkage</td><td id="&lt;?kM" class="">Systems</td><td id=";AAa" class="">✅ Confirmed</td></tr></div><div style="display:contents" dir="ltr"><tr id="b03f58db-bd04-431d-856d-dca04c1b124d"><td id="HUz_" class=""><strong>Batch cut snapshots</strong> freeze corp/plant formula versions + spec version</td><td id="&lt;?kM" class="">Systems</td><td id=";AAa" class="">✅ Confirmed</td></tr></div><div style="display:contents" dir="ltr"><tr id="796b41c1-5bb0-472c-8f6d-fedd56fc6cb2"><td id="HUz_" class=""><strong>Paper batch cards</strong> cause wide time windows when batch-entered at day-end</td><td id="&lt;?kM" class="">Data Quality</td><td id=";AAa" class="">✅ Confirmed</td></tr></div><div style="display:contents" dir="ltr"><tr id="af16bf58-d80e-45b8-ae83-8cb430e42f94"><td id="HUz_" class=""><strong>Minneapolis Production</strong> = legacy generic account (phased out)</td><td id="&lt;?kM" class="">Data Quality</td><td id=";AAa" class="">✅ Confirmed</td></tr></div><div style="display:contents" dir="ltr"><tr id="4ae8b7f4-7c88-4b9e-b5e6-d3a33aa2b8d2"><td id="HUz_" class=""><strong>Vandus plant</strong> has incentive system for individual operator login</td><td id="&lt;?kM" class="">Data Quality</td><td id=";AAa" class="">✅ Confirmed</td></tr></div></tbody></table></div><div style="display:contents" dir="auto"><hr id="f9432f04-5bd8-4397-a193-309570fd17f8"/></div><div style="display:contents" dir="auto"><h2 id="3b4d6fd6-09e2-407a-95bf-c1aa88e42609" class="">✅ ACTION ITEMS (Consolidated)</h2></div><div style="display:contents" dir="ltr"><figure class="block-color-yellow_background callout" style="white-space:pre-wrap;display:flex" id="8a767388-53d0-4608-8795-356d9c1768bc"><div style="font-size:1.5em"><span class="icon">⚠️</span></div><div style="width:100%"><div style="display:contents" dir="auto"><p id="33b02f66-c61d-4980-835d-3488fa46e662" class=""><strong>Note:</strong> No Teams transcript — source is Cluely recording only.</p></div></div></figure></div><div style="display:contents" dir="auto"><h3 id="67e898b0-5fff-437d-acf7-68c27bb85985" class="">Patrick Stiller / IT</h3></div><div style="display:contents" dir="auto"><ul id="097038d5-0f57-477f-b9ae-9099a08c0120" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Add Steve to MES test environment (Teams/VPN access, confirm login works)</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="6298a1f1-2f8e-4694-bf8e-f3aea9a7524f" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Request exception-report schema from Matt Pennaz (fields: failure reason, batch ID, message type, retry status)</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><h3 id="12920e0f-70cb-401e-be42-754c73a80e0e" class="">Matt Francis</h3></div><div style="display:contents" dir="auto"><ul id="498477f6-27df-402a-89d3-381049274973" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Schedule call with Steve for BOD examples (successful finished-goods posting + failed raw-material consumption message)</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="877ff9d8-2217-45bc-9cd9-e7ce6b45e2fe" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Provide exact BOD names used for raw-material consumption and finished-goods posting</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><h3 id="00731e4b-756d-4e1e-9b63-675367f40726" class="">Steve</h3></div><div style="display:contents" dir="auto"><ul id="19a4111b-9524-435b-8cb6-ef26c0230812" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Create glossary entry for &quot;S3/S4&quot; → map to &quot;Yield Accounting / Inventory Reconciliation&quot; with related terms (X-Lot, XL-Mix, Stub Drum, Wash Styrene)</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="43242b71-0109-4cfc-838b-6688f671593a" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Document batch-ID join logic (confirm step timestamps, PLC flags, ANV session IDs use same Batch ID key)</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="2f79ba55-af83-41d1-b6b0-58895e6a3137" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Define disposition code list (standardize: Salable, Rework, Scrap, Wash-Styrene, XL-Mix)</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="275e9dc8-5d5d-44b7-9f4e-0fd618ccac20" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Set up follow-up meeting for ANV/OATS integration deep-dive and cycle-time analytics</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="930e9bfb-360c-4c55-8707-0f74072cdc97" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Sync new facts to Feed page</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><hr id="5e1b3c77-6803-4e4e-9e7b-0d92b8f0645f"/></div><div style="display:contents" dir="auto"><h2 id="00ed07bd-3aa1-4869-8ec3-f7843ce19140" class="">📊 EVIDENCE MATRIX</h2></div><div style="display:contents" dir="ltr"><table id="93533cff-614c-4e45-9536-4ca6a21b1ee0" class="simple-table"><thead class="simple-table-header"><div style="display:contents" dir="ltr"><tr id="51a3c2b3-8a61-4615-b3de-43a1f3266f83"><th id="Lz@{" class="simple-table-header-color simple-table-header"><strong>ID</strong></th><th id="TsBF" class="simple-table-header-color simple-table-header"><strong>Type</strong></th><th id="UIwP" class="simple-table-header-color simple-table-header"><strong>Speaker</strong></th><th id="CMek" class="simple-table-header-color simple-table-header"><strong>Timestamp</strong></th><th id="B|Or" class="simple-table-header-color simple-table-header"><strong>Exact Quote</strong></th><th id="l:uK" class="simple-table-header-color simple-table-header"><strong>Topic</strong></th></tr></div></thead><tbody><div style="display:contents" dir="ltr"><tr id="193d7010-a22e-43e9-a43a-84abbf3ee046"><td id="Lz@{" class="">MES-FACT-1</td><td id="TsBF" class="">Fact</td><td id="UIwP" class="">Matt Pennaz</td><td id="CMek" class="">39:15</td><td id="B|Or" class="">&quot;We&#x27;ve gotten it down to probably about 98–99% of them make it through... but there&#x27;s always something.&quot;</td><td id="l:uK" class="">MES→M3 integration success rate</td></tr></div><div style="display:contents" dir="ltr"><tr id="2e616d9b-ca18-4057-913e-5ac2bae9dc25"><td id="Lz@{" class="">MES-FACT-2</td><td id="TsBF" class="">Fact</td><td id="UIwP" class="">Matt Pennaz</td><td id="CMek" class="">18:22</td><td id="B|Or" class="">&quot;This batch idea is on pretty much every single table and it&#x27;s kind of your key identifier... everything you could ever hope and long for is tied to this batch number&quot;</td><td id="l:uK" class="">Batch ID as system-wide key</td></tr></div><div style="display:contents" dir="ltr"><tr id="6e15928b-f5ba-4a87-9fc8-5f12cfad7a96"><td id="Lz@{" class="">MES-FACT-3</td><td id="TsBF" class="">Fact</td><td id="UIwP" class="">Matt Pennaz</td><td id="CMek" class="">34:30</td><td id="B|Or" class="">&quot;S3/S4... that&#x27;s what you&#x27;re talking about when you say [mass balance]&quot;</td><td id="l:uK" class="">IP terminology confirmation</td></tr></div><div style="display:contents" dir="ltr"><tr id="f04b1601-fb74-4818-a7e0-76b86030cfaf"><td id="Lz@{" class="">MES-FACT-4</td><td id="TsBF" class="">Fact</td><td id="UIwP" class="">Matt Pennaz</td><td id="CMek" class="">30:15</td><td id="B|Or" class="">ANV stores recommended adjustment (value, session ID) in MES tables — not shown in UI</td><td id="l:uK" class="">ANV recommendation storage</td></tr></div><div style="display:contents" dir="ltr"><tr id="4ad9a3b4-6544-4ce9-b001-f62b76510ad0"><td id="Lz@{" class="">MES-FACT-5</td><td id="TsBF" class="">Fact</td><td id="UIwP" class="">Matt Pennaz</td><td id="CMek" class="">26:45</td><td id="B|Or" class="">PLC entries flagged as &quot;authoritative&quot;; manual entries carry a provenance flag</td><td id="l:uK" class="">PLC vs manual data capture</td></tr></div><div style="display:contents" dir="ltr"><tr id="863e278f-52df-4f01-b10e-5e36783d746a"><td id="Lz@{" class="">MES-FACT-6</td><td id="TsBF" class="">Fact</td><td id="UIwP" class="">Matt Pennaz</td><td id="CMek" class="">06:30</td><td id="B|Or" class="">Two tables: CorporateFormula (global ID) and PlantFormula (own ID + FK to corporate)</td><td id="l:uK" class="">Formula table structure</td></tr></div><div style="display:contents" dir="ltr"><tr id="c73e43d2-9cc8-40c2-af91-7428e4aa54d3"><td id="Lz@{" class="">MES-FACT-7</td><td id="TsBF" class="">Fact</td><td id="UIwP" class="">Matt Pennaz</td><td id="CMek" class="">35:20</td><td id="B|Or" class="">XL-Mix / X-Lot = reworkable by-product streams; Wash Styrene (081W) = contaminated but reusable</td><td id="l:uK" class="">Disposition codes &amp; by-products</td></tr></div><div style="display:contents" dir="ltr"><tr id="2fc62b41-47e9-492e-9403-6d691ed86f0c"><td id="Lz@{" class="">MES-FACT-8</td><td id="TsBF" class="">Fact</td><td id="UIwP" class="">Matt Pennaz</td><td id="CMek" class="">42:00</td><td id="B|Or" class="">MECH has no acknowledgment beyond &quot;received&quot; — need explicit success/failure response</td><td id="l:uK" class="">Integration failure handling</td></tr></div><div style="display:contents" dir="ltr"><tr id="9e6c3969-16e5-425a-a849-40a2c155203b"><td id="Lz@{" class="">MES-RISK-1</td><td id="TsBF" class="">Risk</td><td id="UIwP" class="">Matt Pennaz</td><td id="CMek" class="">28:15</td><td id="B|Or" class="">Paper batch cards cause wide time windows when batch-entered at day-end</td><td id="l:uK" class="">Data quality / timestamp accuracy</td></tr></div><div style="display:contents" dir="ltr"><tr id="af42d8fd-d8bf-4097-acfa-97157d020001"><td id="Lz@{" class="">MES-NEXT-1</td><td id="TsBF" class="">Next Step</td><td id="UIwP" class="">Steve</td><td id="CMek" class="">48:10</td><td id="B|Or" class="">&quot;Let&#x27;s schedule a call with Matt Francis and open a MEC message to capture BOD type and batch-ID fields.&quot;</td><td id="l:uK" class="">Follow-up meeting request</td></tr></div></tbody></table></div></div></article><span class="sans" style="font-size:14px;padding-top:2em"></span></body></html>

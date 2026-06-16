@@ -1,0 +1,744 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>Mike Spencer — CIO Architecture Meeting</title><style>
+/* cspell:disable-file */
+/* webkit printing magic: print all background colors */
+html {
+	-webkit-print-color-adjust: exact;
+}
+* {
+	box-sizing: border-box;
+	-webkit-print-color-adjust: exact;
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+}
+@media only screen {
+	body {
+		margin: 2em auto;
+		max-width: 900px;
+		color: rgb(55, 53, 47);
+	}
+}
+
+body {
+	line-height: 1.5;
+	white-space: pre-wrap;
+}
+
+a,
+a.visited {
+	color: inherit;
+	text-decoration: underline;
+}
+
+.pdf-relative-link-path {
+	font-size: 80%;
+	color: #444;
+}
+
+h1,
+h2,
+h3 {
+	letter-spacing: -0.01em;
+	line-height: 1.2;
+	font-weight: 600;
+	margin-bottom: 0;
+}
+
+/* Override strong tags inside headings to maintain consistent weight */
+h1 strong,
+h2 strong,
+h3 strong {
+	font-weight: 600;
+}
+
+.page-title {
+	font-size: 2.5rem;
+	font-weight: 700;
+	margin-top: 0;
+	margin-bottom: 0.75em;
+}
+
+h1 {
+	font-size: 1.875rem;
+	margin-top: 1.875rem;
+}
+
+h2 {
+	font-size: 1.5rem;
+	margin-top: 1.5rem;
+}
+
+h3 {
+	font-size: 1.25rem;
+	margin-top: 1.25rem;
+}
+
+.source {
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	padding: 1.5em;
+	word-break: break-all;
+}
+
+.callout {
+	border-radius: 10px;
+	padding: 1rem;
+}
+
+figure {
+	margin: 1.25em 0;
+	page-break-inside: avoid;
+}
+
+figcaption {
+	opacity: 0.5;
+	font-size: 85%;
+	margin-top: 0.5em;
+}
+
+mark {
+	background-color: transparent;
+}
+
+.indented {
+	padding-left: 1.5em;
+}
+
+hr {
+	background: transparent;
+	display: block;
+	width: 100%;
+	height: 1px;
+	visibility: visible;
+	border: none;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+img {
+	max-width: 100%;
+}
+
+@media only print {
+	img {
+		max-height: 100vh;
+		object-fit: contain;
+	}
+
+	table.collection-content {
+		width: 100%;
+		table-layout: fixed;
+	}
+
+	table.collection-content th,
+	table.collection-content td {
+		overflow-wrap: anywhere;
+	}
+
+	table.collection-content td > .user,
+	table.collection-content td > time {
+		white-space: pre-wrap;
+	}
+}
+
+@page {
+	margin: 1in;
+}
+
+.collection-content-wrapper {
+	overflow-x: auto;
+}
+
+@media only print {
+	.collection-content-wrapper {
+		overflow-x: visible;
+	}
+}
+
+.collection-content {
+	font-size: 0.875rem;
+}
+
+.collection-content td {
+	white-space: pre-wrap;
+	word-break: break-word;
+}
+
+.column-list {
+	display: flex;
+	gap: 46px;
+}
+
+.column {
+	min-width: 0;
+	overflow: hidden;
+}
+
+.column > *:first-child {
+	margin-top: 0;
+}
+
+.table_of_contents-item {
+	display: block;
+	font-size: 0.875rem;
+	line-height: 1.3;
+	padding: 0.125rem;
+}
+
+.table_of_contents-indent-1 {
+	margin-left: 1.5rem;
+}
+
+.table_of_contents-indent-2 {
+	margin-left: 3rem;
+}
+
+.table_of_contents-indent-3 {
+	margin-left: 4.5rem;
+}
+
+.table_of_contents-link {
+	text-decoration: none;
+	opacity: 0.7;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.18);
+}
+
+table,
+th,
+td {
+	border: 1px solid rgba(55, 53, 47, 0.09);
+	border-collapse: collapse;
+}
+
+table {
+	border-left: none;
+	border-right: none;
+}
+
+th,
+td {
+	font-weight: normal;
+	padding: 0.25em 0.5em;
+	line-height: 1.5;
+	min-height: 1.5em;
+	text-align: left;
+}
+
+th {
+	color: rgba(55, 53, 47, 0.6);
+}
+
+ol,
+ul {
+	margin: 0;
+	margin-block-start: 0.6em;
+	margin-block-end: 0.6em;
+}
+
+li > ol:first-child,
+li > ul:first-child {
+	margin-block-start: 0.6em;
+}
+
+ul > li {
+	list-style: disc;
+}
+
+ul.to-do-list {
+	padding-inline-start: 0;
+}
+
+ul.to-do-list > li {
+	list-style: none;
+}
+
+.to-do-children-checked {
+	text-decoration: line-through;
+	opacity: 0.375;
+}
+
+ul.toggle > li {
+	list-style: none;
+}
+
+ul {
+	padding-inline-start: 1.7em;
+}
+
+ul > li {
+	padding-left: 0.1em;
+}
+
+ol {
+	padding-inline-start: 1.6em;
+}
+
+ol.numbered-list.numbered-list-digits-2 {
+	padding-inline-start: 2em;
+}
+
+ol.numbered-list.numbered-list-digits-3plus {
+	padding-inline-start: 2.4em;
+}
+
+ol > li {
+	padding-left: 0.2em;
+}
+
+.mono ol {
+	padding-inline-start: 2em;
+}
+
+.mono ol > li {
+	text-indent: -0.4em;
+}
+
+.toggle {
+	padding-inline-start: 0em;
+	list-style-type: none;
+}
+
+/* Indent toggle children */
+.toggle > li > details {
+	padding-left: 1.7em;
+}
+
+.toggle > li > details > summary {
+	margin-left: -1.1em;
+}
+
+.selected-value {
+	display: inline-block;
+	padding: 0 0.5em;
+	background: rgba(206, 205, 202, 0.5);
+	border-radius: 3px;
+	margin-right: 0.5em;
+	margin-top: 0.3em;
+	margin-bottom: 0.3em;
+	white-space: nowrap;
+}
+
+.collection-title {
+	display: inline-block;
+	margin-right: 1em;
+}
+
+.page-description {
+	margin-bottom: 2em;
+}
+
+.simple-table {
+	margin-top: 1em;
+	font-size: 0.875rem;
+	empty-cells: show;
+}
+.simple-table td {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table th {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table-header-color {
+	background: rgb(247, 246, 243);
+	color: black;
+}
+.simple-table-header {
+	font-weight: 500;
+}
+
+time {
+	opacity: 0.5;
+}
+
+.icon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	max-width: 1.2em;
+	max-height: 1.2em;
+	text-decoration: none;
+	vertical-align: text-bottom;
+	margin-right: 0.5em;
+}
+
+img.icon {
+	border-radius: 3px;
+}
+
+.callout img.notion-static-icon {
+	width: 1em;
+	height: 1em;
+}
+
+.callout p {
+	margin: 0;
+}
+
+.callout h1,
+.callout h2,
+.callout h3 {
+	margin: 0 0 0.6rem;
+}
+
+.user-icon {
+	width: 1.5em;
+	height: 1.5em;
+	border-radius: 100%;
+	margin-right: 0.5rem;
+}
+
+.user-icon-inner {
+	font-size: 0.8em;
+}
+
+.text-icon {
+	border: 1px solid #000;
+	text-align: center;
+}
+
+.page-cover-image {
+	display: block;
+	object-fit: cover;
+	width: 100%;
+	max-height: 30vh;
+}
+
+.page-header-icon {
+	font-size: 3rem;
+	margin-bottom: 1rem;
+}
+
+.page-header-icon-with-cover {
+	margin-top: -0.72em;
+	margin-left: 0.07em;
+}
+
+.page-header-icon img {
+	border-radius: 3px;
+}
+
+.link-to-page {
+	margin: 1em 0;
+	padding: 0;
+	border: none;
+	font-weight: 500;
+}
+
+p > .user {
+	opacity: 0.5;
+}
+
+td > .user,
+td > time {
+	white-space: nowrap;
+}
+
+input[type="checkbox"] {
+	transform: scale(1.5);
+	margin-right: 0.6em;
+	vertical-align: middle;
+}
+
+p {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+.image {
+	border: none;
+	margin: 1.5em 0;
+	padding: 0;
+	border-radius: 0;
+	text-align: center;
+}
+
+.code,
+code {
+	background: rgba(135, 131, 120, 0.15);
+	border-radius: 3px;
+	padding: 0.2em 0.4em;
+	border-radius: 3px;
+	font-size: 85%;
+	tab-size: 2;
+}
+
+code {
+	color: #eb5757;
+}
+
+.code {
+	padding: 1.5em 1em;
+}
+
+.code-wrap {
+	white-space: pre-wrap;
+	word-break: break-all;
+}
+
+.code > code {
+	background: none;
+	padding: 0;
+	font-size: 100%;
+	color: inherit;
+}
+
+blockquote {
+	font-size: 1em;
+	margin: 1em 0;
+	padding-left: 1em;
+	border-left: 3px solid rgb(55, 53, 47);
+}
+
+blockquote.quote-large {
+	font-size: 1.25em;
+}
+
+.bookmark {
+	text-decoration: none;
+	max-height: 8em;
+	padding: 0;
+	display: flex;
+	width: 100%;
+	align-items: stretch;
+}
+
+.bookmark-title {
+	font-size: 0.85em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	height: 1.75em;
+	white-space: nowrap;
+}
+
+.bookmark-text {
+	display: flex;
+	flex-direction: column;
+}
+
+.bookmark-info {
+	flex: 4 1 180px;
+	padding: 12px 14px 14px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.bookmark-image {
+	width: 33%;
+	flex: 1 1 180px;
+	display: block;
+	position: relative;
+	object-fit: cover;
+	border-radius: 1px;
+}
+
+.bookmark-description {
+	color: rgba(55, 53, 47, 0.6);
+	font-size: 0.75em;
+	overflow: hidden;
+	max-height: 4.5em;
+	word-break: break-word;
+}
+
+.bookmark-href {
+	font-size: 0.75em;
+	margin-top: 0.25em;
+}
+
+.sans { font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol"; }
+.code { font-family: "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace; }
+.serif { font-family: Lyon-Text, Georgia, ui-serif, serif; }
+.mono { font-family: iawriter-mono, Nitti, Menlo, Courier, monospace; }
+.pdf .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK JP'; }
+.pdf:lang(zh-CN) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK SC'; }
+.pdf:lang(zh-TW) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK TC'; }
+.pdf:lang(ko-KR) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK KR'; }
+.pdf .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.pdf .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK JP'; }
+.pdf:lang(zh-CN) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK SC'; }
+.pdf:lang(zh-TW) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK TC'; }
+.pdf:lang(ko-KR) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK KR'; }
+.pdf .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.highlight-default {
+	color: rgba(44, 44, 43, 1);
+}
+.highlight-gray {
+	color: rgba(125, 122, 117, 1);
+	fill: rgba(125, 122, 117, 1);
+}
+.highlight-brown {
+	color: rgba(159, 118, 90, 1);
+	fill: rgba(159, 118, 90, 1);
+}
+.highlight-orange {
+	color: rgba(210, 123, 45, 1);
+	fill: rgba(210, 123, 45, 1);
+}
+.highlight-yellow {
+	color: rgba(203, 148, 52, 1);
+	fill: rgba(203, 148, 52, 1);
+}
+.highlight-teal {
+	color: rgba(80, 148, 110, 1);
+	fill: rgba(80, 148, 110, 1);
+}
+.highlight-blue {
+	color: rgba(56, 125, 201, 1);
+	fill: rgba(56, 125, 201, 1);
+}
+.highlight-purple {
+	color: rgba(154, 107, 180, 1);
+	fill: rgba(154, 107, 180, 1);
+}
+.highlight-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.highlight-red {
+	color: rgba(207, 81, 72, 1);
+	fill: rgba(207, 81, 72, 1);
+}
+.highlight-default_background {
+	color: rgba(44, 44, 43, 1);
+}
+.highlight-gray_background {
+	background: rgba(42, 28, 0, 0.07);
+}
+.highlight-brown_background {
+	background: rgba(139, 46, 0, 0.086);
+}
+.highlight-orange_background {
+	background: rgba(224, 101, 1, 0.129);
+}
+.highlight-yellow_background {
+	background: rgba(211, 168, 0, 0.137);
+}
+.highlight-teal_background {
+	background: rgba(0, 100, 45, 0.09);
+}
+.highlight-blue_background {
+	background: rgba(0, 124, 215, 0.094);
+}
+.highlight-purple_background {
+	background: rgba(102, 0, 178, 0.078);
+}
+.highlight-pink_background {
+	background: rgba(197, 0, 93, 0.086);
+}
+.highlight-red_background {
+	background: rgba(223, 22, 0, 0.094);
+}
+.block-color-default {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray {
+	color: rgba(125, 122, 117, 1);
+	fill: rgba(125, 122, 117, 1);
+}
+.block-color-brown {
+	color: rgba(159, 118, 90, 1);
+	fill: rgba(159, 118, 90, 1);
+}
+.block-color-orange {
+	color: rgba(210, 123, 45, 1);
+	fill: rgba(210, 123, 45, 1);
+}
+.block-color-yellow {
+	color: rgba(203, 148, 52, 1);
+	fill: rgba(203, 148, 52, 1);
+}
+.block-color-teal {
+	color: rgba(80, 148, 110, 1);
+	fill: rgba(80, 148, 110, 1);
+}
+.block-color-blue {
+	color: rgba(56, 125, 201, 1);
+	fill: rgba(56, 125, 201, 1);
+}
+.block-color-purple {
+	color: rgba(154, 107, 180, 1);
+	fill: rgba(154, 107, 180, 1);
+}
+.block-color-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.block-color-red {
+	color: rgba(207, 81, 72, 1);
+	fill: rgba(207, 81, 72, 1);
+}
+.block-color-default_background {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray_background {
+	background: rgba(240, 239, 237, 1);
+}
+.block-color-brown_background {
+	background: rgba(245, 237, 233, 1);
+}
+.block-color-orange_background {
+	background: rgba(251, 235, 222, 1);
+}
+.block-color-yellow_background {
+	background: rgba(249, 243, 220, 1);
+}
+.block-color-teal_background {
+	background: rgba(232, 241, 236, 1);
+}
+.block-color-blue_background {
+	background: rgba(229, 242, 252, 1);
+}
+.block-color-purple_background {
+	background: rgba(243, 235, 249, 1);
+}
+.block-color-pink_background {
+	background: rgba(250, 233, 241, 1);
+}
+.block-color-red_background {
+	background: rgba(252, 233, 231, 1);
+}
+.select-value-color-default { background-color: rgba(42, 28, 0, 0.07); }
+.select-value-color-gray { background-color: rgba(28, 19, 1, 0.11); }
+.select-value-color-brown { background-color: rgba(127, 51, 0, 0.156); }
+.select-value-color-orange { background-color: rgba(196, 88, 0, 0.203); }
+.select-value-color-yellow { background-color: rgba(209, 156, 0, 0.282); }
+.select-value-color-green { background-color: rgba(0, 96, 38, 0.156); }
+.select-value-color-blue { background-color: rgba(0, 118, 217, 0.203); }
+.select-value-color-purple { background-color: rgba(92, 0, 163, 0.141); }
+.select-value-color-pink { background-color: rgba(183, 0, 78, 0.152); }
+.select-value-color-red { background-color: rgba(206, 24, 0, 0.164); }
+
+.checkbox {
+	display: inline-flex;
+	vertical-align: text-bottom;
+	width: 16;
+	height: 16;
+	background-size: 16px;
+	margin-left: 2px;
+	margin-right: 5px;
+}
+
+.checkbox-on {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20width%3D%2216%22%20height%3D%2216%22%20fill%3D%22%2358A9D7%22%2F%3E%0A%3Cpath%20d%3D%22M6.71429%2012.2852L14%204.9995L12.7143%203.71436L6.71429%209.71378L3.28571%206.2831L2%207.57092L6.71429%2012.2852Z%22%20fill%3D%22white%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+
+.checkbox-off {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20x%3D%220.75%22%20y%3D%220.75%22%20width%3D%2214.5%22%20height%3D%2214.5%22%20fill%3D%22white%22%20stroke%3D%22%2336352F%22%20stroke-width%3D%221.5%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+	
+</style></head><body><article id="2c756320-92ca-8077-af0f-f7d2d3d218c9" class="page sans"><header><h1 class="page-title" dir="auto">Mike Spencer — CIO Architecture Meeting</h1><p class="page-description" dir="auto"></p><table class="properties"><tbody><tr class="property-row property-row-status"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/burst_gray.svg" style="width:14px;height:14px;display:block"/></span>Processing</th><td><span class="status-value select-value-color-green"><div class="status-dot status-dot-color-green"></div>Processed</span></td></tr><tr class="property-row property-row-text"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/description_gray.svg" style="width:14px;height:14px;display:block"/></span>Agenda</th><td>MDM strategy discussion, CIO alignment on data management initiative, stakeholder engagement planning, executive sponsorship confirmation, steering committee structure, Fabric/Purview approach, ELT introduction timing</td></tr><tr class="property-row property-row-date"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/calendar_gray.svg" style="width:14px;height:14px;display:block"/></span>Date</th><td><time>December 12, 2025</time></td></tr><tr class="property-row property-row-multi_select"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/list_gray.svg" style="width:14px;height:14px;display:block"/></span>Attendees</th><td><span class="selected-value select-value-color-pink">Internal</span></td></tr><tr class="property-row property-row-select"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/arrow-circle-down_gray.svg" style="width:14px;height:14px;display:block"/></span>Meeting Type</th><td><span class="selected-value select-value-color-default">1:1</span></td></tr><tr class="property-row property-row-person"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/friends_gray.svg" style="width:14px;height:14px;display:block"/></span>Organizer</th><td><span class="user"><img src="https://lh3.googleusercontent.com/a/ACg8ocLHfVvdl28jS936w7CBB6TObsUa1P-X8cbdsUSKdeEn_MD7Bw=s96-c" class="icon user-icon"/>Steve </span></td></tr><tr class="property-row property-row-select"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/arrow-circle-down_gray.svg" style="width:14px;height:14px;display:block"/></span>Priority</th><td><span class="selected-value select-value-color-red">High</span></td></tr><tr class="property-row property-row-checkbox"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/checkmark-square_gray.svg" style="width:14px;height:14px;display:block"/></span>Has Cluely Transcript</th><td><div class="checkbox checkbox-on"></div></td></tr><tr class="property-row property-row-checkbox"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/checkmark-square_gray.svg" style="width:14px;height:14px;display:block"/></span>Has Final Transcript</th><td><div class="checkbox checkbox-on"></div></td></tr><tr class="property-row property-row-select"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/arrow-circle-down_gray.svg" style="width:14px;height:14px;display:block"/></span>Status</th><td><span class="selected-value select-value-color-brown">Completed</span></td></tr><tr class="property-row property-row-checkbox"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/checkmark-square_gray.svg" style="width:14px;height:14px;display:block"/></span>Has Notion Transcript</th><td><div class="checkbox checkbox-on"></div></td></tr><tr class="property-row property-row-checkbox"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/checkmark-square_gray.svg" style="width:14px;height:14px;display:block"/></span>Has Teams Transcript</th><td><div class="checkbox checkbox-off"></div></td></tr><tr class="property-row property-row-number"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/hashtag_gray.svg" style="width:14px;height:14px;display:block"/></span>Mtg #</th><td>13</td></tr><tr class="property-row property-row-checkbox"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/checkmark-square_gray.svg" style="width:14px;height:14px;display:block"/></span>Merged to Feed</th><td><div class="checkbox checkbox-off"></div></td></tr></tbody></table></header><div class="page-body"><div style="display:contents" dir="ltr"><div id="98c0e3ec-3f16-4190-ba92-b3692f75d8c1" class="transcription"><div style="border-bottom:0.05em solid;border-bottom-color:rgba(42, 28, 0, 0.07)">Summary<br/></div><div style="display:contents" dir="auto"><h3 id="8436ae7d-0f70-427d-ac7b-a2a0fd5a71f7" class="">Current State Assessment</h3></div><div style="display:contents" dir="auto"><ul id="4de72682-af9a-4f76-a3cc-b5cef62ef708" class="bulleted-list"><li style="list-style-type:disc">Company data management is described as &quot;a disaster&quot; with no systematic management of data in place. <a href="Mike%20Spencer%20%E2%80%94%20CIO%20Architecture%20Meeting%202c75632092ca8077af0ff7d2d3d218c9.html">[1]</a></li></ul></div><div style="display:contents" dir="auto"><ul id="63ffb183-985a-486e-828a-303b7973a541" class="bulleted-list"><li style="list-style-type:disc">The organization has grown rapidly from a $200M business five years ago to over $1B now, with multiple divisions from historical acquisitions. <a href="Mike%20Spencer%20%E2%80%94%20CIO%20Architecture%20Meeting%202c75632092ca8077af0ff7d2d3d218c9.html">[2]</a> <a href="Mike%20Spencer%20%E2%80%94%20CIO%20Architecture%20Meeting%202c75632092ca8077af0ff7d2d3d218c9.html">[3]</a></li></ul></div><div style="display:contents" dir="auto"><ul id="0ca39bd1-96c1-4ce3-997b-26c01170e267" class="bulleted-list"><li style="list-style-type:disc">Core applications include two ERP systems (M3 on-prem and M3 cloud) and Salesforce. <a href="Mike%20Spencer%20%E2%80%94%20CIO%20Architecture%20Meeting%202c75632092ca8077af0ff7d2d3d218c9.html">[4]</a></li></ul></div><div style="display:contents" dir="auto"><ul id="ce73b456-9963-45a9-a46d-32641611fc7a" class="bulleted-list"><li style="list-style-type:disc">Many processes are manual and outside the systems, with plans to map processes and drive toward best practice configuration. <a href="Mike%20Spencer%20%E2%80%94%20CIO%20Architecture%20Meeting%202c75632092ca8077af0ff7d2d3d218c9.html">[4]</a> <a href="Mike%20Spencer%20%E2%80%94%20CIO%20Architecture%20Meeting%202c75632092ca8077af0ff7d2d3d218c9.html">[5]</a></li></ul></div><div style="display:contents" dir="auto"><ul id="9008ce55-3621-422e-a7c3-fd0e6f62980e" class="bulleted-list"><li style="list-style-type:disc">Financial systems are &quot;underdefined&quot; with poor GL structure - for example, there is no dedicated IT budget, just a G&amp;A cost center that includes all corporate functions. <a href="Mike%20Spencer%20%E2%80%94%20CIO%20Architecture%20Meeting%202c75632092ca8077af0ff7d2d3d218c9.html">[6]</a> <a href="Mike%20Spencer%20%E2%80%94%20CIO%20Architecture%20Meeting%202c75632092ca8077af0ff7d2d3d218c9.html">[7]</a></li></ul></div><div style="display:contents" dir="auto"><h3 id="0d7612e2-7c07-4643-bc56-f3c75595d7df" class="">Data Management Challenges</h3></div><div style="display:contents" dir="auto"><ul id="e941d0ab-fb49-4219-9cee-d844b69e29fc" class="bulleted-list"><li style="list-style-type:disc">Product naming/numbering schemes were highlighted as a significant issue requiring standardization across divisions. <a href="Mike%20Spencer%20%E2%80%94%20CIO%20Architecture%20Meeting%202c75632092ca8077af0ff7d2d3d218c9.html">[8]</a> <a href="Mike%20Spencer%20%E2%80%94%20CIO%20Architecture%20Meeting%202c75632092ca8077af0ff7d2d3d218c9.html">[9]</a> <a href="Mike%20Spencer%20%E2%80%94%20CIO%20Architecture%20Meeting%202c75632092ca8077af0ff7d2d3d218c9.html">[10]</a></li></ul></div><div style="display:contents" dir="auto"><ul id="8480ec7f-5180-4831-a45f-8017cae2990e" class="bulleted-list"><li style="list-style-type:disc">Current database structures lack clear naming conventions, making querying difficult. <a href="Mike%20Spencer%20%E2%80%94%20CIO%20Architecture%20Meeting%202c75632092ca8077af0ff7d2d3d218c9.html">[11]</a></li></ul></div><div style="display:contents" dir="auto"><ul id="bd662f1f-1d4c-44ea-90b7-e07bc525390a" class="bulleted-list"><li style="list-style-type:disc">The company is facing a &quot;maturation timeframe&quot; from a data generation standpoint. <a href="Mike%20Spencer%20%E2%80%94%20CIO%20Architecture%20Meeting%202c75632092ca8077af0ff7d2d3d218c9.html">[12]</a></li></ul></div><div style="display:contents" dir="auto"><ul id="eca80c8f-2f39-42db-bddf-494feb5e8aae" class="bulleted-list"><li style="list-style-type:disc">Legacy processes and systems are in place (including petty cash and PO-driven business controls). <a href="Mike%20Spencer%20%E2%80%94%20CIO%20Architecture%20Meeting%202c75632092ca8077af0ff7d2d3d218c9.html">[13]</a> <a href="Mike%20Spencer%20%E2%80%94%20CIO%20Architecture%20Meeting%202c75632092ca8077af0ff7d2d3d218c9.html">[14]</a></li></ul></div><div style="display:contents" dir="auto"><ul id="6c7403c0-30cf-429f-8e1f-245fafa108e1" class="bulleted-list"><li style="list-style-type:disc">Data standardization, classification, and lineage tracking are all needed. <a href="Mike%20Spencer%20%E2%80%94%20CIO%20Architecture%20Meeting%202c75632092ca8077af0ff7d2d3d218c9.html">[15]</a> <a href="Mike%20Spencer%20%E2%80%94%20CIO%20Architecture%20Meeting%202c75632092ca8077af0ff7d2d3d218c9.html">[16]</a></li></ul></div><div style="display:contents" dir="auto"><h3 id="c9f68088-229c-4802-90e0-209114481d8b" class="">Governance Structure</h3></div><div style="display:contents" dir="auto"><ul id="ee60e20c-38e9-4df8-9126-c9ffaacf4b7a" class="bulleted-list"><li style="list-style-type:disc">Two steering committees have been established:<div style="display:contents" dir="auto"><ul id="0fd30c9d-f433-4e6b-919a-133896adf2ec" class="bulleted-list"><li style="list-style-type:circle">Business Applications committee led by Robin Virginia (focusing on ERP and Salesforce) <a href="Mike%20Spencer%20%E2%80%94%20CIO%20Architecture%20Meeting%202c75632092ca8077af0ff7d2d3d218c9.html">[17]</a> <a href="Mike%20Spencer%20%E2%80%94%20CIO%20Architecture%20Meeting%202c75632092ca8077af0ff7d2d3d218c9.html">[18]</a></li></ul></div><div style="display:contents" dir="auto"><ul id="e5e9c4ad-5aca-46a4-a028-f17f1fd38c63" class="bulleted-list"><li style="list-style-type:circle">Industry 4.0 committee led by Mike (focusing on Operations, Manufacturing, R&amp;D, Quality) <a href="Mike%20Spencer%20%E2%80%94%20CIO%20Architecture%20Meeting%202c75632092ca8077af0ff7d2d3d218c9.html">[18]</a></li></ul></div></li></ul></div><div style="display:contents" dir="auto"><ul id="ee3e9ce1-397e-410e-ae47-148e177b2a05" class="bulleted-list"><li style="list-style-type:disc">The CIO and COO sit on both committees to ensure coordination. <a href="Mike%20Spencer%20%E2%80%94%20CIO%20Architecture%20Meeting%202c75632092ca8077af0ff7d2d3d218c9.html">[19]</a> <a href="Mike%20Spencer%20%E2%80%94%20CIO%20Architecture%20Meeting%202c75632092ca8077af0ff7d2d3d218c9.html">[20]</a></li></ul></div><div style="display:contents" dir="auto"><ul id="eb8bedfc-ddf3-4d58-ba9b-54e084b5da93" class="bulleted-list"><li style="list-style-type:disc">Data domains and ownership/stewardship concepts were introduced to executives. <a href="Mike%20Spencer%20%E2%80%94%20CIO%20Architecture%20Meeting%202c75632092ca8077af0ff7d2d3d218c9.html">[21]</a> <a href="Mike%20Spencer%20%E2%80%94%20CIO%20Architecture%20Meeting%202c75632092ca8077af0ff7d2d3d218c9.html">[22]</a></li></ul></div><div style="display:contents" dir="auto"><ul id="f7b57645-fcb4-42a6-9a62-375f2dd39ff2" class="bulleted-list"><li style="list-style-type:disc">Executive leadership is supportive of the initiative with funding already secured. <a href="Mike%20Spencer%20%E2%80%94%20CIO%20Architecture%20Meeting%202c75632092ca8077af0ff7d2d3d218c9.html">[23]</a></li></ul></div><div style="display:contents" dir="auto"><h3 id="ce57d99c-8a14-4a34-a20f-bc649cb0d4be" class="">Technical Approach</h3></div><div style="display:contents" dir="auto"><ul id="372b91ff-f9f3-4312-8986-5aea50f48564" class="bulleted-list"><li style="list-style-type:disc">Microsoft Purview will be used for data catalog and data glossary to minimize manual documentation. <a href="Mike%20Spencer%20%E2%80%94%20CIO%20Architecture%20Meeting%202c75632092ca8077af0ff7d2d3d218c9.html">[24]</a> <a href="Mike%20Spencer%20%E2%80%94%20CIO%20Architecture%20Meeting%202c75632092ca8077af0ff7d2d3d218c9.html">[25]</a></li></ul></div><div style="display:contents" dir="auto"><ul id="ff41a255-7f27-427f-aee8-a86c89122c94" class="bulleted-list"><li style="list-style-type:disc">Documentation needs to be actionable and accessible, not just static files. <a href="Mike%20Spencer%20%E2%80%94%20CIO%20Architecture%20Meeting%202c75632092ca8077af0ff7d2d3d218c9.html">[26]</a> <a href="Mike%20Spencer%20%E2%80%94%20CIO%20Architecture%20Meeting%202c75632092ca8077af0ff7d2d3d218c9.html">[27]</a></li></ul></div><div style="display:contents" dir="auto"><ul id="db85d33b-3c84-48de-8910-526e9441d563" class="bulleted-list"><li style="list-style-type:disc">Need for data architecture drawings showing system connectivity, master sources, and data flows. <a href="Mike%20Spencer%20%E2%80%94%20CIO%20Architecture%20Meeting%202c75632092ca8077af0ff7d2d3d218c9.html">[28]</a> <a href="Mike%20Spencer%20%E2%80%94%20CIO%20Architecture%20Meeting%202c75632092ca8077af0ff7d2d3d218c9.html">[29]</a></li></ul></div><div style="display:contents" dir="auto"><ul id="4def99d4-1430-4fe2-a575-6f831bac2dba" class="bulleted-list"><li style="list-style-type:disc">Data lineage and traceability are important for understanding data origins and transformations. <a href="Mike%20Spencer%20%E2%80%94%20CIO%20Architecture%20Meeting%202c75632092ca8077af0ff7d2d3d218c9.html">[16]</a></li></ul></div><div style="display:contents" dir="auto"><ul id="3fd34f27-6173-4e0f-8a9b-621c2d60a190" class="bulleted-list"><li style="list-style-type:disc">Manufacturing engineering group is already working with a vendor on OT data collection aligned with Microsoft Fabric. <a href="Mike%20Spencer%20%E2%80%94%20CIO%20Architecture%20Meeting%202c75632092ca8077af0ff7d2d3d218c9.html">[30]</a> <a href="Mike%20Spencer%20%E2%80%94%20CIO%20Architecture%20Meeting%202c75632092ca8077af0ff7d2d3d218c9.html">[31]</a> <a href="Mike%20Spencer%20%E2%80%94%20CIO%20Architecture%20Meeting%202c75632092ca8077af0ff7d2d3d218c9.html">[32]</a></li></ul></div><div style="display:contents" dir="auto"><h3 id="35a30667-28ec-4add-86b2-fdc4478ba274" class="">Stakeholder Engagement</h3></div><div style="display:contents" dir="auto"><ul id="17a5d1a3-dd7b-4ff5-a372-32e893ab2724" class="bulleted-list"><li style="list-style-type:disc">Initial stakeholder presentation will be to the Executive Leadership Team (ELT), scheduled for mid-February. <a href="Mike%20Spencer%20%E2%80%94%20CIO%20Architecture%20Meeting%202c75632092ca8077af0ff7d2d3d218c9.html">[33]</a> <a href="Mike%20Spencer%20%E2%80%94%20CIO%20Architecture%20Meeting%202c75632092ca8077af0ff7d2d3d218c9.html">[34]</a></li></ul></div><div style="display:contents" dir="auto"><ul id="918fb9ae-070a-4560-92e9-026e51c9efae" class="bulleted-list"><li style="list-style-type:disc">Broader engagement will follow with steering committees to involve key leaders throughout the organization. <a href="Mike%20Spencer%20%E2%80%94%20CIO%20Architecture%20Meeting%202c75632092ca8077af0ff7d2d3d218c9.html">[35]</a></li></ul></div><div style="display:contents" dir="auto"><ul id="df284188-edfe-43a2-96bd-719b57027899" class="bulleted-list"><li style="list-style-type:disc">Steve will be positioned as an internal data architect rather than as a consultant to avoid resistance. <a href="Mike%20Spencer%20%E2%80%94%20CIO%20Architecture%20Meeting%202c75632092ca8077af0ff7d2d3d218c9.html">[36]</a> <a href="Mike%20Spencer%20%E2%80%94%20CIO%20Architecture%20Meeting%202c75632092ca8077af0ff7d2d3d218c9.html">[37]</a></li></ul></div><div style="display:contents" dir="auto"><ul id="459a68fd-4609-4b54-a90f-06be57260549" class="bulleted-list"><li style="list-style-type:disc">Mike emphasized treating Steve as part of the team: &quot;You are one of us.&quot; <a href="Mike%20Spencer%20%E2%80%94%20CIO%20Architecture%20Meeting%202c75632092ca8077af0ff7d2d3d218c9.html">[38]</a></li></ul></div><div style="display:contents" dir="auto"><ul id="f17efbb5-05ab-4be0-9114-ea41b0b68ea8" class="bulleted-list"><li style="list-style-type:disc">Approach will be collaborative: &quot;I&#x27;m not going to act like I know everything about it because I don&#x27;t.&quot; <a href="Mike%20Spencer%20%E2%80%94%20CIO%20Architecture%20Meeting%202c75632092ca8077af0ff7d2d3d218c9.html">[39]</a> <a href="Mike%20Spencer%20%E2%80%94%20CIO%20Architecture%20Meeting%202c75632092ca8077af0ff7d2d3d218c9.html">[36]</a></li></ul></div><div style="display:contents" dir="auto"><h3 id="d13fbea6-f82e-4bad-ae11-03be317f4e19" class="">Strategic Importance</h3></div><div style="display:contents" dir="auto"><ul id="d0e9d72b-abfd-4a75-a2ef-ed2e34259d3b" class="bulleted-list"><li style="list-style-type:disc">Master data management is foundational to all other initiatives on the technology roadmap. <a href="Mike%20Spencer%20%E2%80%94%20CIO%20Architecture%20Meeting%202c75632092ca8077af0ff7d2d3d218c9.html">[40]</a> <a href="Mike%20Spencer%20%E2%80%94%20CIO%20Architecture%20Meeting%202c75632092ca8077af0ff7d2d3d218c9.html">[41]</a></li></ul></div><div style="display:contents" dir="auto"><ul id="afaae8b0-f149-49f0-84df-9f811784460b" class="bulleted-list"><li style="list-style-type:disc">Process modernization, ERP migration, NES replacement, and AI initiatives all depend on solid data management. <a href="Mike%20Spencer%20%E2%80%94%20CIO%20Architecture%20Meeting%202c75632092ca8077af0ff7d2d3d218c9.html">[42]</a></li></ul></div><div style="display:contents" dir="auto"><ul id="e97b5c80-9a6d-4354-8666-e85708a02aee" class="bulleted-list"><li style="list-style-type:disc">Leadership recognizes this is about &quot;growing up&quot; as an organization. <a href="Mike%20Spencer%20%E2%80%94%20CIO%20Architecture%20Meeting%202c75632092ca8077af0ff7d2d3d218c9.html">[3]</a></li></ul></div><div style="display:contents" dir="auto"><ul id="f8d1fddb-2cf3-4169-97c0-2c1c413819f0" class="bulleted-list"><li style="list-style-type:disc">Data initiative has executive support with Mike as the sponsor: &quot;My name is tied to it.&quot; <a href="Mike%20Spencer%20%E2%80%94%20CIO%20Architecture%20Meeting%202c75632092ca8077af0ff7d2d3d218c9.html">[43]</a> <a href="Mike%20Spencer%20%E2%80%94%20CIO%20Architecture%20Meeting%202c75632092ca8077af0ff7d2d3d218c9.html">[44]</a></li></ul></div><div style="display:contents" dir="auto"><h3 id="87284159-6330-44f1-8aa2-08dc69f86e40" class="">Action Items</h3></div><div style="display:contents" dir="auto"><ul id="2e65fb60-e7a0-457b-89e9-a4b344d736c2" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Steve to meet with Dominique to coordinate access to steering committees <a href="Mike%20Spencer%20%E2%80%94%20CIO%20Architecture%20Meeting%202c75632092ca8077af0ff7d2d3d218c9.html">[45]</a> <a href="Mike%20Spencer%20%E2%80%94%20CIO%20Architecture%20Meeting%202c75632092ca8077af0ff7d2d3d218c9.html">[46]</a></span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="1b19db1b-3f45-4e19-a32a-c11dede104cf" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Steve to prepare for mid-February ELT presentation on approach and roadmap <a href="Mike%20Spencer%20%E2%80%94%20CIO%20Architecture%20Meeting%202c75632092ca8077af0ff7d2d3d218c9.html">[33]</a> <a href="Mike%20Spencer%20%E2%80%94%20CIO%20Architecture%20Meeting%202c75632092ca8077af0ff7d2d3d218c9.html">[34]</a></span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="31bdc42e-e29a-4d59-bc66-d01a3e6c8bb0" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Steve to begin tracking work in JIRA after the first of the year for visibility <a href="Mike%20Spencer%20%E2%80%94%20CIO%20Architecture%20Meeting%202c75632092ca8077af0ff7d2d3d218c9.html">[47]</a> <a href="Mike%20Spencer%20%E2%80%94%20CIO%20Architecture%20Meeting%202c75632092ca8077af0ff7d2d3d218c9.html">[48]</a></span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="5fb3eda9-9e63-48c5-8d9e-2630a4b0d255" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Steve to meet with Robin Virginia (Director of Business Applications) <a href="Mike%20Spencer%20%E2%80%94%20CIO%20Architecture%20Meeting%202c75632092ca8077af0ff7d2d3d218c9.html">[17]</a></span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="a5152df7-a7a7-4a88-a919-a4e9c3d6dcb5" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Steve to refresh data architecture drawings showing system connectivity and data flows <a href="Mike%20Spencer%20%E2%80%94%20CIO%20Architecture%20Meeting%202c75632092ca8077af0ff7d2d3d218c9.html">[28]</a> <a href="Mike%20Spencer%20%E2%80%94%20CIO%20Architecture%20Meeting%202c75632092ca8077af0ff7d2d3d218c9.html">[29]</a></span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="df1e9ca2-422c-4c48-97f6-1a01ba75eab7" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Mike to introduce Steve to manufacturing engineering group working on OT data collection <a href="Mike%20Spencer%20%E2%80%94%20CIO%20Architecture%20Meeting%202c75632092ca8077af0ff7d2d3d218c9.html">[30]</a> <a href="Mike%20Spencer%20%E2%80%94%20CIO%20Architecture%20Meeting%202c75632092ca8077af0ff7d2d3d218c9.html">[31]</a></span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="e6fe9ded-7dfb-4ba8-9d7d-0f57c1c07882" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Steve to develop approach for standardizing product naming schemes <a href="Mike%20Spencer%20%E2%80%94%20CIO%20Architecture%20Meeting%202c75632092ca8077af0ff7d2d3d218c9.html">[8]</a> <a href="Mike%20Spencer%20%E2%80%94%20CIO%20Architecture%20Meeting%202c75632092ca8077af0ff7d2d3d218c9.html">[9]</a></span><div class="indented"></div></li></ul></div><div style="border-bottom:0.05em solid;border-bottom-color:rgba(42, 28, 0, 0.07)">Notes<br/></div><div style="border-bottom:0.05em solid;border-bottom-color:rgba(42, 28, 0, 0.07)">Transcript<br/></div><div style="display:contents" dir="auto"><p id="595eef14-d02b-4873-b0df-a918a980ec1c" class="">Oh, I picked up on that very quickly. It&#x27;s like very short and kind of very finite, very short responses and stuff. Do you see any problems there? Just let me know and I&#x27;ll deal with it. Sometimes it needs to be reeled in a little bit. He&#x27;s an important component. I know Patrick had a list of stuff we were supposed to discuss, or suggested discussions.</p></div><div style="display:contents" dir="auto"><p id="14973232-716c-46d1-a22d-9af808c1e37f" class="">So you being here is my, so I&#x27;m a new CIO, been here four months, five months, something like that. Master data management is a disaster. I mean, there is no management of data in any way, shape, or form here in my opinion. I&#x27;m probably sure you&#x27;ll see that as you start extracting data and looking for patterns. If you saw some of the diagrams and like infographic type maps that I put together to kind of help...</p></div><div style="display:contents" dir="auto"><p id="f78b4277-543e-4486-9efe-67034acda064" class="">Patrick yeah, see what&#x27;s going on in my head and like how I perceive it. He was like, oh my god He&#x27;s like this is actually really funny. It&#x27;s like yeah, it&#x27;s I like, yeah, I&#x27;ll actually, I&#x27;ll put, I&#x27;ll put, I&#x27;ll put one or two of them in the chat or something like that. Yeah, no, that&#x27;d be awesome. He thought it was pretty entertaining.</p></div><div style="display:contents" dir="auto"><p id="9cea748c-900d-4f27-ace6-f0e52be67642" class="">The reason that I like to use infographic type things like this is because, not just because it looks nice, but because it&#x27;s hard to articulate. A lot of the times for these engagements, especially when you&#x27;re trying to do a very large knowledge sharing initiative at the beginning. And so making it as.</p></div><div style="display:contents" dir="auto"><p id="4752b1d7-d68a-4de0-9348-a5b2140d748a" class="">Visual and clear as possible, what I&#x27;m comprehending and what I understand compared to what you guys know I should understand. It&#x27;s a way to visualize complexity too, right? Yeah. And I think it&#x27;ll help other people understand that, you know, here&#x27;s your piece of it, but here&#x27;s the ecosystem of data.</p></div><div style="display:contents" dir="auto"><p id="2a0fe655-0ad7-4717-af8e-6a69af3adc99" class="">Yep. Let me see. One of the big things I wanted to go through is, because again, I&#x27;ve been around these types of things before, obviously these types of initiatives, I know that you&#x27;re a phenomenal resource. To comment and help lead us through that process. Some things that I want you to just be aware of from a systems standpoint, I don&#x27;t know if Guy&#x27;s covered that.</p></div><div style="display:contents" dir="auto"><p id="4c16bcdc-cbeb-4250-be12-d3976009233c" class="">So I think, because I think stakeholders is going to be a topic that we probably chat about. But our core applications, so when we classify, it&#x27;s really ERP, Salesforce, and capabilities around both of those. We are two ERP systems, M3 on-prem and M3 in the cloud. One of the things that we&#x27;re going to be engaging in this year is a discovery process to go out and map all of our processes across the organization related to the on-prem version.</p></div><div style="display:contents" dir="auto"><p id="af6e5fd5-2db2-43b5-8fd9-16fdd456cc62" class="">As well as the cloud version and start driving us to best practice configuration. Because a lot of the information that we have is actually a manual process. It&#x27;s outside the system. And so, just keep that in mind that that&#x27;s something that&#x27;s happening and that&#x27;s something we&#x27;ll get married up with. I don&#x27;t know if you have Robin.</p></div><div style="display:contents" dir="auto"><p id="198c6fe6-bf39-4e27-a133-116f4efd276f" class="">Yeah, on your on your list of people to meet. Not yet. So Robin, Robin, Virginia is she&#x27;s new. She&#x27;s been here two weeks, but she is the Director of Business Applications, Senior Director of Business Applications. So I brought her in recently to help.</p></div><div style="display:contents" dir="auto"><p id="dc03f8d7-6a3d-4b7e-905f-2de465143a18" class="">She&#x27;s been around these types of initiatives as well. She&#x27;s taking on ERP and all that. She&#x27;s gonna be running the steering committee that will deal with all of the ERP, Salesforce, that type of side of the house. And then I&#x27;ll be running one that sits on what we consider Industry 4.0, which is much more like Operations, Manufacturing, R&amp;D, Quality, Manufacturing, Engineering, stuff like that.</p></div><div style="display:contents" dir="auto"><p id="5fe80065-a410-4beb-9188-02c73362c2be" class="">And so the members of those two steering committees, because this is critical to both, and you can decide at some point whether it makes sense to have a separate one for this or whatever, but... They will be kind of your lines into the organization, right? At least from an executive leadership standpoint. So, our COO sits on both of them, as do I.</p></div><div style="display:contents" dir="auto"><p id="40d05fe7-288e-4a7f-aab8-f1849a8c8ee2" class="">So, our CIO, COO is one of the owners, so he&#x27;s fairly young, but very, very intelligent about business. How do you envision the two steering committees coordinating on the shared initiatives, especially where ERP manufacturing and data intersect? Yeah. I think I think that the two steering committees will need to interact with each other. Right. Again, there&#x27;s people across both.</p></div><div style="display:contents" dir="auto"><p id="fc00e801-e904-474f-aab7-9b7644316e36" class="">I think that there&#x27;s going to be occasions where we need to have meetings that are made of the steering committee members from both to discuss those types of things. But like I said, if we think that that&#x27;s a lot, then let&#x27;s create another data-driven steering committee. But it will be the same people. I&#x27;m just trying to be a little.</p></div><div style="display:contents" dir="auto"><p id="d0cde582-568f-4d63-932f-9e11896a0724" class="">conscious about time and using effective channels already and things like that, right? Especially since a lot of the work that&#x27;s happening in both of those is driving data. Current systems and data flow, is that going to be a separate group of people putting that together or is that something that you would like us to produce as a result of this exploration?</p></div><div style="display:contents" dir="auto"><p id="66ea0e6b-34ab-4987-afad-db5aee977577" class="">If you are talking about data flow specifically, we have some older drawings. There is a visual out there of all of our system connectivity, what it used to be. We have eliminated one of the ERPs in that system, but I used it as more of a don&#x27;t stare at this.</p></div><div style="display:contents" dir="auto"><p id="02518a4b-e493-45da-a49e-307622f3adad" class="">I think we should have, essentially, a refreshed data architecture drawing of how we&#x27;re pulling all this stuff in, where it&#x27;s coming from, who our master sources are, right? Stuff like that. That&#x27;s sort of what I envisioned. Tell me if... I&#x27;m not the expert in this space, and you are. And we hired you to be. So, in terms of that type of documentation and the diagrams and the architecture...</p></div><div style="display:contents" dir="auto"><p id="513e4781-5b16-4531-b32b-ddef94bd4217" class="">In terms of data flows and stuff, being able to, yes, know where it is, but for auditing purposes, but also for traceability and lineage, just being able to see. Okay, this column in this report is being pulled from what source system, what&#x27;s happening to it, what&#x27;s impacting it. Yeah, that&#x27;s very important to be able to have that.</p></div><div style="display:contents" dir="auto"><p id="f7cb19d5-b633-4f45-bfc2-37de7ee25cd6" class="">Yeah, the common level lineages, I think, if you shoot to accomplish that, the rest of it is naturally going to come with it. Right, yeah, no, and that&#x27;s what we want to know, right? But again, there&#x27;s there&#x27;s a lot more underneath that statement, right? Yeah, yeah, data standardization, data classification, all kinds of stuff like that that comes with it, so yeah, but the</p></div><div style="display:contents" dir="auto"><p id="c86a78ce-3f63-4bad-9bfb-3e91667dae72" class="">I guess so there&#x27;s a data catalog and then a data glossary, so I guess two different purposes, but Microsoft Purview is kind of what I think we were Looking to utilize for that so that it&#x27;s all integrated. Nothing about the documentation, for the most part, should be manual at the end of the day.</p></div><div style="display:contents" dir="auto"><p id="f42e2b12-d7dc-4944-9638-cee2c4442e74" class="">If at all possible, unless like major things change, but as data changes and updates to transformation flows and databases get combined, or you know what I mean, like change. Those will be incrementally updated, but the things that can be scanned by Microsoft Purview and updated consistently in an automated way...</p></div><div style="display:contents" dir="auto"><p id="c263f815-09b6-4cbd-aa9d-06a3efc534f1" class="">That&#x27;s the way you keep that stuff current, right? You rely on people. It&#x27;s pretty easy to get two years out, right? Exactly. I really try to stay away from when I hand something off to a team or a department or company at the end of it in terms of documentation, it&#x27;s never just a PDF flat file.</p></div><div style="display:contents" dir="auto"><p id="2e8581b9-e804-40c0-8fe1-d10db88f1c4e" class="">Because nobody ever reads it, except maybe the person I handed it to, and they just open it to make sure it&#x27;s not blank. Other than that, it&#x27;s like, no one ever touches it. So it&#x27;s gotta be... actionable, accessible, and at least engaging enough to contain our data and information. That&#x27;s it.</p></div><div style="display:contents" dir="auto"><p id="726588e9-a65d-476f-8856-4215c9ffe2b9" class="">Helpful. And then where people consume it from, right? I think there&#x27;s an interesting dynamic here where people will consume data from different locations. And the name of it&#x27;s the same, right, of what they&#x27;re consuming, but they&#x27;re like, why are our results not the same? And I said, well, it&#x27;s because this is the perspective of this system. This is the perspective of that system, right?</p></div><div style="display:contents" dir="auto"><p id="0cfc457d-4b41-44e3-a535-2d0e1f33df0e" class="">It&#x27;s not that one of those data sources is bad. It&#x27;s just a different perspective of not the same, it&#x27;s the same data from its labeling standpoint, but not from the perspective of, you know, it&#x27;s almost like. Not really, right? Those two things are not the same. But they&#x27;re relevant. So for that, I was actually talking to...</p></div><div style="display:contents" dir="auto"><p id="492757a9-3c15-4396-9abb-51fb11ccd70a" class="">I always forget how to pronounce her name. Oh, Uteus! Uteus! God, I cannot believe it. I&#x27;m like a dyslexic when it comes to her. She&#x27;s a gem. I love her. Yeah, she&#x27;s great. Very, very engaged and really wants to learn as much as she can. She&#x27;s like a sponge.</p></div><div style="display:contents" dir="auto"><p id="451a7a5e-b890-4861-a6b9-7b864fca2f7b" class="">But in terms of what you were just talking about, I brought it up with her. I was like, metadata and an automated utility to... populate and generate data models and populate descriptions for the columns in data models and all of that so that it&#x27;s like</p></div><div style="display:contents" dir="auto"><p id="425c5db6-68ca-4373-b8ab-edcc00d66c5a" class="">Proliferated throughout the entire data estate is important because, just like you said, when you look at a metric or a column in a database context, It means one thing because it&#x27;s in a certain table and what&#x27;s around it, but when you combine it with something else or you bring it into a report surrounded by a totally different kind of context, the description is not going to be the same as it would be if you...</p></div><div style="display:contents" dir="auto"><p id="bd593255-e011-41fc-96eb-b0cd1b6756c3" class="">Read the description in the database versus the report because it means something very different. And so I was like, you don&#x27;t just copy like replicate descriptions from one level. of the hierarchy to the next just because it&#x27;s named the same. Never. You have to always take all that into consideration because that&#x27;s just as important.</p></div><div style="display:contents" dir="auto"><p id="0704cf27-8a96-4eb0-86b0-2acc82bc9f33" class="">terminology and consistent naming when it comes to things like the data glossary. And Patrick brought that up as something that he really wants to do, but it seems like it&#x27;s always been pushed. Oh, yeah. And so I think like, I think, you know, you&#x27;re probably so you obviously need some level of sponsorship, executive sponsorship, which I am a sponsor. I own this. My name is tied to it.</p></div><div style="display:contents" dir="auto"><p id="ee322650-a68e-4832-b5cc-1c8d809530be" class="">But we have the ELT very, very involved, very, very aware of what&#x27;s happening. They know you&#x27;re here. And then I think we start having the conversation around.</p></div><div style="display:contents" dir="auto"><p id="37d853c2-44ce-41dd-a310-d6e6d20f30c5" class="">Data Domains and Data Ownership? Yeah. Right? Stewardship. Yeah. Yeah, stewardship, ownership, whatever it is. Yeah. Is that what they&#x27;re calling it now? Stewardship? There&#x27;s a difference, right? Ownership is I own it and stewardship is I own the cleanliness of it or whatever.</p></div><div style="display:contents" dir="auto"><p id="507e1b2e-a295-4a94-b0ce-dd69c9c0782b" class="">Ownership is like the end-all be-all decision maker. They don&#x27;t have to check with anybody to make a decision about it. The stewardship is the one that uses it the most and might be the most familiar. Gotcha. Yep. But they like to do any substantial update or change or anything that will impact it. They do need to check with Right on it</p></div><div style="display:contents" dir="auto"><p id="9d1b7f48-c530-426b-85bc-76841ee53bc2" class="">And then I think it&#x27;s important to apply key areas like, you know, what at some point have some conversation early on around where&#x27;s our important data like what&#x27;s So what&#x27;s the most important data in the business? What&#x27;s the next level down? What&#x27;s the next level down, right? I do suspect that there&#x27;s one of the things that I was, because I&#x27;ve dug into several systems in a couple of places and I&#x27;m like.</p></div><div style="display:contents" dir="auto"><p id="edcf0b83-63cd-4d92-ba4e-b5b26289c7f7" class="">Whoever this guy is that comes in is going to want to shoot somebody over our product numbering schemes or our product naming schemes. I was about to say I was like like the product like jumped out at me like product product and I&#x27;ve already warned them I&#x27;m like guys I&#x27;m telling you.</p></div><div style="display:contents" dir="auto"><p id="1774ed08-0f92-467f-88d8-1f174662d648" class="">We need to come up with a naming standard for products that has a consistent flow throughout the business. And there&#x27;s some uniqueness here, which is, you know, we&#x27;re really, you know, three divisions that are manufacturing, right? Which should use one.</p></div><div style="display:contents" dir="auto"><p id="91cb0b2e-28dc-42bf-8dd0-76be41c1c6a9" class="">you know, naming structure. And then we have one division that is distribution of those products and others. So there&#x27;s not just our products that they distribute, they distribute even some competitor products. And so, I mean, to me, I&#x27;m like, guys, you see this all the time.</p></div><div style="display:contents" dir="auto"><p id="3a01d9bd-b0d1-4e1d-9f23-03da83211a3d" class="">You see this when you go to Home Depot, you see this when you go wherever, right? Like, they&#x27;ve either got like a dash at the end for the fact that this, you know, John Deere lawnmower was sold at Home Depot, that said, you know, it&#x27;s like... You know, 2765-H for Home Depot, where if you buy it directly from John Deere, it&#x27;s 27-8. You know what I mean? It&#x27;s like, we don&#x27;t have to overthink this. There&#x27;s a reason. There&#x27;s logic to what seems to be completely</p></div><div style="display:contents" dir="auto"><p id="8f091925-2f32-47be-8810-18f248b0ecc2" class="">I&#x27;m sure there&#x27;s some logic in some of ours, but I think us trying to get them, and I do think there&#x27;s probably, we&#x27;ll create a lot of complexity if we try and go back date naming, so we may have to be more like point in time change when we go to product naming, but that&#x27;s one area where I was like.</p></div><div style="display:contents" dir="auto"><p id="49f6b12a-ade9-488b-beb0-c765b2ab8299" class="">I&#x27;m going to have to be engaged a lot in that spot. Yeah, Udias was sharing her screen and she showed me the database and like all the databases were just like... Of what? She started to explain it. She&#x27;s like, yeah, so when I write queries, I was like, okay, yeah, it makes total sense, crystal clear.</p></div><div style="display:contents" dir="auto"><p id="3f60c0d2-5428-409f-b27a-ac5131b12ecd" class="">So, that piece of it is going to be fun. But I think the financial side will probably be... We&#x27;re very, very simple, but we&#x27;re also... I would say underdefined, and this is something that Robin will be working on with a new FP&amp;A VP that they&#x27;re hiring.</p></div><div style="display:contents" dir="auto"><p id="e04f808a-3b8f-4e18-80d7-5a6b966bd85f" class="">Which needs to be hired here in the next month, I think. So I know they&#x27;re in the process. You know, we structurally, from a financial standpoint, we use... The standard structures that other companies do, we just don&#x27;t use them as much. So, like for instance, there is no IT budget. There is a GNA.</p></div><div style="display:contents" dir="auto"><p id="b62c41a6-fea4-489d-951b-d029f641278a" class="">Cost center, which is everybody who&#x27;s corporate, including IT, right? And there&#x27;s some very poor GL structure that&#x27;s built into that. Literally, I think IT is tracked as a general ledger. So we don&#x27;t even differentiate in IT spend like services versus maintenance versus anything. And so that stuff that&#x27;s going to be evolving as well.</p></div><div style="display:contents" dir="auto"><p id="118a0cea-9a02-4788-b6fb-7afdf6b14553" class="">Right? So just keep that in mind as you&#x27;re doing this, that we&#x27;re probably in a, from a data generation standpoint, we&#x27;re in a maturation. That&#x27;s a time frame of where we&#x27;re going to be going through and doing a lot of work. I think there&#x27;s challenges there with that from a data standpoint, right?</p></div><div style="display:contents" dir="auto"><p id="0fa98f49-084e-4b03-9426-37ee0e8f2776" class="">But I also think that there&#x27;s benefits to it, right? Like, hey, we&#x27;re gonna go change this and do this. Now&#x27;s the time to say, these are our standards, right? And start from ground zero instead of trying to, you know, name something else. And, you know, when you get into Fabric and stuff like that, there&#x27;s lots of tools that help transform data, you know, for...</p></div><div style="display:contents" dir="auto"><p id="f3d3dea0-8558-4eab-906e-90ae41588426" class="">Changing the data labels and timestamps and all kinds of stuff like that as it&#x27;s coming into a fabric. So, you know, we&#x27;ll certainly see some of that just because of some of our regionality, right? We&#x27;re in different time zones, obviously. I&#x27;m sure you&#x27;ve dealt with that.</p></div><div style="display:contents" dir="auto"><p id="286ee375-9c09-4bce-b083-8e4c60bb0bd5" class="">But yeah, I don&#x27;t know if you guys use, if you&#x27;re just using like a... international time or what you know but and then applying a local time zone to it you know plus six plus five whatever but yeah so it&#x27;ll be fun there&#x27;ll be a bunch of stuff like that that we have to go down the</p></div><div style="display:contents" dir="auto"><p id="68f87d01-c678-4592-93aa-0d48ec6da5fc" class="">doodles that I had or made notes of during the meeting so I could like kind of bring them all together and fix any contradictions that I ran into when I asked clarifications and whatnot. And based on really working through, at least at this point, with my understanding of everything, having a very clearly defined product ID in way of what we were just talking about in terms of the products, if I&#x27;m not mistaken, that would really...</p></div><div style="display:contents" dir="auto"><p id="489f42f5-9ea0-4135-bc6f-c89b7d006d84" class="">Fixed an awful lot just getting the products under control in terms of the naming conventions and identifiers. I don&#x27;t know. It could be incorrect and half-truth if I&#x27;m not missing anything else.</p></div><div style="display:contents" dir="auto"><p id="ad593a63-bb0b-4d14-9152-f0b32f8e6c65" class="">So I think, you know, I think initially having you, if you want to go into stakeholders, right, I think our ELT meeting is probably the place to do it. So the C-suite. Right is the place to probably do that. I think the stakeholder group is larger than that, but I think Um, that&#x27;s probably the place to start, right? Um</p></div><div style="display:contents" dir="auto"><p id="bcafcab8-9382-4935-a2b7-31f53014e274" class="">Timing around that is up to you, right? I was like, I mean, I love that we&#x27;re starting him before the holidays, that hopefully he gets some quiet time to dig in and start to build an opinion. But timing of that, what&#x27;s in your mind when you think you want to start that process and start, you know, kind of advertising, hey, I&#x27;m here and this is what this is going to look like. I mean, honestly, whenever you think everybody&#x27;s back and settled back in after.</p></div><div style="display:contents" dir="auto"><p id="ca1f7269-a801-412e-a343-c69a5f164783" class="">the first of the year. I had no misconception about, you know, coming during December when people are on vacation and All that, but I do I just I did want to communicate like tell you that I do appreciate you guys pulling the trigger on This prior to Christmas because if you guys wait until after I don&#x27;t think I would have been able to at least</p></div><div style="display:contents" dir="auto"><p id="aef5f821-ddb5-4181-9b50-13f06100dce1" class="">Come on board. So I yeah, you were sitting on the bench, right? You would have to take something. Yeah I mean, well, I was talking to some other great companies and I just If he would have said another month, I would have been like, uh, that&#x27;s kind of up in the air. And you were working with, you were working with Jason, right?</p></div><div style="display:contents" dir="auto"><p id="4afe495e-08fd-4faf-bf56-a671768644d1" class="">
+</p></div><div style="display:contents" dir="auto"><p id="eb172689-6f20-4425-aa17-d6e083683d92" class="">Oh, yes. Sorry. Yeah. He&#x27;s a friend of mine. I heard you guys went out to dinner and stuff. Yeah, we have. Yeah, a couple times. We know. I know Jason, he was a sort of a friend of a friend, and then he and I became friends. Yeah, so no, he&#x27;s great, and he&#x27;s like, Mike, you gotta make sure this moves. So I was like, all right.</p></div><div style="display:contents" dir="auto"><p id="9eaa4fb9-e85c-4bd1-bbea-42125cd4f4a2" class="">He&#x27;s like, you want Steve, and I was like, OK. So, and Patrick agreed, so, you know, we&#x27;re not always that nimble, but we were this time. When they called me, I was like, no, I&#x27;m sorry, I&#x27;m not available. But it sounds like a really interesting engagement. Do you want me to help you walk through who you&#x27;re looking for, what they should probably possess in terms of skills?</p></div><div style="display:contents" dir="auto"><p id="7d00e439-e81e-4b5a-b6cc-f257dce37960" class="">What you should keep an eye out for so you don&#x27;t hire the wrong person. He&#x27;s like, yeah, so we talked for like an hour under the entire premise that that was going to be the end of the call. So after we talked through it, I was like, I really like the way this is looking. Yeah, I will tell you, this is a really cool company.</p></div><div style="display:contents" dir="auto"><p id="10b677f9-fc98-48be-a76d-1213509dafaa" class="">Everybody wants to be better, right? They want to be better in every space. They just don&#x27;t know how to, right? And so bringing in key people like you and some others that we brought in in different areas is how we&#x27;re going to get there. And so I&#x27;ve seen nothing but...</p></div><div style="display:contents" dir="auto"><p id="40c04736-c510-4c48-9d41-7950ebdf7944" class="">100% support on everything that I&#x27;ve gone and done. So, I mean, I basically went and asked for, you know, a million dollars to go deal with master data management longer term and... And they&#x27;re like, you know, I told the story, did a presentation deck, and...</p></div><div style="display:contents" dir="auto"><p id="ee9fb1f2-1abb-49ce-8733-329a17f98d07" class="">I had everybody sign it. That&#x27;s great. It&#x27;s exciting coming when you have a new executive team member coming in right at the beginning, when people are just very open to change, or at least excited about it. So you need to really hit while the iron&#x27;s hot.</p></div><div style="display:contents" dir="auto"><p id="b44dd51a-f534-4985-a776-15ffbb4fee4a" class="">And so what you see happening now is there are a couple that have been here for a while, but there&#x27;s some of us that are newer. We have a new VP of operations, right? And so he&#x27;s seen data initiatives in the past and stuff like that, and so he&#x27;s very engaged.</p></div><div style="display:contents" dir="auto"><p id="fce7df29-84af-4967-868f-18a712d79d2a" class="">You know, our COO, he&#x27;s 31, but he grew up around technology being everywhere, right? And so he&#x27;s very much a, I mean, he can&#x27;t wait till we can put a fricking Tesla Optimus in our fricking home office. That would be a little much for me. Can we call him Larry to humanize it a little bit? It&#x27;s a good company and there&#x27;s a lot here to do. But I don&#x27;t think you&#x27;re going to see a lot of pushback on...</p></div><div style="display:contents" dir="auto"><p id="71daad91-7a5c-4e84-96c1-0817e5d12113" class="">Where decisions have to be made and I would encourage, you know, encourage the process of, hey, this is the way I think we should do it. And if you don&#x27;t get anybody to say otherwise, then that&#x27;s the way we&#x27;re going to do it. Right. Yeah, I mean, I think you&#x27;ll see that quite a bit.</p></div><div style="display:contents" dir="auto"><p id="1c598ee4-97fd-4fe8-948b-8167dae8f60e" class="">I use that kind of default action. here where it&#x27;s like, I&#x27;m going to go do this unless somebody says something by this time. And then nobody says anything. It&#x27;s like, all right, I&#x27;m going to go do it. I didn&#x27;t have to have a conversation. There was a fight. It seems like most of the time people don&#x27;t respond in those instances because they don&#x27;t want to be the ones.</p></div><div style="display:contents" dir="auto"><p id="445c6e18-4f83-4e8c-81aa-b21c134365df" class="">Who like are like that if it goes wrong, they don&#x27;t want to be blamed for okaying it or like, you know I mean like it&#x27;s all about Right, and you you will see a little bit of a naysayer a little bit out of our CFO, but don&#x27;t worry about that All CFOs are like that. Yeah, I mean, that&#x27;s kind of by nature what makes a good CFO, right? I love our CFO, he&#x27;s great. Just a personality trait.</p></div><div style="display:contents" dir="auto"><p id="d90876f4-d685-43ea-9985-801e3e17582b" class="">Yeah, he&#x27;s just always looking for... I tell him he&#x27;s the pessimist and I&#x27;m the optimist, and somewhere in the middle we&#x27;ll be realists. I mean, that&#x27;s a good working executive leadership team, honestly. So, yeah, I mean... Sorry, I was just gonna... Go ahead. I was just gonna mention the timing in terms of the stakeholder in person.</p></div><div style="display:contents" dir="auto"><p id="c100e3da-56c9-439d-95df-5ad0ac3e82a2" class="">You can either work through me or you can work through Dominique. So have you met with Dominique yet? I have not. Is she on your list? She is. Okay, so she&#x27;s our PM. She can help you with entry into both of the steering committees. And then, you know, I&#x27;m probably better to be like, hey, I&#x27;m bringing in our data architect into the ELT. But so, yeah, don&#x27;t be shy, reach out. My job here is to make sure I clear all the roadblocks for you and make you successful.</p></div><div style="display:contents" dir="auto"><p id="8ffa7b60-03be-443b-9af0-82e7abcbc1bc" class="">I don&#x27;t look at you as being anybody other than one of our employees for the time that you&#x27;re here, right? Don&#x27;t be treated different, nothing like that. You are one of us. So anything you need or anything that comes up, or if you feel like you&#x27;ve got a blocker or something like that, something&#x27;s not happening fast enough, you know, work through me, work through Patrick, work through...</p></div><div style="display:contents" dir="auto"><p id="18fc0d52-f63a-4556-a894-31414aff81ac" class="">She&#x27;ll be another really good one. Hopefully she is on your list somewhere. But yeah, I will get you introduced at some point to I think another one. I don&#x27;t know if you&#x27;re there on the list is. Manufacturing engineering group. They&#x27;re doing a lot of stuff with OT type work. So they&#x27;re pulling and they have a vendor who is, you know, essentially we&#x27;ve aligned them to fabric.</p></div><div style="display:contents" dir="auto"><p id="2d152d8b-1a6e-434e-a958-b10b1e688fc1" class="">So as they start putting in data collectors and stuff like that and pushing data, they&#x27;ve already gone through and done a standardization exercise. And I said, that&#x27;s great, but there&#x27;s some level of coordination that has to happen with our architect, right?</p></div><div style="display:contents" dir="auto"><p id="fa9aa688-d070-4840-ba83-bc9ad613649e" class="">So you&#x27;ll be engaged with them. But that side of the house... It will probably be, you know, you help, you know, just guiding them in the direction they need to go to bring it in, bring their data in. So, but they, we may see their data be the first one that shows up in a fabric somewhere, right?</p></div><div style="display:contents" dir="auto"><p id="c395f5c6-7d56-431d-8cb5-3756864b23ec" class="">Totally. I mean, totally okay. It&#x27;s just needing to make sure that&#x27;s certain. If they could get immediate value, which, you know, the vendor, you know, I&#x27;ve seen some of the demos they&#x27;ve done with Fabric around them, and I was like, yeah, that&#x27;s great.</p></div><div style="display:contents" dir="auto"><p id="b3d74e51-081f-4e32-b547-fd3d0cc3f846" class="">And I said, I think you guys are, because you&#x27;re new and you&#x27;ve just standardized all this stuff as you put it in, you&#x27;re in a better spot, right? I&#x27;ve got to go deal with history. You guys don&#x27;t have to. You don&#x27;t have to fit it together with. You don&#x27;t have technical debt.</p></div><div style="display:contents" dir="auto"><p id="4c09c2bf-e767-44e2-9856-b6d35d1ccd0c" class="">I don&#x27;t know, what do you need for me today besides timing and I can give you a list of stakeholders if you want me to work on that. Robyn, Virginia, Dominique, Mathers, Don, Cruz, and then Mike, Kenny. I don&#x27;t know if that&#x27;s somebody else. Yeah, he and the infrastructure.</p></div><div style="display:contents" dir="auto"><p id="0ebdc747-b885-4c75-987f-20ee9a24824b" class="">But I don&#x27;t know a ton of that would come out of him other than, you know, obviously they&#x27;re going to provision access for anything you need up in the cloud and help you work on that side of the house, but... I&#x27;m not sure that they&#x27;re generating data. They are. I wouldn&#x27;t put it in bucket 1, 2, or 3. Carrie Voss was the other one that I met with that she seemed.</p></div><div style="display:contents" dir="auto"><p id="aad9bb12-c1c6-47bd-bbae-73caac82389a" class="">To be very familiar with the politics and the inner workings of things socially. Yes. Oh yeah, Karen. She kind of told me, like, if... You need to figure out what&#x27;s really going on in certain groups, who&#x27;s responsible for what, like how to maybe approach them, things like that. Yeah, so I think she&#x27;s probably, she&#x27;s speaking probably much more of the financial side of the house. Okay.</p></div><div style="display:contents" dir="auto"><p id="0955b56c-16c1-4cd0-bff4-46c62d9c92a3" class="">And this is where I would work through. Workthrough Robin and the new VP that they&#x27;re hiring. So just a little bit of insight there. And so we have a lot of very very old processes. We have petty cash. There you go Steve. Does that give us a date? Mid-80s? Early 90s? Yeah. Not too dated. There&#x27;s a lot of things that are like legacy, PO-driven.</p></div><div style="display:contents" dir="auto"><p id="9ab89adb-02c9-49e2-b65a-90cc0b9686c7" class="">You know, business controls here that are old. That team isn&#x27;t the team. The team that&#x27;s executing on that today and knows that data structure isn&#x27;t the team that&#x27;s building the future. We&#x27;re going to go build the parallel team essentially. And so I think, you know, you will see, again, you&#x27;ll probably see pushback in areas of, you know, pushback or just lack of interest.</p></div><div style="display:contents" dir="auto"><p id="32655f60-23ac-4fb9-9e04-8dca2baa3f11" class="">In areas of accounting practices and purchasing practices and stuff like that. There are some bright spots there, but that&#x27;s why the CFO is bringing in some new people to help with that. So, and we expect that to be definitely within Q1 to have a couple of new people in there that are helping define the future, but will also help translate like what should this be long-term, right? Yeah.</p></div><div style="display:contents" dir="auto"><p id="cd688ecd-96e4-4861-b510-69f7cb730447" class="">So, yeah, Robin is kind of in that neighborhood too. So I brought her in for her financial acumen on the ERP side of the house. So she knows that stuff real well in product. The other part of coming in person, I personally think, is yes, meaning with, you know,</p></div><div style="display:contents" dir="auto"><p id="018ec3fe-8358-4973-93da-c0e9eb11f3f0" class="">The executive team and stakeholders, but also being able to sit down and just have one-on-ones with like the people that are, you know, they&#x27;re going to be able to help me. I&#x27;ve just been aggregating a lot of my experiences and learnings over the years, in terms of a lot of the pushback that you get when you...</p></div><div style="display:contents" dir="auto"><p id="31929dab-e0c6-437c-bd98-66985a241f15" class="">Essentially, they&#x27;re coming in and people are being told, hey, this person&#x27;s coming in. They don&#x27;t know the company or your processes or anything, and they&#x27;re going to try to get you to do extra work in order to educate them so that they can turn around and automate.</p></div><div style="display:contents" dir="auto"><p id="bc14bafb-d6ff-4a47-9e44-09b580d9f4fc" class="">As much of what makes you valuable as possible. That&#x27;s what they think. And so I just I just think the in-person like being very clear with them like what i&#x27;m not going to try to shove a process or a system or i know you&#x27;re actually more you&#x27;re not worried about the process you&#x27;re worried about just the data and how do we standardize it yeah like i&#x27;m not looking to push anything on anyone</p></div><div style="display:contents" dir="auto"><p id="8181db0f-3f25-4f64-8464-f8b5bff2bc7b" class="">Just because I think it&#x27;s the right thing to do. I want to figure it out. Yes, the data should look like this, this, and this, but I&#x27;m not going to act like I know everything about it because I don&#x27;t. People just want to hit some consultants because they&#x27;re just unwilling to listen or they think one size fits all kind of solutions. Don&#x27;t even talk like you&#x27;re a consultant in general to the company with those people. Just be like, yeah, I&#x27;m in IT.</p></div><div style="display:contents" dir="auto"><p id="f32227ee-0196-486a-98ca-999dc0641865" class="">I like that. I like that approach. That makes sense. I just don&#x27;t want to even bring it up because I have seen that in the past where it&#x27;s like, well, I mean, they&#x27;re a consultant or they&#x27;re a contractor or whatever. And I&#x27;m like, no, it doesn&#x27;t matter.</p></div><div style="display:contents" dir="auto"><p id="9c14626e-b118-4dbe-9391-bd01a25601fe" class="">The job they&#x27;re here to do is just as important. And they&#x27;re a human. I&#x27;ll just go with data architect. That helps. Yeah. You feel like, well, that&#x27;s what I&#x27;ve told them. We have a data architect, sorry. I&#x27;ve never told anybody that you weren&#x27;t an FTP. Oh, wow. Cool. I mean, the only one that probably doesn&#x27;t, I mean, the ELT knows or not.</p></div><div style="display:contents" dir="auto"><p id="f6505c3c-dc75-480a-8098-f2dab5f029d3" class="">and some of the IT people, obviously, and an HR. That&#x27;s it. Meet with Dom. We&#x27;ll get you a steering committee. Like I said, I think the ELT is the place to start. I think middle of February, having you come in. Those are on Monday mornings. Relatively early. I think we started like 7, I don&#x27;t remember, maybe, I don&#x27;t know, 7.15, but I can, I&#x27;ll get you in. We can just bring you into the meeting.</p></div><div style="display:contents" dir="auto"><p id="8483c446-8140-4af7-9574-0a6b2193cdf0" class="">Or, you know, whatever, WebEx or whatever. Or not WebEx, but Teams. But, yeah, just to have a conversation about where we&#x27;re at. I would prefer, hey, like, you know, this is what I&#x27;m here to do, like, with a little more detail. This is how I&#x27;m going to approach it.</p></div><div style="display:contents" dir="auto"><p id="fd9d7c98-6801-4ae9-82b5-511e43c54a2f" class="">This is how we&#x27;re going to drive through, right? And I think that would be helpful for them, right? So that&#x27;s where the outcome there that we&#x27;re looking for is everybody to be on the same page and nodding and saying, yep, we&#x27;re going to... We&#x27;re going to dedicate our resources to this. And then I think the steering committee goes a little bit broader than that. You&#x27;ll start pulling in people that are not in the ELT, but are key leaders throughout the organization.</p></div><div style="display:contents" dir="auto"><p id="1b0af209-5e49-40b4-b1fc-5ceabe2624f9" class="">Awesome. That was very helpful. And Dom will have the participants&#x27; names for both of those steering committees. And again, like I said, if you decide you want a different one, that&#x27;s fine. Also, if you think, you know, maybe you want a little more of Don&#x27;s assistance and kind of helping and stuff, you know, have that conversation with her about what relationship you guys would want.</p></div><div style="display:contents" dir="auto"><p id="30d95bf7-ff5d-4b63-9713-b95a2dadd323" class="">If you want springboards or anything else set up like that, Don can help you with that. If you want to start putting stuff in, you know, trackable, you know, Probably right after the first of the year, I think I&#x27;ll be ready to start throwing stuff into JIRA for no other reason than for my own sanity and to provide you guys with a way of...</p></div><div style="display:contents" dir="auto"><p id="1d3f2cdc-727a-4290-abf5-c6541af2de0a" class="">Just having some type of insight or visibility into what&#x27;s going on. Right, right. And we want to be able to identify, like, hey, when you need to pull our BAs for customer service or, you know, this particular, right? We want our visibility into that to make sure that we&#x27;re making time for you.</p></div><div style="display:contents" dir="auto"><p id="4dbdd208-8373-413d-90aa-0862fb86468d" class="">Dependency tracking and, you know, yeah, cool. Awesome. Hey, I appreciate your time. I&#x27;m super excited that you&#x27;re here. You have no idea to get this kicked off. Cause this is kind of the foundation of. All of the other things that kind of start sitting on our roadmaps. Yeah, I mean that&#x27;s what I was kind of talking with Patrick about. I was like, honestly, when people want to kind of question this.</p></div><div style="display:contents" dir="auto"><p id="6ba0f0c8-3642-4291-9905-8748ec048fdb" class="">stuff it you kind of just have to say we can&#x27;t do anything else like that we really want to do down the road unless we do this well and we get Things in a position where we can very confidently say, you know what, we have a good foundation. We have very solid base data principles and we can scale up or out or however we want without concern that something&#x27;s just going to snap.</p></div><div style="display:contents" dir="auto"><p id="17aa9fcb-50c5-4c94-a660-9ed1f5c53503" class="">I&#x27;m going to show you a graphic real fast. Let me see. I have it in a couple of different places. Use of strategy, let me do the, not data strategy, which one is the mature, oh, data and tech modernization. This is it.</p></div><div style="display:contents" dir="auto"><p id="c7494a60-a0ce-4d58-a4a6-ad95b1bdd83b" class="">So a lot of this has been me teaching people. So what do you see right now? You see my desktop? All right, I could have just shared the app, but I&#x27;ve got a lot of stuff open on the dashboard. But basically, so, modernization initiatives. So the right people be in the bottom here, and then master data management right here. It&#x27;s kind of, you know, everything with an error reporting to it is dependent upon, right?</p></div><div style="display:contents" dir="auto"><p id="f874a3d4-c831-4f5f-b360-c2bad974d2db" class="">So I can&#x27;t really do process modernization. It&#x27;s going to have a dependency there. Obviously our fabric, which that&#x27;s going to start going in with little things like some of the additional chemistry AI stuff we&#x27;re doing. But I mean, you look at all these different things that we have coming on, like, you know, we have an NES replacement coming up. We have the migration of on prem to the cloud. We have a cleanup process, all these things happening, but.</p></div><div style="display:contents" dir="auto"><p id="3276eda6-ba6f-49eb-9be8-fa9f9088dab0" class="">This is why we pulled the trigger on you as fast as we could to get you out in front of some of this stuff. When it comes to just, you feel like you&#x27;re, the stuff that you&#x27;re working on and working towards is actually for a very defined goal and purpose.</p></div><div style="display:contents" dir="auto"><p id="57c367e1-ce65-4948-a7d5-c5e6553cce5d" class="">You know what I mean? Like, sometimes it&#x27;s just like, is this gonna be kind of a, do this, this, and this, and then hopefully it works. I created this for the executives just so that they understood that this is all relational. Right? And so, and then I, you know, I started talking about data and data domains a little bit this slide, which is like, guys, you understand, right? Like, this is how we&#x27;re going to start segmenting stuff. And then I even went into some of like your, you know, opportunities of, you know, what definition cards look like and stuff like that.</p></div><div style="display:contents" dir="auto"><p id="84284e7a-ad41-4f55-86bb-e4bfa8e0d9df" class="">So, yeah, so it was just really to educate, like to get them used to it. And then this is a bit of a Gantt type thing. That&#x27;s actually not the best one that I have. But and then I made the point here of top 10 reasons why projects fail, lack of executive support being number two.</p></div><div style="display:contents" dir="auto"><p id="d6a54a9d-ffa8-43ae-bf90-747891e0cf5d" class="">Yeah, the requirements gathering is without question. Can you, can you actually go back to, I missed the, I think it was number five.</p></div><div style="display:contents" dir="auto"><p id="e64d4137-3a68-4d5a-8076-5a00428d95d0" class="">This was just a high level example of me talking to them about there&#x27;s areas of data and we&#x27;re going to attack these domains of data that we&#x27;ll go after, right? And within that we&#x27;ll have ownership. Yep, and then six was the definitions slide? Right. Got it. Yep, no, I just, these are not the ones, this doesn&#x27;t matter, this is just an example that I threw together.</p></div><div style="display:contents" dir="auto"><p id="49443260-8239-4762-ac8d-d7c0e444ffe3" class="">I mean, this has probably got, you know, data domains. There&#x27;s probably 8 more. But, it was just, like again, this is all, the design and purpose of this was to get their heads. into like stuff that we have to do. So I&#x27;ve even talked about like having the right people in the right place, right? I mean, finding some sources and formats, all this stuff. I mean, the.</p></div><div style="display:contents" dir="auto"><p id="8d99d860-1a27-40eb-af39-2778cf65d738" class="">The domains discussion, I brought that up really early with Patrick. And I was like, this is what I was talking about in terms of... Setting up the workspaces in Power BI, Power BI and Fabric have their own architecture in a way, so you create a workspace,</p></div><div style="display:contents" dir="auto"><p id="07d89690-b1f9-4e76-a017-15ca0256d1bc" class="">or is it per team, or is it per, you know what I mean? There&#x27;s very, there&#x27;s a lot of different ways to really do that, and so it&#x27;s different from company to company, and there&#x27;s no right answer. It&#x27;s just. Pick one and use it. I think honestly, with the way we&#x27;re evolving,</p></div><div style="display:contents" dir="auto"><p id="50ad1b5c-906e-4863-a3aa-36fe4babda10" class="">I wouldn&#x27;t do it based on teams, right? I know, I mean, and there may be some security reasons to do this, but I would do it much more on like larger, higher level areas. Because, like I said, we&#x27;re converging multiple divisions that come from historical acquisitions, there&#x27;s all kinds of stuff that&#x27;s happening in transitions and growth in different areas of the business.</p></div><div style="display:contents" dir="auto"><p id="90106a50-61b3-40be-bf64-c8f3d67f6b9f" class="">You know, $200 million business five years ago, right? They&#x27;re well over a billion now. You know, we&#x27;re trying to grow up is what a lot of this is. And so building a structure that as you&#x27;re growing still meets our needs is probably the smartest thing to do. And the way I look at that is generally like a simplified structure, right? You can always get more complex, harder to get simple.</p></div><div style="display:contents" dir="auto"><p id="6dec14b7-9fb5-453d-aa62-cc719eb048e5" class="">Yeah, I mean, you can even if you do it at a high level in terms of the workspaces and whatnot, within those workspaces, you can even have sub-permission based structures. So I would say... You know, advise us, you know, I mean, I feel, you know, like I know that it&#x27;s like, well, it&#x27;s hard to advise you when you guys, you know, when I don&#x27;t know the business well.</p></div><div style="display:contents" dir="auto"><p id="2ce45c18-d002-4e86-8d5c-e007e603bb9e" class="">I can give you kind of the business climate and what&#x27;s happening, but I think the most important, the only thing worse than picking the wrong way to do it is not picking the way to do it. Yeah, well, that&#x27;s kind of the, that was the approach I kind of took with Patrick on a lot of the stuff.</p></div><div style="display:contents" dir="auto"><p id="95c64beb-d9bc-4951-9eae-821368e356a2" class="">I was like, I&#x27;ll say something. I&#x27;ll suggest something, and you can tell me if that&#x27;s applicable or why not, and then we can go back and forth. As long as it&#x27;s a two-way conversation. street and he feels comfortable being able to just be direct with me and not waste time like we&#x27;re totally fine. He was very happy to hear that. He was like I&#x27;m so glad you said that.</p></div><div style="display:contents" dir="auto"><p id="04add259-9109-4edd-9ce9-f6ddf02acfaf" class="">That&#x27;s kind of a thing that I&#x27;m teaching him, too, which is, again, come in telling me what you&#x27;re going to do, and if I&#x27;m passionate about you not doing it that way, then you&#x27;ll hear. If not, then we&#x27;re going in the direction you just said we want to go.</p></div><div style="display:contents" dir="auto"><p id="8b24e58a-821a-4549-b816-da1659e13386" class="">And I would highly suggest that method with you as well. Yep. Awesome. Fantastic. Well, thanks for taking the time on a Friday afternoon. Of course. No, I mean, this is, like I said, I&#x27;m excited. I&#x27;ve been traveling all over the place. So I&#x27;m excited I got an opportunity to chat with you this week. So like I said, don&#x27;t be shy. I&#x27;m on teams no matter where I am when I&#x27;m traveling. So don&#x27;t be shy if you need something or need me to clear a roadblock or...</p></div><div style="display:contents" dir="auto"><p id="f2d4fdd0-6643-4de9-ba4e-8cf7ccdf9659" class="">We&#x27;re making a decision or anything like that, okay? All right, sounds good. Thanks a lot, Mike. All right, Steve, have a great day. Have a good weekend. All right, bye.</p></div></div></div><div style="display:contents" dir="auto"><hr id="ffa26852-a93a-4d95-a6fb-65fdaa9628ac"/></div><div style="display:contents" dir="auto"><h2 id="36900d7e-d4e8-43dc-a63f-8793d55e13e2" class="">📋 TEAMS SUMMARY</h2></div><div style="display:contents" dir="ltr"><figure class="block-color-blue_background callout" style="white-space:pre-wrap;display:flex" id="c5e1414a-56fa-4a39-8c20-d294b80d4c3c"><div style="font-size:1.5em"><span class="icon">📝</span></div><div style="width:100%"><div style="display:contents" dir="auto"><p id="ccb11d6a-f320-4dc4-9026-8b215bfcd32f" class=""><strong>Meeting Notes — Team Collaboration &amp; Data Management</strong></p></div><div style="display:contents" dir="auto"><p id="0e2b39aa-6b3f-40e1-87ab-c75f5642e510" class=""><em>Source: Microsoft Teams AI Summary</em></p></div></div></figure></div><div style="display:contents" dir="auto"><h3 id="bd80694a-d1b5-4a05-b7d4-c23ec134e6cd" class="">👥 Team Collaboration</h3></div><div style="display:contents" dir="auto"><ul id="54a2894b-92b3-47a7-85a1-6ce338821b24" class="bulleted-list"><li style="list-style-type:disc"><code><strong>Fact:</strong></code> After meeting with every team member this week, Steve did not experience any possessiveness or protectiveness over processes — unusual for process-heavy organizations</li></ul></div><div style="display:contents" dir="auto"><ul id="b9c62b18-0547-4641-8bf8-0b037016eb63" class="bulleted-list"><li style="list-style-type:disc"><code><strong>Fact:</strong></code> Steve prepared for meetings by memorizing architecture, processes, and acronyms to ask informed questions, especially when meeting with Matt</li></ul></div><div style="display:contents" dir="auto"><h3 id="80fade8f-0790-4888-91d4-f47cef12ff86" class="">👤 Team Roles</h3></div><div style="display:contents" dir="auto"><ul id="f4cd9034-38a5-4787-819d-e01dcec39663" class="bulleted-list"><li style="list-style-type:disc"><code><strong>Fact:</strong></code> Matt Pennaz is a well-seasoned developer who built many of the team&#x27;s applications — likely the most intense member of the IT team</li></ul></div><div style="display:contents" dir="auto"><ul id="4fa45f2f-4ef8-4171-9a05-7ad6148596f1" class="bulleted-list"><li style="list-style-type:disc"><code><strong>Decision:</strong></code> Data architect role complements software development, doesn&#x27;t replace it — &quot;the right answer is somewhere between what you think and what he thinks&quot;</li></ul></div><div style="display:contents" dir="auto"><h3 id="f46206d0-ba41-4228-8418-21bacc9d3c63" class="">🏢 ERP &amp; Process Mapping</h3></div><div style="display:contents" dir="auto"><ul id="400e4b3c-0202-4bf5-987d-9e8f3986fcac" class="bulleted-list"><li style="list-style-type:disc"><code><strong>Fact:</strong></code> Organization will begin a discovery process this year to map all processes related to both on-prem and cloud ERP systems</li></ul></div><div style="display:contents" dir="auto"><ul id="0aafa4e2-6d7d-499d-a7f2-2e4960b01a99" class="bulleted-list"><li style="list-style-type:disc"><code><strong>Fact:</strong></code> Goal is driving toward best practice configuration</li></ul></div><div style="display:contents" dir="auto"><h3 id="52509853-181e-4eb7-b373-df8e8212c316" class="">🎯 Steering Committees &amp; Leadership</h3></div><div style="display:contents" dir="auto"><ul id="4badb2af-35bc-47e0-8eec-ff2e4013639d" class="bulleted-list"><li style="list-style-type:disc"><code><strong>Fact:</strong></code> Robin Virginia (new Senior Director of Business Applications, 2 weeks in) will lead ERP/Salesforce steering committee</li></ul></div><div style="display:contents" dir="auto"><ul id="01b55080-8838-45f1-a892-3d23c889e66e" class="bulleted-list"><li style="list-style-type:disc"><code><strong>Fact:</strong></code> Mike leads Industry 4.0 committee (Operations, Manufacturing, R&amp;D, Quality, Manufacturing Engineering)</li></ul></div><div style="display:contents" dir="auto"><ul id="7c755778-5d78-416b-b6f4-8c8cc1e41696" class="bulleted-list"><li style="list-style-type:disc"><code><strong>Fact:</strong></code> COO sits on both steering committees</li></ul></div><div style="display:contents" dir="auto"><ul id="7c738f5d-0b25-4dd1-830b-0f79292d4a68" class="bulleted-list"><li style="list-style-type:disc"><code><strong>Decision:</strong></code> Steering committees will interact with each other for shared initiatives</li></ul></div><div style="display:contents" dir="auto"><h3 id="17aa4169-b4b4-4b69-89f9-933ce22fa13f" class="">📊 Data Architecture &amp; Documentation</h3></div><div style="display:contents" dir="auto"><ul id="0325fd87-7eaa-4e21-8f6e-666d54a2238b" class="bulleted-list"><li style="list-style-type:disc"><code><strong>Decision:</strong></code> Need refreshed data architecture drawing showing master sources, data flows, and lineage</li></ul></div><div style="display:contents" dir="auto"><ul id="beb8d606-5f20-415d-bb9b-3c9d2edebd5a" class="bulleted-list"><li style="list-style-type:disc"><code><strong>Fact:</strong></code> Column-level lineage is the target — &quot;if you shoot to accomplish that, the rest naturally comes with it&quot;</li></ul></div><div style="display:contents" dir="auto"><ul id="ba2d7930-5ec8-4dfe-a28e-9d0d70f69345" class="bulleted-list"><li style="list-style-type:disc"><code><strong>Decision:</strong></code> Microsoft Purview for data catalog and glossary — documentation should NOT be manual</li></ul></div><div style="display:contents" dir="auto"><h3 id="f6bf51aa-5c78-4121-a446-469f272471b5" class="">🔄 Data Management Practices</h3></div><div style="display:contents" dir="auto"><ul id="69bbc5e3-c1e3-4376-b6de-96f6ecfc7f7e" class="bulleted-list"><li style="list-style-type:disc"><code><strong>Fact:</strong></code> Patrick has wanted to establish a data glossary for a long time — &quot;always been pushed to the back burner&quot;</li></ul></div><div style="display:contents" dir="auto"><ul id="76ce0aaf-4176-444e-a140-ca66554c88aa" class="bulleted-list"><li style="list-style-type:disc"><code><strong>Risk:</strong></code> Product naming/numbering schemes are a known problem — Mike warned: &quot;product is going to be a dumpster fire&quot;</li></ul></div><div style="display:contents" dir="auto"><ul id="dd941840-34bd-4017-beed-f81e635bef48" class="bulleted-list"><li style="list-style-type:disc"><code><strong>Decision:</strong></code> Point-in-time change for product naming (not backdating) to avoid complexity</li></ul></div><div style="display:contents" dir="auto"><h3 id="c1953e03-daef-4ee9-a2f9-16f0f64f571e" class="">💰 Financial Data Structure</h3></div><div style="display:contents" dir="auto"><ul id="5d049af2-c6a8-471e-9ea3-fa98978f6147" class="bulleted-list"><li style="list-style-type:disc"><code><strong>Fact:</strong></code> No IT budget exists — IT tracked under G&amp;A cost center with poor GL structure</li></ul></div><div style="display:contents" dir="auto"><ul id="743372b4-b271-402f-81d3-063a303dfd31" class="bulleted-list"><li style="list-style-type:disc"><code><strong>Fact:</strong></code> Organization hiring new FP&amp;A VP within the next month</li></ul></div><div style="display:contents" dir="auto"><ul id="a78260c2-6aa1-4369-942b-b335cead6a0a" class="bulleted-list"><li style="list-style-type:disc"><code><strong>Fact:</strong></code> New financial team members expected in Q1</li></ul></div><div style="display:contents" dir="auto"><h3 id="e8704211-e378-4e59-84b7-56bcb34a96ba" class="">🚀 Executive Support</h3></div><div style="display:contents" dir="auto"><ul id="c43324d7-489d-4d1b-b2b9-b6171fa7f866" class="bulleted-list"><li style="list-style-type:disc"><code><strong>Fact:</strong></code> Mike is a new CIO (4-5 months) — &quot;My name is tied to it&quot;</li></ul></div><div style="display:contents" dir="auto"><ul id="fc4c57ef-7a1e-4ac5-b43d-848316062618" class="bulleted-list"><li style="list-style-type:disc"><code><strong>Fact:</strong></code> Mike secured ~$1M for long-term master data management — &quot;had everybody sign it&quot;</li></ul></div><div style="display:contents" dir="auto"><ul id="1e7b3e1e-aff5-4152-a581-8c3b10be8cc5" class="bulleted-list"><li style="list-style-type:disc"><code><strong>Fact:</strong></code> 100% executive support — &quot;nothing but one hundred percent support on everything&quot;</li></ul></div><div style="display:contents" dir="auto"><ul id="fd457915-4d74-4c0e-a566-cd0d56eaca0d" class="bulleted-list"><li style="list-style-type:disc"><code><strong>Fact:</strong></code> Company grew from $200M to over $1B in 5 years — &quot;trying to grow up&quot;</li></ul></div><div style="display:contents" dir="auto"><ul id="b1aed164-2ac0-4bb9-8384-9ef6b9173039" class="bulleted-list"><li style="list-style-type:disc"><code><strong>Fact:</strong></code> COO is 31 years old, very tech-forward</li></ul></div><div style="display:contents" dir="auto"><h3 id="a537b4ea-1bc6-4ed0-ba8e-7c15b4196337" class="">🏭 OT &amp; Manufacturing Engineering</h3></div><div style="display:contents" dir="auto"><ul id="77266208-8dfb-4fee-b274-949e9aad7824" class="bulleted-list"><li style="list-style-type:disc"><code><strong>Fact:</strong></code> Manufacturing engineering group completed a data standardization exercise</li></ul></div><div style="display:contents" dir="auto"><ul id="63d1c9ba-1086-4afc-9c79-3247e346fee1" class="bulleted-list"><li style="list-style-type:disc"><code><strong>Fact:</strong></code> OT vendor aligned to Fabric — may be first data to show up in Fabric</li></ul></div><div style="display:contents" dir="auto"><ul id="ea8c5234-16c2-4893-8090-e7fe418fd951" class="bulleted-list"><li style="list-style-type:disc"><code><strong>Decision:</strong></code> Steve will coordinate with manufacturing engineering for OT data integration</li></ul></div><div style="display:contents" dir="auto"><h3 id="80b519a9-c42c-4095-98df-81e0461b8df0" class="">📅 Stakeholder Engagement</h3></div><div style="display:contents" dir="auto"><ul id="7eff2724-1995-46ec-8e42-0a02769fb172" class="bulleted-list"><li style="list-style-type:disc"><code><strong>Decision:</strong></code> ELT meeting is the place to start for stakeholder engagement</li></ul></div><div style="display:contents" dir="auto"><ul id="49a667d8-0140-43a3-a22e-4576297ec28b" class="bulleted-list"><li style="list-style-type:disc"><code><strong>Decision:</strong></code> Mid-February ELT introduction (Monday mornings, ~7:15 AM)</li></ul></div><div style="display:contents" dir="auto"><ul id="3eb6b063-c7eb-4bc9-ac1b-d06d48479803" class="bulleted-list"><li style="list-style-type:disc"><code><strong>Decision:</strong></code> Dominique Mathers (PM) is the contact for steering committee entry and JIRA setup</li></ul></div><div style="display:contents" dir="auto"><ul id="9f7199aa-704a-4b21-8e20-110444d9aa54" class="bulleted-list"><li style="list-style-type:disc"><code><strong>Fact:</strong></code> Steve will be positioned as internal &quot;data architect&quot; — not consultant</li></ul></div><div style="display:contents" dir="auto"><h3 id="68b8e88d-7d7d-4807-9ab1-662976e79ceb" class="">🤝 Organizational Culture</h3></div><div style="display:contents" dir="auto"><ul id="bcb910fd-13d1-4438-861e-c9b8659d99c4" class="bulleted-list"><li style="list-style-type:disc"><code><strong>Fact:</strong></code> Default action culture: &quot;I&#x27;m going to do this unless somebody says something by this time&quot;</li></ul></div><div style="display:contents" dir="auto"><ul id="f9356495-9ad5-407e-81fa-d8a4e0c8c41a" class="bulleted-list"><li style="list-style-type:disc"><code><strong>Fact:</strong></code> CFO is the &quot;pessimist&quot; — expect some naysaying but don&#x27;t worry about it</li></ul></div><div style="display:contents" dir="auto"><hr id="7f56d6f5-c9c9-40ed-97eb-6f293ec003a1"/></div><div style="display:contents" dir="auto"><h2 id="da4c4e60-a75e-4068-9c0b-508b90079b8e" class="">🤖 CLUELY SUMMARY</h2></div><div style="display:contents" dir="ltr"><figure class="block-color-purple_background callout" style="white-space:pre-wrap;display:flex" id="388a3101-36ad-4101-8ef7-6e733ac32926"><div style="font-size:1.5em"><span class="icon">🎯</span></div><div style="width:100%"><div style="display:contents" dir="auto"><p id="e2ec7942-c2cf-4cb5-b238-3c4e24b4eaba" class=""><strong>Real-Time Meeting Context &amp; Coaching</strong></p></div><div style="display:contents" dir="auto"><p id="0ead8921-8415-4108-a990-4564ee54ed7d" class=""><em>Source: Cluely AI Assistant — December 12, 2025</em></p></div></div></figure></div><div style="display:contents" dir="auto"><h3 id="b71aaf40-a050-48e0-8417-65b5932e4f13" class="">✅ Action Items Captured</h3></div><div style="display:contents" dir="ltr"><table id="ca200f41-9aed-4a9d-92f3-95d01acf5493" class="simple-table"><thead class="simple-table-header"><div style="display:contents" dir="ltr"><tr id="1e46091f-7f71-4a68-adc8-c5fb1664d871"><th id="}lDO" class="simple-table-header-color simple-table-header">Owner</th><th id="?UZF" class="simple-table-header-color simple-table-header">Action Item</th></tr></div></thead><tbody><div style="display:contents" dir="ltr"><tr id="3c36525f-e6a5-48f9-a500-6b6894e55795"><td id="}lDO" class=""><strong>Steve</strong></td><td id="?UZF" class="">Consolidate all system overview notes; share with Patrick and Greg</td></tr></div><div style="display:contents" dir="ltr"><tr id="2ad4cf20-77f1-46ea-b94c-5994f21bb8fe"><td id="}lDO" class=""><strong>Greg</strong></td><td id="?UZF" class="">Locate prior systems docs, ERDs, and SSRS report inventory</td></tr></div><div style="display:contents" dir="ltr"><tr id="8ce037ed-74fa-4d8b-aa4d-0d6eddae9ea5"><td id="}lDO" class=""><strong>Eudias</strong></td><td id="?UZF" class="">Schedule database walkthroughs for MES, M3 (cloud &amp; on-prem)</td></tr></div><div style="display:contents" dir="ltr"><tr id="0ebc8852-973e-4638-a5fb-cf4811f19c59"><td id="}lDO" class=""><strong>Dominique Mathers</strong></td><td id="?UZF" class="">Set up JIRA project, add stakeholder names, create sprint board</td></tr></div><div style="display:contents" dir="ltr"><tr id="06124bb2-2adf-4f62-bea7-ee9b54b03ddd"><td id="}lDO" class=""><strong>Steve</strong></td><td id="?UZF" class="">Draft refreshed systems-data-flow diagram and product-ID naming standard</td></tr></div><div style="display:contents" dir="ltr"><tr id="1a0080ed-79f6-4039-a33e-1cbedbc86870"><td id="}lDO" class=""><strong>Steve</strong></td><td id="?UZF" class="">Provision a Purview demo (catalog + column-level lineage) for the CIO</td></tr></div><div style="display:contents" dir="ltr"><tr id="52954be0-38bb-4dd7-8a01-97acadec6163"><td id="}lDO" class=""><strong>Steve</strong></td><td id="?UZF" class="">Propose a 2-3 week &quot;quick-win&quot; Fabric metric (e.g., executive KPI dashboard)</td></tr></div><div style="display:contents" dir="ltr"><tr id="05df4600-4896-4308-90cb-1baca68c929d"><td id="}lDO" class=""><strong>Robin Virginia</strong></td><td id="?UZF" class="">Confirm ERP/Salesforce steering-committee schedule; share agenda</td></tr></div><div style="display:contents" dir="ltr"><tr id="95e6888c-5a33-4735-880e-f30887bb2161"><td id="}lDO" class=""><strong>Steve</strong></td><td id="?UZF" class="">Circulate stakeholder kickoff invite (mid-Jan)</td></tr></div><div style="display:contents" dir="ltr"><tr id="e39cbdb2-df40-40b3-aa8e-b0537db024c7"><td id="}lDO" class=""><strong>Mike</strong></td><td id="?UZF" class="">Introduce Steve to Dominique and Robin</td></tr></div><div style="display:contents" dir="ltr"><tr id="f0acf9ae-4240-4f06-aa34-77b4b971dc15"><td id="}lDO" class=""><strong>Mike</strong></td><td id="?UZF" class="">Schedule Steve&#x27;s ELT introduction for mid-February</td></tr></div></tbody></table></div><div style="display:contents" dir="auto"><h3 id="fa1cab1b-eace-4815-ac6b-cbe9219dfe28" class="">👥 Stakeholder Landscape (Confirmed)</h3></div><div style="display:contents" dir="ltr"><table id="ee85768a-c929-4a6a-8043-b302a72f3a1e" class="simple-table"><thead class="simple-table-header"><div style="display:contents" dir="ltr"><tr id="de9bf590-f0dc-4f3e-99d9-aa573ce64954"><th id="XTjT" class="simple-table-header-color simple-table-header">Name</th><th id="KlpZ" class="simple-table-header-color simple-table-header">Role</th><th id="B:_~" class="simple-table-header-color simple-table-header">Notes</th></tr></div></thead><tbody><div style="display:contents" dir="ltr"><tr id="8637ef42-6a02-47f9-8cbb-64f9c37aefa0"><td id="XTjT" class=""><strong>Patrick Stiller</strong></td><td id="KlpZ" class="">IT Manager, Dev Services</td><td id="B:_~" class="">Primary contact</td></tr></div><div style="display:contents" dir="ltr"><tr id="de889220-74b7-4038-9995-f1da45cdb78f"><td id="XTjT" class=""><strong>Mike Spencer</strong></td><td id="KlpZ" class="">CIO</td><td id="B:_~" class="">Ultimate decision maker; sponsor</td></tr></div><div style="display:contents" dir="ltr"><tr id="00f72670-c049-4648-86fa-30f76942d167"><td id="XTjT" class=""><strong>Robin Virginia</strong></td><td id="KlpZ" class="">Sr. Director, Business Applications</td><td id="B:_~" class="">Leads ERP/Salesforce steering committee; new (2 weeks)</td></tr></div><div style="display:contents" dir="ltr"><tr id="6f8189dd-56db-4e28-91f3-8ebddf61179c"><td id="XTjT" class=""><strong>Dominique Mathers</strong></td><td id="KlpZ" class="">PM</td><td id="B:_~" class="">JIRA, steering committee logistics</td></tr></div><div style="display:contents" dir="ltr"><tr id="2592b141-b3cb-49be-8b88-84f97e7e2040"><td id="XTjT" class=""><strong>Matt Pennaz</strong></td><td id="KlpZ" class="">MES Developer</td><td id="B:_~" class="">Key for product traceability; values time</td></tr></div><div style="display:contents" dir="ltr"><tr id="c705cd59-a6f1-4dd5-ab41-dd4b11051182"><td id="XTjT" class=""><strong>Matt Francis</strong></td><td id="KlpZ" class="">Data Engineer</td><td id="B:_~" class="">ERP/ETQ/ION owner</td></tr></div><div style="display:contents" dir="ltr"><tr id="da80b7e2-57aa-4604-9528-5669c45e53ee"><td id="XTjT" class=""><strong>Kerri Voiss</strong></td><td id="KlpZ" class="">SSRS &amp; Reporting</td><td id="B:_~" class="">Social connective tissue; knows politics</td></tr></div><div style="display:contents" dir="ltr"><tr id="011ccab9-a173-4ec7-8f35-871d55820fc5"><td id="XTjT" class=""><strong>Greg</strong></td><td id="KlpZ" class="">IT</td><td id="B:_~" class="">Systems overview lead</td></tr></div><div style="display:contents" dir="ltr"><tr id="28b50908-72ea-4825-bca6-6b6c3b2c96d8"><td id="XTjT" class=""><strong>Robert LaMontagne</strong></td><td id="KlpZ" class="">Process Control Manager</td><td id="B:_~" class="">12+ yrs</td></tr></div><div style="display:contents" dir="ltr"><tr id="1495e591-7f6e-4152-aa47-d1bd08199a19"><td id="XTjT" class=""><strong>Kevin Casey</strong></td><td id="KlpZ" class="">VP Sales</td><td id="B:_~" class="">Sales leadership urgency</td></tr></div><div style="display:contents" dir="ltr"><tr id="7ee99763-7455-4d41-9841-23344bca113e"><td id="XTjT" class=""><strong>Eudias (Kifem)</strong></td><td id="KlpZ" class="">Data Analyst</td><td id="B:_~" class="">DB walkthroughs; DBA → Power BI</td></tr></div><div style="display:contents" dir="ltr"><tr id="8fd32f2d-03fc-4b88-a612-2a342d028ea0"><td id="XTjT" class=""><strong>Ty Doett</strong></td><td id="KlpZ" class="">ELT Member</td><td id="B:_~" class="">Sponsor per Mike</td></tr></div></tbody></table></div><div style="display:contents" dir="auto"><h3 id="2667a2c1-9b6d-45b1-a35d-7796c0f2c58d" class="">🎯 Executive Priorities (Mike-Confirmed)</h3></div><div style="display:contents" dir="auto"><ul id="51a3e022-4d25-4713-87c4-34f3add2f20f" class="bulleted-list"><li style="list-style-type:disc"><strong>Month 6:</strong> Product domain POC delivering trusted KPIs without violating financial boundaries</li></ul></div><div style="display:contents" dir="auto"><ul id="dd058614-9c69-4f55-84da-d1ab7144bef0" class="bulleted-list"><li style="list-style-type:disc"><strong>Month 12:</strong> Commercial data integrated (Customer &amp; Vendor) for unified revenue/margin view</li></ul></div><div style="display:contents" dir="auto"><ul id="e298c3b8-def8-4971-8970-cbacaebd95d7" class="bulleted-list"><li style="list-style-type:disc"><strong>Month 24:</strong> Stable operations with trained internal team; OT data integrated</li></ul></div><div style="display:contents" dir="auto"><h3 id="457441f1-2daa-478f-b582-f6790ad8e06b" class="">🔴 Non-Negotiables (Mike-Confirmed)</h3></div><div style="display:contents" dir="auto"><ol type="1" id="83bb7194-f3e4-4cba-8d85-f861e9b600fc" class="numbered-list" start="1"><li><strong>Company isolation</strong> — &quot;Interplastic can&#x27;t see NAC&#x27;s numbers&quot;</li></ol></div><div style="display:contents" dir="auto"><ol type="1" id="779091f0-db1d-4f8b-92c3-e2f8f5261ac9" class="numbered-list" start="2"><li><strong>Security by design from Day 1</strong> — RLS enforced</li></ol></div><div style="display:contents" dir="auto"><ol type="1" id="66872092-5f34-410f-9921-991a1fbdab02" class="numbered-list" start="3"><li><strong>Governance built in</strong> — ownership, naming, change control documented</li></ol></div><div style="display:contents" dir="auto"><ol type="1" id="9aea4ea2-8217-4920-b3eb-b68803e8b428" class="numbered-list" start="4"><li><strong>Training &amp; handoff included</strong> — &quot;not an afterthought&quot;</li></ol></div><div style="display:contents" dir="auto"><h3 id="660e77d2-23ad-4c53-9380-c90c8290dca0" class="">🎯 Quick Win Target</h3></div><div style="display:contents" dir="auto"><ul id="5f8082a0-9a29-404e-939d-de734c72bc53" class="bulleted-list"><li style="list-style-type:disc">Executive KPI dashboard in Fabric within 2-3 weeks</li></ul></div><div style="display:contents" dir="auto"><ul id="90c7c346-bc1b-484a-8a38-d26627d825fc" class="bulleted-list"><li style="list-style-type:disc"><strong>Proof artifact options</strong> (Mike to choose): refreshed systems map, Purview lineage demo, or product-ID standard proposal</li></ul></div><div style="display:contents" dir="auto"><h3 id="e67a97cb-69c9-44de-8da1-4729ee034b17" class="">⚠️ Risks Identified</h3></div><div style="display:contents" dir="ltr"><table id="59d243ea-2499-485d-97f1-77edc7b3d8b3" class="simple-table"><thead class="simple-table-header"><div style="display:contents" dir="ltr"><tr id="cf823963-0c46-4a22-8b47-c54fcf2c6a27"><th id="QZd=" class="simple-table-header-color simple-table-header">Risk</th><th id="JiaY" class="simple-table-header-color simple-table-header">Mitigation</th></tr></div></thead><tbody><div style="display:contents" dir="ltr"><tr id="48231230-965a-44a0-941f-4e780f42e720"><td id="QZd=" class="">Manual data entry</td><td id="JiaY" class="">Prioritize instrument data, define DQ rules, assign stewards</td></tr></div><div style="display:contents" dir="ltr"><tr id="f9fd70df-74ef-4ca8-9251-32ee11303060"><td id="QZd=" class="">Multiple ERP instances</td><td id="JiaY" class="">Normalize schemas early, document mapping patterns</td></tr></div><div style="display:contents" dir="ltr"><tr id="815cdb8d-3316-4839-85f2-1ac3dc6de015"><td id="QZd=" class="">Report sprawl (SSRS)</td><td id="JiaY" class="">Rationalize into governed catalog, align with domains</td></tr></div><div style="display:contents" dir="ltr"><tr id="8c62bacf-b984-417d-abbb-42f6d7ff3aef"><td id="QZd=" class="">OT vendor coordination</td><td id="JiaY" class="">Define single vs separate Fabric environment</td></tr></div><div style="display:contents" dir="ltr"><tr id="d8328741-8a06-49c7-a8f2-b3d6a95ca1f6"><td id="QZd=" class="">Documentation decay</td><td id="JiaY" class="">Use automated Purview scans; keep living glossary</td></tr></div><div style="display:contents" dir="ltr"><tr id="64898845-eec0-4507-a31c-aea09797d334"><td id="QZd=" class="">Stakeholder resistance</td><td id="JiaY" class="">Leverage ELT sponsorship, clear decision-velocity SLAs</td></tr></div></tbody></table></div><div style="display:contents" dir="auto"><h3 id="87aa938e-7dda-416c-af84-a2fa709a1a9c" class="">💬 Key Zingers Delivered</h3></div><div style="display:contents" dir="auto"><ul id="dc163c66-6af7-4034-960a-e29364513e77" class="bulleted-list"><li style="list-style-type:disc"><em>&quot;The problem isn&#x27;t conflicting numbers, it&#x27;s conflicting contexts.&quot;</em></li></ul></div><div style="display:contents" dir="auto"><ul id="56554cb3-5235-47b5-990c-f1587485af0a" class="bulleted-list"><li style="list-style-type:disc"><em>&quot;Product is the master key: one canonical product ID with governed aliases by division, or we&#x27;ll pay an infinite reconciliation tax downstream.&quot;</em></li></ul></div><div style="display:contents" dir="auto"><ul id="4c453a80-029b-4578-8d52-330be6f742a8" class="bulleted-list"><li style="list-style-type:disc"><em>&quot;If it can&#x27;t be scanned by Purview, it won&#x27;t scale.&quot;</em></li></ul></div><div style="display:contents" dir="auto"><ul id="d27805c6-b8e5-418e-b194-0d7d7d8fa743" class="bulleted-list"><li style="list-style-type:disc"><em>&quot;Column-level lineage or it didn&#x27;t happen.&quot;</em></li></ul></div><div style="display:contents" dir="auto"><hr id="edf1785c-ac97-446b-9dde-5427907bac05"/></div><div style="display:contents" dir="auto"><h2 id="d4b89066-ca0a-4702-9584-85c990ae5620" class="">🎻 ENGAGEMENT PHILOSOPHY: The Orchestra, Not the Automation</h2></div><div style="display:contents" dir="ltr"><figure class="block-color-teal_background callout" style="white-space:pre-wrap;display:flex" id="5b21b895-197e-4a6a-bc08-d7a880a07ec6"><div style="font-size:1.5em"><span class="icon">💡</span></div><div style="width:100%"><div style="display:contents" dir="auto"><p id="8a289ffe-83d0-4dbb-bda7-6e040259be9d" class=""><strong>Core Message Delivered to Mike:</strong></p></div><div style="display:contents" dir="auto"><p id="f745c8c7-847d-4446-a7dc-249b60c8945b" class="">Hiring Steve in December — before the holidays, remotely, at a premium rate, with trust instead of micromanagement — was the right call.</p></div></div></figure></div><div style="display:contents" dir="auto"><h3 id="6e1be80f-8725-4cfa-9016-3d4536f9e33b" class="">What Steve Accomplished in 3.5 Days</h3></div><div style="display:contents" dir="auto"><ul id="71787e67-b75d-4feb-9d99-7c0e1526bd38" class="bulleted-list"><li style="list-style-type:disc">Deep dives across nearly every vertical and subsidiary</li></ul></div><div style="display:contents" dir="auto"><ul id="7e01bbe9-6c93-43d7-98e2-f106df78bbb2" class="bulleted-list"><li style="list-style-type:disc">Can hold colloquial conversations using their acronyms (MES, ANV, OATES, Batch ID, M3, ION, BODs, KUZMA...)</li></ul></div><div style="display:contents" dir="auto"><ul id="5f87d254-3bcc-47fa-aa4e-b2622fdd357f" class="bulleted-list"><li style="list-style-type:disc">Met with almost every team member individually</li></ul></div><div style="display:contents" dir="auto"><ul id="948c1ead-e141-4278-aaa2-7220edd2d1cf" class="bulleted-list"><li style="list-style-type:disc">Understands not just <em>what</em> they do, but <em>how</em> they actually do their jobs</li></ul></div><div style="display:contents" dir="auto"><h3 id="6d81309c-e341-48f4-8506-6c5b534182d7" class="">Approach: Elevate, Don&#x27;t Automate Away</h3></div><div style="display:contents" dir="auto"><p id="a446fd0c-c5bc-48d3-a9a8-6c7dad80a542" class=""><strong>This is NOT about:</strong></p></div><div style="display:contents" dir="auto"><ul id="c32ba133-6586-4f13-a8db-ecaef55868d5" class="bulleted-list"><li style="list-style-type:disc">❌ Making assumptions about how things &quot;should&quot; be done</li></ul></div><div style="display:contents" dir="auto"><ul id="f6cda6d7-0da0-4c37-b2d6-840bfa395329" class="bulleted-list"><li style="list-style-type:disc">❌ Asking people to do more work to automate them out of a job</li></ul></div><div style="display:contents" dir="auto"><ul id="d62a08b9-9fca-4c0c-94c2-5c5388df077d" class="bulleted-list"><li style="list-style-type:disc">❌ Coming in as the consultant who knows all the answers</li></ul></div><div style="display:contents" dir="auto"><p id="8070cc9c-1481-4b75-bddc-220e81b76598" class=""><strong>This IS about:</strong></p></div><div style="display:contents" dir="auto"><ul id="8a258757-3ee5-42fd-abc9-deb03b8bd810" class="bulleted-list"><li style="list-style-type:disc">✅ Removing barriers and friction so people can do their jobs <em>better</em></li></ul></div><div style="display:contents" dir="auto"><ul id="52146313-e646-4891-9820-be33f8f466fb" class="bulleted-list"><li style="list-style-type:disc">✅ Asking &quot;what would help YOU?&quot; before proposing solutions</li></ul></div><div style="display:contents" dir="auto"><ul id="bacdd3d5-e6aa-4a34-b3b9-23aaef952dd7" class="bulleted-list"><li style="list-style-type:disc">✅ Increasing everyone&#x27;s value to the company</li></ul></div><div style="display:contents" dir="auto"><ul id="9cf4570c-2119-4c22-82b1-9aa3ceca3393" class="bulleted-list"><li style="list-style-type:disc">✅ Building architecture that makes excellent work visible and appreciated</li></ul></div><div style="display:contents" dir="auto"><h3 id="63ac42e3-ddce-4709-8d97-70a92b9b3984" class="">The Orchestra Metaphor</h3></div><div style="display:contents" dir="auto"><ul id="ef6b3827-dcf8-4f50-8bcc-1e2ff0f3c96a" class="bulleted-list"><li style="list-style-type:disc">Each team member is a &quot;musician&quot; with their own instrument and expertise</li></ul></div><div style="display:contents" dir="auto"><ul id="3b4c8574-2b86-40cf-af0b-904033aec617" class="bulleted-list"><li style="list-style-type:disc">Everyone has a clearly defined space without others stepping over the line</li></ul></div><div style="display:contents" dir="auto"><ul id="34054ee2-20e4-4ca6-b853-c822f546ebb5" class="bulleted-list"><li style="list-style-type:disc">The end result — the report, the dashboard, the data model — is the orchestra&#x27;s sonata</li></ul></div><div style="display:contents" dir="auto"><hr id="08d531bc-f294-4cb2-9678-0270bbccc852"/></div><div style="display:contents" dir="auto"><h2 id="721cf3ac-8eee-448e-8ba7-5b52e27f6d43" class="">📝 RAW NOTES &amp; DECISIONS</h2></div><div style="display:contents" dir="auto"><h3 id="f42910ce-df32-420a-9f85-2bd33f166682" class="">Decisions Made:</h3></div><div style="display:contents" dir="auto"><ul id="4dedd271-4f7f-40e7-b19e-d9a0b19a3615" class="bulleted-list"><li style="list-style-type:disc"><code><strong>Decision:</strong></code> Start with Product domain as template</li></ul></div><div style="display:contents" dir="auto"><ul id="7ea0e84c-f5e3-4495-83ad-c3a0da1bdc7b" class="bulleted-list"><li style="list-style-type:disc"><code><strong>Decision:</strong></code> Mid-February ELT introduction</li></ul></div><div style="display:contents" dir="auto"><ul id="6a7c4ecc-b93f-481f-ac18-9b63dc7b9b8e" class="bulleted-list"><li style="list-style-type:disc"><code><strong>Decision:</strong></code> JIRA tracking starts after New Year</li></ul></div><div style="display:contents" dir="auto"><ul id="b7536462-11e6-4c77-a848-bd3dca631d79" class="bulleted-list"><li style="list-style-type:disc"><code><strong>Decision:</strong></code> Steve positioned as internal &quot;data architect&quot; (not consultant)</li></ul></div><div style="display:contents" dir="auto"><ul id="3e80a8f3-3e63-4828-8661-35bf7654c61c" class="bulleted-list"><li style="list-style-type:disc"><code><strong>Decision:</strong></code> Dominique is the PM contact for steering committees and JIRA</li></ul></div><div style="display:contents" dir="auto"><h3 id="26c0b546-6c18-4297-9696-87dbbfb45bcd" class="">Risks Identified:</h3></div><div style="display:contents" dir="auto"><ul id="f5eec5fb-4192-4b99-aff6-d21a712ba98e" class="bulleted-list"><li style="list-style-type:disc"><code><strong>Risk:</strong></code> Product naming schemes are a &quot;dumpster fire&quot; — needs standardization</li></ul></div><div style="display:contents" dir="auto"><ul id="1e6b0b57-4cc3-4951-a82d-da39225f5118" class="bulleted-list"><li style="list-style-type:disc"><code><strong>Risk:</strong></code> Financial GL structure is poor — IT has no budget differentiation</li></ul></div><div style="display:contents" dir="auto"><ul id="40d76d18-bfef-40db-9d1a-38e422c54997" class="bulleted-list"><li style="list-style-type:disc"><code><strong>Risk:</strong></code> Legacy processes (petty cash, PO-driven controls)</li></ul></div><div style="display:contents" dir="auto"><h3 id="2d9ec8e3-e168-4d5c-906e-f951eec634b8" class="">Next Steps:</h3></div><div style="display:contents" dir="auto"><ul id="2864f179-b8ed-45ce-b004-65e0fc3655b8" class="bulleted-list"><li style="list-style-type:disc"><code><strong>Next step:</strong></code> Meet with Dominique for steering committee entry</li></ul></div><div style="display:contents" dir="auto"><ul id="7730c75b-6358-4766-bc11-8723632a1706" class="bulleted-list"><li style="list-style-type:disc"><code><strong>Next step:</strong></code> Meet with Robin Virginia (ERP/Apps lead)</li></ul></div><div style="display:contents" dir="auto"><ul id="6214bdb0-9032-424b-a6a6-a75716d34b92" class="bulleted-list"><li style="list-style-type:disc"><code><strong>Next step:</strong></code> Schedule database walkthroughs with Eudias</li></ul></div><div style="display:contents" dir="auto"><ul id="d2e61bc4-3f20-42bc-af72-88bcd7597275" class="bulleted-list"><li style="list-style-type:disc"><code><strong>Next step:</strong></code> Prepare for mid-February ELT presentation</li></ul></div><div style="display:contents" dir="auto"><ul id="306b2312-201d-448e-8901-67a33dba11fd" class="bulleted-list"><li style="list-style-type:disc"><code><strong>Next step:</strong></code> Set up JIRA tracking after January 1</li></ul></div><div style="display:contents" dir="auto"><ul id="b46e83b4-9194-4ee7-9036-c715671b6d41" class="bulleted-list"><li style="list-style-type:disc"><code><strong>Next step:</strong></code> Get introduced to manufacturing engineering group (OT data)</li></ul></div><div style="display:contents" dir="auto"><ul id="da895e51-e0ed-4fde-af20-b98265022f7d" class="bulleted-list"><li style="list-style-type:disc"><code><strong>Next step:</strong></code> Deliver proof artifact for Mike to show ELT</li></ul></div><div style="display:contents" dir="auto"><hr id="0262cb05-d8fc-4b1d-823d-d0f1e106b509"/></div><div style="display:contents" dir="auto"><h2 id="b64305e5-9a6c-4bb1-99c4-871f71bc06c8" class="">✅ ACTION ITEMS (Consolidated)</h2></div><div style="display:contents" dir="ltr"><figure class="block-color-yellow_background callout" style="white-space:pre-wrap;display:flex" id="13bd73bc-9228-4757-a8f9-cf1686bdfdc6"><div style="font-size:1.5em"><span class="icon">⚠️</span></div><div style="width:100%"><div style="display:contents" dir="auto"><p id="c0940053-25b9-4e6e-a8ed-937ed8afdc8b" class=""><strong>Note:</strong> No Teams transcript available — merged from Cluely + Notion sources.</p></div></div></figure></div><div style="display:contents" dir="auto"><h3 id="e46b710a-aa9d-45a6-bb67-256e59d65eb2" class="">Steve</h3></div><div style="display:contents" dir="auto"><ul id="49ef5aae-3077-45d7-b03e-9eb19e2972b4" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Meet with Dominique Mathers for steering committee entry and JIRA setup</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="323a3676-5f52-490d-bde9-b46dfa049201" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Meet with Robin Virginia (Sr. Director, Business Applications)</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="73ff7208-2d7f-4c4b-8181-744a96b31798" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Prepare for mid-February ELT presentation (approach + roadmap)</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="b158ed5f-89ce-4f3d-8660-ca73af42b22c" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Begin JIRA tracking after January 1</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="2123c3db-54b0-4498-8c47-3862aeeb82d0" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Refresh data architecture drawings (system connectivity, master sources, data flows)</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="8134d179-8d4b-49db-8ec3-7ff2bbab2d61" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Develop approach for standardizing product naming schemes</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="b5472c06-eb10-4d6b-b5a8-683e397a4375" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Schedule database walkthroughs with Eudias</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="1f6171c9-91bb-4e88-b2f7-3593aa551606" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Propose 2-3 week quick-win Fabric metric (executive KPI dashboard)</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="f5b0926e-2bef-49ea-bc11-3a385236c18e" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Provision Purview demo (catalog + column-level lineage) for CIO</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><h3 id="f168212c-a78f-4607-8053-b662dd1753d5" class="">Mike Spencer</h3></div><div style="display:contents" dir="auto"><ul id="1d7ae3a5-1117-489e-8b16-72b60ab4a64d" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Introduce Steve to manufacturing engineering group (OT data / Fabric vendor)</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="353f5f8f-0c72-4229-80d3-fa98ab70d93a" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Schedule Steve&#x27;s ELT introduction for mid-February (Monday mornings ~7:15 AM)</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><h3 id="b3b1d51f-5519-4b6b-85a0-15222b3ff73c" class="">Dominique Mathers</h3></div><div style="display:contents" dir="auto"><ul id="6696e958-2c28-46a9-a92d-cdfa62264f2a" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Set up JIRA project, add stakeholder names, create sprint board</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><h3 id="fae1ccf2-6ad7-48ec-9fae-ce0d92a022f6" class="">Robin Virginia</h3></div><div style="display:contents" dir="auto"><ul id="86bb3136-d581-4076-a6a1-b31ccab9b374" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Confirm ERP/Salesforce steering committee schedule; share agenda</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><hr id="60c82f96-4067-4948-87b1-2aa0ee2bc6c3"/></div><div style="display:contents" dir="auto"><h2 id="22c4dc52-6aa2-4cca-b7b5-b05a8697eac4" class="">📊 EVIDENCE MATRIX</h2></div><div style="display:contents" dir="ltr"><table id="45c34325-d5fc-4154-ac36-d5c475fc88c5" class="simple-table"><thead class="simple-table-header"><div style="display:contents" dir="ltr"><tr id="20d2f6e0-eec7-41c2-986c-8a8ff5b7ad89"><th id="|\ez" class="simple-table-header-color simple-table-header"><strong>ID</strong></th><th id="LtPi" class="simple-table-header-color simple-table-header"><strong>Type</strong></th><th id="|ipY" class="simple-table-header-color simple-table-header"><strong>Speaker</strong></th><th id="D@d:" class="simple-table-header-color simple-table-header"><strong>Exact Quote</strong></th><th id="&lt;nc}" class="simple-table-header-color simple-table-header"><strong>Topic</strong></th></tr></div></thead><tbody><div style="display:contents" dir="ltr"><tr id="3cef07b5-cdbb-43f7-9f3b-2eb57d75e5d0"><td id="|\ez" class="">MS-DEC-1</td><td id="LtPi" class="">Decision</td><td id="|ipY" class="">Mike Spencer</td><td id="D@d:" class="">&quot;I think our ELT meeting is probably the place to do it. So the C-suite.&quot;</td><td id="&lt;nc}" class="">Stakeholder kickoff venue</td></tr></div><div style="display:contents" dir="ltr"><tr id="ed14c21e-e364-4b1e-82a1-bb70efe7a509"><td id="|\ez" class="">MS-DEC-2</td><td id="LtPi" class="">Decision</td><td id="|ipY" class="">Mike Spencer</td><td id="D@d:" class="">&quot;I think middle of February, having you come in.&quot;</td><td id="&lt;nc}" class="">ELT intro timing</td></tr></div><div style="display:contents" dir="ltr"><tr id="e678896e-3745-4b14-b778-ed0a538d1217"><td id="|\ez" class="">MS-DEC-3</td><td id="LtPi" class="">Decision</td><td id="|ipY" class="">Mike Spencer</td><td id="D@d:" class="">&quot;Microsoft Purview is kind of what I think we were looking to utilize for that so that it&#x27;s all integrated.&quot;</td><td id="&lt;nc}" class="">Data catalog/glossary tool</td></tr></div><div style="display:contents" dir="ltr"><tr id="84697974-1f43-43c5-b008-89e8926bb411"><td id="|\ez" class="">MS-FACT-1</td><td id="LtPi" class="">Fact</td><td id="|ipY" class="">Mike Spencer</td><td id="D@d:" class="">&quot;Master data management is a disaster. I mean, there is no management of data in any way, shape, or form here in my opinion.&quot;</td><td id="&lt;nc}" class="">Current state assessment</td></tr></div><div style="display:contents" dir="ltr"><tr id="20168d38-e2ea-4ad8-9db6-57dad7625f98"><td id="|\ez" class="">MS-FACT-2</td><td id="LtPi" class="">Fact</td><td id="|ipY" class="">Mike Spencer</td><td id="D@d:" class="">&quot;We are two ERP systems, M3 on-prem and M3 in the cloud.&quot;</td><td id="&lt;nc}" class="">System landscape</td></tr></div><div style="display:contents" dir="ltr"><tr id="dfdd3fa5-8efa-46d7-8740-e81eb2214cb5"><td id="|\ez" class="">MS-FACT-3</td><td id="LtPi" class="">Fact</td><td id="|ipY" class="">Mike Spencer</td><td id="D@d:" class="">&quot;$200 million business five years ago, right? They&#x27;re well over a billion now.&quot;</td><td id="&lt;nc}" class="">Company growth</td></tr></div><div style="display:contents" dir="ltr"><tr id="093d140d-9f62-48c5-bd89-adffc001b7d8"><td id="|\ez" class="">MS-FACT-4</td><td id="LtPi" class="">Fact</td><td id="|ipY" class="">Mike Spencer</td><td id="D@d:" class="">&quot;I basically went and asked for, you know, a million dollars to go deal with master data management longer term and... I had everybody sign it.&quot;</td><td id="&lt;nc}" class="">Budget secured</td></tr></div><div style="display:contents" dir="ltr"><tr id="511ba89f-2d5e-4049-a420-2f5cee2dc790"><td id="|\ez" class="">MS-FACT-5</td><td id="LtPi" class="">Fact</td><td id="|ipY" class="">Mike Spencer</td><td id="D@d:" class="">&quot;I am a sponsor. I own this. My name is tied to it.&quot;</td><td id="&lt;nc}" class="">Executive sponsorship</td></tr></div><div style="display:contents" dir="ltr"><tr id="d3335e64-b52e-47c6-a9ee-97613acdc99d"><td id="|\ez" class="">MS-FACT-6</td><td id="LtPi" class="">Fact</td><td id="|ipY" class="">Mike Spencer</td><td id="D@d:" class="">&quot;Robin Virginia... she&#x27;s new. She&#x27;s been here two weeks, but she is the Director of Business Applications, Senior Director of Business Applications.&quot;</td><td id="&lt;nc}" class="">Stakeholder intro</td></tr></div><div style="display:contents" dir="ltr"><tr id="3d9873e7-24e2-4213-8b4c-665b96b5b1d9"><td id="|\ez" class="">MS-FACT-7</td><td id="LtPi" class="">Fact</td><td id="|ipY" class="">Mike Spencer</td><td id="D@d:" class="">&quot;Dominique... she&#x27;s our PM. She can help you with entry into both of the steering committees.&quot;</td><td id="&lt;nc}" class="">PM contact</td></tr></div><div style="display:contents" dir="ltr"><tr id="91a2c2a1-63f9-4dff-8769-7b356a3dbe31"><td id="|\ez" class="">MS-FACT-8</td><td id="LtPi" class="">Fact</td><td id="|ipY" class="">Mike Spencer</td><td id="D@d:" class="">&quot;I&#x27;ve never told anybody that you weren&#x27;t an FTE.&quot;</td><td id="&lt;nc}" class="">Steve positioning</td></tr></div><div style="display:contents" dir="ltr"><tr id="3d11968b-ac01-41d0-b1df-47a34e8ea9f4"><td id="|\ez" class="">MS-FACT-9</td><td id="LtPi" class="">Fact</td><td id="|ipY" class="">Mike Spencer</td><td id="D@d:" class="">&quot;I don&#x27;t look at you as being anybody other than one of our employees for the time that you&#x27;re here... You are one of us.&quot;</td><td id="&lt;nc}" class="">Engagement relationship</td></tr></div><div style="display:contents" dir="ltr"><tr id="557ef676-f3ca-4167-92cc-6c0e13d860dc"><td id="|\ez" class="">MS-RISK-1</td><td id="LtPi" class="">Risk</td><td id="|ipY" class="">Mike Spencer</td><td id="D@d:" class="">&quot;Whoever this guy is that comes in is going to want to shoot somebody over our product numbering schemes or our product naming schemes.&quot;</td><td id="&lt;nc}" class="">Product data quality</td></tr></div><div style="display:contents" dir="ltr"><tr id="354e7abb-d22f-4372-8fdb-d857f3c8fb13"><td id="|\ez" class="">MS-RISK-2</td><td id="LtPi" class="">Fact</td><td id="|ipY" class="">Mike Spencer</td><td id="D@d:" class="">&quot;There is no IT budget. There is a G&amp;A cost center, which is everybody who&#x27;s corporate, including IT... very poor GL structure.&quot;</td><td id="&lt;nc}" class="">Financial structure</td></tr></div></tbody></table></div></div></article><span class="sans" style="font-size:14px;padding-top:2em"></span></body></html>
